@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>..\master\playhead\Playhead.js - The Foo API</title>
+    <link rel="stylesheet" href="http:&#x2F;&#x2F;yui.yahooapis.com&#x2F;3.8.0&#x2F;build&#x2F;cssgrids&#x2F;cssgrids-min.css">
+    <link rel="stylesheet" href="..&#x2F;assets/vendor/prettify/prettify-min.css">
+    <link rel="stylesheet" href="..&#x2F;assets/css/main.css" id="site_styles">
+    <link rel="shortcut icon" type="image/png" href="..&#x2F;assets/favicon.png">
+    <script src="http:&#x2F;&#x2F;yui.yahooapis.com&#x2F;combo?3.8.0&#x2F;build&#x2F;yui&#x2F;yui-min.js"></script>
+</head>
+<body class="yui3-skin-sam">
+
+<div id="doc">
+    <div id="hd" class="yui3-g header">
+        <div class="yui3-u-3-4">
+            
+                <h1><img src="..&#x2F;assets/css/logo.png" title="The Foo API"></h1>
+            
+        </div>
+        <div class="yui3-u-1-4 version">
+            <em>API Docs for: 1.2.1</em>
+        </div>
+    </div>
+    <div id="bd" class="yui3-g">
+
+        <div class="yui3-u-1-4">
+            <div id="docs-sidebar" class="sidebar apidocs">
+                <div id="api-list">
+    <h2 class="off-left">APIs</h2>
+    <div id="api-tabview" class="tabview">
+        <ul class="tabs">
+            <li><a href="#api-classes">Classes</a></li>
+            <li><a href="#api-modules">Modules</a></li>
+        </ul>
+
+        <div id="api-tabview-filter">
+            <input type="search" id="api-filter" placeholder="Type to filter APIs">
+        </div>
+
+        <div id="api-tabview-panel">
+            <ul id="api-classes" class="apis classes">
+            
+                <li><a href="..&#x2F;classes/Metadata.html">Metadata</a></li>
+            
+                <li><a href="..&#x2F;classes/Playhead.html">Playhead</a></li>
+            
+                <li><a href="..&#x2F;classes/Timeline.html">Timeline</a></li>
+            
+                <li><a href="..&#x2F;classes/Timer.html">Timer</a></li>
+            
+            </ul>
+
+            <ul id="api-modules" class="apis modules">
+            
+                <li><a href="..&#x2F;modules/Node.html">Node</a></li>
+            
+                <li><a href="..&#x2F;modules/smx.html">smx</a></li>
+            
+                <li><a href="..&#x2F;modules/SMXComputedAttributes.html">SMXComputedAttributes</a></li>
+            
+                <li><a href="..&#x2F;modules/SMXCoreAttributes.html">SMXCoreAttributes</a></li>
+            
+                <li><a href="..&#x2F;modules/SMXNode.html">SMXNode</a></li>
+            
+                <li><a href="..&#x2F;modules/TimeAttrController
+Plugin Controller for attributes namespace with &#x27;ui&#x27;.html">TimeAttrController
+Plugin Controller for attributes namespace with &#x27;ui&#x27;</a></li>
+            
+                <li><a href="..&#x2F;modules/Track Attributes.html">Track Attributes</a></li>
+            
+                <li><a href="..&#x2F;modules/UIAttrController
+Plugin Controller for attributes namespaced with &#x27;ui-&#x27;.html">UIAttrController
+Plugin Controller for attributes namespaced with &#x27;ui-&#x27;</a></li>
+            
+            </ul>
+        </div>
+    </div>
+</div>
+
+            </div>
+        </div>
+        <div class="yui3-u-3-4">
+                <div id="api-options">
+        Show:
+        <label for="api-show-inherited">
+            <input type="checkbox" id="api-show-inherited" checked>
+            Inherited
+        </label>
+
+        <label for="api-show-protected">
+            <input type="checkbox" id="api-show-protected">
+            Protected
+        </label>
+
+        <label for="api-show-private">
+            <input type="checkbox" id="api-show-private">
+            Private
+        </label>
+        <label for="api-show-deprecated">
+            <input type="checkbox" id="api-show-deprecated">
+            Deprecated
+        </label>
+
+    </div>
+
+
+            <div class="apidocs">
+                <div id="docs-main">
+                    <div class="content">
+                        <h1 class="file-heading">File: ..\master\playhead\Playhead.js</h1>
+
+<div class="file">
+    <pre class="code prettyprint linenums">
+&#x2F;**
+* SMX PlayHead Controller
+*
+* @class Playhead
+*&#x2F;
+
+
+&#x2F;*
+
+	!enter
+	!exit
+	!ready
+
+	!start
+	!finish
+	!play
+	!pause
+	!seek
+
+	!timeline:update
+	!timeline:play
+	!timeline:pause
+	
+
+ *
+ *
+ *&#x2F;
+
+(function(smx){
+
+	var SMXPlayhead = function(doc){
+
+		&#x2F;&#x2F;document argument is required!
+		if(!doc) return;
+
+		&#x2F;&#x2F;extend with events
+		_.extend(this, Backbone.Events);
+
+		&#x2F;&#x2F;SMX Document to use as document data soucre
+		this.document = doc;
+		
+		&#x2F;&#x2F;selection (Array), contains all nodes in which playhead has entered in
+		this.selection = [];
+
+
+		&#x2F;&#x2F;selected timeline
+		this.timeline = null;
+
+
+
+		&#x2F;&#x2F;return last item in selection array
+		this.getCurrentNode = function(){
+			return this.selection[this.selection.length-1];
+		};
+
+
+		&#x2F;* PUBLIC METHODS *&#x2F;
+
+		&#x2F;**
+		*	@method play
+		*	@param [id] {string} id of target node
+		*
+		*&#x2F;
+
+		this.play = function(id){
+
+			var cnode = null;
+			var options = { &#x27;auto&#x27;:true };
+
+			&#x2F;&#x2F;get target node
+			if (!id)	cnode = this.getCurrentNode();
+			else		cnode = this.document.getNodeById(id);
+
+	 		if(!cnode) return;
+
+	 		&#x2F;&#x2F;check for node accesibility
+			if (!cnode.isAccesible()) return;
+
+			&#x2F;&#x2F;if current node has timeline return node play result
+			if( cnode.timeline &amp;&amp; this.timeline ) return this.timeline.play();
+
+			&#x2F;&#x2F;if has childs get firstchild
+			&#x2F;&#x2F;else get next node in the global timeline
+			var first = cnode.first(); if(first) cnode = first;
+
+			if (!cnode.isAccesible()) return;
+
+			return this.go(cnode,options);
+
+		};
+
+		&#x2F;**
+		*	@method pause
+		*	@param [auto] {boolean} id of target node
+		*
+		*&#x2F;
+		this.pause= function(auto){
+
+			&#x2F;&#x2F;get current node
+			if(!this.timeline) return;
+
+			&#x2F;&#x2F;call pause
+			this.timeline.pause();
+			
+			return;
+		};
+
+		&#x2F;**
+		*	@method toggle
+		*
+		*&#x2F;
+		this.toggle= function(auto){
+
+			&#x2F;&#x2F;node has timeline?
+			if(this.timeline) this.timeline.toggle();
+
+			return;
+
+		};
+
+		&#x2F;**
+		*	@method next
+		*
+		*&#x2F;
+		this.next= function(auto){
+			
+			&#x2F;&#x2F;get current node
+			var cnode = this.getCurrentNode(); if(!cnode) return;
+
+			&#x2F;&#x2F;get next node
+			var tnode = cnode.next(); if (!tnode) return;
+			
+			&#x2F;&#x2F;check for accesibility
+			if(!tnode.isAccesible()) return;
+
+			&#x2F;&#x2F;go to previous node using known swap type and passing recived params	
+			return this.go(tnode,{&#x27;swap_type&#x27;:&#x27;next&#x27;,&#x27;auto&#x27;:auto});
+			
+		};
+
+		&#x2F;**
+		*	@method previous
+		*
+		*&#x2F;		
+		this.previous= function(auto){
+			
+			&#x2F;&#x2F;get current node
+			var cnode = this.getCurrentNode(); if(!cnode) return;
+
+			&#x2F;&#x2F;get previous node
+			var tnode = cnode.previous(); if (!tnode) return;
+
+			&#x2F;&#x2F;check for accesibility
+			if (!tnode.isAccesible()) return;
+
+			&#x2F;&#x2F;go to previous node using known swap type and passing recived params	
+			return this.go(tnode,{&#x27;swap_type&#x27;:&#x27;previous&#x27;,&#x27;auto&#x27;:auto});
+			
+		};
+		
+		&#x2F;**
+		*	@method inside
+		*
+		*&#x2F;	
+		this.inside= function(auto){
+		
+			&#x2F;&#x2F;get current node
+			var cnode = this.getCurrentNode(); if(!cnode) return;
+
+			&#x2F;&#x2F;inside navigation is only allowed above nodes without timeline
+			if (cnode.timeline) return;
+
+			&#x2F;&#x2F;has children nodes?
+			if (!cnode.children().length&gt;0) return;
+
+			&#x2F;&#x2F;get first child
+			var tnode = cnode.childAt(0);
+
+			&#x2F;&#x2F;check for accesibility
+			if (!tnode.isAccesible()) return;
+
+			&#x2F;&#x2F;go to child node using known swap type and passing recived params
+			return this.go(tnode,{ &#x27;swap_type&#x27;:&#x27;inside&#x27;, &#x27;auto&#x27;:auto });
+			
+		};
+
+		&#x2F;**
+		*	@method outside
+		*
+		*&#x2F;	
+		this.outside= function(auto){
+			
+			&#x2F;&#x2F;get current node
+			var cnode = this.getCurrentNode(); if(!cnode) return;
+
+			&#x2F;&#x2F;has parent node?
+			if(!cnode.hasParent()) return;
+
+			&#x2F;&#x2F;get parent node
+			var tnode = cnode.parent();
+
+			&#x2F;&#x2F;go to child node using known swap type and passing recived params
+			return this.go(tnode,{
+				&#x27;swap_type&#x27;:&#x27;outside&#x27;,
+				&#x27;auto&#x27;:auto
+			});
+			
+		};
+
+		&#x2F;**
+		*	@method forward
+		*   @description Go to next node in flat tree
+		*&#x2F;			
+		this.forward= function(auto){
+			
+			var cnode = this.getCurrentNode(); if(!cnode) return;
+			var tnode = cnode.stepForward(); if (!tnode) return;
+			
+			if (!tnode.isAccesible()) return;
+			return this.go(tnode,{&#x27;auto&#x27;:auto});
+
+		};
+
+		&#x2F;**
+		*	@method rewind
+		*   @description Go to previous node in flat tree
+		*&#x2F;			
+		this.rewind= function(auto){
+			
+			var cnode = this.getCurrentNode(); if(!cnode) return;
+			var tnode = cnode.stepBack(); if (!tnode) return;
+			
+			if (!tnode.isAccesible()) return;
+			return this.go(tnode,{&#x27;auto&#x27;:auto});
+
+		};
+
+		&#x2F;**
+		*	@method go
+		*
+		*&#x2F;	
+		this.go = function(_node, opt){
+
+			&#x2F;&#x2F;normalize given node, node can be string id or node
+			var t_node = (_.isString(_node))? this.document.getNodeById(_node) : _node;
+
+			&#x2F;&#x2F; GET CURRENT NODE
+			var c_node = this.getCurrentNode();
+				
+			&#x2F;&#x2F;NODE NOT FOUND ?
+			if (!t_node) throw new Error(&#x27;200&#x27;);
+
+			&#x2F;&#x2F;TARGET NODE == CURRENT NODE ?
+			&#x2F;&#x2F;if (c_node) if (c_node.id == t_node.id) throw new Error(&#x27;201&#x27;);
+			if (c_node == t_node) return c_node;
+
+			&#x2F;&#x2F;TARGET NODE DISPLAY ALLOWED ?
+			if (!t_node.isAccesible()) throw new Error(&#x27;202&#x27;);
+
+
+
+			&#x2F;&#x2F;INITIALIZE OPTIONS
+			var options = {	&#x27;auto&#x27;: false, &#x27;swap_type&#x27;: null };
+			if (opt){ options = { &#x27;auto&#x27;: opt.auto || false, &#x27;swap_type&#x27;: opt.swap_type || null } };
+
+			
+			
+			&#x2F;*
+			&#x2F;&#x2F;CONDITIONAL NAVIGATION FLAGS
+			&#x2F;&#x2F;AUTO MODE: SKIP REDIRECT?
+			if (options.auto==true){
+
+				var s_node = this._getAutoSkipRedirect(t_node);
+				if (s_node){
+					return this.go(s_node,options);
+				}
+			}
+			*&#x2F;
+
+
+			&#x2F;*
+			&#x2F;&#x2F;OPTIONS.AUTO ?
+			if (options.auto==true){
+
+				var s_node = this._getFirstNotCompletedNode(t_node);
+				if (s_node){
+					options.auto = false;
+					return this.go(s_node,options);
+				}
+			}
+			*&#x2F;
+
+
+
+			&#x2F;&#x2F;if &#x27;autoplay&#x27; behavior is enabled call 
+			if (t_node.autoplay==true &amp;&amp; t_node.children().length&gt;0){
+				return this.go(t_node.cnode.getFirstChild(),options);
+			}
+
+
+
+
+
+			&#x2F;&#x2F;We are going to check for multiple node swaping posibilities.
+			&#x2F;&#x2F;Being selective should be faster than using the iterative method.
+			
+			&#x2F;&#x2F;if swap_type parameter was not defined tries to autodetect direct values
+			if (!options.swap_type){
+			
+				if (!c_node) 						options.swap_type = &#x27;from_root&#x27;;
+				else if(c_node.isParentOf(t_node))	options.swap_type = &#x27;child&#x27;;
+				else if(t_node.isParentOf(c_node))	options.swap_type = &#x27;parent&#x27;;
+				else{
+
+					if(c_node.hasParent()){
+						var current_parent_node = c_node.parent();
+						var target_parent_node = t_node.parent();
+						if (current_parent_node.id == target_parent_node.id){
+							options.swap_type = &#x27;sibling&#x27;;
+						}
+					}
+					
+				}
+			
+			}
+			
+			
+			&#x2F;&#x2F;Do all necesary &#x27;enter&#x27; and &#x27;exit&#x27; calls for node navigation
+			switch(options.swap_type){
+			
+				case &#x27;outside&#x27;:
+					&#x2F;&#x2F;exit from current
+					_exitNode(c_node);
+					&#x2F;&#x2F;we are already inside t_node because t_node is first parent of c_node
+					&#x2F;&#x2F;but re-enter for trigger &#x27;enter&#x27; event 
+					_enterNode(t_node);
+				break;
+				case &#x27;inside&#x27;:
+					&#x2F;&#x2F;enter in child node
+					_enterNode(t_node);
+				break;
+				case &#x27;next&#x27;:
+				case &#x27;previous&#x27;:
+				case &#x27;sibling&#x27;:
+					&#x2F;&#x2F;exit from current
+					_exitNode(c_node);
+					&#x2F;&#x2F;enter in sibling node
+					_enterNode(t_node);
+				break;
+				case &#x27;from_root&#x27;:
+					&#x2F;&#x2F;enter all nodes from root to t_node
+					_enterStraight(null,t_node);
+				break;
+				case &#x27;child&#x27;:
+					&#x2F;&#x2F;enter all nodes c_node to t_node
+					_enterStraight(c_node,t_node);
+				break;
+				case &#x27;parent&#x27;:
+				
+					&#x2F;&#x2F;navigate parents from c_node until reach t_node
+					var ref_node = c_node;
+					var t_node_found = false;
+					while (ref_node.hasParent() &amp;&amp; !t_node_found){
+						&#x2F;&#x2F;exit from ref_node
+						_exitNode(ref_node);
+						&#x2F;&#x2F;update ref_node
+						ref_node = ref_node.parent();
+						&#x2F;&#x2F;t_node found?
+						if (ref_node.id == t_node.id) t_node_found = true;
+					}
+					
+					&#x2F;&#x2F;we are already inside t_node because t_node is parent of c_node
+					&#x2F;&#x2F;but re-enter for trigger &#x27;enter&#x27; event 
+					_enterNode(t_node);
+					
+				break;
+				default:
+					&#x2F;&#x2F;iterative method
+					_goIterative(c_node,t_node);
+				break;
+			}
+			
+
+
+			&#x2F;&#x2F;destroy current timeline
+			&#x2F;&#x2F;if(this.timeline) this.destroyTimeline();
+
+
+			&#x2F;&#x2F;fire generic &#x27;stay&#x27; event in resulting current node
+			this.trigger(&#x27;stay&#x27;,t_node);
+
+			&#x2F;&#x2F;fire specific node &#x27;stay&#x27; event
+			this.trigger(&#x27;stay:&#x27;+t_node.id,t_node);
+
+
+			&#x2F;&#x2F;notify node navigation completed
+			this.trigger(&#x27;ready&#x27;,this);			
+
+			&#x2F;&#x2F;return resultant current node
+			return this.getCurrentNode();
+			
+			
+		};
+		
+
+
+
+		&#x2F;* PRIVATE METHODS *&#x2F;
+
+		&#x2F;*
+
+		this._log= function(msg){
+
+			debug.log(msg);
+
+		};
+
+		*&#x2F;
+
+		&#x2F;*
+		this._getFirstNotCompletedNode= function(node){
+
+			var _getFirstNotCompletedNodeRecursive = function(_node){
+
+				if(!_node) return;
+
+				if (!_node.isTimeline() &amp;&amp; _node.children()&gt;0){
+					var childnodes = _node.children();
+					for (var i=0; i&lt;childnodes.length; i++){
+						var child = childnodes[i];
+						switch(child.get(&#x27;step&#x27;)){
+							case 0:
+								return child;
+							break;
+							case 1:
+								if (!child.isTimeline()){
+									return _getFirstNotCompletedNodeRecursive(child);	
+								}
+								else{
+									return child;
+								}
+								
+							break;
+							default:
+
+							break;
+						}
+
+					}
+					
+				}
+
+				return _node;			
+
+			};
+
+
+			return _getFirstNotCompletedNodeRecursive(node);
+		};
+		*&#x2F;
+
+
+		&#x2F;*
+		this._getAutoSkipRedirect= function(_node){
+
+			if(!_node) return;
+
+			if (_node.autoSkip &amp;&amp; _node.autoSkip==true){
+			&#x2F;&#x2F;&#x27;autoSkip&#x27; behavior is enabled
+
+				this._log(&#x27;autoSkip&#x27;);
+
+				if(_node.isTimeline()){
+
+					return _node.getNext();
+
+				}
+				else{
+
+					if (_node.hasChilds()){
+						return _node.getFirstChild();		
+					}
+					else if(_node.getNext()){
+						return _node.getNext();		
+					}
+
+				}
+
+				
+			}
+			else if (_node.autoSkipIfCompleted &amp;&amp; _node.autoSkipIfCompleted==true){
+
+				if(_node.getNext()){
+					if (_node.get(&#x27;tracking&#x27;)&gt;=2){
+						this._log(&#x27;autoSkipIfCompleted&#x27;);
+						return _node.getNext();
+					}
+				}
+			}
+
+			return;
+
+		};
+		*&#x2F;
+
+		var _this = this;
+
+		var _goIterative= function(c_node,t_node){
+		
+			&#x2F;&#x2F;ok! we are gonna navigate from c_node(current node) top t_node(target node). Lets go!
+			
+			if (!c_node){
+			&#x2F;&#x2F;navigate from root
+				
+				_enterStraight(null,t_node);
+				
+			}
+			else{
+			&#x2F;&#x2F;navigate from current node
+			
+				&#x2F;&#x2F;looks parents for a common parent between current and target node
+				var ref_node = c_node;
+				var common_parent = null;
+				while (ref_node.hasParent() &amp;&amp; !common_parent){
+
+					&#x2F;&#x2F;exit nodes at same that searches
+					_exitNode(ref_node);
+
+					ref_node = ref_node.parent();
+					if (ref_node.isParentOf(t_node)) common_parent = ref_node;
+				}
+				
+				&#x2F;&#x2F;was common parent found?
+				if (common_parent){
+					_enterStraight(common_parent,t_node);
+				}
+				else{
+					_enterStraight(null,t_node);
+				}
+
+			}
+			
+			
+		};
+		
+		var _enterStraight= function(parent_node,child_node){
+		
+			&#x2F;&#x2F;Performs iterative &#x27;enter&#x27; method on child nodes from parent_node to a known child_node
+
+			&#x2F;&#x2F;check if child_node is not child of parent_node
+			if(parent_node) if(!parent_node.isParentOf(child_node)) return;
+			
+			&#x2F;&#x2F;creates a parent nodes array from child node
+			var child_node_parents = [];
+			
+			&#x2F;&#x2F;looks parents and fills the array until reach known parent_node
+			var ref_node = child_node;
+			var parent_node_reached = false;
+			while (ref_node.hasParent() &amp;&amp; !parent_node_reached){
+				ref_node = ref_node.parent();
+				if(parent_node) if(ref_node.id == parent_node.id) parent_node_reached = true;
+
+				if(!parent_node_reached) child_node_parents.unshift(ref_node);
+			}
+			
+			&#x2F;&#x2F;call &#x27;enter&#x27; method in each parent node
+			for (var p=0; p&lt;child_node_parents.length; p++){
+				_enterNode(child_node_parents[p]);
+			}
+			
+			&#x2F;&#x2F;call &#x27;enter&#x27; method in child node
+			_enterNode(child_node);
+		
+		};
+
+
+
+		&#x2F;**
+		 *  pseudo private methods
+		 *	  
+		 *	_enterNode(node) - instead of - node.enter()
+		 *	_exitNode(node) - instead of - node.exit()
+		 *	_startNode(node) - instead of - node.start()
+		 *	_finishNode(node) - instead of - node.finish()
+		 *	
+		 *&#x2F;
+
+		var _enterNode= function(_node){
+
+			&#x2F;&#x2F;prevent re-enter in a node
+			var selectedIds = _.pluck(_this.selection,&#x27;id&#x27;);
+			if(_.contains(selectedIds,_node.id)) return;
+
+			&#x2F;&#x2F;update selection array
+			_this.selection.push(_node);
+
+			&#x2F;&#x2F;fire generic &#x27;enter&#x27; event 
+			_this.trigger(&#x27;enter&#x27;, _node);
+
+			&#x2F;&#x2F;fire specific node &#x27;enter&#x27; event 
+			_this.trigger(&#x27;enter:&#x27;+_node.id, _node);
+
+			return;
+		};
+
+
+		var _exitNode= function(_node){
+
+			&#x2F;&#x2F;clear timeline
+			if(_this.timeline) _this.destroyTimeline();
+
+			&#x2F;&#x2F;update blocks array
+			_this.selection.pop();
+
+			&#x2F;&#x2F;fire generic &#x27;exit&#x27; event 
+			_this.trigger(&#x27;exit&#x27;, _node);
+
+			&#x2F;&#x2F;fire specific node &#x27;exit&#x27; event 
+			_this.trigger(&#x27;exit:&#x27;+_node.id, _node);
+
+			return;
+
+		};
+
+
+
+		&#x2F;**
+		 *	TIMELINE HANDLING
+		 *
+
+
+		this.createTimeline = function(){
+		
+			var cnode = this.getCurrentNode();
+			if(!cnode) return;
+
+			&#x2F;&#x2F;destroy current timeline if needed
+			if (this.timeline) this.destroyTimeline();
+			
+			&#x2F;&#x2F;create timeline
+			this.timeline = new smx.time.Timeline(cnode);
+			
+			&#x2F;&#x2F;setup listeners
+			this._bindTimelineListeners();
+
+			return;
+		};
+
+
+
+		this.destroyTimeline = function(){
+			
+			&#x2F;&#x2F;remove listeners
+			this._unbindTimelineListeners();
+
+			&#x2F;&#x2F;destroy timeline
+			this.timeline.destroy();
+
+			&#x2F;&#x2F;reset timeline
+			this.timeline = null;
+			
+			return;
+		};
+
+
+		this._bindTimelineListeners= function(){
+		
+			if (!this.timeline) return;
+
+			this.timeline.on(&#x27;play&#x27;, this.onTimelinePlay, this);
+			this.timeline.on(&#x27;pause&#x27;, this.onTimelinePause, this);
+			this.timeline.on(&#x27;update&#x27;, this.onTimelineUpdate, this);
+			this.timeline.on(&#x27;seek&#x27;, this.onTimelineSeek, this);
+			this.timeline.on(&#x27;reset&#x27;, this.onTimelineReset, this);
+			this.timeline.on(&#x27;enter&#x27;, this.onTimelineEnter, this);
+			this.timeline.on(&#x27;exit&#x27;, this.onTimelineExit, this);
+
+			return;
+		};
+		
+		this._unbindTimelineListeners= function(){
+		
+			if (!this.timeline) return;
+
+			this.timeline.off(&#x27;play&#x27;, this.onTimelinePlay, this);
+			this.timeline.off(&#x27;pause&#x27;, this.onTimelinePause, this);
+			this.timeline.off(&#x27;update&#x27;, this.onTimelineUpdate, this);
+			this.timeline.off(&#x27;seek&#x27;, this.onTimelineSeek, this);
+			this.timeline.off(&#x27;reset&#x27;, this.onTimelineReset, this);
+			this.timeline.off(&#x27;enter&#x27;, this.onTimelineEnter, this);
+			this.timeline.off(&#x27;exit&#x27;, this.onTimelineExit, this);
+		
+			return;
+		};
+
+		
+
+		this.onTimelinePlay= function(event){
+
+			this.trigger(&#x27;timeline:play&#x27;, event);
+
+			return;
+		};
+
+		this.onTimelinePause= function(event){
+		
+			this.trigger(&#x27;timeline:pause&#x27;, event);
+			return;
+		};
+
+		this.onTimelineUpdate= function(event){
+		
+			this.trigger(&#x27;timeline:update&#x27;, event);
+			return;
+		};
+
+		this.onTimelineSeek= function(event){
+		
+			this.trigger(&#x27;timeline:seek&#x27;, event);
+
+			return;
+		};
+
+		this.onTimelineReset= function(event){
+		
+			this.trigger(&#x27;timeline:reset&#x27;, event);
+
+			return;
+		};
+
+		this.onTimelineEnter= function(event){
+		
+			this.trigger(&#x27;timeline:enter&#x27;, event);
+
+			return;
+		};
+
+		this.onTimelineExit= function(event){
+		
+			this.trigger(&#x27;timeline:exit&#x27;, event);
+
+			return;
+		};
+
+		*&#x2F;
+
+
+		return this;
+
+	};
+
+
+
+	&#x2F;&#x2F;expose
+	smx.Playhead = SMXPlayhead;
+
+
+})(window.smx);
+
+    </pre>
+</div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="..&#x2F;assets/vendor/prettify/prettify-min.js"></script>
+<script>prettyPrint();</script>
+<script src="..&#x2F;assets/js/yui-prettify.js"></script>
+<script src="..&#x2F;assets/../api.js"></script>
+<script src="..&#x2F;assets/js/api-filter.js"></script>
+<script src="..&#x2F;assets/js/api-list.js"></script>
+<script src="..&#x2F;assets/js/api-search.js"></script>
+<script src="..&#x2F;assets/js/apidocs.js"></script>
+</body>
+</html>

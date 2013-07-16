@@ -1,0 +1,1913 @@
+{
+    "project": {
+        "name": "The Foo API",
+        "description": "The Foo API: a library for doing X, Y, and Z",
+        "version": "1.2.1",
+        "url": "http://example.com/"
+    },
+    "files": {
+        "..\\build\\smx.js": {
+            "name": "..\\build\\smx.js",
+            "modules": {
+                "SMXNode": 1
+            },
+            "classes": {},
+            "fors": {},
+            "namespaces": {}
+        },
+        "..\\master\\compiler\\Compiler.js": {
+            "name": "..\\master\\compiler\\Compiler.js",
+            "modules": {},
+            "classes": {},
+            "fors": {},
+            "namespaces": {}
+        },
+        "..\\master\\document\\Document.js": {
+            "name": "..\\master\\document\\Document.js",
+            "modules": {},
+            "classes": {},
+            "fors": {},
+            "namespaces": {}
+        },
+        "..\\master\\document\\Sizzle.js": {
+            "name": "..\\master\\document\\Sizzle.js",
+            "modules": {},
+            "classes": {},
+            "fors": {},
+            "namespaces": {}
+        },
+        "..\\master\\document\\TimeAttrController.js": {
+            "name": "..\\master\\document\\TimeAttrController.js",
+            "modules": {
+                "TimeAttrController\nPlugin Controller for attributes namespace with 'ui'": 1
+            },
+            "classes": {},
+            "fors": {},
+            "namespaces": {}
+        },
+        "..\\master\\document\\UIAttrController.js": {
+            "name": "..\\master\\document\\UIAttrController.js",
+            "modules": {
+                "UIAttrController\nPlugin Controller for attributes namespaced with 'ui-'": 1,
+                "Node": 1
+            },
+            "classes": {},
+            "fors": {},
+            "namespaces": {}
+        },
+        "..\\master\\meta\\MetaData.js": {
+            "name": "..\\master\\meta\\MetaData.js",
+            "modules": {},
+            "classes": {
+                "Metadata": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        },
+        "..\\master\\playhead\\Playhead.js": {
+            "name": "..\\master\\playhead\\Playhead.js",
+            "modules": {},
+            "classes": {
+                "Playhead": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        },
+        "..\\master\\time\\Timeline.js": {
+            "name": "..\\master\\time\\Timeline.js",
+            "modules": {},
+            "classes": {
+                "Timeline": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        },
+        "..\\master\\time\\Timer.js": {
+            "name": "..\\master\\time\\Timer.js",
+            "modules": {},
+            "classes": {
+                "Timer": 1
+            },
+            "fors": {},
+            "namespaces": {}
+        },
+        "..\\master\\tracking\\TrackDataTypes.js": {
+            "name": "..\\master\\tracking\\TrackDataTypes.js",
+            "modules": {
+                "Track Attributes": 1
+            },
+            "classes": {},
+            "fors": {},
+            "namespaces": {}
+        },
+        "..\\master\\tracking\\TrackManager - copia.js": {
+            "name": "..\\master\\tracking\\TrackManager - copia.js",
+            "modules": {},
+            "classes": {},
+            "fors": {},
+            "namespaces": {}
+        },
+        "..\\master\\tracking\\TrackManager.js": {
+            "name": "..\\master\\tracking\\TrackManager.js",
+            "modules": {},
+            "classes": {},
+            "fors": {},
+            "namespaces": {}
+        },
+        "..\\master\\tracking\\_TrackDataType.js": {
+            "name": "..\\master\\tracking\\_TrackDataType.js",
+            "modules": {},
+            "classes": {},
+            "fors": {},
+            "namespaces": {}
+        },
+        "..\\master\\smx.js": {
+            "name": "..\\master\\smx.js",
+            "modules": {
+                "smx": 1
+            },
+            "classes": {},
+            "fors": {},
+            "namespaces": {}
+        }
+    },
+    "modules": {
+        "smx": {
+            "name": "smx",
+            "submodules": {},
+            "classes": {},
+            "fors": {},
+            "namespaces": {},
+            "tag": "module",
+            "file": "..\\master\\smx.js",
+            "line": 1,
+            "description": "SMX Synchronized Multimedia XML"
+        },
+        "TimeAttrController\nPlugin Controller for attributes namespace with 'ui'": {
+            "name": "TimeAttrController\nPlugin Controller for attributes namespace with 'ui'",
+            "submodules": {},
+            "classes": {},
+            "fors": {},
+            "namespaces": {},
+            "tag": "module",
+            "file": "..\\master\\document\\TimeAttrController.js",
+            "line": 5,
+            "description": "TIME ATTR CONTROLLER"
+        },
+        "UIAttrController\nPlugin Controller for attributes namespaced with 'ui-'": {
+            "name": "UIAttrController\nPlugin Controller for attributes namespaced with 'ui-'",
+            "submodules": {},
+            "classes": {
+                "Metadata": 1,
+                "Playhead": 1,
+                "Timeline": 1,
+                "Timer": 1
+            },
+            "fors": {},
+            "namespaces": {},
+            "tag": "module",
+            "file": "..\\master\\time\\Timer.js",
+            "line": 1,
+            "description": "UI ATTR CONTROLLER"
+        },
+        "SMXCoreAttributes": {
+            "name": "SMXCoreAttributes",
+            "submodules": {},
+            "classes": {},
+            "fors": {},
+            "namespaces": {}
+        },
+        "SMXNode": {
+            "name": "SMXNode",
+            "submodules": {},
+            "classes": {},
+            "fors": {},
+            "is_submodule": 1,
+            "namespaces": {},
+            "module": "SMXComputedAttributes",
+            "namespace": "",
+            "file": "..\\build\\smx.js",
+            "line": 6900,
+            "description": "CORE ATTRIBUTES\n\nEvery smx node will have these attributes\nDefault attributes values are overwritten by values in xml"
+        },
+        "SMXComputedAttributes": {
+            "name": "SMXComputedAttributes",
+            "submodules": {
+                "SMXNode": 1
+            },
+            "classes": {},
+            "fors": {},
+            "namespaces": {}
+        },
+        "Node": {
+            "name": "Node",
+            "submodules": {},
+            "classes": {},
+            "fors": {},
+            "namespaces": {},
+            "tag": "module",
+            "file": "..\\master\\document\\UIAttrController.js",
+            "line": 1,
+            "description": "SMX Node Class"
+        },
+        "Track Attributes": {
+            "name": "Track Attributes",
+            "submodules": {},
+            "classes": {},
+            "fors": {},
+            "namespaces": {},
+            "tag": "module",
+            "file": "..\\master\\tracking\\TrackDataTypes.js",
+            "line": 1,
+            "description": "Track Attributes"
+        }
+    },
+    "classes": {
+        "Metadata": {
+            "name": "Metadata",
+            "shortname": "Metadata",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "UIAttrController\nPlugin Controller for attributes namespaced with 'ui-'",
+            "namespace": "",
+            "file": "..\\master\\meta\\MetaData.js",
+            "line": 1,
+            "description": "Metadata Model\nA pluggable model to store metadata from single smx node.\n\tMetadata is considered the \"public content data\" from an smx node\n\t\n\tMetadata attributes can be named for convenience, attributes defined\n\there are just as basic example temlate.\nMetadata attributes may be instanced dynamically while XML parsing process\nAll SMX nodes matching attribute names starting with \"meta-\" will create an attribute in Metadata Model\n\tmeta-attr_name=\"attr_value\"\t->\tnode.meta.set('attr_name','attr_value')\n\tmeta-title=\"...\"\t->\tnode.meta.set('title','...')"
+        },
+        "Playhead": {
+            "name": "Playhead",
+            "shortname": "Playhead",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "UIAttrController\nPlugin Controller for attributes namespaced with 'ui-'",
+            "namespace": "",
+            "file": "..\\master\\playhead\\Playhead.js",
+            "line": 1,
+            "description": "SMX PlayHead Controller"
+        },
+        "Timeline": {
+            "name": "Timeline",
+            "shortname": "Timeline",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "UIAttrController\nPlugin Controller for attributes namespaced with 'ui-'",
+            "namespace": "",
+            "file": "..\\master\\time\\Timeline.js",
+            "line": 1,
+            "description": "Timeline Controller, Provides basic time handling",
+            "is_constructor": 1,
+            "uses": [
+                "Timer"
+            ],
+            "params": [
+                {
+                    "name": "node",
+                    "description": "Node from which to create the timeline, required node using timeline",
+                    "type": "Node"
+                }
+            ]
+        },
+        "Timer": {
+            "name": "Timer",
+            "shortname": "Timer",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [
+                "Timeline"
+            ],
+            "module": "UIAttrController\nPlugin Controller for attributes namespaced with 'ui-'",
+            "namespace": "",
+            "file": "..\\master\\time\\Timer.js",
+            "line": 1,
+            "description": "Timer Controller",
+            "is_constructor": 1
+        }
+    },
+    "classitems": [
+        {
+            "file": "..\\build\\smx.js",
+            "line": 46,
+            "description": "Element definitions are flexible, but there some reserved tagnames\n<smx>\t\troot of any smx document\n<head>\t\tsmx definitions container\n<body>\t\tsmx content container\n<include>\tinclude another smx document",
+            "class": "Metadata",
+            "module": "smx"
+        },
+        {
+            "file": "..\\build\\smx.js",
+            "line": 839,
+            "class": "Metadata",
+            "module": "smx"
+        },
+        {
+            "file": "..\\build\\smx.js",
+            "line": 853,
+            "description": "Node from which the timeline is created",
+            "itemtype": "property",
+            "name": "node",
+            "type": "Node",
+            "class": "Metadata",
+            "module": "smx"
+        },
+        {
+            "file": "..\\build\\smx.js",
+            "line": 863,
+            "description": "Current time",
+            "itemtype": "property",
+            "name": "time",
+            "type": "Number",
+            "default": "0",
+            "class": "Metadata",
+            "module": "smx"
+        },
+        {
+            "file": "..\\build\\smx.js",
+            "line": 880,
+            "description": "Timer engine used for time tic tacking",
+            "itemtype": "property",
+            "name": "timer",
+            "type": "Object",
+            "class": "Metadata",
+            "module": "smx"
+        },
+        {
+            "file": "..\\build\\smx.js",
+            "line": 1063,
+            "description": "Method: Update timeline",
+            "params": [
+                {
+                    "name": "(optional)",
+                    "description": "update timeline at given time",
+                    "type": "Number"
+                }
+            ],
+            "return": {
+                "description": "success or not",
+                "type": "Boolean"
+            },
+            "class": "Metadata",
+            "module": "smx"
+        },
+        {
+            "file": "..\\build\\smx.js",
+            "line": 1266,
+            "description": "Play timeline",
+            "return": {
+                "description": "success or not",
+                "type": "Boolean"
+            },
+            "class": "Metadata",
+            "module": "smx"
+        },
+        {
+            "file": "..\\build\\smx.js",
+            "line": 1315,
+            "description": "Pause timeline",
+            "return": {
+                "description": "success or not",
+                "type": "Boolean"
+            },
+            "class": "Metadata",
+            "module": "smx"
+        },
+        {
+            "file": "..\\build\\smx.js",
+            "line": 1344,
+            "description": "Toggle play/pause timeline",
+            "return": {
+                "description": "success or not",
+                "type": "Boolean"
+            },
+            "class": "Metadata",
+            "module": "smx"
+        },
+        {
+            "file": "..\\build\\smx.js",
+            "line": 1593,
+            "itemtype": "method",
+            "name": "play",
+            "params": [
+                {
+                    "name": "id",
+                    "description": "id of target node",
+                    "type": "String",
+                    "optional": true
+                }
+            ],
+            "class": "Metadata",
+            "module": "smx"
+        },
+        {
+            "file": "..\\build\\smx.js",
+            "line": 1626,
+            "itemtype": "method",
+            "name": "pause",
+            "params": [
+                {
+                    "name": "auto",
+                    "description": "id of target node",
+                    "type": "Boolean",
+                    "optional": true
+                }
+            ],
+            "class": "Metadata",
+            "module": "smx"
+        },
+        {
+            "file": "..\\build\\smx.js",
+            "line": 1642,
+            "itemtype": "method",
+            "name": "toggle",
+            "class": "Metadata",
+            "module": "smx"
+        },
+        {
+            "file": "..\\build\\smx.js",
+            "line": 1655,
+            "itemtype": "method",
+            "name": "next",
+            "class": "Metadata",
+            "module": "smx"
+        },
+        {
+            "file": "..\\build\\smx.js",
+            "line": 1675,
+            "itemtype": "method",
+            "name": "previous",
+            "class": "Metadata",
+            "module": "smx"
+        },
+        {
+            "file": "..\\build\\smx.js",
+            "line": 1695,
+            "itemtype": "method",
+            "name": "inside",
+            "class": "Metadata",
+            "module": "smx"
+        },
+        {
+            "file": "..\\build\\smx.js",
+            "line": 1721,
+            "itemtype": "method",
+            "name": "outside",
+            "class": "Metadata",
+            "module": "smx"
+        },
+        {
+            "file": "..\\build\\smx.js",
+            "line": 1744,
+            "itemtype": "method",
+            "name": "forward",
+            "class": "Metadata",
+            "module": "smx"
+        },
+        {
+            "file": "..\\build\\smx.js",
+            "line": 1758,
+            "itemtype": "method",
+            "name": "rewind",
+            "class": "Metadata",
+            "module": "smx"
+        },
+        {
+            "file": "..\\build\\smx.js",
+            "line": 1772,
+            "itemtype": "method",
+            "name": "go",
+            "class": "Metadata",
+            "module": "smx"
+        },
+        {
+            "file": "..\\build\\smx.js",
+            "line": 2112,
+            "description": "pseudo private methods\n\t  \n\t_enterNode(node) - instead of - node.enter()\n\t_exitNode(node) - instead of - node.exit()\n\t_startNode(node) - instead of - node.start()\n\t_finishNode(node) - instead of - node.finish()",
+            "class": "Metadata",
+            "module": "smx"
+        },
+        {
+            "file": "..\\build\\smx.js",
+            "line": 2161,
+            "description": "TIMELINE HANDLING\n\n\n\n\tthis.createTimeline = function(){\n\t\n\t\tvar cnode = this.getCurrentNode();\n\t\tif(!cnode) return;\n\n\t\t//destroy current timeline if needed\n\t\tif (this.timeline) this.destroyTimeline();\n\t\t\n\t\t//create timeline\n\t\tthis.timeline = new smx.time.Timeline(cnode);\n\t\t\n\t\t//setup listeners\n\t\tthis._bindTimelineListeners();\n\n\t\treturn;\n\t};\n\n\n\n\tthis.destroyTimeline = function(){\n\t\t\n\t\t//remove listeners\n\t\tthis._unbindTimelineListeners();\n\n\t\t//destroy timeline\n\t\tthis.timeline.destroy();\n\n\t\t//reset timeline\n\t\tthis.timeline = null;\n\t\t\n\t\treturn;\n\t};\n\n\n\tthis._bindTimelineListeners= function(){\n\t\n\t\tif (!this.timeline) return;\n\n\t\tthis.timeline.on('play', this.onTimelinePlay, this);\n\t\tthis.timeline.on('pause', this.onTimelinePause, this);\n\t\tthis.timeline.on('update', this.onTimelineUpdate, this);\n\t\tthis.timeline.on('seek', this.onTimelineSeek, this);\n\t\tthis.timeline.on('reset', this.onTimelineReset, this);\n\t\tthis.timeline.on('enter', this.onTimelineEnter, this);\n\t\tthis.timeline.on('exit', this.onTimelineExit, this);\n\n\t\treturn;\n\t};\n\t\n\tthis._unbindTimelineListeners= function(){\n\t\n\t\tif (!this.timeline) return;\n\n\t\tthis.timeline.off('play', this.onTimelinePlay, this);\n\t\tthis.timeline.off('pause', this.onTimelinePause, this);\n\t\tthis.timeline.off('update', this.onTimelineUpdate, this);\n\t\tthis.timeline.off('seek', this.onTimelineSeek, this);\n\t\tthis.timeline.off('reset', this.onTimelineReset, this);\n\t\tthis.timeline.off('enter', this.onTimelineEnter, this);\n\t\tthis.timeline.off('exit', this.onTimelineExit, this);\n\t\n\t\treturn;\n\t};\n\n\t\n\n\tthis.onTimelinePlay= function(event){\n\n\t\tthis.trigger('timeline:play', event);\n\n\t\treturn;\n\t};\n\n\tthis.onTimelinePause= function(event){\n\t\n\t\tthis.trigger('timeline:pause', event);\n\t\treturn;\n\t};\n\n\tthis.onTimelineUpdate= function(event){\n\t\n\t\tthis.trigger('timeline:update', event);\n\t\treturn;\n\t};\n\n\tthis.onTimelineSeek= function(event){\n\t\n\t\tthis.trigger('timeline:seek', event);\n\n\t\treturn;\n\t};\n\n\tthis.onTimelineReset= function(event){\n\t\n\t\tthis.trigger('timeline:reset', event);\n\n\t\treturn;\n\t};\n\n\tthis.onTimelineEnter= function(event){\n\t\n\t\tthis.trigger('timeline:enter', event);\n\n\t\treturn;\n\t};\n\n\tthis.onTimelineExit= function(event){\n\t\n\t\tthis.trigger('timeline:exit', event);\n\n\t\treturn;\n\t};",
+            "class": "Metadata",
+            "module": "smx"
+        },
+        {
+            "file": "..\\build\\smx.js",
+            "line": 2913,
+            "description": "Track Expresions\n\ntrack trigger definition format\n\n!parent:score:+100\n  #nodeId:access:0\n  #nodeId:access:0,!parent:score:+100",
+            "class": "Metadata",
+            "module": "smx"
+        },
+        {
+            "file": "..\\build\\smx.js",
+            "line": 4145,
+            "description": "Get raw value for specified node id and attribute key\nUses SMXNode 'raw' method",
+            "itemtype": "method",
+            "name": "raw",
+            "params": [
+                {
+                    "name": "id",
+                    "description": "node id",
+                    "type": "String"
+                },
+                {
+                    "name": "key",
+                    "description": "attribute key",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "resulting value or null",
+                "type": "String"
+            },
+            "class": "Metadata",
+            "module": "smx"
+        },
+        {
+            "file": "..\\build\\smx.js",
+            "line": 4173,
+            "description": "Answer this question:\nHas key attribute the node with give id?",
+            "itemtype": "method",
+            "name": "has",
+            "params": [
+                {
+                    "name": "id",
+                    "description": "node id",
+                    "type": "String"
+                },
+                {
+                    "name": "key",
+                    "description": "attribute key",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "has or not the specified key",
+                "type": "Boolean"
+            },
+            "class": "Metadata",
+            "module": "smx"
+        },
+        {
+            "file": "..\\build\\smx.js",
+            "line": 4979,
+            "description": "For feature detection",
+            "params": [
+                {
+                    "name": "fn",
+                    "description": "The function to test for native support",
+                    "type": "Function"
+                }
+            ],
+            "class": "Metadata",
+            "module": "smx"
+        },
+        {
+            "file": "..\\build\\smx.js",
+            "line": 4987,
+            "description": "Create key-value caches of limited size",
+            "return": {
+                "description": "Returns the Object data after storing it on itself with\n\tproperty name the (space-suffixed) string and (if the cache is larger than Expr.cacheLength)\n\tdeleting the oldest entry",
+                "type": "Function(string, Object)"
+            },
+            "class": "Metadata",
+            "module": "smx"
+        },
+        {
+            "file": "..\\build\\smx.js",
+            "line": 5007,
+            "description": "Mark a function for special use by Sizzle",
+            "params": [
+                {
+                    "name": "fn",
+                    "description": "The function to mark",
+                    "type": "Function"
+                }
+            ],
+            "class": "Metadata",
+            "module": "smx"
+        },
+        {
+            "file": "..\\build\\smx.js",
+            "line": 5016,
+            "description": "Support testing using an element",
+            "params": [
+                {
+                    "name": "fn",
+                    "description": "Passed the created div and expects a boolean result",
+                    "type": "Function"
+                }
+            ],
+            "class": "Metadata",
+            "module": "smx"
+        },
+        {
+            "file": "..\\build\\smx.js",
+            "line": 5143,
+            "description": "Detect xml",
+            "params": [
+                {
+                    "name": "elem",
+                    "description": "An element or a document",
+                    "type": "Element|Object"
+                }
+            ],
+            "class": "Metadata",
+            "module": "smx"
+        },
+        {
+            "file": "..\\build\\smx.js",
+            "line": 5154,
+            "description": "Sets document-related variables once based on the current document",
+            "params": [
+                {
+                    "name": "doc",
+                    "description": "An element or document object to use to set the document",
+                    "type": "Element|Object",
+                    "optional": true
+                }
+            ],
+            "return": {
+                "description": "Returns the current document",
+                "type": "Object"
+            },
+            "class": "Metadata",
+            "module": "smx"
+        },
+        {
+            "file": "..\\build\\smx.js",
+            "line": 5647,
+            "description": "Utility function for retrieving the text value of an array of DOM nodes",
+            "params": [
+                {
+                    "name": "elem",
+                    "description": "",
+                    "type": "Array|Element"
+                }
+            ],
+            "class": "Metadata",
+            "module": "smx"
+        },
+        {
+            "file": "..\\build\\smx.js",
+            "line": 6938,
+            "itemtype": "method",
+            "name": "uri\nUniform Resource Identifier,\"url id\"\nCalculate url hash path using cummulative ids up to root",
+            "class": "Metadata",
+            "module": "SMXComputedAttributes",
+            "submodule": "SMXNode"
+        },
+        {
+            "file": "..\\build\\smx.js",
+            "line": 6954,
+            "itemtype": "method",
+            "name": "url\nUniform Resource Locator (url path)\nCalculate url folder path using cummulative paths up to root",
+            "class": "Metadata",
+            "module": "SMXComputedAttributes",
+            "submodule": "SMXNode"
+        },
+        {
+            "file": "..\\build\\smx.js",
+            "line": 6993,
+            "itemtype": "method",
+            "name": "file\nurl of xml source file of this node",
+            "class": "Metadata",
+            "module": "SMXComputedAttributes",
+            "submodule": "SMXNode"
+        },
+        {
+            "file": "..\\build\\smx.js",
+            "line": 7040,
+            "description": "Get the raw value for specified attribute key in the original xml node",
+            "itemtype": "method",
+            "name": "raw",
+            "params": [
+                {
+                    "name": "key",
+                    "description": "The name of the attribute",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "resulting value",
+                "type": "String"
+            },
+            "class": "Metadata",
+            "module": "SMXComputedAttributes",
+            "submodule": "SMXNode"
+        },
+        {
+            "file": "..\\build\\smx.js",
+            "line": 7057,
+            "description": "Get the value for specified attribute key in attributes collection",
+            "itemtype": "method",
+            "name": "attr",
+            "params": [
+                {
+                    "name": "key",
+                    "description": "The name of the attribute",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "resulting value",
+                "type": "String"
+            },
+            "class": "Metadata",
+            "module": "SMXComputedAttributes",
+            "submodule": "SMXNode"
+        },
+        {
+            "file": "..\\build\\smx.js",
+            "line": 7074,
+            "description": "Get the value for specified computed attribute key\n   If there is no computed attribute with given key will use attr method",
+            "itemtype": "method",
+            "name": "get",
+            "params": [
+                {
+                    "name": "key",
+                    "description": "The name of the attribute",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "resulting value"
+            },
+            "class": "Metadata",
+            "module": "SMXComputedAttributes",
+            "submodule": "SMXNode"
+        },
+        {
+            "file": "..\\build\\smx.js",
+            "line": 7156,
+            "itemtype": "method",
+            "name": "parent",
+            "class": "Metadata",
+            "module": "SMXComputedAttributes",
+            "submodule": "SMXNode"
+        },
+        {
+            "file": "..\\build\\smx.js",
+            "line": 7163,
+            "itemtype": "method",
+            "name": "parents",
+            "class": "Metadata",
+            "module": "SMXComputedAttributes",
+            "submodule": "SMXNode"
+        },
+        {
+            "file": "..\\build\\smx.js",
+            "line": 7180,
+            "itemtype": "method",
+            "name": "root\nFind top most parent",
+            "class": "Metadata",
+            "module": "SMXComputedAttributes",
+            "submodule": "SMXNode"
+        },
+        {
+            "file": "..\\build\\smx.js",
+            "line": 7204,
+            "itemtype": "method",
+            "name": "isParentOf",
+            "class": "Metadata",
+            "module": "SMXComputedAttributes",
+            "submodule": "SMXNode"
+        },
+        {
+            "file": "..\\build\\smx.js",
+            "line": 7218,
+            "itemtype": "method",
+            "name": "isParentOf",
+            "class": "Metadata",
+            "module": "SMXComputedAttributes",
+            "submodule": "SMXNode"
+        },
+        {
+            "file": "..\\build\\smx.js",
+            "line": 7231,
+            "itemtype": "method",
+            "name": "find",
+            "class": "Metadata",
+            "module": "SMXComputedAttributes",
+            "submodule": "SMXNode"
+        },
+        {
+            "file": "..\\build\\smx.js",
+            "line": 7251,
+            "itemtype": "method",
+            "name": "children",
+            "class": "Metadata",
+            "module": "SMXComputedAttributes",
+            "submodule": "SMXNode"
+        },
+        {
+            "file": "..\\build\\smx.js",
+            "line": 7259,
+            "itemtype": "method",
+            "name": "first",
+            "class": "Metadata",
+            "module": "SMXComputedAttributes",
+            "submodule": "SMXNode"
+        },
+        {
+            "file": "..\\build\\smx.js",
+            "line": 7267,
+            "itemtype": "method",
+            "name": "last",
+            "class": "Metadata",
+            "module": "SMXComputedAttributes",
+            "submodule": "SMXNode"
+        },
+        {
+            "file": "..\\build\\smx.js",
+            "line": 7278,
+            "itemtype": "method",
+            "name": "childAt",
+            "class": "Metadata",
+            "module": "SMXComputedAttributes",
+            "submodule": "SMXNode"
+        },
+        {
+            "file": "..\\build\\smx.js",
+            "line": 7291,
+            "itemtype": "method",
+            "name": "next",
+            "class": "Metadata",
+            "module": "SMXComputedAttributes",
+            "submodule": "SMXNode"
+        },
+        {
+            "file": "..\\build\\smx.js",
+            "line": 7298,
+            "itemtype": "method",
+            "name": "previous",
+            "class": "Metadata",
+            "module": "SMXComputedAttributes",
+            "submodule": "SMXNode"
+        },
+        {
+            "file": "..\\build\\smx.js",
+            "line": 7310,
+            "itemtype": "method",
+            "name": "getStepBack",
+            "class": "Metadata",
+            "module": "SMXComputedAttributes",
+            "submodule": "SMXNode"
+        },
+        {
+            "file": "..\\build\\smx.js",
+            "line": 7328,
+            "itemtype": "method",
+            "name": "getStepForward",
+            "class": "Metadata",
+            "module": "SMXComputedAttributes",
+            "submodule": "SMXNode"
+        },
+        {
+            "file": "..\\build\\smx.js",
+            "line": 7370,
+            "itemtype": "method",
+            "name": "isInsideTimeline",
+            "class": "Metadata",
+            "module": "SMXComputedAttributes",
+            "submodule": "SMXNode"
+        },
+        {
+            "file": "..\\build\\smx.js",
+            "line": 7395,
+            "itemtype": "method",
+            "name": "synchronize",
+            "class": "Metadata",
+            "module": "SMXComputedAttributes",
+            "submodule": "SMXNode"
+        },
+        {
+            "file": "..\\build\\smx.js",
+            "line": 7425,
+            "itemtype": "method",
+            "name": "getStart",
+            "class": "Metadata",
+            "module": "SMXComputedAttributes",
+            "submodule": "SMXNode"
+        },
+        {
+            "file": "..\\build\\smx.js",
+            "line": 7449,
+            "itemtype": "method",
+            "name": "getDuration",
+            "class": "Metadata",
+            "module": "SMXComputedAttributes",
+            "submodule": "SMXNode"
+        },
+        {
+            "file": "..\\build\\smx.js",
+            "line": 7545,
+            "itemtype": "method",
+            "name": "offset",
+            "class": "Metadata",
+            "module": "SMXComputedAttributes",
+            "submodule": "SMXNode"
+        },
+        {
+            "file": "..\\build\\smx.js",
+            "line": 7556,
+            "itemtype": "method",
+            "name": "getEndTime",
+            "class": "Metadata",
+            "module": "SMXComputedAttributes",
+            "submodule": "SMXNode"
+        },
+        {
+            "file": "..\\build\\smx.js",
+            "line": 7576,
+            "itemtype": "method",
+            "name": "meta",
+            "class": "Metadata",
+            "module": "SMXComputedAttributes",
+            "submodule": "SMXNode"
+        },
+        {
+            "file": "..\\build\\smx.js",
+            "line": 7614,
+            "itemtype": "method",
+            "name": "isAccesible",
+            "class": "Metadata",
+            "module": "SMXComputedAttributes",
+            "submodule": "SMXNode"
+        },
+        {
+            "file": "..\\build\\smx.js",
+            "line": 7643,
+            "itemtype": "method",
+            "name": "track",
+            "class": "Metadata",
+            "module": "SMXComputedAttributes",
+            "submodule": "SMXNode"
+        },
+        {
+            "file": "..\\build\\smx.js",
+            "line": 7668,
+            "description": "Returns true if Tracking Module is handling the given key",
+            "itemtype": "method",
+            "name": "isTracking",
+            "params": [
+                {
+                    "name": "key",
+                    "description": "",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "result",
+                "type": "Boolean"
+            },
+            "class": "Metadata",
+            "module": "SMXComputedAttributes",
+            "submodule": "SMXNode"
+        },
+        {
+            "file": "..\\build\\smx.js",
+            "line": 7715,
+            "itemtype": "method",
+            "name": "ui",
+            "class": "Metadata",
+            "module": "SMXComputedAttributes",
+            "submodule": "SMXNode"
+        },
+        {
+            "file": "..\\build\\smx.js",
+            "line": 7736,
+            "itemtype": "method",
+            "name": "media",
+            "class": "Metadata",
+            "module": "SMXComputedAttributes",
+            "submodule": "SMXNode"
+        },
+        {
+            "file": "..\\master\\compiler\\Compiler.js",
+            "line": 1,
+            "description": "SMX DOCUMENT COMPILER\nLoad smx xml document, search and load recursively \"include\" nodes",
+            "class": "Metadata",
+            "module": "SMXComputedAttributes"
+        },
+        {
+            "file": "..\\master\\compiler\\Compiler.js",
+            "line": 10,
+            "description": "Element definitions are flexible, but there some reserved tagnames\n<smx>\t\troot of any smx document\n<head>\t\tsmx definitions container\n<body>\t\tsmx content container\n<include>\tinclude another smx document",
+            "class": "Metadata",
+            "module": "SMXComputedAttributes"
+        },
+        {
+            "file": "..\\master\\document\\Document.js",
+            "line": 57,
+            "itemtype": "method",
+            "name": "uri\nUniform Resource Identifier,\"url id\"\nCalculate url hash path using cummulative ids up to root",
+            "class": "Metadata",
+            "module": "SMXComputedAttributes",
+            "submodule": "SMXNode"
+        },
+        {
+            "file": "..\\master\\document\\Document.js",
+            "line": 73,
+            "itemtype": "method",
+            "name": "url\nUniform Resource Locator (url path)\nCalculate url folder path using cummulative paths up to root",
+            "class": "Metadata",
+            "module": "SMXComputedAttributes",
+            "submodule": "SMXNode"
+        },
+        {
+            "file": "..\\master\\document\\Document.js",
+            "line": 112,
+            "itemtype": "method",
+            "name": "file\nurl of xml source file of this node",
+            "class": "Metadata",
+            "module": "SMXComputedAttributes",
+            "submodule": "SMXNode"
+        },
+        {
+            "file": "..\\master\\document\\Document.js",
+            "line": 159,
+            "description": "Get the raw value for specified attribute key in the original xml node",
+            "itemtype": "method",
+            "name": "raw",
+            "params": [
+                {
+                    "name": "key",
+                    "description": "The name of the attribute",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "resulting value",
+                "type": "String"
+            },
+            "class": "Metadata",
+            "module": "SMXComputedAttributes",
+            "submodule": "SMXNode"
+        },
+        {
+            "file": "..\\master\\document\\Document.js",
+            "line": 176,
+            "description": "Get the value for specified attribute key in attributes collection",
+            "itemtype": "method",
+            "name": "attr",
+            "params": [
+                {
+                    "name": "key",
+                    "description": "The name of the attribute",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "resulting value",
+                "type": "String"
+            },
+            "class": "Metadata",
+            "module": "SMXComputedAttributes",
+            "submodule": "SMXNode"
+        },
+        {
+            "file": "..\\master\\document\\Document.js",
+            "line": 193,
+            "description": "Get the value for specified computed attribute key\n   If there is no computed attribute with given key will use attr method",
+            "itemtype": "method",
+            "name": "get",
+            "params": [
+                {
+                    "name": "key",
+                    "description": "The name of the attribute",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "resulting value"
+            },
+            "class": "Metadata",
+            "module": "SMXComputedAttributes",
+            "submodule": "SMXNode"
+        },
+        {
+            "file": "..\\master\\document\\Document.js",
+            "line": 275,
+            "itemtype": "method",
+            "name": "parent",
+            "class": "Metadata",
+            "module": "SMXComputedAttributes",
+            "submodule": "SMXNode"
+        },
+        {
+            "file": "..\\master\\document\\Document.js",
+            "line": 282,
+            "itemtype": "method",
+            "name": "parents",
+            "class": "Metadata",
+            "module": "SMXComputedAttributes",
+            "submodule": "SMXNode"
+        },
+        {
+            "file": "..\\master\\document\\Document.js",
+            "line": 299,
+            "itemtype": "method",
+            "name": "root\nFind top most parent",
+            "class": "Metadata",
+            "module": "SMXComputedAttributes",
+            "submodule": "SMXNode"
+        },
+        {
+            "file": "..\\master\\document\\Document.js",
+            "line": 323,
+            "itemtype": "method",
+            "name": "isParentOf",
+            "class": "Metadata",
+            "module": "SMXComputedAttributes",
+            "submodule": "SMXNode"
+        },
+        {
+            "file": "..\\master\\document\\Document.js",
+            "line": 337,
+            "itemtype": "method",
+            "name": "isParentOf",
+            "class": "Metadata",
+            "module": "SMXComputedAttributes",
+            "submodule": "SMXNode"
+        },
+        {
+            "file": "..\\master\\document\\Document.js",
+            "line": 350,
+            "itemtype": "method",
+            "name": "find",
+            "class": "Metadata",
+            "module": "SMXComputedAttributes",
+            "submodule": "SMXNode"
+        },
+        {
+            "file": "..\\master\\document\\Document.js",
+            "line": 370,
+            "itemtype": "method",
+            "name": "children",
+            "class": "Metadata",
+            "module": "SMXComputedAttributes",
+            "submodule": "SMXNode"
+        },
+        {
+            "file": "..\\master\\document\\Document.js",
+            "line": 378,
+            "itemtype": "method",
+            "name": "first",
+            "class": "Metadata",
+            "module": "SMXComputedAttributes",
+            "submodule": "SMXNode"
+        },
+        {
+            "file": "..\\master\\document\\Document.js",
+            "line": 386,
+            "itemtype": "method",
+            "name": "last",
+            "class": "Metadata",
+            "module": "SMXComputedAttributes",
+            "submodule": "SMXNode"
+        },
+        {
+            "file": "..\\master\\document\\Document.js",
+            "line": 397,
+            "itemtype": "method",
+            "name": "childAt",
+            "class": "Metadata",
+            "module": "SMXComputedAttributes",
+            "submodule": "SMXNode"
+        },
+        {
+            "file": "..\\master\\document\\Document.js",
+            "line": 410,
+            "itemtype": "method",
+            "name": "next",
+            "class": "Metadata",
+            "module": "SMXComputedAttributes",
+            "submodule": "SMXNode"
+        },
+        {
+            "file": "..\\master\\document\\Document.js",
+            "line": 417,
+            "itemtype": "method",
+            "name": "previous",
+            "class": "Metadata",
+            "module": "SMXComputedAttributes",
+            "submodule": "SMXNode"
+        },
+        {
+            "file": "..\\master\\document\\Document.js",
+            "line": 429,
+            "itemtype": "method",
+            "name": "getStepBack",
+            "class": "Metadata",
+            "module": "SMXComputedAttributes",
+            "submodule": "SMXNode"
+        },
+        {
+            "file": "..\\master\\document\\Document.js",
+            "line": 447,
+            "itemtype": "method",
+            "name": "getStepForward",
+            "class": "Metadata",
+            "module": "SMXComputedAttributes",
+            "submodule": "SMXNode"
+        },
+        {
+            "file": "..\\master\\document\\Document.js",
+            "line": 489,
+            "itemtype": "method",
+            "name": "isInsideTimeline",
+            "class": "Metadata",
+            "module": "SMXComputedAttributes",
+            "submodule": "SMXNode"
+        },
+        {
+            "file": "..\\master\\document\\Document.js",
+            "line": 514,
+            "itemtype": "method",
+            "name": "synchronize",
+            "class": "Metadata",
+            "module": "SMXComputedAttributes",
+            "submodule": "SMXNode"
+        },
+        {
+            "file": "..\\master\\document\\Document.js",
+            "line": 544,
+            "itemtype": "method",
+            "name": "getStart",
+            "class": "Metadata",
+            "module": "SMXComputedAttributes",
+            "submodule": "SMXNode"
+        },
+        {
+            "file": "..\\master\\document\\Document.js",
+            "line": 568,
+            "itemtype": "method",
+            "name": "getDuration",
+            "class": "Metadata",
+            "module": "SMXComputedAttributes",
+            "submodule": "SMXNode"
+        },
+        {
+            "file": "..\\master\\document\\Document.js",
+            "line": 664,
+            "itemtype": "method",
+            "name": "offset",
+            "class": "Metadata",
+            "module": "SMXComputedAttributes",
+            "submodule": "SMXNode"
+        },
+        {
+            "file": "..\\master\\document\\Document.js",
+            "line": 675,
+            "itemtype": "method",
+            "name": "getEndTime",
+            "class": "Metadata",
+            "module": "SMXComputedAttributes",
+            "submodule": "SMXNode"
+        },
+        {
+            "file": "..\\master\\document\\Document.js",
+            "line": 695,
+            "itemtype": "method",
+            "name": "meta",
+            "class": "Metadata",
+            "module": "SMXComputedAttributes",
+            "submodule": "SMXNode"
+        },
+        {
+            "file": "..\\master\\document\\Document.js",
+            "line": 733,
+            "itemtype": "method",
+            "name": "isAccesible",
+            "class": "Metadata",
+            "module": "SMXComputedAttributes",
+            "submodule": "SMXNode"
+        },
+        {
+            "file": "..\\master\\document\\Document.js",
+            "line": 762,
+            "itemtype": "method",
+            "name": "track",
+            "class": "Metadata",
+            "module": "SMXComputedAttributes",
+            "submodule": "SMXNode"
+        },
+        {
+            "file": "..\\master\\document\\Document.js",
+            "line": 787,
+            "description": "Returns true if Tracking Module is handling the given key",
+            "itemtype": "method",
+            "name": "isTracking",
+            "params": [
+                {
+                    "name": "key",
+                    "description": "",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "result",
+                "type": "Boolean"
+            },
+            "class": "Metadata",
+            "module": "SMXComputedAttributes",
+            "submodule": "SMXNode"
+        },
+        {
+            "file": "..\\master\\document\\Document.js",
+            "line": 834,
+            "itemtype": "method",
+            "name": "ui",
+            "class": "Metadata",
+            "module": "SMXComputedAttributes",
+            "submodule": "SMXNode"
+        },
+        {
+            "file": "..\\master\\document\\Document.js",
+            "line": 855,
+            "itemtype": "method",
+            "name": "media",
+            "class": "Metadata",
+            "module": "SMXComputedAttributes",
+            "submodule": "SMXNode"
+        },
+        {
+            "file": "..\\master\\document\\Sizzle.js",
+            "line": 1,
+            "description": "Sizzle CSS Selector Engine\nCopyright 2012 jQuery Foundation and other contributors\nReleased under the MIT license\nhttp://sizzlejs.com/",
+            "class": "Metadata",
+            "module": "SMXComputedAttributes"
+        },
+        {
+            "file": "..\\master\\document\\Sizzle.js",
+            "line": 151,
+            "description": "For feature detection",
+            "params": [
+                {
+                    "name": "fn",
+                    "description": "The function to test for native support",
+                    "type": "Function"
+                }
+            ],
+            "class": "Metadata",
+            "module": "SMXComputedAttributes"
+        },
+        {
+            "file": "..\\master\\document\\Sizzle.js",
+            "line": 159,
+            "description": "Create key-value caches of limited size",
+            "return": {
+                "description": "Returns the Object data after storing it on itself with\n\tproperty name the (space-suffixed) string and (if the cache is larger than Expr.cacheLength)\n\tdeleting the oldest entry",
+                "type": "Function(string, Object)"
+            },
+            "class": "Metadata",
+            "module": "SMXComputedAttributes"
+        },
+        {
+            "file": "..\\master\\document\\Sizzle.js",
+            "line": 179,
+            "description": "Mark a function for special use by Sizzle",
+            "params": [
+                {
+                    "name": "fn",
+                    "description": "The function to mark",
+                    "type": "Function"
+                }
+            ],
+            "class": "Metadata",
+            "module": "SMXComputedAttributes"
+        },
+        {
+            "file": "..\\master\\document\\Sizzle.js",
+            "line": 188,
+            "description": "Support testing using an element",
+            "params": [
+                {
+                    "name": "fn",
+                    "description": "Passed the created div and expects a boolean result",
+                    "type": "Function"
+                }
+            ],
+            "class": "Metadata",
+            "module": "SMXComputedAttributes"
+        },
+        {
+            "file": "..\\master\\document\\Sizzle.js",
+            "line": 315,
+            "description": "Detect xml",
+            "params": [
+                {
+                    "name": "elem",
+                    "description": "An element or a document",
+                    "type": "Element|Object"
+                }
+            ],
+            "class": "Metadata",
+            "module": "SMXComputedAttributes"
+        },
+        {
+            "file": "..\\master\\document\\Sizzle.js",
+            "line": 326,
+            "description": "Sets document-related variables once based on the current document",
+            "params": [
+                {
+                    "name": "doc",
+                    "description": "An element or document object to use to set the document",
+                    "type": "Element|Object",
+                    "optional": true
+                }
+            ],
+            "return": {
+                "description": "Returns the current document",
+                "type": "Object"
+            },
+            "class": "Metadata",
+            "module": "SMXComputedAttributes"
+        },
+        {
+            "file": "..\\master\\document\\Sizzle.js",
+            "line": 819,
+            "description": "Utility function for retrieving the text value of an array of DOM nodes",
+            "params": [
+                {
+                    "name": "elem",
+                    "description": "",
+                    "type": "Array|Element"
+                }
+            ],
+            "class": "Metadata",
+            "module": "SMXComputedAttributes"
+        },
+        {
+            "file": "..\\master\\playhead\\Playhead.js",
+            "line": 59,
+            "itemtype": "method",
+            "name": "play",
+            "params": [
+                {
+                    "name": "id",
+                    "description": "id of target node",
+                    "type": "String",
+                    "optional": true
+                }
+            ],
+            "class": "Playhead",
+            "module": "UIAttrController\nPlugin Controller for attributes namespaced with 'ui-'"
+        },
+        {
+            "file": "..\\master\\playhead\\Playhead.js",
+            "line": 92,
+            "itemtype": "method",
+            "name": "pause",
+            "params": [
+                {
+                    "name": "auto",
+                    "description": "id of target node",
+                    "type": "Boolean",
+                    "optional": true
+                }
+            ],
+            "class": "Playhead",
+            "module": "UIAttrController\nPlugin Controller for attributes namespaced with 'ui-'"
+        },
+        {
+            "file": "..\\master\\playhead\\Playhead.js",
+            "line": 108,
+            "itemtype": "method",
+            "name": "toggle",
+            "class": "Playhead",
+            "module": "UIAttrController\nPlugin Controller for attributes namespaced with 'ui-'"
+        },
+        {
+            "file": "..\\master\\playhead\\Playhead.js",
+            "line": 121,
+            "itemtype": "method",
+            "name": "next",
+            "class": "Playhead",
+            "module": "UIAttrController\nPlugin Controller for attributes namespaced with 'ui-'"
+        },
+        {
+            "file": "..\\master\\playhead\\Playhead.js",
+            "line": 141,
+            "itemtype": "method",
+            "name": "previous",
+            "class": "Playhead",
+            "module": "UIAttrController\nPlugin Controller for attributes namespaced with 'ui-'"
+        },
+        {
+            "file": "..\\master\\playhead\\Playhead.js",
+            "line": 161,
+            "itemtype": "method",
+            "name": "inside",
+            "class": "Playhead",
+            "module": "UIAttrController\nPlugin Controller for attributes namespaced with 'ui-'"
+        },
+        {
+            "file": "..\\master\\playhead\\Playhead.js",
+            "line": 187,
+            "itemtype": "method",
+            "name": "outside",
+            "class": "Playhead",
+            "module": "UIAttrController\nPlugin Controller for attributes namespaced with 'ui-'"
+        },
+        {
+            "file": "..\\master\\playhead\\Playhead.js",
+            "line": 210,
+            "itemtype": "method",
+            "name": "forward",
+            "description": "Go to next node in flat tree",
+            "class": "Playhead",
+            "module": "UIAttrController\nPlugin Controller for attributes namespaced with 'ui-'"
+        },
+        {
+            "file": "..\\master\\playhead\\Playhead.js",
+            "line": 224,
+            "itemtype": "method",
+            "name": "rewind",
+            "description": "Go to previous node in flat tree",
+            "class": "Playhead",
+            "module": "UIAttrController\nPlugin Controller for attributes namespaced with 'ui-'"
+        },
+        {
+            "file": "..\\master\\playhead\\Playhead.js",
+            "line": 238,
+            "itemtype": "method",
+            "name": "go",
+            "class": "Playhead",
+            "module": "UIAttrController\nPlugin Controller for attributes namespaced with 'ui-'"
+        },
+        {
+            "file": "..\\master\\playhead\\Playhead.js",
+            "line": 578,
+            "description": "pseudo private methods\n\t  \n\t_enterNode(node) - instead of - node.enter()\n\t_exitNode(node) - instead of - node.exit()\n\t_startNode(node) - instead of - node.start()\n\t_finishNode(node) - instead of - node.finish()",
+            "class": "Playhead",
+            "module": "UIAttrController\nPlugin Controller for attributes namespaced with 'ui-'"
+        },
+        {
+            "file": "..\\master\\playhead\\Playhead.js",
+            "line": 627,
+            "description": "TIMELINE HANDLING\n\n\n\n\tthis.createTimeline = function(){\n\t\n\t\tvar cnode = this.getCurrentNode();\n\t\tif(!cnode) return;\n\n\t\t//destroy current timeline if needed\n\t\tif (this.timeline) this.destroyTimeline();\n\t\t\n\t\t//create timeline\n\t\tthis.timeline = new smx.time.Timeline(cnode);\n\t\t\n\t\t//setup listeners\n\t\tthis._bindTimelineListeners();\n\n\t\treturn;\n\t};\n\n\n\n\tthis.destroyTimeline = function(){\n\t\t\n\t\t//remove listeners\n\t\tthis._unbindTimelineListeners();\n\n\t\t//destroy timeline\n\t\tthis.timeline.destroy();\n\n\t\t//reset timeline\n\t\tthis.timeline = null;\n\t\t\n\t\treturn;\n\t};\n\n\n\tthis._bindTimelineListeners= function(){\n\t\n\t\tif (!this.timeline) return;\n\n\t\tthis.timeline.on('play', this.onTimelinePlay, this);\n\t\tthis.timeline.on('pause', this.onTimelinePause, this);\n\t\tthis.timeline.on('update', this.onTimelineUpdate, this);\n\t\tthis.timeline.on('seek', this.onTimelineSeek, this);\n\t\tthis.timeline.on('reset', this.onTimelineReset, this);\n\t\tthis.timeline.on('enter', this.onTimelineEnter, this);\n\t\tthis.timeline.on('exit', this.onTimelineExit, this);\n\n\t\treturn;\n\t};\n\t\n\tthis._unbindTimelineListeners= function(){\n\t\n\t\tif (!this.timeline) return;\n\n\t\tthis.timeline.off('play', this.onTimelinePlay, this);\n\t\tthis.timeline.off('pause', this.onTimelinePause, this);\n\t\tthis.timeline.off('update', this.onTimelineUpdate, this);\n\t\tthis.timeline.off('seek', this.onTimelineSeek, this);\n\t\tthis.timeline.off('reset', this.onTimelineReset, this);\n\t\tthis.timeline.off('enter', this.onTimelineEnter, this);\n\t\tthis.timeline.off('exit', this.onTimelineExit, this);\n\t\n\t\treturn;\n\t};\n\n\t\n\n\tthis.onTimelinePlay= function(event){\n\n\t\tthis.trigger('timeline:play', event);\n\n\t\treturn;\n\t};\n\n\tthis.onTimelinePause= function(event){\n\t\n\t\tthis.trigger('timeline:pause', event);\n\t\treturn;\n\t};\n\n\tthis.onTimelineUpdate= function(event){\n\t\n\t\tthis.trigger('timeline:update', event);\n\t\treturn;\n\t};\n\n\tthis.onTimelineSeek= function(event){\n\t\n\t\tthis.trigger('timeline:seek', event);\n\n\t\treturn;\n\t};\n\n\tthis.onTimelineReset= function(event){\n\t\n\t\tthis.trigger('timeline:reset', event);\n\n\t\treturn;\n\t};\n\n\tthis.onTimelineEnter= function(event){\n\t\n\t\tthis.trigger('timeline:enter', event);\n\n\t\treturn;\n\t};\n\n\tthis.onTimelineExit= function(event){\n\t\n\t\tthis.trigger('timeline:exit', event);\n\n\t\treturn;\n\t};",
+            "class": "Playhead",
+            "module": "UIAttrController\nPlugin Controller for attributes namespaced with 'ui-'"
+        },
+        {
+            "file": "..\\master\\time\\Timeline.js",
+            "line": 38,
+            "class": "Timeline",
+            "module": "UIAttrController\nPlugin Controller for attributes namespaced with 'ui-'"
+        },
+        {
+            "file": "..\\master\\time\\Timeline.js",
+            "line": 52,
+            "description": "Node from which the timeline is created",
+            "itemtype": "property",
+            "name": "node",
+            "type": "Node",
+            "class": "Timeline",
+            "module": "UIAttrController\nPlugin Controller for attributes namespaced with 'ui-'"
+        },
+        {
+            "file": "..\\master\\time\\Timeline.js",
+            "line": 62,
+            "description": "Current time",
+            "itemtype": "property",
+            "name": "time",
+            "type": "Number",
+            "default": "0",
+            "class": "Timeline",
+            "module": "UIAttrController\nPlugin Controller for attributes namespaced with 'ui-'"
+        },
+        {
+            "file": "..\\master\\time\\Timeline.js",
+            "line": 79,
+            "description": "Timer engine used for time tic tacking",
+            "itemtype": "property",
+            "name": "timer",
+            "type": "Object",
+            "class": "Timeline",
+            "module": "UIAttrController\nPlugin Controller for attributes namespaced with 'ui-'"
+        },
+        {
+            "file": "..\\master\\time\\Timeline.js",
+            "line": 262,
+            "description": "Method: Update timeline",
+            "params": [
+                {
+                    "name": "(optional)",
+                    "description": "update timeline at given time",
+                    "type": "Number"
+                }
+            ],
+            "return": {
+                "description": "success or not",
+                "type": "Boolean"
+            },
+            "class": "Timeline",
+            "module": "UIAttrController\nPlugin Controller for attributes namespaced with 'ui-'"
+        },
+        {
+            "file": "..\\master\\time\\Timeline.js",
+            "line": 465,
+            "description": "Play timeline",
+            "return": {
+                "description": "success or not",
+                "type": "Boolean"
+            },
+            "class": "Timeline",
+            "module": "UIAttrController\nPlugin Controller for attributes namespaced with 'ui-'"
+        },
+        {
+            "file": "..\\master\\time\\Timeline.js",
+            "line": 514,
+            "description": "Pause timeline",
+            "return": {
+                "description": "success or not",
+                "type": "Boolean"
+            },
+            "class": "Timeline",
+            "module": "UIAttrController\nPlugin Controller for attributes namespaced with 'ui-'"
+        },
+        {
+            "file": "..\\master\\time\\Timeline.js",
+            "line": 543,
+            "description": "Toggle play/pause timeline",
+            "return": {
+                "description": "success or not",
+                "type": "Boolean"
+            },
+            "class": "Timeline",
+            "module": "UIAttrController\nPlugin Controller for attributes namespaced with 'ui-'"
+        },
+        {
+            "file": "..\\master\\tracking\\TrackDataTypes.js",
+            "line": 63,
+            "description": "Track Expresions\n\ntrack trigger definition format\n\n!parent:score:+100\n  #nodeId:access:0\n  #nodeId:access:0,!parent:score:+100",
+            "class": "",
+            "module": "Track Attributes"
+        },
+        {
+            "file": "..\\master\\tracking\\TrackManager - copia.js",
+            "line": 101,
+            "description": "Get raw value for specified node id and attribute key\nUses SMXNode 'raw' method",
+            "itemtype": "method",
+            "name": "raw",
+            "params": [
+                {
+                    "name": "id",
+                    "description": "node id",
+                    "type": "String"
+                },
+                {
+                    "name": "key",
+                    "description": "attribute key",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "resulting value or null",
+                "type": "String"
+            },
+            "class": "",
+            "module": "Track Attributes"
+        },
+        {
+            "file": "..\\master\\tracking\\TrackManager - copia.js",
+            "line": 129,
+            "description": "Answer this question:\nHas key attribute the node with give id?",
+            "itemtype": "method",
+            "name": "has",
+            "params": [
+                {
+                    "name": "id",
+                    "description": "node id",
+                    "type": "String"
+                },
+                {
+                    "name": "key",
+                    "description": "attribute key",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "has or not the specified key",
+                "type": "Boolean"
+            },
+            "class": "",
+            "module": "Track Attributes"
+        },
+        {
+            "file": "..\\master\\tracking\\TrackManager.js",
+            "line": 101,
+            "description": "Get raw value for specified node id and attribute key\nUses SMXNode 'raw' method",
+            "itemtype": "method",
+            "name": "raw",
+            "params": [
+                {
+                    "name": "id",
+                    "description": "node id",
+                    "type": "String"
+                },
+                {
+                    "name": "key",
+                    "description": "attribute key",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "resulting value or null",
+                "type": "String"
+            },
+            "class": "",
+            "module": "Track Attributes"
+        },
+        {
+            "file": "..\\master\\tracking\\TrackManager.js",
+            "line": 129,
+            "description": "Answer this question:\nHas key attribute the node with give id?",
+            "itemtype": "method",
+            "name": "has",
+            "params": [
+                {
+                    "name": "id",
+                    "description": "node id",
+                    "type": "String"
+                },
+                {
+                    "name": "key",
+                    "description": "attribute key",
+                    "type": "String"
+                }
+            ],
+            "return": {
+                "description": "has or not the specified key",
+                "type": "Boolean"
+            },
+            "class": "",
+            "module": "Track Attributes"
+        }
+    ],
+    "warnings": [
+        {
+            "message": "replacing incorrect tag: returns with return",
+            "line": " ..\\build\\smx.js:4987"
+        },
+        {
+            "message": "replacing incorrect tag: returns with return",
+            "line": " ..\\build\\smx.js:5154"
+        },
+        {
+            "message": "replacing incorrect tag: returns with return",
+            "line": " ..\\master\\document\\Sizzle.js:159"
+        },
+        {
+            "message": "replacing incorrect tag: returns with return",
+            "line": " ..\\master\\document\\Sizzle.js:326"
+        },
+        {
+            "message": "Missing item type\nElement definitions are flexible, but there some reserved tagnames\n<smx>\t\troot of any smx document\n<head>\t\tsmx definitions container\n<body>\t\tsmx content container\n<include>\tinclude another smx document",
+            "line": " ..\\build\\smx.js:46"
+        },
+        {
+            "message": "Missing item type",
+            "line": " ..\\build\\smx.js:839"
+        },
+        {
+            "message": "Missing item type\nMethod: Update timeline",
+            "line": " ..\\build\\smx.js:1063"
+        },
+        {
+            "message": "Missing item type\nPlay timeline",
+            "line": " ..\\build\\smx.js:1266"
+        },
+        {
+            "message": "Missing item type\nPause timeline",
+            "line": " ..\\build\\smx.js:1315"
+        },
+        {
+            "message": "Missing item type\nToggle play/pause timeline",
+            "line": " ..\\build\\smx.js:1344"
+        },
+        {
+            "message": "Missing item type\npseudo private methods\n\t  \n\t_enterNode(node) - instead of - node.enter()\n\t_exitNode(node) - instead of - node.exit()\n\t_startNode(node) - instead of - node.start()\n\t_finishNode(node) - instead of - node.finish()",
+            "line": " ..\\build\\smx.js:2112"
+        },
+        {
+            "message": "Missing item type\nTIMELINE HANDLING\n\n\n\n\tthis.createTimeline = function(){\n\t\n\t\tvar cnode = this.getCurrentNode();\n\t\tif(!cnode) return;\n\n\t\t//destroy current timeline if needed\n\t\tif (this.timeline) this.destroyTimeline();\n\t\t\n\t\t//create timeline\n\t\tthis.timeline = new smx.time.Timeline(cnode);\n\t\t\n\t\t//setup listeners\n\t\tthis._bindTimelineListeners();\n\n\t\treturn;\n\t};\n\n\n\n\tthis.destroyTimeline = function(){\n\t\t\n\t\t//remove listeners\n\t\tthis._unbindTimelineListeners();\n\n\t\t//destroy timeline\n\t\tthis.timeline.destroy();\n\n\t\t//reset timeline\n\t\tthis.timeline = null;\n\t\t\n\t\treturn;\n\t};\n\n\n\tthis._bindTimelineListeners= function(){\n\t\n\t\tif (!this.timeline) return;\n\n\t\tthis.timeline.on('play', this.onTimelinePlay, this);\n\t\tthis.timeline.on('pause', this.onTimelinePause, this);\n\t\tthis.timeline.on('update', this.onTimelineUpdate, this);\n\t\tthis.timeline.on('seek', this.onTimelineSeek, this);\n\t\tthis.timeline.on('reset', this.onTimelineReset, this);\n\t\tthis.timeline.on('enter', this.onTimelineEnter, this);\n\t\tthis.timeline.on('exit', this.onTimelineExit, this);\n\n\t\treturn;\n\t};\n\t\n\tthis._unbindTimelineListeners= function(){\n\t\n\t\tif (!this.timeline) return;\n\n\t\tthis.timeline.off('play', this.onTimelinePlay, this);\n\t\tthis.timeline.off('pause', this.onTimelinePause, this);\n\t\tthis.timeline.off('update', this.onTimelineUpdate, this);\n\t\tthis.timeline.off('seek', this.onTimelineSeek, this);\n\t\tthis.timeline.off('reset', this.onTimelineReset, this);\n\t\tthis.timeline.off('enter', this.onTimelineEnter, this);\n\t\tthis.timeline.off('exit', this.onTimelineExit, this);\n\t\n\t\treturn;\n\t};\n\n\t\n\n\tthis.onTimelinePlay= function(event){\n\n\t\tthis.trigger('timeline:play', event);\n\n\t\treturn;\n\t};\n\n\tthis.onTimelinePause= function(event){\n\t\n\t\tthis.trigger('timeline:pause', event);\n\t\treturn;\n\t};\n\n\tthis.onTimelineUpdate= function(event){\n\t\n\t\tthis.trigger('timeline:update', event);\n\t\treturn;\n\t};\n\n\tthis.onTimelineSeek= function(event){\n\t\n\t\tthis.trigger('timeline:seek', event);\n\n\t\treturn;\n\t};\n\n\tthis.onTimelineReset= function(event){\n\t\n\t\tthis.trigger('timeline:reset', event);\n\n\t\treturn;\n\t};\n\n\tthis.onTimelineEnter= function(event){\n\t\n\t\tthis.trigger('timeline:enter', event);\n\n\t\treturn;\n\t};\n\n\tthis.onTimelineExit= function(event){\n\t\n\t\tthis.trigger('timeline:exit', event);\n\n\t\treturn;\n\t};",
+            "line": " ..\\build\\smx.js:2161"
+        },
+        {
+            "message": "Missing item type\nTrack Expresions\n\ntrack trigger definition format\n\n!parent:score:+100\n  #nodeId:access:0\n  #nodeId:access:0,!parent:score:+100",
+            "line": " ..\\build\\smx.js:2913"
+        },
+        {
+            "message": "Missing item type\nFor feature detection",
+            "line": " ..\\build\\smx.js:4979"
+        },
+        {
+            "message": "Missing item type\nCreate key-value caches of limited size",
+            "line": " ..\\build\\smx.js:4987"
+        },
+        {
+            "message": "Missing item type\nMark a function for special use by Sizzle",
+            "line": " ..\\build\\smx.js:5007"
+        },
+        {
+            "message": "Missing item type\nSupport testing using an element",
+            "line": " ..\\build\\smx.js:5016"
+        },
+        {
+            "message": "Missing item type\nDetect xml",
+            "line": " ..\\build\\smx.js:5143"
+        },
+        {
+            "message": "Missing item type\nSets document-related variables once based on the current document",
+            "line": " ..\\build\\smx.js:5154"
+        },
+        {
+            "message": "Missing item type\nUtility function for retrieving the text value of an array of DOM nodes",
+            "line": " ..\\build\\smx.js:5647"
+        },
+        {
+            "message": "Missing item type\nSMX DOCUMENT COMPILER\nLoad smx xml document, search and load recursively \"include\" nodes",
+            "line": " ..\\master\\compiler\\Compiler.js:1"
+        },
+        {
+            "message": "Missing item type\nElement definitions are flexible, but there some reserved tagnames\n<smx>\t\troot of any smx document\n<head>\t\tsmx definitions container\n<body>\t\tsmx content container\n<include>\tinclude another smx document",
+            "line": " ..\\master\\compiler\\Compiler.js:10"
+        },
+        {
+            "message": "Missing item type\nSizzle CSS Selector Engine\nCopyright 2012 jQuery Foundation and other contributors\nReleased under the MIT license\nhttp://sizzlejs.com/",
+            "line": " ..\\master\\document\\Sizzle.js:1"
+        },
+        {
+            "message": "Missing item type\nFor feature detection",
+            "line": " ..\\master\\document\\Sizzle.js:151"
+        },
+        {
+            "message": "Missing item type\nCreate key-value caches of limited size",
+            "line": " ..\\master\\document\\Sizzle.js:159"
+        },
+        {
+            "message": "Missing item type\nMark a function for special use by Sizzle",
+            "line": " ..\\master\\document\\Sizzle.js:179"
+        },
+        {
+            "message": "Missing item type\nSupport testing using an element",
+            "line": " ..\\master\\document\\Sizzle.js:188"
+        },
+        {
+            "message": "Missing item type\nDetect xml",
+            "line": " ..\\master\\document\\Sizzle.js:315"
+        },
+        {
+            "message": "Missing item type\nSets document-related variables once based on the current document",
+            "line": " ..\\master\\document\\Sizzle.js:326"
+        },
+        {
+            "message": "Missing item type\nUtility function for retrieving the text value of an array of DOM nodes",
+            "line": " ..\\master\\document\\Sizzle.js:819"
+        },
+        {
+            "message": "Missing item type\npseudo private methods\n\t  \n\t_enterNode(node) - instead of - node.enter()\n\t_exitNode(node) - instead of - node.exit()\n\t_startNode(node) - instead of - node.start()\n\t_finishNode(node) - instead of - node.finish()",
+            "line": " ..\\master\\playhead\\Playhead.js:578"
+        },
+        {
+            "message": "Missing item type\nTIMELINE HANDLING\n\n\n\n\tthis.createTimeline = function(){\n\t\n\t\tvar cnode = this.getCurrentNode();\n\t\tif(!cnode) return;\n\n\t\t//destroy current timeline if needed\n\t\tif (this.timeline) this.destroyTimeline();\n\t\t\n\t\t//create timeline\n\t\tthis.timeline = new smx.time.Timeline(cnode);\n\t\t\n\t\t//setup listeners\n\t\tthis._bindTimelineListeners();\n\n\t\treturn;\n\t};\n\n\n\n\tthis.destroyTimeline = function(){\n\t\t\n\t\t//remove listeners\n\t\tthis._unbindTimelineListeners();\n\n\t\t//destroy timeline\n\t\tthis.timeline.destroy();\n\n\t\t//reset timeline\n\t\tthis.timeline = null;\n\t\t\n\t\treturn;\n\t};\n\n\n\tthis._bindTimelineListeners= function(){\n\t\n\t\tif (!this.timeline) return;\n\n\t\tthis.timeline.on('play', this.onTimelinePlay, this);\n\t\tthis.timeline.on('pause', this.onTimelinePause, this);\n\t\tthis.timeline.on('update', this.onTimelineUpdate, this);\n\t\tthis.timeline.on('seek', this.onTimelineSeek, this);\n\t\tthis.timeline.on('reset', this.onTimelineReset, this);\n\t\tthis.timeline.on('enter', this.onTimelineEnter, this);\n\t\tthis.timeline.on('exit', this.onTimelineExit, this);\n\n\t\treturn;\n\t};\n\t\n\tthis._unbindTimelineListeners= function(){\n\t\n\t\tif (!this.timeline) return;\n\n\t\tthis.timeline.off('play', this.onTimelinePlay, this);\n\t\tthis.timeline.off('pause', this.onTimelinePause, this);\n\t\tthis.timeline.off('update', this.onTimelineUpdate, this);\n\t\tthis.timeline.off('seek', this.onTimelineSeek, this);\n\t\tthis.timeline.off('reset', this.onTimelineReset, this);\n\t\tthis.timeline.off('enter', this.onTimelineEnter, this);\n\t\tthis.timeline.off('exit', this.onTimelineExit, this);\n\t\n\t\treturn;\n\t};\n\n\t\n\n\tthis.onTimelinePlay= function(event){\n\n\t\tthis.trigger('timeline:play', event);\n\n\t\treturn;\n\t};\n\n\tthis.onTimelinePause= function(event){\n\t\n\t\tthis.trigger('timeline:pause', event);\n\t\treturn;\n\t};\n\n\tthis.onTimelineUpdate= function(event){\n\t\n\t\tthis.trigger('timeline:update', event);\n\t\treturn;\n\t};\n\n\tthis.onTimelineSeek= function(event){\n\t\n\t\tthis.trigger('timeline:seek', event);\n\n\t\treturn;\n\t};\n\n\tthis.onTimelineReset= function(event){\n\t\n\t\tthis.trigger('timeline:reset', event);\n\n\t\treturn;\n\t};\n\n\tthis.onTimelineEnter= function(event){\n\t\n\t\tthis.trigger('timeline:enter', event);\n\n\t\treturn;\n\t};\n\n\tthis.onTimelineExit= function(event){\n\t\n\t\tthis.trigger('timeline:exit', event);\n\n\t\treturn;\n\t};",
+            "line": " ..\\master\\playhead\\Playhead.js:627"
+        },
+        {
+            "message": "Missing item type",
+            "line": " ..\\master\\time\\Timeline.js:38"
+        },
+        {
+            "message": "Missing item type\nMethod: Update timeline",
+            "line": " ..\\master\\time\\Timeline.js:262"
+        },
+        {
+            "message": "Missing item type\nPlay timeline",
+            "line": " ..\\master\\time\\Timeline.js:465"
+        },
+        {
+            "message": "Missing item type\nPause timeline",
+            "line": " ..\\master\\time\\Timeline.js:514"
+        },
+        {
+            "message": "Missing item type\nToggle play/pause timeline",
+            "line": " ..\\master\\time\\Timeline.js:543"
+        },
+        {
+            "message": "Missing item type\nTrack Expresions\n\ntrack trigger definition format\n\n!parent:score:+100\n  #nodeId:access:0\n  #nodeId:access:0,!parent:score:+100",
+            "line": " ..\\master\\tracking\\TrackDataTypes.js:63"
+        }
+    ]
+}

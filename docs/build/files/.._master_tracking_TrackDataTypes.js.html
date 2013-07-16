@@ -1,0 +1,1328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>..\master\tracking\TrackDataTypes.js - The Foo API</title>
+    <link rel="stylesheet" href="http:&#x2F;&#x2F;yui.yahooapis.com&#x2F;3.8.0&#x2F;build&#x2F;cssgrids&#x2F;cssgrids-min.css">
+    <link rel="stylesheet" href="..&#x2F;assets/vendor/prettify/prettify-min.css">
+    <link rel="stylesheet" href="..&#x2F;assets/css/main.css" id="site_styles">
+    <link rel="shortcut icon" type="image/png" href="..&#x2F;assets/favicon.png">
+    <script src="http:&#x2F;&#x2F;yui.yahooapis.com&#x2F;combo?3.8.0&#x2F;build&#x2F;yui&#x2F;yui-min.js"></script>
+</head>
+<body class="yui3-skin-sam">
+
+<div id="doc">
+    <div id="hd" class="yui3-g header">
+        <div class="yui3-u-3-4">
+            
+                <h1><img src="..&#x2F;assets/css/logo.png" title="The Foo API"></h1>
+            
+        </div>
+        <div class="yui3-u-1-4 version">
+            <em>API Docs for: 1.2.1</em>
+        </div>
+    </div>
+    <div id="bd" class="yui3-g">
+
+        <div class="yui3-u-1-4">
+            <div id="docs-sidebar" class="sidebar apidocs">
+                <div id="api-list">
+    <h2 class="off-left">APIs</h2>
+    <div id="api-tabview" class="tabview">
+        <ul class="tabs">
+            <li><a href="#api-classes">Classes</a></li>
+            <li><a href="#api-modules">Modules</a></li>
+        </ul>
+
+        <div id="api-tabview-filter">
+            <input type="search" id="api-filter" placeholder="Type to filter APIs">
+        </div>
+
+        <div id="api-tabview-panel">
+            <ul id="api-classes" class="apis classes">
+            
+                <li><a href="..&#x2F;classes/Metadata.html">Metadata</a></li>
+            
+                <li><a href="..&#x2F;classes/Playhead.html">Playhead</a></li>
+            
+                <li><a href="..&#x2F;classes/Timeline.html">Timeline</a></li>
+            
+                <li><a href="..&#x2F;classes/Timer.html">Timer</a></li>
+            
+            </ul>
+
+            <ul id="api-modules" class="apis modules">
+            
+                <li><a href="..&#x2F;modules/Node.html">Node</a></li>
+            
+                <li><a href="..&#x2F;modules/smx.html">smx</a></li>
+            
+                <li><a href="..&#x2F;modules/SMXComputedAttributes.html">SMXComputedAttributes</a></li>
+            
+                <li><a href="..&#x2F;modules/SMXCoreAttributes.html">SMXCoreAttributes</a></li>
+            
+                <li><a href="..&#x2F;modules/SMXNode.html">SMXNode</a></li>
+            
+                <li><a href="..&#x2F;modules/TimeAttrController
+Plugin Controller for attributes namespace with &#x27;ui&#x27;.html">TimeAttrController
+Plugin Controller for attributes namespace with &#x27;ui&#x27;</a></li>
+            
+                <li><a href="..&#x2F;modules/Track Attributes.html">Track Attributes</a></li>
+            
+                <li><a href="..&#x2F;modules/UIAttrController
+Plugin Controller for attributes namespaced with &#x27;ui-&#x27;.html">UIAttrController
+Plugin Controller for attributes namespaced with &#x27;ui-&#x27;</a></li>
+            
+            </ul>
+        </div>
+    </div>
+</div>
+
+            </div>
+        </div>
+        <div class="yui3-u-3-4">
+                <div id="api-options">
+        Show:
+        <label for="api-show-inherited">
+            <input type="checkbox" id="api-show-inherited" checked>
+            Inherited
+        </label>
+
+        <label for="api-show-protected">
+            <input type="checkbox" id="api-show-protected">
+            Protected
+        </label>
+
+        <label for="api-show-private">
+            <input type="checkbox" id="api-show-private">
+            Private
+        </label>
+        <label for="api-show-deprecated">
+            <input type="checkbox" id="api-show-deprecated">
+            Deprecated
+        </label>
+
+    </div>
+
+
+            <div class="apidocs">
+                <div id="docs-main">
+                    <div class="content">
+                        <h1 class="file-heading">File: ..\master\tracking\TrackDataTypes.js</h1>
+
+<div class="file">
+    <pre class="code prettyprint linenums">
+&#x2F;**
+
+Track Attributes
+@module Track Attributes
+
+*&#x2F;
+
+
+(function(smx){
+
+ 	var SMXTrackingController = {};
+
+
+ 	var parseScoreString = function (track) {
+
+		var str = track.get(&#x27;score&#x27;);
+
+		&#x2F;&#x2F;invalid input return null
+		if(!_.isString(str)) return;
+
+		&#x2F;&#x2F;auto return an empty object
+		if(str===&#x27;auto&#x27; || str===&#x27;none&#x27;) return str;
+
+		&#x2F;&#x2F;create default score object
+		var obj = { &#x27;value&#x27;: 0, &#x27;min&#x27;: 0, &#x27;max&#x27;: 0	};
+
+		&#x2F;&#x2F;split input by &#x27;&#x2F;&#x27;
+		var parts = str.split(&#x27;&#x2F;&#x27;);
+		if(parts.length==3){
+
+			&#x2F;&#x2F; 3 parts defines &#x27;value&#x2F;min&#x2F;max&#x27;
+			var value = parseFloat(parts[0]) || 0;
+			var min = parseFloat(parts[1]) || 0;
+			var max = parseFloat(parts[2]) || 0;
+
+			obj = { &#x27;value&#x27;: value, &#x27;min&#x27;: min, &#x27;max&#x27;: max	};
+
+
+		}
+		else if(parts.length==2){
+
+			&#x2F;&#x2F; 2 parts defines &#x27;0&#x2F;min&#x2F;max&#x27;
+			var min = parseFloat(parts[0]) || 0;
+			var max = parseFloat(parts[1]) || 0;
+			
+			obj = { &#x27;value&#x27;: 0, &#x27;min&#x27;: min, &#x27;max&#x27;: max	};
+
+		}
+		else if(parts.length==1){
+
+			&#x2F;&#x2F; no parts defines &#x27;0&#x2F;max&#x2F;max&#x27;
+			var max = parseFloat(parts[0]) || 0;
+
+			obj = { &#x27;value&#x27;: 0, &#x27;min&#x27;: max, &#x27;max&#x27;: max	};
+		}
+
+		return obj;  
+
+ 	};
+
+
+
+ 	&#x2F;**
+ 	 *	Track Expresions
+ 	 *
+ 	 *	track trigger definition format
+ 	 *
+ 	 *	!parent:score:+100
+ 	 *  #nodeId:access:0
+ 	 *  #nodeId:access:0,!parent:score:+100
+ 	 *
+ 	 *&#x2F;
+
+
+
+ 	var runTrackExpression = function (track, exp, manager ) {
+
+ 		var result = [];
+
+		if(!_.isString(exp)) return;
+
+   		var exps = [];
+
+		if(exp.indexOf(&#x27;,&#x27;))  exps = exp.split(&#x27;,&#x27;);
+ 		else 					exps.push(exp);
+
+ 		for(var i=0; i&lt; exps.length;i++){
+
+			var cmd_parts = exps[i].split(&#x27;:&#x27;);
+
+			&#x2F;&#x2F;cmd requires 3 parts
+			if(cmd_parts.length==3){
+
+				var trackId = cmd_parts[0];
+				var property = cmd_parts[1];
+				var value = cmd_parts[2];
+
+				&#x2F;&#x2F;get track
+				if(trackId.indexOf(&#x27;!&#x27;) === 0){
+
+					var ins = trackId.substr(1);
+
+					var node = manager.document.getNodeById(track.id);
+
+					if(!node) ins = &#x27;null&#x27;;
+
+					switch(ins){
+
+						case &#x27;null&#x27;:
+							node = null;
+						break;
+
+						case &#x27;next&#x27;:
+							node = node.next();
+						break;
+						case &#x27;previous&#x27;:
+							node = node.previous();
+						break;
+						case &#x27;parent&#x27;:
+							node = node.parent();
+						break;
+						case &#x27;childs&#x27;:
+							node = node.children();
+						break;
+						case &#x27;firstchild&#x27;:
+							node = node.first();
+						break;
+						case &#x27;allnext&#x27;:
+							res = [];
+							var next = node.next();
+							while(next){
+								res.push(next);
+								next = next.next();
+							}
+							if (res.length&gt;0) 	node = res;
+							else				node = null;
+						break;
+						case &#x27;allprevious&#x27;:
+							res = [];
+							var prev = node.previous();
+							while(prev){
+								res.push(prev);
+								prev = prev.previous();
+							}
+							if (res.length&gt;0) 	node = res;
+							else				node = null;
+						break;
+					}
+
+					if(node){
+						if(_.isArray(node))		trackId = _.pluck(node,&#x27;id&#x27;);
+						else					trackId = node.id;
+					}
+
+				}
+				else if(trackId.indexOf(&#x27;#&#x27;) === 0){
+					trackId = trackId.substr(1);
+				}
+				else{
+					trackId = trackId;					
+				}
+
+				var command = {
+					&#x27;id&#x27;: trackId,
+					&#x27;property&#x27;: property,
+					&#x27;value&#x27;: value
+				};
+
+				result.push(command);		
+
+			}
+			else if(cmd_parts[0].indexOf(&#x27;@&#x27;) === 0){
+
+				var ins = cmd_parts[0].substr(1);
+				var playhead = manager.document.playhead;
+				if (_.isFunction(playhead[ins])){
+					playhead[ins]();
+				}	
+
+			}
+
+ 		}
+
+
+
+		var commands = result;
+
+		for(var i=0; i&lt; commands.length;i++){
+			var cmd = commands[i];
+			manager.set(cmd.id, cmd.property, cmd.value);
+		}
+
+
+ 		return;
+
+ 	};
+
+
+
+
+	var AttributeController = {};
+
+
+
+	&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;
+	&#x2F;&#x2F; EXAMPLE
+	&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;
+
+	var ExampleAttributeHandler = {
+
+		&#x27;name&#x27;: &#x27;name&#x27;,
+
+		&#x27;default&#x27;: &#x27;name&#x27;,
+
+		&#x27;set&#x27;:function(value, track, manager, important) {},
+
+		&#x27;get&#x27;:function(track, manager, format){},
+
+		&#x27;onchange&#x27;: function(track, manager){},
+
+		&#x27;onenter&#x27;: function(track, manager, playheadEvent){},
+
+		&#x27;onexit&#x27;: function(track, manager, playheadEvent){},
+
+		&#x27;onupdate&#x27;: function(track, manager, playheadEvent){},
+
+		&#x27;onplay&#x27;: function(track, manager, playheadEvent){},
+
+		&#x27;onpause&#x27;: function(track, manager, playheadEvent){}
+
+	};
+
+
+
+
+	&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;
+	&#x2F;&#x2F; PROGRESS
+	&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;
+
+	AttributeController.progress = {
+
+		&#x27;name&#x27;: &#x27;progress&#x27;,
+
+		&#x27;default&#x27;: 0,
+
+		&#x27;get&#x27;: function(track, manager, format){
+
+			var val = track.get(this.name);
+
+
+			switch(format){
+				case &#x27;raw&#x27;:		
+					var node = manager.document.getNodeById(track.id);
+					val = node[0].getAttribute(&#x27;track-&#x27;+this.name);
+				break;
+				case &#x27;text&#x27;:
+					val = val+&#x27;%&#x27;;
+				break;
+				case &#x27;value&#x27;:
+				default:
+				break;
+			}
+
+			return val;
+
+		},
+
+		&#x27;set&#x27;: function(value, track, manager, important){
+
+			&#x2F;&#x2F;numeric value is required
+			if(!_.isNumber(parseInt(value))) return;
+
+			&#x2F;&#x2F;normailze recived value
+			var val = parseInt(value);
+			val = (val&gt;100)? val=100 : (val&lt;0)? 0 : val;
+
+			&#x2F;&#x2F;will change?
+			var is_change = false;
+			if(important) is_change = true;
+			else{
+
+				&#x2F;&#x2F;get current value
+				var cval = parseInt(track.get(&#x27;progress&#x27;));
+
+				&#x2F;&#x2F;determine if represents value change
+				is_change = (val&gt;cval)? true : false;
+
+			}		
+
+			&#x2F;&#x2F;will?
+			if(is_change){
+
+				&#x2F;&#x2F;apply value silently
+				if(is_change) track.set({&#x27;progress&#x27;:val},{&#x27;silent&#x27;:true});
+
+
+				&#x2F;&#x2F;ATTRIBUTE PROPAGATION
+
+				&#x2F;&#x2F;propagate -&gt; @status
+				&#x2F;&#x2F;@progress directly modifies @status
+
+				&#x2F;&#x2F;every @status change will become STATUS.INCOMPLETE as min
+				&#x2F;&#x2F;so use STATUS.INCOMPLETE as default resultant value
+				var resultant_status = STATUS.INCOMPLETE;
+
+				&#x2F;&#x2F;@progress &gt;= 100 -&gt; &quot;complete&quot; track
+				if(val &gt;= 100) resultant_status = STATUS.COMPLETED;
+
+				&#x2F;&#x2F;set resultant @status silently
+				track.set({&#x27;status&#x27;:resultant_status},{&#x27;silent&#x27;:true});
+
+
+			}
+
+
+			&#x2F;&#x2F;realease changes trigger &#x27;change&#x27; event 
+			track.change();
+
+			&#x2F;&#x2F;return resulting value
+			return val;
+
+		},
+
+		&#x27;refresh&#x27;: function(track, manager){
+
+			&#x2F;&#x2F;refresh only automatic values
+			var auto = this.isAuto(track, manager);
+			if (!auto) return;
+
+			&#x2F;&#x2F;ok is automatic value, so lets calculate it
+			&#x2F;&#x2F;get raw value
+			var raw = manager.raw(track.id, this.name);
+
+			var value;
+
+			switch(raw){
+				
+				case &#x27;sum&#x27;:
+				case &#x27;avg&#x27;:
+				case &#x27;auto&#x27;:
+				default:
+
+					&#x2F;&#x2F;get node for given track
+					var node = manager.document.getNodeById(track.id);
+
+					var childs = node.children();
+
+					if (childs &amp;&amp; childs.length&gt;0){
+
+						var count = 0, sum = 0, n = childs.length;
+						for (var i=0; i&lt; n;i++){
+
+							var child = childs[i];
+
+							if (manager.has(child.id, this.name)){
+
+								var c_value = manager.get(child.id, this.name);
+
+								sum += c_value;
+
+								count++;
+
+							}
+							else{
+
+							}
+
+						}
+
+						var result = sum&#x2F;count;
+
+						manager.set(track.id,&#x27;progress&#x27;,result);
+
+					}
+					else{
+
+
+
+					}
+
+
+
+				break;
+			}
+
+		},
+
+		&#x27;isAuto&#x27;: function(track, manager){
+
+			var raw = manager.raw(track.id, this.name);
+
+			var value = parseInt(raw);
+
+			var is_auto = true;
+
+			if (_.isNumber(value) &amp;&amp; value !== NaN) is_auto = false;
+
+			return is_auto;
+
+		},
+
+
+		&#x27;onchange&#x27;: function(track, manager){
+
+			&#x2F;&#x2F;get reffering node
+			var node = manager.document.getNodeById(track.id);
+
+			var parent = node.parent();
+
+			if(parent) manager.refresh(parent.id, &#x27;progress&#x27;);
+
+			return;
+
+		},
+
+		&#x27;onupdate&#x27;: function(track, manager, playheadEvent){
+
+			if(!track) return;
+
+			var p = parseFloat((playheadEvent.time*100)&#x2F;(playheadEvent.duration*1000));
+
+			manager.set(track.id, this.name, p);
+
+			return;
+
+		}
+
+	};
+
+
+	&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;
+	&#x2F;&#x2F; STATUS PROPERTY
+	&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;
+
+	var STATUS = {};
+	STATUS.NOTATTEMPTED    	= 0;    	
+	STATUS.INCOMPLETE      	= 1;    	&#x2F;&#x2F; views&gt;0
+	STATUS.COMPLETED      	= 2;    	&#x2F;&#x2F; played &amp; completed
+	STATUS.FAILED          	= 3;    	&#x2F;&#x2F; completed &amp; score&lt;minScore
+	STATUS.PASSED          	= 4;    	&#x2F;&#x2F; completed &amp; score&gt;=minSCore
+	STATUS.BONUS          	= 5;    	&#x2F;&#x2F; bonus :D
+
+	AttributeController.status = {
+
+		&#x27;name&#x27;:&#x27;status&#x27;,
+
+		&#x27;defaults&#x27;:STATUS.NOTATTEMPTED,
+
+		&#x27;get&#x27;:function(track, manager, format){
+
+			var node = manager.document.getNodeById(track.id);
+			value_raw = node[0].getAttribute(&#x27;track-&#x27;+this.name);
+
+			var value = parseInt(track.get(&#x27;status&#x27;));
+
+			if (_.isUndefined(value_raw) || _.isNull(value_raw) || _.isNaN(value_raw) || value_raw == &#x27;none&#x27;)
+				if(format!=&#x27;raw&#x27;) value = this.defaults;
+
+
+			switch(format){
+				case &#x27;raw&#x27;:		
+					value = value_raw;
+				break;
+				case &#x27;text&#x27;:
+					var keys = _.keys(STATUS);
+					var values = _.values(STATUS);
+
+					var index = values.indexOf(value);
+					if(index&gt;=0){
+						var name = (keys[index]).toLowerCase();
+						value = name;						
+					}
+				break;
+				case &#x27;code&#x27;:
+					var keys = _.keys(STATUS);
+					var values = _.values(STATUS);
+
+					var index = values.indexOf(value);
+					if(index&gt;=0){
+						var name = (keys[index]).toLowerCase();
+						value = name[0].toUpperCase();						
+					}
+				break;
+				case &#x27;value&#x27;:
+				default:
+				break;
+			}
+
+			return value;
+
+		},
+
+
+		&#x27;set&#x27;:function(value, track, manager, important) {
+			
+			&#x2F;&#x2F;filter input value
+			&#x2F;&#x2F;various input value formats are accepted
+
+			var val = value;
+
+			&#x2F;&#x2F;numeric value?
+			if(_.isNumber(parseInt(val)) &amp;&amp; !_.isNaN(parseInt(val))){
+
+				&#x2F;&#x2F;ensure is integer
+				val = parseInt(value);
+
+				&#x2F;&#x2F;ensure val is between valid range
+				val = Math.max(val,0);
+				val = Math.min(val,_.size(STATUS)-1);
+
+			}
+			else if(_.isString(val) &amp;&amp; val!=&#x27;&#x27;){
+
+				&#x2F;&#x2F;set input to uppercase
+				val = val.toUpperCase();
+
+				&#x2F;&#x2F;check if val exists as charcode
+				var codes = _.keys(STATUS);
+				for (var i=0; i&lt; codes.length;i++){
+					if (codes[i].indexOf(val) == 0){
+						val = STATUS[codes[i]];
+						break;
+					}
+				}
+
+				&#x2F;&#x2F;if was found val should be a number
+				&#x2F;&#x2F;else exit due to invalid input
+				if(!_.isNumber(val)) return;
+
+			}
+			else{
+
+				&#x2F;&#x2F;invalid input
+				&#x2F;&#x2F;not number neither string
+				return;
+			}
+
+
+
+			&#x2F;&#x2F;get current value
+			var cval = parseInt(track.get(&#x27;status&#x27;));
+			cval = (!_.isFinite(cval))? this.defaults : cval;
+
+			&#x2F;&#x2F;will only be considered as a change when increasing 
+			var is_change = (val&gt;cval)? true : false;
+
+			&#x2F;&#x2F;if(important) is_change = true;
+			&#x2F;&#x2F;else{
+
+
+			if(is_change){
+				
+				switch(val){
+
+					case STATUS.NOTATTEMPTED:
+
+
+					break;
+
+					case STATUS.INCOMPLETE:
+
+						&#x2F;&#x2F;autocomplete?
+						var autocomplete = track.get(&#x27;autocomplete&#x27;);
+						if(autocomplete &amp;&amp; autocomplete==&#x27;true&#x27;) val = STATUS.COMPLETED;
+						else{
+
+							&#x2F;&#x2F;tracks refering node with duration == 0
+							&#x2F;&#x2F;automatically become &#x27;completed&#x27;
+
+							&#x2F;&#x2F;get reffering node
+							&#x2F;&#x2F;var node = manager.document.getNodeById(track.id);
+
+							&#x2F;&#x2F;get duration
+							&#x2F;&#x2F;var duration = node.getDuration();
+
+							&#x2F;&#x2F;if(duration == 0) val = STATUS.COMPLETED;
+
+						}
+
+						if (val == STATUS.COMPLETED){
+
+							&#x2F;&#x2F;check for &#x27;autopass&#x27;
+							var autopass = track.get(&#x27;autopass&#x27;);
+							var score = parseScoreString(track);
+
+							if(autopass &amp;&amp; autopass==&#x27;true&#x27;) val = STATUS.PASSED;
+							else if (!score || score==&#x27;none&#x27; || score==&#x27;auto&#x27;) val = STATUS.PASSED;
+							else{
+
+								&#x2F;&#x2F;tracks with score.min == 0
+								&#x2F;&#x2F;automatically become &#x27;passed&#x27;
+
+									if(score.min === 0) 				resultant_status = STATUS.PASSED;
+									else if(score.value&gt;=score.min) 	resultant_status = STATUS.PASSED;
+									else 								resultant_status = STATUS.FAILED;
+
+							}
+
+						}
+						
+					break;
+
+					case STATUS.COMPLETED:
+
+						&#x2F;*
+
+							controlled by method? node.track.validate() ? 
+
+
+
+							&#x2F;&#x2F;check for &#x27;autopass&#x27;
+							var autopass = track.get(&#x27;autopass&#x27;);
+							var score = parseScoreString(track);
+
+							if(autopass &amp;&amp; autopass==&#x27;true&#x27;) val = STATUS.PASSED;
+							else if (!score || score==&#x27;none&#x27; || score==&#x27;auto&#x27;) val = STATUS.PASSED;
+							else{
+
+								&#x2F;&#x2F;tracks with score.min == 0
+								&#x2F;&#x2F;automatically become &#x27;passed&#x27;
+								
+									if(score.min === 0) 				resultant_status = STATUS.PASSED;
+									else if(score.value&gt;=score.min) 	resultant_status = STATUS.PASSED;
+									else 								resultant_status = STATUS.FAILED;
+
+							}
+					
+						*&#x2F;
+
+					break;
+
+					case STATUS.FAILED:
+
+					break;
+
+					case STATUS.PASSED:
+					
+					break;
+
+					case STATUS.BONUS:
+
+
+					break;															
+
+				}
+
+
+				&#x2F;&#x2F;ensure progress 100 if completed
+				if(val&gt;STATUS.INCOMPLETE) track.set({&#x27;progress&#x27;:100},{&#x27;silent&#x27;:true});
+
+
+				&#x2F;&#x2F;apply new value silently
+				if(is_change) track.set({&#x27;status&#x27;:val},{&#x27;silent&#x27;:true});
+
+
+				&#x2F;&#x2F;realease &#x27;change&#x27; track event
+				track.change();
+
+			}
+
+
+			&#x2F;&#x2F;return resulting value
+			return (is_change)? val : cval;
+
+		},
+
+		onchange: function (track, manager, previous_value) {
+
+			var val = track.get(&#x27;status&#x27;);
+			switch(val){
+
+				case STATUS.NOTATTEMPTED:
+
+				break;
+
+
+				case STATUS.INCOMPLETE:
+
+					var onattempt = track.get(&#x27;onattempt&#x27;);
+					if(onattempt) runTrackExpression(track,onattempt, manager);
+
+				break;
+
+
+				case STATUS.COMPLETED:
+				
+					if (previous_value&lt;STATUS.INCOMPLETE){
+						var onattempt = track.get(&#x27;onattempt&#x27;);
+						if(onattempt) runTrackExpression(track,onattempt, manager);
+					}
+
+					var oncomplete = track.get(&#x27;oncomplete&#x27;);
+					if(oncomplete) runTrackExpression(track,oncomplete, manager);
+
+				break;
+
+
+				case STATUS.FAILED:
+
+					if (previous_value&lt;STATUS.INCOMPLETE){
+						var onattempt = track.get(&#x27;onattempt&#x27;);
+						if(onattempt) runTrackExpression(track,onattempt, manager);
+					}
+
+					if (previous_value&lt;STATUS.COMPLETED){
+						var oncomplete = track.get(&#x27;oncomplete&#x27;);
+						if(oncomplete) runTrackExpression(track,oncomplete, manager);
+					}
+
+					var onfail = track.get(&#x27;onfail&#x27;);
+					if(onfail) runTrackExpression(track,onfail, manager);
+
+				
+				break;
+
+
+				case STATUS.PASSED:
+
+					if (previous_value&lt;STATUS.INCOMPLETE){
+						var onattempt = track.get(&#x27;onattempt&#x27;);
+						if(onattempt) runTrackExpression(track,onattempt, manager);
+					}
+
+					if (previous_value&lt;STATUS.COMPLETED){
+						var oncomplete = track.get(&#x27;oncomplete&#x27;);
+						if(oncomplete) runTrackExpression(track,oncomplete, manager);
+					}
+
+					var onpass = track.get(&#x27;onpass&#x27;);
+					if(onpass) runTrackExpression(track,onpass, manager);
+
+				
+				break;
+
+
+				case STATUS.BONUS:
+
+					if (previous_value&lt;STATUS.INCOMPLETE){
+						var onattempt = track.get(&#x27;onattempt&#x27;);
+						if(onattempt) runTrackExpression(track,onattempt, manager);
+					}
+
+					if (previous_value&lt;STATUS.COMPLETED){
+						var oncomplete = track.get(&#x27;oncomplete&#x27;);
+						if(oncomplete) execTrackCommand(track,oncomplete, manager);
+					}
+
+					if (previous_value&lt;STATUS.PASSED){
+						var onpass = track.get(&#x27;onpass&#x27;);
+						if(onpass) execTrackCommand(track,onpass, manager);
+					}
+
+					var onbonus = track.get(&#x27;onbonus&#x27;);
+					if(onbonus) execTrackCommand(track,onbonus, manager);
+				
+
+				break;															
+
+			}
+
+
+			
+		}
+
+
+	};
+
+
+	&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;
+	&#x2F;&#x2F; ACCESS
+	&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;
+
+	var ACCESS = {};
+	ACCESS.ENABLED 	    = 0;    		&#x2F;&#x2F; its allow to enter
+	ACCESS.DISABLED     = 1;    		&#x2F;&#x2F; enter is disabled
+	ACCESS.HIDDEN		= 2;    		&#x2F;&#x2F; enter is not allowed
+
+
+	AttributeController.access = {
+
+		&#x27;name&#x27;: &#x27;access&#x27;,
+
+		&#x27;defaults&#x27;: ACCESS.ENABLED,
+
+		&#x27;get&#x27;:function(track, manager, format){
+
+			var node = manager.document.getNodeById(track.id);
+			value_raw = node[0].getAttribute(&#x27;track-&#x27;+this.name);
+
+			var value = parseInt(track.get(&#x27;access&#x27;));
+
+			if (_.isUndefined(value_raw) || _.isNull(value_raw) || _.isNaN(value_raw) || value_raw == &#x27;none&#x27;)
+				if(format!=&#x27;raw&#x27;) value = this.defaults;
+
+			switch(format){
+				case &#x27;raw&#x27;:
+					value = value_raw;
+				break;
+				case &#x27;text&#x27;:
+					var keys = _.keys(ACCESS);
+					var values = _.values(ACCESS);
+
+					var index = values.indexOf(value);
+					if(index&gt;=0){
+						var name = (keys[index]).toLowerCase();
+						value = name;						
+					}
+					value = name;
+
+				break;
+
+				case &#x27;code&#x27;:
+					var keys = _.keys(ACCESS);
+					var values = _.values(ACCESS);
+
+					var index = values.indexOf(value);
+					if(index&gt;=0){
+						var name = (keys[index]).toLowerCase();
+						value = name[0].toUpperCase();						
+					}
+				break;
+
+				case &#x27;value&#x27;:
+				default:
+				break;
+			}
+
+			return value;
+
+		},
+
+
+		&#x27;set&#x27;:function(value, track, manager, important) {
+			
+			&#x2F;&#x2F;filter input value
+			&#x2F;&#x2F;various input value formats are accepted
+
+			var val = value;
+
+			&#x2F;&#x2F;numeric value
+			if(_.isNumber(parseInt(val)) &amp;&amp; !_.isNaN(parseInt(val))){
+
+				&#x2F;&#x2F;ensure is integer
+				val = parseInt(value);
+
+				&#x2F;&#x2F;ensure val is between valid range
+				val = Math.max(val,0);
+				val = Math.min(val,_.size(ACCESS)-1);
+
+			}
+			else if(_.isString(val) &amp;&amp; val!=&#x27;&#x27;){
+
+				&#x2F;&#x2F;set input to uppercase
+				val = val.toUpperCase();
+
+				&#x2F;&#x2F;check if val exists as charcode
+				var codes = _.keys(ACCESS);
+				for (var i=0; i&lt; codes.length;i++){
+					if (codes[i].indexOf(val) == 0){
+						val = ACCESS[codes[i]];
+						break;
+					}
+				}
+
+				&#x2F;&#x2F;if was found val should be a number
+				&#x2F;&#x2F;else exit due to invalid input
+				if(!_.isNumber(val)) return;
+
+			}
+			else{
+
+				&#x2F;&#x2F;invalid input
+				&#x2F;&#x2F;not number neither string
+				return;
+			}
+
+
+			&#x2F;&#x2F;get current value
+			var cval = parseInt(track.get(&#x27;access&#x27;));
+
+			&#x2F;&#x2F;will only be considered as a change when increasing 
+			var is_change = (val!=cval)? true : false;
+
+			&#x2F;&#x2F;set value only if is greater than previous value
+			if(is_change) track.set(&#x27;access&#x27;,val);
+
+			return val;
+
+		}
+
+	};
+
+
+
+
+
+	&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;
+	&#x2F;&#x2F; VIEWS
+	&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;
+
+	AttributeController.views = {
+
+		&#x27;name&#x27;:&#x27;views&#x27;,
+
+		&#x27;get&#x27;:function(track, manager, format){
+			if (format === &#x27;raw&#x27;){
+				var node = manager.document.getNodeById(track.id);
+				return node[0].getAttribute(&#x27;track-&#x27;+this.name);
+			}
+			else{
+				return track.get(this.name);
+			}
+
+		},
+
+		&#x27;set&#x27;:function(value, track, manager, important){
+			
+			if(!_.isNumber(parseInt(value))) return;
+
+			var val = parseInt(value);
+			var cval = parseInt(track.get(&#x27;views&#x27;));
+
+			&#x2F;&#x2F;set value only if is greater than previous value
+			if(val&gt;cval) track.set(&#x27;views&#x27;,val);
+
+			return val;
+
+		},
+
+
+		&#x27;onchange&#x27;: function(track, manager){
+
+			if(track.get(&#x27;views&#x27;) == 1){
+				if(track.get(&#x27;status&#x27;)&lt;STATUS.INCOMPLETE){
+					manager.set(track.id, &#x27;status&#x27;, STATUS.INCOMPLETE);
+				}					
+			}
+
+			return;
+
+		},
+		&#x27;onenter&#x27;: function(track, manager, playheadEvent){
+
+			var val = parseInt(track.get(&#x27;views&#x27;));
+			if(_.isNaN(val)) val = 0;
+			manager.set(track.id, &#x27;views&#x27;, val+1);
+			return;
+
+		}
+	};
+
+
+	&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;
+	&#x2F;&#x2F; SCORE
+	&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;&#x2F;
+
+	AttributeController.score = {
+
+		&#x27;name&#x27;:&#x27;score&#x27;,
+
+		&#x27;get&#x27;:function(track, manager, format){
+
+			if (format === &#x27;raw&#x27;){
+				var node = manager.document.getNodeById(track.id);
+				return node[0].getAttribute(&#x27;track-&#x27;+this.name);
+			}
+
+			var score = parseScoreString(track);
+
+			&#x2F;&#x2F;no score object?
+			if (!score) return;
+			else if(score===&#x27;none&#x27;) return;
+			else{
+			&#x2F;&#x2F;proceed with score object
+
+				if(score===&#x27;auto&#x27;) this.interpolate(track,manager);
+
+				score = parseScoreString(track);
+
+				switch(format){
+					case &#x27;min&#x27;:
+						return score.min;
+					break;
+
+					case &#x27;max&#x27;:
+						return score.max;
+					break;
+
+					case &#x27;string&#x27;:
+						return score.value+&#x27;&#x2F;&#x27;+score.min+&#x27;&#x2F;&#x27;+score.max;					
+					break;
+
+					case &#x27;value&#x27;:
+					default:
+						return score.value;					
+					break;
+
+				}
+
+			}
+
+			&#x2F;&#x2F;never should reach this line
+			return;
+
+		},
+
+		&#x27;interpolate&#x27;: function(track, manager){
+
+			&#x2F;&#x2F;get refering node
+			var node = manager.document.getNodeById(track.id);
+
+			&#x2F;&#x2F;check for interpolated values
+			var raw = manager.get(track.id, this.name, &#x27;raw&#x27;);
+
+			if(raw===&#x27;auto&#x27;){
+
+				var childs = node.children();
+				if(childs.length==0) return;
+
+				var value = 0;
+				for (var i = 0; i&lt; childs.length; i++){
+					var val = manager.get(childs[i].id,this.name,&#x27;value&#x27;);
+					if (!_.isUndefined(val)) value+=parseFloat(val);
+				}
+
+				var min = 0;
+				for (var i = 0; i&lt; childs.length; i++){
+					var val = manager.get(childs[i].id,this.name,&#x27;min&#x27;);
+					if (!_.isUndefined(val)) min+=parseFloat(val);
+				}
+
+				var max = 0;
+				for (var i = 0; i&lt; childs.length; i++){
+					var val = manager.get(childs[i].id,this.name,&#x27;max&#x27;);
+					if (!_.isUndefined(val)) max+=parseFloat(val);
+				}
+
+				&#x2F;&#x2F;apply interpolated value
+				var score_string = value + &#x27;&#x2F;&#x27; + min + &#x27;&#x2F;&#x27; + max;
+				track.set({&#x27;score&#x27;:score_string},{&#x27;silent&#x27;:true});
+
+			}
+
+
+		},
+
+		&#x27;isInterpolated&#x27;: function (track, manager) {
+		
+			&#x2F;&#x2F;check for interpolated values
+			var raw = manager.get(track.id, this.name, &#x27;raw&#x27;);
+
+			if(raw===&#x27;auto&#x27;) return true;
+			else 			 return false;			
+
+		},
+
+		&#x27;refresh&#x27;: function(track, manager){
+
+			&#x2F;&#x2F;get refering node
+			var node = manager.document.getNodeById(track.id);
+
+			&#x2F;&#x2F;check for interpolated values
+			var raw = manager.get(track.id, this.name, &#x27;raw&#x27;);
+			var score = parseScoreString(track);
+
+			if(raw===&#x27;auto&#x27;){
+
+				var childs = node.children();
+				if(childs.length==0) return;
+
+				var value = 0;
+				for (var i = 0; i&lt; childs.length; i++){
+					var val = manager.get(childs[i].id,&#x27;score&#x27;,&#x27;value&#x27;);
+					if (!_.isUndefined(val)) value+=parseFloat(val);
+				}
+
+				var min = 0;
+				for (var i = 0; i&lt; childs.length; i++){
+					var val = manager.get(childs[i].id,&#x27;score&#x27;,&#x27;min&#x27;);
+					if (!_.isUndefined(val)) min+=parseFloat(val);
+				}
+
+				var max = 0;
+				for (var i = 0; i&lt; childs.length; i++){
+					var val = manager.get(childs[i].id,&#x27;score&#x27;,&#x27;max&#x27;);
+					if (!_.isUndefined(val)) max+=parseFloat(val);
+				}
+
+				&#x2F;&#x2F;apply changes silentlly
+				var score_string = value + &#x27;&#x2F;&#x27; + min + &#x27;&#x2F;&#x27; + max;
+				track.set({&#x27;score&#x27;:score_string});
+
+			}
+
+			return;
+
+		},
+
+		&#x27;isAutomatic&#x27;: function(raw){
+
+			if(_.isUndefined(raw) || _.isNull(raw) || _.isNaN(raw)) return true;
+			if(raw ===&#x27;auto&#x27; || raw ===&#x27;none&#x27;) return true;
+
+			return false;
+		},
+		&#x27;set&#x27;: function(value, track, manager, important){
+			
+			var raw = manager.get(track.id, this.name, &#x27;raw&#x27;);
+			var is_auto = this.isAutomatic(raw);
+			if(is_auto) return;
+
+			&#x2F;&#x2F;ok its manual value..
+			var score = parseScoreString(track);
+
+			if(!score || score ===&#x27;auto&#x27; || score ===&#x27;none&#x27;) return;
+
+			var is_sum = false;
+
+			if(_.isString(value)){
+				if(value.indexOf(&#x27;+&#x27;)===0){
+					is_sum = true;
+				}
+				else if(value.indexOf(&#x27;-&#x27;)===0){
+					is_sum = true;
+				}
+			}
+
+			value = parseFloat(value);
+
+			if(!_.isNumber(value)) return;
+
+			var cval = score.value;
+
+			var result = value;
+			if(is_sum) result = cval + value;
+
+			var is_change = (result!=cval)? true : false;
+
+			if(is_change){
+
+				&#x2F;&#x2F;apply changes silentlly
+				var score_string = result + &#x27;&#x2F;&#x27; + score.min + &#x27;&#x2F;&#x27; + score.max;
+				track.set({&#x27;score&#x27;:score_string}, {&#x27;silent&#x27;:true});
+
+			}
+
+
+			&#x2F;&#x2F;realease &#x27;change&#x27; track event
+			track.change();	
+			
+			&#x2F;*
+			if(is_change){
+
+				if(result &gt;= score.min){
+
+					if(result &gt; score.max){
+						manager.set(track.id, &#x27;status&#x27;, STATUS.BONUS);
+					}
+					else if(track.get(&#x27;status&#x27;)&lt;STATUS.PASSED){
+						manager.set(track.id, &#x27;status&#x27;, STATUS.PASSED);
+					}	
+						
+				}
+
+			}*&#x2F;
+
+		
+			&#x2F;&#x2F;return resulting value
+			return result;
+
+		},
+
+		&#x27;onchange&#x27;: function(track, trackman){
+
+			&#x2F;&#x2F;get reffering node
+			var node = trackman.document.getNodeById(track.id);
+
+			var parent = node.parent();
+
+			if(parent &amp;&amp; parent.isTracking(this.name)) trackman.refresh(parent.id,this.name);
+
+			return;
+
+		}
+
+
+	};
+
+
+
+	&#x2F;&#x2F;expose
+	smx.tracking.TrackDataTypes = AttributeController;
+
+
+})(window.smx);
+    </pre>
+</div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="..&#x2F;assets/vendor/prettify/prettify-min.js"></script>
+<script>prettyPrint();</script>
+<script src="..&#x2F;assets/js/yui-prettify.js"></script>
+<script src="..&#x2F;assets/../api.js"></script>
+<script src="..&#x2F;assets/js/api-filter.js"></script>
+<script src="..&#x2F;assets/js/api-list.js"></script>
+<script src="..&#x2F;assets/js/api-search.js"></script>
+<script src="..&#x2F;assets/js/apidocs.js"></script>
+</body>
+</html>
