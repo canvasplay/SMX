@@ -23,7 +23,7 @@ module.exports = function(grunt) {
                     expand: true,
                     cwd: 'src/',
                     src: ['**/*.js'],
-                    dest: 'build/'
+                    dest: 'dist/'
                 }]
             },
 
@@ -36,57 +36,57 @@ module.exports = function(grunt) {
             dist: {
                 src: [
 
-                    'build/document/Sizzle.js',
+                    'dist/document/Sizzle.js',
 
-                    'build/smx.js',
+                    'dist/smx.js',
 
-                    'build/compiler/Compiler.js',
+                    'dist/compiler/Compiler.js',
 
-                    'build/time/time.js',
-                    'build/time/Timer.js',
-                    'build/time/Timeline.js',
-                    'build/playhead/SMXPlayhead.js',
-
-
-
-                    'build/finder/SMXFinder.js',
+                    'dist/time/time.js',
+                    'dist/time/Timer.js',
+                    'dist/time/Timeline.js',
+                    'dist/playhead/SMXPlayhead.js',
 
 
-                    'build/document/fn.js',
-                    'build/document/TimeAttrController.js',
-                    'build/document/UIAttrController.js',
+
+                    'dist/finder/SMXFinder.js',
+
+
+                    'dist/document/fn.js',
+                    'dist/document/TimeAttrController.js',
+                    'dist/document/UIAttrController.js',
 
 
                     //PLUGINS
 
                     //Tracking
-                    'build/tracking/TrackManager.js',
-                    'build/tracking/attributes/progress.js',
-                    'build/tracking/attributes/score.js',
-                    'build/tracking/attributes/status.js',
-                    'build/tracking/attributes/access.js',
-                    'build/tracking/attributes/points.js',
-                    'build/tracking/TrackInterface.js',
+                    'dist/tracking/TrackManager.js',
+                    'dist/tracking/attributes/progress.js',
+                    'dist/tracking/attributes/score.js',
+                    'dist/tracking/attributes/status.js',
+                    'dist/tracking/attributes/access.js',
+                    'dist/tracking/attributes/points.js',
+                    'dist/tracking/TrackInterface.js',
                     
 
                     //Prototype
-                    'build/plugins/prototype/CSSParser.js',
-                    'build/plugins/prototype/PrototypeParser.js',
+                    'dist/plugins/prototype/CSSParser.js',
+                    'dist/plugins/prototype/PrototypeParser.js',
                     
                     //Metadata
-                    'build/plugins/metadata/MetadataParser.js',
-                    'build/plugins/metadata/MetadataInterface.js',
+                    'dist/plugins/metadata/MetadataParser.js',
+                    'dist/plugins/metadata/MetadataInterface.js',
 
                     //Taxonomy
-                    //'build/taxonomy/TaxonomyParser.js',
-                    'build/plugins/taxonomy/TaxonomyInterface.js',
+                    //'dist/taxonomy/TaxonomyParser.js',
+                    'dist/plugins/taxonomy/TaxonomyInterface.js',
 
 
-                    'build/document/Document.js'
+                    'dist/document/Document.js'
 
 
                 ],
-                dest: 'build/smx.js'
+                dest: 'dist/smx.js'
             }
         },
 
@@ -96,13 +96,13 @@ module.exports = function(grunt) {
             },
             dist: {
                 files: {
-                    'build/smx.min.js': ['<%= concat.dist.dest %>']
+                    'dist/smx.min.js': ['<%= concat.dist.dest %>']
                 }
             }
         },
 
-        //clean all subfolders in build/
-        clean: ['build/*/']
+        //clean all subfolders in dist/
+        clean: ['dist/*/']
 
 
     });
