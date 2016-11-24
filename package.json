@@ -2,6 +2,13 @@
   "name": "SMX",
   "branch": "master",
   "version": "0.8.13",
+  "author": {
+    "name": "clopezdepablo"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/clopezdepablo/SMX.git"
+  },
   "devDependencies": {
     "babel-preset-es2015": "^6.18.0",
     "grunt": "^1.0.1",
