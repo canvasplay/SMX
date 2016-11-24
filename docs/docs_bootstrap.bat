@@ -1,1 +1,0 @@
-yuidoc -t ./yuidoc-bootstrap-theme -H ./yuidoc-bootstrap-theme/helpers/helpers.js ./../
