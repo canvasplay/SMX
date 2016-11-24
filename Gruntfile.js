@@ -115,6 +115,6 @@ module.exports = function(grunt) {
 
     grunt.registerTask('version', ['bump']);
     //grunt.registerTask('default', ['babel', 'concat', 'uglify','clean']);
-    grunt.registerTask('default', ['babel', 'concat', 'clean']);
+    grunt.registerTask('default', ['babel', 'concat', 'uglify', 'clean']);
 
 };
