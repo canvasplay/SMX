@@ -18,15 +18,16 @@
 	 *
 	 *	based on _.uniqueId(), incremental starting at 0
 	 *	Native Intger.toString cannot handle bases higher than 36
-	 *	BigInt.js is minified and inlined here to support up to base62
+	 *	!!! BigInt.js is minified and inlined here to support up to base62
+	 *	Actually is not inlined...
 	 *
 	 */
 
-	//base36 [0-9]+[A-Z]
-	//base62 [0-9]+[A-Z]+[a-z]
-	//var GET_UNIQUE_ID = function(){ return parseInt(_.uniqueId()).toString(36) };
+	//base36 [0-9]+[a-z]
+	//base62 [0-9]+[a-z]+[A-Z]
+	var GET_UNIQUE_ID = function(){ return parseInt(_.uniqueId()).toString(36) };
 	//var GET_UNIQUE_ID = function(){ return bigInt2str(str2bigInt(_.uniqueId()+"",10,0,0),36) };
-	const GET_UNIQUE_ID = function(){ return bigInt2str(str2bigInt(_.uniqueId()+"",10,0,0),62) };
+	//const GET_UNIQUE_ID = function(){ return bigInt2str(str2bigInt(_.uniqueId()+"",10,0,0),62) };
 
 
 
