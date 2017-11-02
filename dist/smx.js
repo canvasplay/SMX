@@ -4181,33 +4181,29 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         var json;
 
         if (options.selector + '') {
-          (function () {
 
-            var nodes = doc.find(options.selector);
+          var nodes = doc.find(options.selector);
 
-            var ids = _.pluck(nodes, 'id');
+          var ids = _.pluck(nodes, 'id');
 
-            var datas = [];
+          var datas = [];
 
-            _.each($meta, function (value, key, list) {
+          _.each($meta, function (value, key, list) {
 
-              if (_.contains(ids, key)) datas.push(value);
-            });
+            if (_.contains(ids, key)) datas.push(value);
+          });
 
-            json = _.map(datas, function (data, index) {
-              data.id = ids[index];return data;
-            });
-          })();
+          json = _.map(datas, function (data, index) {
+            data.id = ids[index];return data;
+          });
         } else {
-          (function () {
 
-            var ids = _.keys($meta);
-            var values = _.values($meta);
+          var _ids = _.keys($meta);
+          var values = _.values($meta);
 
-            json = _.map(values, function (value, index) {
-              value.id = ids[index];return value;
-            });
-          })();
+          json = _.map(values, function (value, index) {
+            value.id = _ids[index];return value;
+          });
         }
 
         _.each(json, function (item) {
