@@ -1,16 +1,9 @@
-(function(win){
-
-
-//private aux debug system
-var DEBUG = true; var LOG = function(str){ if (win.console&&win.console.log&&DEBUG) win.console.log('DOCUMENT: '+str) };
-
-
-//local smx ref
-var smx = win.smx;
+(function(global, smx){
 
 
 
-var $smx = window['$smx'] = {};
+//declare and expose $smx namespace
+var $smx = global['$smx'] = {};
 
 
 
@@ -26,19 +19,21 @@ $smx.cache = {};
 ////////////////////////////////
 // SMX NODE
 
-var SMXNode = function(xmlNode){
+class SMXNode{
+  
+  constructor(xmlNode){
 
     this[0] = xmlNode;
-
+    
     this.id = this[0].getAttribute('id');
-
+    
     this.uid = (parseInt(_.uniqueId()).toString(36));
-
+    
     this.name = this[0].nodeName;
-
-    return this;
-
-};
+    
+  }
+  
+}
 
 //extend SMXNode prototype
 _.each(smx.fn, function(fns){
@@ -48,7 +43,6 @@ _.each(smx.fn, function(fns){
 });
 
 //expose
-
 smx.Node = SMXNode;
 
 
@@ -114,63 +108,4 @@ $smx.node = function(elems){
 
 
 
-
-
-
-
-
-
-
-
-
-
-    var SMXDocument = function(file, path, xml){
-
-
-        if (!xml) return;
-
-        if (!file) file = 'index.xml';
-        if (!path) path = '';
-
-
-        //using lastChild prevents getting unwanted xml node...
-        //IE8 p.e. returns "ProcessingInstruction" for firstChild
-        xml = xml.removeChild(xml.lastChild);
-
-        if(!xml) return;
-
-        //xml.setAttribute('file',file);
-        //xml.setAttribute('path',path);
-
-
-        //create Document from xml
-        var DOCUMENT = new smx.Node(xml);
-
-        //ensure document has been wrapped, check its [0] property
-        if (!DOCUMENT || !DOCUMENT[0]) return;
-
-        //add document to node indexed cache
-        $smx.cache[DOCUMENT.id] = DOCUMENT;
-
-
-
-
-
-
-
-
-
-
-        /////////////////////////////////////////////////////
-
-        return DOCUMENT;
-
-    };
-
-    //expose
-
-    smx.Document = SMXDocument;
-
-
-
-})(window);
+})(window, window.smx);

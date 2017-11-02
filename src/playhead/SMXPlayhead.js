@@ -5,7 +5,7 @@
 *	SMXDocument Navigation controller class
 *
 */
-	
+
 class SMXPlayhead{
 
   /**
@@ -258,8 +258,9 @@ class SMXPlayhead{
 	
 
 	/**
-	*	@method forward
-	*   @description Go to next node in flat tree way
+	* @method forward
+	* @description Go to next node in flat tree mode
+	*
 	*/
 	forward(){
 		
@@ -303,8 +304,9 @@ class SMXPlayhead{
 	}
 
 	/**
-	*	@method rewind
-	*   @description Go to previous node in flat tree way
+	* @method rewind
+	* @description Go to previous node in flat tree mode
+	*
 	*/
 	rewind(){
 		
@@ -322,7 +324,7 @@ class SMXPlayhead{
 	*/
 	go(ref, opt){
 
-		//is ref a keywords?
+		//is ref a keyword?
 		//keywords always strings prefixed with '!'
 		if(_.isString(ref) && ref.indexOf('!') === 0){
 

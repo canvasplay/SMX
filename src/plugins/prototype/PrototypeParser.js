@@ -1,26 +1,16 @@
 ////////////////////////////////
 // smx plugin
-// METADATA PARSER
-// will transform all <metadata> nodes
+// PROTOTYPE PARSER
+// This plugins process all <prototype> nodes
 // convert first level children nodes into meta-* attributes
 // and apply those attributes to direct parent node
 
 
-(function(global){
+(function(global, Sizzle, smx){
  
 
     //private aux debug system
-    var DEBUG = true; var LOG = function(str){ if (global.console&&global.console.log&&DEBUG) global.console.log('PROTOTYPE: '+str) };
-
-
-    //local smx ref
-    var smx = global.smx;
-
-
-    ////////////////////////////////
-    // PRIVATE SELECTOR ENGINE SHORTCUT
-    // defined out of constructor, so multiple SMXDocuments will use same shortcut instance
-    var _SIZZLE = global.Sizzle;
+    var DEBUG = true; var LOG = function(str){ if (global.console&&global.console.log&&DEBUG) global.console.log('PROTOTYPE '+str) };
 
 
     var PrototypeProcessor = {};
@@ -42,7 +32,7 @@
 
         // get all <prototype> nodes in given XML
         // <prototype> nodes will get removed after parse process
-        var nodes = _SIZZLE('prototype', XML);
+        var nodes = Sizzle('prototype', XML);
 
 
         LOG('PARSING PROTOTYPES... ('+ nodes.length +')');
@@ -178,12 +168,10 @@
 
     PrototypeProcessor.applyPrototypes = function(xml,proto){
 
+        //get target node
+        var node = Sizzle('#'+proto.id, xml)[0];
 
-        var node = _SIZZLE('#'+proto.id, xml)[0];
-
-        if(!node) return;
-
-        var XML = node;
+        var XML = node || xml;
 
         var RULES = proto.rules;
 
@@ -234,10 +222,10 @@
         _.each(RULES, function(value, key, list){
 
             //get matching nodes
-            var nodes = _SIZZLE(key, XML);
+            var nodes = Sizzle(key, XML);
 
             //include document itself to nodes list
-            if (_SIZZLE.matchesSelector(XML,key)) nodes.unshift(XML);
+            if (Sizzle.matchesSelector(XML,key)) nodes.unshift(XML);
 
             //get proto attrs
             var attrs = RULES[key];
@@ -265,9 +253,9 @@
             if(!_.isString(node_id) || node_id==="") return;
 
             //var node = INDEX_CACHE[node_id];
-            //var node = _SIZZLE.matchesSelector(XML,'#'+node_id);
-            //var node = _SIZZLE.matchesSelector(XML.documentElement,'#'+node_id);
-            var node = (XML.getAttribute('id')===node_id)? XML : _SIZZLE('#'+node_id, XML)[0];
+            //var node = Sizzle.matchesSelector(XML,'#'+node_id);
+            //var node = Sizzle.matchesSelector(XML.documentElement,'#'+node_id);
+            var node = (XML.getAttribute('id')===node_id)? XML : Sizzle('#'+node_id, XML)[0];
             //var node = XML.getElementById(node_id);
             //WARNING!!!!!!!! IE8 FAILS!!!!
             //.getElementById is not supported for XML documents
@@ -302,4 +290,4 @@
 
 
 
-})(window);
+})(window, window.Sizzle, window.smx);

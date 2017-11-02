@@ -1,4 +1,4 @@
-(function(global, _, Backbone, smx){
+(function(global, _, smx){
   
   
 class SMXFinder{
@@ -127,4 +127,4 @@ class SMXFinder{
 smx.Finder = SMXFinder;
 
 
-})(window, window._, window.Backbone, window.smx);
+})(window, window._, window.smx);

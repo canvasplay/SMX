@@ -1821,7 +1821,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 /**
  * SMX DOCUMENT COMPILER
- * Load smx xml document, search and load recursively "include" nodes
+ * Load smx xml document, search and load recursively "include" nodes,...
  */
 
 (function (win, _, $, smx, log) {
@@ -1833,23 +1833,23 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 			};
 
 			/**
-    *	method
+    *	util method
     *	GET_UNIQUE_ID
-    *	returns unique base62 ids strings [0-9]+[A-Z]+[a-z]
+    *	returns unique base36 ids strings [0-9]+[a-z]
     *
     *	based on _.uniqueId(), incremental starting at 0
-    *	Native Intger.toString cannot handle bases higher than 36
-    *	BigInt.js is minified and inlined here to support up to base62
+    *	Native Intger.toString handle only up base 36
+    *
+    *  base36 [0-9]+[a-z]
+     *  base62 [0-9]+[a-z]+[A-Z] but requires BigInt.js!
     *
     */
 
-			//base36 [0-9]+[A-Z]
-			//base62 [0-9]+[A-Z]+[a-z]
-			//var GET_UNIQUE_ID = function(){ return parseInt(_.uniqueId()).toString(36) };
-			//var GET_UNIQUE_ID = function(){ return bigInt2str(str2bigInt(_.uniqueId()+"",10,0,0),36) };
 			var GET_UNIQUE_ID = function GET_UNIQUE_ID() {
-						return bigInt2str(str2bigInt(_.uniqueId() + "", 10, 0, 0), 62);
+						return parseInt(_.uniqueId()).toString(36);
 			};
+			//const GET_UNIQUE_ID = ()=>{ return bigInt2str(str2bigInt(_.uniqueId()+"",10,0,0),62) };
+
 
 			var DocumentCompiler = function DocumentCompiler(options) {
 
@@ -1880,7 +1880,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 									//set path
 									this.options.path = path ? path : '';
 
-									var url = this.options.path != '' ? this.options.path + this.options.directoryIndex : '' + this.options.directoryIndex;
+									var url = this.options.path !== '' ? this.options.path + this.options.directoryIndex : '' + this.options.directoryIndex;
 									this.loadFile(url, 'smx');
 
 									return;
@@ -1916,6 +1916,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 									var is_root = !this.XML ? true : false;
 
 									if (is_root) {
+
+												xml = this.resolveNodeSourceOriginAttribute(xml, xhr._url);
 
 												//set xml root node
 												this.XML = $(xml)[0];
@@ -2108,7 +2110,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 																		ref = parent;
 															}
 
-															if (inc_path && inc_path != '') this.loadFile(this.options.path + inc_path, inc_type);
+															//if (inc_path && inc_path!= '') this.loadFile(this.options.path + inc_path, inc_type);
+															if (inc_path && inc_path != '') this.loadFile(inc_path, inc_type);
 
 															return;
 												}
@@ -2130,9 +2133,14 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 									var XML = this.XML;
 
-									//set inlcuded node core attributes
-									this.XML.documentElement.setAttribute('path', this.options.path);
-									this.XML.documentElement.setAttribute('file', this.options.file);
+									//extract last child XMLnode in resultant XMLDocument and ignore the document...
+									//using lastChild prevents getting unwanted xml node...
+									//IE8 p.e. returns "ProcessingInstruction" for firstChild
+									XML = XML.removeChild(XML.lastChild);
+
+									//also extract file and path attributes
+									$(XML).attr('path', $(this.XML).attr('path'));
+									$(XML).attr('file', $(this.XML).attr('file'));
 
 									try {
 
@@ -2159,6 +2167,40 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 									return;
 						};
 
+						//create 'path' and 'file' from 'src'
+						this.resolveNodeSourceOriginAttribute = function (node, url) {
+
+									//get src string from node attribute or given url
+									var src = url ? url : $(node).attr('src');
+
+									//declare resultant attribute values
+									var path = void 0,
+									    file = void 0;
+
+									//no src string? just ignore..
+									if (!src) return;
+
+									//split by slashes and also
+									//clean empty or empty src parts
+									src = _.compact(src.split('/'));
+
+									if (src.length > 0) {
+												if (src[src.length - 1].indexOf('.xml')) {
+															file = src[src.length - 1];
+															src.pop();
+															path = src.join('/');
+												} else {
+															path = src.join('/');
+												}
+									}
+
+									//set node source origin attributes
+									if (path) $(node).attr('path', path + '/');
+									if (file) $(node).attr('file', file);
+
+									return node;
+						};
+
 						/*
       		!!!WARNING - THIS IS USELESS
       
@@ -2182,7 +2224,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
       
       */
 
-						this.normalizeIdAttributes = function (XML) {
+						this.normalizeIdAttributes = function (xml) {
 
 									//ids control
 									//ensure all nodes have a valid and unique id attribute
@@ -2190,8 +2232,12 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 									//get all nodes missing [id] attribute, but...
 									//excluding nodes defining [type] and its contents
 									//excluding <metadata> nodes and its contents
-									var $req_id_nodes = $(XML).find(':not([id]):not(metadata):not(metadata *):not(prototype):not(prototype *):not([type] *)');
-									var $having_id_nodes = $(XML).find('[id]:not(metadata):not(metadata *):not(prototype):not(prototype *):not([type] *)');
+									//excluding <prototype> nodes and its contents
+									var $req_id_nodes = $(xml).find(':not([id]):not(metadata):not(metadata *):not(prototype):not(prototype *):not([type] *)').get();
+									var $having_id_nodes = $(xml).find('[id]:not(metadata):not(metadata *):not(prototype):not(prototype *):not([type] *)').get();
+
+									//include root xml node itself in the list
+									if (!$(xml).attr('id')) $req_id_nodes.unshift(xml);else $having_id_nodes.unshift(xml);
 
 									var in_use_ids = [];
 
@@ -2221,7 +2267,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 									LOG('RESOLVE IDs (' + $req_id_nodes.length + ' nodes)');
 
-									return XML;
+									return xml;
 						};
 
 						this.normalizeTimeAttributes = function (XML) {
@@ -3538,8 +3584,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 
 			/**
-   *	@method forward
-   *   @description Go to next node in flat tree way
+   * @method forward
+   * @description Go to next node in flat tree mode
+   *
    */
 
 		}, {
@@ -3579,8 +3626,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 
 			/**
-   *	@method rewind
-   *   @description Go to previous node in flat tree way
+   * @method rewind
+   * @description Go to previous node in flat tree mode
+   *
    */
 
 		}, {
@@ -3603,7 +3651,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			key: 'go',
 			value: function go(ref, opt) {
 
-				//is ref a keywords?
+				//is ref a keyword?
 				//keywords always strings prefixed with '!'
 				if (_.isString(ref) && ref.indexOf('!') === 0) {
 
@@ -4083,7 +4131,7 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-(function (global, _, Backbone, smx) {
+(function (global, _, smx) {
   var SMXFinder = function () {
     function SMXFinder(doc) {
       _classCallCheck(this, SMXFinder);
@@ -4202,7 +4250,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 
   smx.Finder = SMXFinder;
-})(window, window._, window.Backbone, window.smx);
+})(window, window._, window.smx);
 //# sourceMappingURL=SMXFinder.js.map
 ;'use strict';
 
@@ -4638,8 +4686,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                         //validate given node (smx node required)
                         if (!node.parents) return false;
 
-                        var parents = node.parents();
-                        if (_.contains(parents, this)) return true;else return false;
+                        var parentsId = _.map(node.parents(), 'id');
+                        if (_.contains(parentsId, this.id)) return true;else return false;
                 },
 
                 /**
@@ -4756,8 +4804,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                         //validate given node (smx node required)
                         if (!node.parents) return false;
 
-                        var parents = this.parents();
-                        if (_.contains(parents, node)) return true;else return false;
+                        var parentsId = _.map(this.parents(), 'id');
+                        if (_.contains(parentsId, node.id)) return true;else return false;
                 },
 
                 // SIBLING RELATED OPERATIONS
@@ -7316,26 +7364,18 @@ global.CSSParser=CSSParser;})(window);
 
 ////////////////////////////////
 // smx plugin
-// METADATA PARSER
-// will transform all <metadata> nodes
+// PROTOTYPE PARSER
+// This plugins process all <prototype> nodes
 // convert first level children nodes into meta-* attributes
 // and apply those attributes to direct parent node
 
 
-(function (global) {
+(function (global, Sizzle, smx) {
 
         //private aux debug system
         var DEBUG = true;var LOG = function LOG(str) {
-                if (global.console && global.console.log && DEBUG) global.console.log('PROTOTYPE: ' + str);
+                if (global.console && global.console.log && DEBUG) global.console.log('PROTOTYPE ' + str);
         };
-
-        //local smx ref
-        var smx = global.smx;
-
-        ////////////////////////////////
-        // PRIVATE SELECTOR ENGINE SHORTCUT
-        // defined out of constructor, so multiple SMXDocuments will use same shortcut instance
-        var _SIZZLE = global.Sizzle;
 
         var PrototypeProcessor = {};
 
@@ -7356,7 +7396,7 @@ global.CSSParser=CSSParser;})(window);
 
                 // get all <prototype> nodes in given XML
                 // <prototype> nodes will get removed after parse process
-                var nodes = _SIZZLE('prototype', XML);
+                var nodes = Sizzle('prototype', XML);
 
                 LOG('PARSING PROTOTYPES... (' + nodes.length + ')');
 
@@ -7475,11 +7515,10 @@ global.CSSParser=CSSParser;})(window);
 
         PrototypeProcessor.applyPrototypes = function (xml, proto) {
 
-                var node = _SIZZLE('#' + proto.id, xml)[0];
+                //get target node
+                var node = Sizzle('#' + proto.id, xml)[0];
 
-                if (!node) return;
-
-                var XML = node;
+                var XML = node || xml;
 
                 var RULES = proto.rules;
 
@@ -7520,10 +7559,10 @@ global.CSSParser=CSSParser;})(window);
                 _.each(RULES, function (value, key, list) {
 
                         //get matching nodes
-                        var nodes = _SIZZLE(key, XML);
+                        var nodes = Sizzle(key, XML);
 
                         //include document itself to nodes list
-                        if (_SIZZLE.matchesSelector(XML, key)) nodes.unshift(XML);
+                        if (Sizzle.matchesSelector(XML, key)) nodes.unshift(XML);
 
                         //get proto attrs
                         var attrs = RULES[key];
@@ -7545,9 +7584,9 @@ global.CSSParser=CSSParser;})(window);
                         if (!_.isString(node_id) || node_id === "") return;
 
                         //var node = INDEX_CACHE[node_id];
-                        //var node = _SIZZLE.matchesSelector(XML,'#'+node_id);
-                        //var node = _SIZZLE.matchesSelector(XML.documentElement,'#'+node_id);
-                        var node = XML.getAttribute('id') === node_id ? XML : _SIZZLE('#' + node_id, XML)[0];
+                        //var node = Sizzle.matchesSelector(XML,'#'+node_id);
+                        //var node = Sizzle.matchesSelector(XML.documentElement,'#'+node_id);
+                        var node = XML.getAttribute('id') === node_id ? XML : Sizzle('#' + node_id, XML)[0];
                         //var node = XML.getElementById(node_id);
                         //WARNING!!!!!!!! IE8 FAILS!!!!
                         //.getElementById is not supported for XML documents
@@ -7570,7 +7609,7 @@ global.CSSParser=CSSParser;})(window);
 
         //expose into global smx namespace
         smx.proto = PrototypeProcessor;
-})(window);
+})(window, window.Sizzle, window.smx);
 //# sourceMappingURL=PrototypeParser.js.map
 ;'use strict';
 
@@ -7582,21 +7621,12 @@ global.CSSParser=CSSParser;})(window);
 // and apply those attributes to direct parent node
 
 
-(function (global) {
+(function (global, Sizzle, smx) {
 
         //private aux debug system
         var DEBUG = true;var LOG = function LOG(str) {
-                if (global.console && global.console.log && DEBUG) global.console.log('METADATA: ' + str);
+                if (global.console && global.console.log && DEBUG) global.console.log('METADATA ' + str);
         };
-
-        //local smx ref
-        var smx = global.smx;
-
-        ////////////////////////////////
-        // PRIVATE SELECTOR ENGINE SHORTCUT
-        // defined out of constructor, so multiple SMXDocuments will use same shortcut instance
-
-        var _SIZZLE = global.Sizzle;
 
         var MetadataParser = {};
 
@@ -7636,7 +7666,7 @@ global.CSSParser=CSSParser;})(window);
                 // `metadata-processed` attribute is added while parsing process
                 // nodes missing the flag attr are the nodes we need to parse
                 var nodes;
-                if (!options.nodes) nodes = _SIZZLE('*:not([metadata-processed]):not([type="html"]):not([type="html"] *)', XML);else nodes = options.nodes;
+                if (!options.nodes) nodes = Sizzle('*:not([metadata-processed]):not([type="html"]):not([type="html"] *)', XML);else nodes = options.nodes;
 
                 //calculate percent progress
                 if (nodes.length > options.total) options.total = nodes.length;
@@ -7686,7 +7716,7 @@ global.CSSParser=CSSParser;})(window);
 
                                 //remove all existing metadata-processed attributes
                                 LOG('REMOVING FLAGS...');
-                                var flagged_nodes = _SIZZLE('[metadata-processed]', XML);
+                                var flagged_nodes = Sizzle('[metadata-processed]', XML);
                                 _.each(flagged_nodes, function (node) {
                                         node.removeAttribute('metadata-processed');
                                 });
@@ -7827,7 +7857,7 @@ global.CSSParser=CSSParser;})(window);
 
         //expose into global smx namespace
         smx.meta = MetadataParser;
-})(window);
+})(window, window.Sizzle, window.smx);
 //# sourceMappingURL=MetadataParser.js.map
 ;"use strict";
 
@@ -7966,132 +7996,92 @@ global.CSSParser=CSSParser;})(window);
 //# sourceMappingURL=TaxonomyInterface.js.map
 ;'use strict';
 
-(function (win) {
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-        //private aux debug system
-        var DEBUG = true;var LOG = function LOG(str) {
-                if (win.console && win.console.log && DEBUG) win.console.log('DOCUMENT: ' + str);
+(function (global, smx) {
+
+    //declare and expose $smx namespace
+    var $smx = global['$smx'] = {};
+
+    ////////////////////////////////
+    // PRIVATE INDEXED NODE LIST CACHE
+
+    $smx.cache = {};
+
+    ////////////////////////////////
+    // SMX NODE
+
+    var SMXNode = function SMXNode(xmlNode) {
+        _classCallCheck(this, SMXNode);
+
+        this[0] = xmlNode;
+
+        this.id = this[0].getAttribute('id');
+
+        this.uid = parseInt(_.uniqueId()).toString(36);
+
+        this.name = this[0].nodeName;
+    };
+
+    //extend SMXNode prototype
+
+
+    _.each(smx.fn, function (fns) {
+
+        _.extend(SMXNode.prototype, fns);
+    });
+
+    //expose
+    smx.Node = SMXNode;
+
+    ////////////////////////////////
+    // SMX NODE WRAPPER
+
+    $smx.node = function (elems) {
+
+        var _SMXNode = function _SMXNode(xmlNode) {
+
+            var id = null;
+
+            //if(!xmlNode) return;
+            //if (xmlNode.nodeName == 'undefined') return;
+            //if (typeof xmlNode.nodeType == 'undefined') return;
+            //if (xmlNode.nodeType != 1) return;
+
+            //can this try replace the 4 conditionals above? yes...
+            try {
+                id = xmlNode.getAttribute('id');
+            } catch (e) {}
+
+            //id attr is required!
+            if (!id) return;
+
+            //Does already exists a node with this id?
+            //prevent duplicated nodes and return existing one
+            if ($smx.cache[id]) return $smx.cache[id];
+
+            //create new SMXNode from given XMLNode
+            var node = new smx.Node(xmlNode);
+
+            //add it to nodes cache
+            $smx.cache[id] = node;
+
+            //return just created node
+            return node;
         };
 
-        //local smx ref
-        var smx = win.smx;
-
-        var $smx = window['$smx'] = {};
-
-        ////////////////////////////////
-        // PRIVATE INDEXED NODE LIST CACHE
-
-        $smx.cache = {};
-
-        ////////////////////////////////
-        // SMX NODE
-
-        var SMXNode = function SMXNode(xmlNode) {
-
-                this[0] = xmlNode;
-
-                this.id = this[0].getAttribute('id');
-
-                this.uid = parseInt(_.uniqueId()).toString(36);
-
-                this.name = this[0].nodeName;
-
-                return this;
-        };
-
-        //extend SMXNode prototype
-        _.each(smx.fn, function (fns) {
-
-                _.extend(SMXNode.prototype, fns);
-        });
-
-        //expose
-
-        smx.Node = SMXNode;
-
-        ////////////////////////////////
-        // SMX NODE WRAPPER
-
-        $smx.node = function (elems) {
-
-                var _SMXNode = function _SMXNode(xmlNode) {
-
-                        var id = null;
-
-                        //if(!xmlNode) return;
-                        //if (xmlNode.nodeName == 'undefined') return;
-                        //if (typeof xmlNode.nodeType == 'undefined') return;
-                        //if (xmlNode.nodeType != 1) return;
-
-                        //can this try replace the 4 conditionals above? yes...
-                        try {
-                                id = xmlNode.getAttribute('id');
-                        } catch (e) {}
-
-                        //id attr is required!
-                        if (!id) return;
-
-                        //Does already exists a node with this id?
-                        //prevent duplicated nodes and return existing one
-                        if ($smx.cache[id]) return $smx.cache[id];
-
-                        //create new SMXNode from given XMLNode
-                        var node = new smx.Node(xmlNode);
-
-                        //add it to nodes cache
-                        $smx.cache[id] = node;
-
-                        //return just created node
-                        return node;
-                };
-
-                if (elems && (_.isArray(elems) || !_.isUndefined(elems.length)) && _.isUndefined(elems.nodeType)) {
-                        var result = [];
-                        for (var i = 0; i < elems.length; i++) {
-                                if (elems[i]) {
-                                        var node = elems[i][0] ? elems[i] : _SMXNode(elems[i]);
-                                        if (node) result.push(node);
-                                }
-                        }
-                        return result;
-                } else if (elems) {
-                        if (elems[0]) return elems;else return _SMXNode(elems);
-                } else return;
-        };
-
-        var SMXDocument = function SMXDocument(file, path, xml) {
-
-                if (!xml) return;
-
-                if (!file) file = 'index.xml';
-                if (!path) path = '';
-
-                //using lastChild prevents getting unwanted xml node...
-                //IE8 p.e. returns "ProcessingInstruction" for firstChild
-                xml = xml.removeChild(xml.lastChild);
-
-                if (!xml) return;
-
-                //xml.setAttribute('file',file);
-                //xml.setAttribute('path',path);
-
-
-                //create Document from xml
-                var DOCUMENT = new smx.Node(xml);
-
-                //ensure document has been wrapped, check its [0] property
-                if (!DOCUMENT || !DOCUMENT[0]) return;
-
-                //add document to node indexed cache
-                $smx.cache[DOCUMENT.id] = DOCUMENT;
-
-                /////////////////////////////////////////////////////
-
-                return DOCUMENT;
-        };
-
-        //expose
-
-        smx.Document = SMXDocument;
-})(window);
+        if (elems && (_.isArray(elems) || !_.isUndefined(elems.length)) && _.isUndefined(elems.nodeType)) {
+            var result = [];
+            for (var i = 0; i < elems.length; i++) {
+                if (elems[i]) {
+                    var node = elems[i][0] ? elems[i] : _SMXNode(elems[i]);
+                    if (node) result.push(node);
+                }
+            }
+            return result;
+        } else if (elems) {
+            if (elems[0]) return elems;else return _SMXNode(elems);
+        } else return;
+    };
+})(window, window.smx);
 //# sourceMappingURL=Document.js.map

@@ -6,23 +6,11 @@
 // and apply those attributes to direct parent node
 
 
-(function(global){
+(function(global, Sizzle, smx){
  
 
     //private aux debug system
-    var DEBUG = true; var LOG = function(str){ if (global.console&&global.console.log&&DEBUG) global.console.log('METADATA: '+str) };
-
-
-    //local smx ref
-    var smx = global.smx;
-
-
-    ////////////////////////////////
-    // PRIVATE SELECTOR ENGINE SHORTCUT
-    // defined out of constructor, so multiple SMXDocuments will use same shortcut instance
-
-    var _SIZZLE = global.Sizzle;
-
+    var DEBUG = true; var LOG = function(str){ if (global.console&&global.console.log&&DEBUG) global.console.log('METADATA '+str) };
 
     var MetadataParser = {};
 
@@ -61,7 +49,7 @@
         // `metadata-processed` attribute is added while parsing process
         // nodes missing the flag attr are the nodes we need to parse
         var nodes;
-        if(!options.nodes) nodes = _SIZZLE('*:not([metadata-processed]):not([type="html"]):not([type="html"] *)', XML);
+        if(!options.nodes) nodes = Sizzle('*:not([metadata-processed]):not([type="html"]):not([type="html"] *)', XML);
         else nodes = options.nodes;
 
 
@@ -119,7 +107,7 @@
 
             //remove all existing metadata-processed attributes
             LOG( 'REMOVING FLAGS...' );
-            var flagged_nodes = _SIZZLE('[metadata-processed]', XML);
+            var flagged_nodes = Sizzle('[metadata-processed]', XML);
             _.each(flagged_nodes,function(node){
                 node.removeAttribute('metadata-processed')
             });
@@ -285,4 +273,4 @@
 
 
 
-})(window);
+})(window, window.Sizzle, window.smx);

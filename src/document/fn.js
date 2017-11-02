@@ -497,8 +497,8 @@ fn.TreeNodeMethods = {
             //validate given node (smx node required)
             if (!node.parents) return false;
 
-            var parents = node.parents();
-            if (_.contains(parents,this)) return true;
+            var parentsId = _.map(node.parents(),'id');
+            if (_.contains(parentsId,this.id)) return true;
             else return false;
 
         },
@@ -627,8 +627,8 @@ fn.TreeNodeMethods = {
             //validate given node (smx node required)
             if (!node.parents) return false;
 
-            var parents = this.parents();
-            if (_.contains(parents,node)) return true;
+            var parentsId = _.map(this.parents(),'id');
+            if (_.contains(parentsId,node.id)) return true;
             else return false;
 
         },
