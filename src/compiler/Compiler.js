@@ -1,6 +1,6 @@
 /**
  * SMX DOCUMENT COMPILER
- * Load smx xml document, search and load recursively "include" nodes
+ * Load smx xml document, search and load recursively "include" nodes,...
  */
 
 (function(win,_,$,smx,log){
@@ -12,21 +12,20 @@
 
 
 	/**
-	 *	method
+	 *	util method
 	 *	GET_UNIQUE_ID
-	 *	returns unique base62 ids strings [0-9]+[A-Z]+[a-z]
+	 *	returns unique base36 ids strings [0-9]+[a-z]
 	 *
 	 *	based on _.uniqueId(), incremental starting at 0
-	 *	Native Intger.toString cannot handle bases higher than 36
-	 *	BigInt.js is minified and inlined here to support up to base62
+	 *	Native Intger.toString handle only up base 36
+	 *
+	 *  base36 [0-9]+[a-z]
+   *  base62 [0-9]+[a-z]+[A-Z] but requires BigInt.js!
 	 *
 	 */
 
-	//base36 [0-9]+[A-Z]
-	//base62 [0-9]+[A-Z]+[a-z]
-	//var GET_UNIQUE_ID = function(){ return parseInt(_.uniqueId()).toString(36) };
-	//var GET_UNIQUE_ID = function(){ return bigInt2str(str2bigInt(_.uniqueId()+"",10,0,0),36) };
-	const GET_UNIQUE_ID = function(){ return bigInt2str(str2bigInt(_.uniqueId()+"",10,0,0),62) };
+	const GET_UNIQUE_ID = function(){ return parseInt(_.uniqueId()).toString(36) };
+	//const GET_UNIQUE_ID = ()=>{ return bigInt2str(str2bigInt(_.uniqueId()+"",10,0,0),62) };
 
 
 
@@ -61,7 +60,7 @@
 			//set path
 			this.options.path = (path)? path : '';
 
-			var url = (this.options.path!='')? this.options.path + this.options.directoryIndex : ''+this.options.directoryIndex;
+			var url = (this.options.path!=='')? this.options.path + this.options.directoryIndex : ''+this.options.directoryIndex;
 			this.loadFile( url , 'smx');
 
 
@@ -103,8 +102,11 @@
 
 			if (is_root){
 
+        xml = this.resolveNodeSourceOriginAttribute(xml, xhr._url);
+
 				//set xml root node
 				this.XML = $(xml)[0];
+				
 
 			}
 			else{
@@ -328,7 +330,8 @@
 						ref = parent;
 					}
 
-					if (inc_path && inc_path!= '') this.loadFile(this.options.path + inc_path, inc_type);
+					//if (inc_path && inc_path!= '') this.loadFile(this.options.path + inc_path, inc_type);
+					if (inc_path && inc_path!= '') this.loadFile(inc_path, inc_type);
 
 					return;
 
@@ -356,10 +359,14 @@
 
 			var XML = this.XML;
 
-			//set inlcuded node core attributes
-			this.XML.documentElement.setAttribute('path', this.options.path);
-			this.XML.documentElement.setAttribute('file', this.options.file);
-
+			//extract last child XMLnode in resultant XMLDocument and ignore the document...
+  		//using lastChild prevents getting unwanted xml node...
+      //IE8 p.e. returns "ProcessingInstruction" for firstChild
+      XML = XML.removeChild(XML.lastChild);
+			
+			//also extract file and path attributes
+			$(XML).attr('path', $(this.XML).attr('path'));
+			$(XML).attr('file', $(this.XML).attr('file'));
 
 			try{
 
@@ -391,6 +398,42 @@
 			return;
 
 		};
+		
+
+    //create 'path' and 'file' from 'src'
+		this.resolveNodeSourceOriginAttribute = function(node, url){
+		  
+		  //get src string from node attribute or given url
+		  let src = (url)? url : $(node).attr('src');
+		  
+		  //declare resultant attribute values
+			let path, file;
+			
+			//no src string? just ignore..
+			if(!src) return;
+			
+			//split by slashes and also
+			//clean empty or empty src parts
+			src = _.compact(src.split('/'));
+			
+			if(src.length>0){
+				if(src[src.length-1].indexOf('.xml')){
+					file = src[src.length-1];
+					src.pop();
+					path = src.join('/');
+				}
+				else{
+					path = src.join('/');
+				}
+			}
+
+			//set node source origin attributes
+			if(path) $(node).attr('path', path+'/');
+			if(file) $(node).attr('file', file);
+		  
+		  return node;
+		  
+		}
 
 
 
@@ -430,7 +473,8 @@
 		*/
 
 
-		this.normalizeIdAttributes = function(XML){
+		this.normalizeIdAttributes = function(xml){
+
 
 			//ids control
 			//ensure all nodes have a valid and unique id attribute
@@ -438,8 +482,16 @@
 			//get all nodes missing [id] attribute, but...
 			//excluding nodes defining [type] and its contents
 			//excluding <metadata> nodes and its contents
-			var $req_id_nodes = $(XML).find(':not([id]):not(metadata):not(metadata *):not(prototype):not(prototype *):not([type] *)');
-			var $having_id_nodes = $(XML).find('[id]:not(metadata):not(metadata *):not(prototype):not(prototype *):not([type] *)');
+			//excluding <prototype> nodes and its contents
+			var $req_id_nodes = $(xml).find(':not([id]):not(metadata):not(metadata *):not(prototype):not(prototype *):not([type] *)').get();
+			var $having_id_nodes = $(xml).find('[id]:not(metadata):not(metadata *):not(prototype):not(prototype *):not([type] *)').get();
+			
+			//include root xml node itself in the list
+			if(!$(xml).attr('id'))
+			  $req_id_nodes.unshift(xml);
+			else
+			  $having_id_nodes.unshift(xml);
+			
 
 			var in_use_ids = [];
 
@@ -473,7 +525,7 @@
 			LOG('RESOLVE IDs ('+ $req_id_nodes.length +' nodes)')
 
 
-			return XML;
+			return xml;
 
 		};
 
