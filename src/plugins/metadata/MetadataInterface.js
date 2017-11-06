@@ -17,7 +17,7 @@
     if(!smx.fn) smx.fn = {};
     
 
-    smx.fn.MetaInterface = {
+    smx.fn.MetadataInterface = {
         
                     
         /**
@@ -60,7 +60,7 @@
             return result;
 
 
-        }  
+        }
 
     };
 
