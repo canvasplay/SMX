@@ -23,6 +23,8 @@ class SMXNode{
   
   constructor(xmlNode){
 
+    //reference to original node
+    //jquery inspired using the [0] :D
     this[0] = xmlNode;
     
     this.id = this[0].getAttribute('id');

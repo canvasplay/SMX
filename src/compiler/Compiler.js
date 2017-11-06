@@ -30,6 +30,62 @@
 
 
 
+  function copyAttributes(srcNode, targetNode){
+    
+    var ignore_attributes = ['src','path','file'];
+    
+    var attrs = srcNode.attributes;
+    
+    for (var i=0; i< attrs.length; i++){
+      
+      var name = attrs[i].name;
+      var value = attrs[i].value;
+      
+      if(!_.contains(ignore_attributes, name)){
+        var attr = targetNode.getAttribute(name);
+        if(typeof attr === undefined || attr === null || attr === false)
+          targetNode.setAttribute(name, value);
+      }
+      
+    }
+    
+    return targetNode;
+    
+  }
+
+  function resolvePathFileAttributes(node, url){
+
+	  //get src string from node attribute or given url
+	  let src = (url)? url : node.getAttribute('src');
+	  
+	  //declare resultant attribute values
+		var path, file;
+		
+		//no src string? just ignore..
+		if(!src) return node;
+
+		//split by slashes and also
+		//clean empty or empty src parts
+		src = _.compact(src.split('/'));
+		
+		//if multipart, last is file
+		if(src.length>0) file = src.pop();
+
+    //join path parts
+		path = src.join('/')+'/';
+
+		//set inlcuded node core attributes
+		//if(path) node.setAttribute('path', path);
+		//if(file) node.setAttribute('file', file);
+		if(path) $(node).attr('path', path);
+		if(file) $(node).attr('file', file);
+		
+		return node;
+
+  }
+  
+  
+
  	var DocumentCompiler = function(options){
 
 
@@ -102,7 +158,7 @@
 
 			if (is_root){
 
-        xml = this.resolveNodeSourceOriginAttribute(xml, xhr._url);
+        xml = resolvePathFileAttributes(xml, xhr._url);
 
 				//set xml root node
 				this.XML = $(xml)[0];
@@ -131,66 +187,8 @@
 				}
 
 				//prepare and merge the new XMLNode
-				if (new_node){
-
-					//copy old_node attributes into new_node
-					$(new_node).attr('id', $(old_node).attr('id'));
-
-					//create 'path' and 'file' from 'src'
-					var src_attr = $(old_node).attr('src');
-					if (src_attr){
-
-						var path_attr = '';
-						var file_attr = '';
-
-						var src_parts = src_attr.split('/');
-						if(src_parts.length>0){
-							if(src_parts[src_parts.length-1].indexOf('.xml')){
-								file_attr = src_parts[src_parts.length-1];
-								src_parts.pop();
-								path_attr = src_parts.join('/');
-							}
-							else{
-								path_attr = src_attr;
-							}
-						}
-
-						//set inlcuded node core attributes
-						if(!_.isEmpty(path_attr)) $(new_node).attr('path', path_attr+'/');
-						if(!_.isEmpty(file_attr)) $(new_node).attr('file', file_attr);
-
-					}
-
-					//copy old node attributes into new node
-					var old_attributes = old_node.attributes;
-					var no_copy_attributes = ['id','src','path','file'];
-					for (var i=0; i< old_attributes.length; i++){
-						var attr_name = old_attributes[i].name;
-						var attr_value = old_attributes[i].value;
-
-						if(!_.contains(no_copy_attributes, attr_name)){
-							var attr = $(new_node).attr(attr_name);
-							if(typeof attr !== 'undefined' && attr !== false){
-								//new node has its own attribute value
-							}
-							else{
-								//copy attribute
-								$(new_node).attr(attr_name, attr_value);
-							}
-
-						}
-
-					}
-
-
-					//replace old node with new node
-					//create clone of new node due wired ipad IOS4 jquery error
-					//WRONG_DOCUMENT_ERR node was used in a different document...
-					var new_node_clone = $(new_node).clone();
-					$(old_node).replaceWith(new_node_clone);
-
-				}
-				else{
+				if (!new_node){
+				  
 					var node_name = $(old_node).attr('name') || 'node';
 					new_node = this.XML.createElement(node_name);
 
@@ -201,71 +199,18 @@
 					//new_node.innerHTML = ''+xml+'';
 					new_node.appendChild(cdata);
 
-
-
-					//copy old_node attributes into new_node
-					$(new_node).attr('id', $(old_node).attr('id'));
-
-					//create 'path' and 'file' from 'src'
-					var src_attr = $(old_node).attr('src');
-					if (src_attr){
-
-						var path_attr = '';
-						var file_attr = '';
-
-						var src_parts = src_attr.split('/');
-						if(src_parts.length>0){
-							if(src_parts[src_parts.length-1].indexOf('.xml')){
-								file_attr = src_parts[src_parts.length-1];
-								src_parts.pop();
-								path_attr = src_parts.join('/');
-							}
-							else{
-								path_attr = src_attr;
-							}
-						}
-
-						//set inlcuded node core attributes
-						if(!_.isEmpty(path_attr)) $(new_node).attr('path', path_attr+'/');
-						if(!_.isEmpty(file_attr)) $(new_node).attr('file', file_attr);
-
-					}
-
-					//copy old node attributes into new node
-					var old_attributes = old_node.attributes;
-					var no_copy_attributes = ['id','src','path','file'];
-					for (var i=0; i< old_attributes.length; i++){
-						var attr_name = old_attributes[i].name;
-						var attr_value = old_attributes[i].value;
-
-						if(!_.contains(no_copy_attributes, attr_name)){
-							var attr = $(new_node).attr(attr_name);
-							if(typeof attr !== 'undefined' && attr !== false){
-								//new node has its own attribute value
-							}
-							else{
-								//copy attribute
-								$(new_node).attr(attr_name, attr_value);
-							}
-
-						}
-
-					}
-
-
-
-
-
-
-
-
-					var new_node_clone = $(new_node).clone();
-					$(old_node).replaceWith(new_node_clone);
-
-					//console.log('');
-
-					//$(old_node).remove();
 				}
+
+				//resolve 'path' and 'file' attributes from 'src'
+				resolvePathFileAttributes(new_node, old_node.getAttribute('src'));
+
+				//copy old node attributes into new node
+				copyAttributes(old_node, new_node);
+
+				//replace old node with new node
+				//create clone of new node due wired ipad IOS4 jquery error
+				//WRONG_DOCUMENT_ERR node was used in a different document...
+				$(old_node).replaceWith($(new_node).clone());
 
 			}
 
@@ -400,41 +345,6 @@
 		};
 		
 
-    //create 'path' and 'file' from 'src'
-		this.resolveNodeSourceOriginAttribute = function(node, url){
-		  
-		  //get src string from node attribute or given url
-		  let src = (url)? url : $(node).attr('src');
-		  
-		  //declare resultant attribute values
-			let path, file;
-			
-			//no src string? just ignore..
-			if(!src) return;
-			
-			//split by slashes and also
-			//clean empty or empty src parts
-			src = _.compact(src.split('/'));
-			
-			if(src.length>0){
-				if(src[src.length-1].indexOf('.xml')){
-					file = src[src.length-1];
-					src.pop();
-					path = src.join('/');
-				}
-				else{
-					path = src.join('/');
-				}
-			}
-
-			//set node source origin attributes
-			if(path) $(node).attr('path', path+'/');
-			if(file) $(node).attr('file', file);
-		  
-		  return node;
-		  
-		}
-
 
 
 		/*
@@ -480,7 +390,7 @@
 			//ensure all nodes have a valid and unique id attribute
 
 			//get all nodes missing [id] attribute, but...
-			//excluding nodes defining [type] and its contents
+			//excluding contents of any node defining [type]
 			//excluding <metadata> nodes and its contents
 			//excluding <prototype> nodes and its contents
 			var $req_id_nodes = $(xml).find(':not([id]):not(metadata):not(metadata *):not(prototype):not(prototype *):not([type] *)').get();
@@ -722,6 +632,62 @@
 
 	//expose
 	smx.Compiler = DocumentCompiler;
+
+
+
+
+
+
+// UTIL METHODS
+
+var CLEAN_TEXT_NODES = function(xml){
+
+  var count = 0;
+
+	function clean(node){
+
+		for(var n = 0; n < node.childNodes.length; n ++){
+
+			var child = node.childNodes[n];
+
+			//	1	ELEMENT_NODE
+			//	2	ATTRIBUTE_NODE
+			//	3	TEXT_NODE
+			//	4	CDATA_SECTION_NODE
+			//	5	ENTITY_REFERENCE_NODE
+			//	6	ENTITY_NODE
+			//	7	PROCESSING_INSTRUCTION_NODE
+			//	8	COMMENT_NODE
+			//	9	DOCUMENT_NODE
+			//	10	DOCUMENT_TYPE_NODE
+			//	11	DOCUMENT_FRAGMENT_NODE
+			//	12	NOTATION_NODE
+			
+			var isElementNode = function(n){ return n.nodeType===1 }
+			var isCommentNode = function(n){ return n.nodeType===8 }
+			var isEmptyTextNode = function(n){ return n.nodeType===3 && !/\S/.test(n.nodeValue) }
+
+			if( isCommentNode(child) || isEmptyTextNode(child) ){
+			  node.removeChild(child);
+			  count++;
+			  n --;
+			}
+			else if( isElementNode(child) ){
+			  clean(child);
+			}
+
+
+		}
+
+	}
+
+	clean(xml);
+
+  LOG('CLEANING XML: '+ count+' nodes removed');
+
+};
+
+
 
 
 

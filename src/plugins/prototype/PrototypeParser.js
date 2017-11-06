@@ -80,11 +80,11 @@
 
             LOG('APPLYING PROTOTYPES... DONE!');
 
+            LOG( 'COMPLETE!'); //' ('+ options.total +'/'+ options.total +') 100%' );
 
             try{ options.callback(XML,options.data) }
             catch(e){ LOG( 'CALLBACK ERROR! '+ e.toString() ) }
 
-            LOG( 'COMPLETE!'); //' ('+ options.total +'/'+ options.total +') 100%' );
 
         }
 
@@ -95,18 +95,10 @@
 
     PrototypeProcessor.parseXMLNode = function(node){
 
-        //var PROTO = this.PROTO;
-
+        //prototype node required...
+        if(!node || node.nodeName!=='prototype') return;
 
         var RULES = {};
-
-        if(!node) return;
- 
-        var is_prototype = (node.nodeName=='prototype');
-
-        if(!is_prototype) return;
-
-        
 
         //get direct metadata parent node
         var parent = node.parentNode;
@@ -116,10 +108,6 @@
 
         //get and remove <prototype> node from parent
         var proto = parent.removeChild(node);
-
-        
-
-        //var proto = node;
 
 
         /* CSS PARSING */
@@ -154,8 +142,6 @@
 
         }
 
-        //this.PROTO = PROTO;
-            
         return {
             'id': parent.getAttribute('id'),
             'rules': RULES
@@ -247,18 +233,18 @@
 
         //APPLY RESOLVED PROTOTYPES
 
-        _.each(RESOLVED_PROTO_ATTRS, function(attrs, node_id, collection){
+        _.each(RESOLVED_PROTO_ATTRS, function(attrs, nodeId, collection){
 
 
-            if(!_.isString(node_id) || node_id==="") return;
+            if(!_.isString(nodeId) || nodeId==="") return;
 
-            //var node = INDEX_CACHE[node_id];
-            //var node = Sizzle.matchesSelector(XML,'#'+node_id);
-            //var node = Sizzle.matchesSelector(XML.documentElement,'#'+node_id);
-            var node = (XML.getAttribute('id')===node_id)? XML : Sizzle('#'+node_id, XML)[0];
-            //var node = XML.getElementById(node_id);
+            //var node = INDEX_CACHE[nodeId];
+            //var node = Sizzle.matchesSelector(XML,'#'+nodeId);
+            //var node = Sizzle.matchesSelector(XML.documentElement,'#'+nodeId);
             //WARNING!!!!!!!! IE8 FAILS!!!!
+            //var node = XML.getElementById(nodeId);
             //.getElementById is not supported for XML documents
+            var node = (XML.getAttribute('id')===nodeId)? XML : Sizzle('#'+nodeId, XML)[0];
 
             //node = node[0];
 

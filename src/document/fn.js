@@ -137,7 +137,7 @@ fn.ComputedAttributes = {
 
     'type': function(node){
 
-        return node[0].attributes['type'] || 'smx';
+        return node[0].getAttribute('type') || 'smx';
 
     },
 
@@ -149,7 +149,7 @@ fn.ComputedAttributes = {
 
     'classes': function(node){
 
-        return (node[0].attributes['class'] || '').split(' ');
+        return (node[0].getAttribute('class') || '').split(' ');
 
     }
 

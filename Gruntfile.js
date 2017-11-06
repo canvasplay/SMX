@@ -82,7 +82,7 @@ module.exports = function(grunt) {
                     'dist/plugins/taxonomy/TaxonomyInterface.js',
 
 
-                    'dist/document/Document.js'
+                    'dist/document/Node.js'
 
 
                 ],

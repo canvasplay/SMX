@@ -49,7 +49,7 @@
         // `metadata-processed` attribute is added while parsing process
         // nodes missing the flag attr are the nodes we need to parse
         var nodes;
-        if(!options.nodes) nodes = Sizzle('*:not([metadata-processed]):not([type="html"]):not([type="html"] *)', XML);
+        if(!options.nodes) nodes = Sizzle('*:not(prototype):not(metadata *):not([metadata-processed]):not([type] *)', XML);
         else nodes = options.nodes;
 
 
@@ -131,10 +131,8 @@
 
     MetadataParser.parseMetadataNode = function(node){
 
-        if(!node) return;
- 
-        //is metadata node??
-        if(node.nodeName!='metadata') return;
+        //metadata node is required...
+        if(!node || node.nodeName!=='metadata') return;
 
         //get direct metadata parent node
         var parent = node.parentNode;
@@ -187,6 +185,10 @@
                 else{
 
                     value = xmlNode.innerHTML;
+                                    
+                    //trim unwanted trailing and leading whitespace
+                    value = (value+'').replace(/^\s+|\s+$/gm,'');
+
 
                 }
 
@@ -204,6 +206,9 @@
                 }
 
                 value = str;
+                
+                //trim unwanted trailing and leading whitespace
+                value = (value+'').replace(/^\s+|\s+$/gm,'');
 
             }
 
@@ -236,19 +241,27 @@
         var attrs = node.attributes;
         var data = {};
 
-        var attr_names = _.pluck(attrs,'name');
-        var attr_values = _.pluck(attrs,'value');
+        var names = _.pluck(attrs,'name');
+        var values = _.pluck(attrs,'value');
 
         var len = attrs.length;
 
         for(var i = 0; i < len; i++) {
-            var attr_name = attr_names[i];
-            var attr_value = attr_values[i];
-            if(attr_name.indexOf("meta-") == 0){
-                attr_name = attr_name.substr(5);
-                data[attr_name] = attr_value;
+            var name = names[i];
+            var value = values[i];
+            if(name.indexOf("meta-") == 0){
+              
+                //remove meta- preffix
+                name = name.substr(5);
+                
+                //trim unwanted trailing and leading whitespace
+                value = (value+'').replace(/^\s+|\s+$/gm,'');
+                
+                //set new data entry
+                data[name] = value;
 
-                node.removeAttribute("meta-"+attr_name);
+                //remove the attribute
+                node.removeAttribute("meta-"+name);
             }
                 
         }
