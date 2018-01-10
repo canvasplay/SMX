@@ -34,7 +34,98 @@ class SMXNode{
   get name(){
     return this[0].nodeName;
   }
+
+  /**
+   *  node type with 'smx' as default, it can also be txt, md, html, ...
+   */
+  get type(){
+    return this[0].getAttribute('type') || 'smx';
+  }
+
+  /**
+   * class attribute as array of
+   */
+  get className(){
+    return this[0].getAttribute('class');
+  }
   
+  /**
+   *  Uniform Resource Identifier,"url id"
+   *  Calculate url hash path using cummulative ids up to root
+   */
+  get uri(){
+    let hash = this.id + '/';
+    let parent = this.parent();
+    if (parent) return parent.uri + hash;
+    else        return hash;
+  }
+
+
+  /**
+   *  browser url hash for this node
+   */
+  get hash(){
+      return '#!/'+this.uri;
+  }
+
+  /**
+   *  @method url
+   *  Uniform Resource Locator (url path)
+   *  Calculate url folder path using cummulative paths up to root
+   */
+
+  get url(){
+
+    let path = this.attr('path');
+
+    let parent = this.parent();
+
+    if (parent){
+        if(!path)
+            return parent.url;
+        else{
+
+            //add trail slash
+            let trail = path.substr(-1);
+            if (trail != '/') path += '/';
+
+            return parent.url + path;
+        }
+
+    }
+    else{
+
+        if(!path) return;
+
+        //add trail slash
+        let trail = path.substr(-1);
+        if (trail != '/') path += '/';
+
+        return path;
+
+    }
+
+  }
+
+  /**
+   *  url of xml source file of this node
+   */
+
+  get file(){
+
+    let url = '';
+    let file = this.attr('file');
+    let parent = this.parent();
+    
+    if (!file)
+      return (parent)? parent.file : undefined;
+      
+    else
+      return this.url + file;
+        
+  }
+  
+
   
 }
 

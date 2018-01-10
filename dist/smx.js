@@ -4413,6 +4413,36 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
         fn.CoreMethods = {
 
+                /**
+                 *  @method index
+                 *  position in parent children
+                 */
+
+                'index': function index(selector) {
+
+                        //0 by default
+                        var index = 0;
+
+                        //get parent node
+                        var parent = this.parent();
+
+                        //no parent? its kind of root so it has no sibling nodes
+                        if (!parent) return index;
+
+                        //get sibling nodes
+                        var siblings = parent.children();
+
+                        //filter siblings collection with a css selector if its defined
+                        if (selector) siblings = siblings.filter(function (s) {
+                                return Sizzle.matchesSelector(s[0], selector);
+                        });
+
+                        //get position in siblings collection
+                        index = siblings.indexOf(this);
+
+                        return index;
+                },
+
                 //return serialization of original XML node
                 toString: function toString() {
 
@@ -4422,10 +4452,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
                 //return serialization of original XML node
                 text: function text() {
-
-                        var str = this[0].text || this[0].textContent;
-
-                        return str;
+                        return this[0].text || this[0].textContent || '';
                 },
 
                 //return serialization of original XML node
@@ -7640,237 +7667,196 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 (function (global, smx) {
 
-    //declare and expose $smx namespace
-    var $smx = global['$smx'] = {};
+  //declare and expose $smx namespace
+  var $smx = global['$smx'] = {};
 
-    ////////////////////////////////
-    // PRIVATE INDEXED NODE LIST CACHE
+  ////////////////////////////////
+  // PRIVATE INDEXED NODE LIST CACHE
 
-    $smx.cache = {};
+  $smx.cache = {};
 
-    ////////////////////////////////
-    // SMX NODE
+  ////////////////////////////////
+  // SMX NODE
 
-    var SMXNode = function () {
-        function SMXNode(xmlNode) {
-            _classCallCheck(this, SMXNode);
+  var SMXNode = function () {
+    function SMXNode(xmlNode) {
+      _classCallCheck(this, SMXNode);
 
-            //original XML node for reference
-            //jquery inspired using the [0] :D
-            this[0] = xmlNode;
-        }
-
-        _createClass(SMXNode, [{
-            key: 'id',
-            get: function get() {
-                return this[0].getAttribute('id');
-            }
-        }, {
-            key: 'name',
-            get: function get() {
-                return this[0].nodeName;
-            }
-        }]);
-
-        return SMXNode;
-    }();
-
-    //extend SMXNode prototype
-
-    for (var key in smx.fn) {
-
-        //_.extend(SMXNode.prototype,fns);
-        Object.assign(SMXNode.prototype, smx.fn[key]);
+      //original XML node for reference
+      //jquery inspired using the [0] :D
+      this[0] = xmlNode;
     }
 
-    //expose
-    smx.Node = SMXNode;
+    _createClass(SMXNode, [{
+      key: 'id',
+      get: function get() {
+        return this[0].getAttribute('id');
+      }
+    }, {
+      key: 'name',
+      get: function get() {
+        return this[0].nodeName;
+      }
 
-    ////////////////////////////////
-    // SMX NODE WRAPPER
+      /**
+       *  node type with 'smx' as default, it can also be txt, md, html, ...
+       */
 
-    $smx.node = function (elems) {
+    }, {
+      key: 'type',
+      get: function get() {
+        return this[0].getAttribute('type') || 'smx';
+      }
 
-        var _SMXNode = function _SMXNode(xmlNode) {
+      /**
+       * class attribute as array of
+       */
 
-            var id = null;
+    }, {
+      key: 'className',
+      get: function get() {
+        return this[0].getAttribute('class');
+      }
 
-            //if(!xmlNode) return;
-            //if (xmlNode.nodeName == 'undefined') return;
-            //if (typeof xmlNode.nodeType == 'undefined') return;
-            //if (xmlNode.nodeType != 1) return;
+      /**
+       *  Uniform Resource Identifier,"url id"
+       *  Calculate url hash path using cummulative ids up to root
+       */
 
-            //can this try replace the 4 conditionals above? yes...
-            try {
-                id = xmlNode.getAttribute('id');
-            } catch (e) {}
+    }, {
+      key: 'uri',
+      get: function get() {
+        var hash = this.id + '/';
+        var parent = this.parent();
+        if (parent) return parent.uri + hash;else return hash;
+      }
 
-            //id attr is required!
-            if (!id) return;
+      /**
+       *  browser url hash for this node
+       */
 
-            //Does already exists a node with this id?
-            //prevent duplicated nodes and return existing one
-            if ($smx.cache[id]) return $smx.cache[id];
+    }, {
+      key: 'hash',
+      get: function get() {
+        return '#!/' + this.uri;
+      }
 
-            //create new SMXNode from given XMLNode
-            var node = new smx.Node(xmlNode);
+      /**
+       *  @method url
+       *  Uniform Resource Locator (url path)
+       *  Calculate url folder path using cummulative paths up to root
+       */
 
-            //add it to nodes cache
-            $smx.cache[id] = node;
+    }, {
+      key: 'url',
+      get: function get() {
 
-            //return just created node
-            return node;
-        };
+        var path = this.attr('path');
 
-        if (elems && (_.isArray(elems) || !_.isUndefined(elems.length)) && _.isUndefined(elems.nodeType)) {
-            var result = [];
-            for (var i = 0; i < elems.length; i++) {
-                if (elems[i]) {
-                    var node = elems[i][0] ? elems[i] : _SMXNode(elems[i]);
-                    if (node) result.push(node);
-                }
-            }
-            return result;
-        } else if (elems) {
-            if (elems[0]) return elems;else return _SMXNode(elems);
-        } else return;
+        var parent = this.parent();
+
+        if (parent) {
+          if (!path) return parent.url;else {
+
+            //add trail slash
+            var trail = path.substr(-1);
+            if (trail != '/') path += '/';
+
+            return parent.url + path;
+          }
+        } else {
+
+          if (!path) return;
+
+          //add trail slash
+          var _trail = path.substr(-1);
+          if (_trail != '/') path += '/';
+
+          return path;
+        }
+      }
+
+      /**
+       *  url of xml source file of this node
+       */
+
+    }, {
+      key: 'file',
+      get: function get() {
+
+        var url = '';
+        var file = this.attr('file');
+        var parent = this.parent();
+
+        if (!file) return parent ? parent.file : undefined;else return this.url + file;
+      }
+    }]);
+
+    return SMXNode;
+  }();
+
+  //extend SMXNode prototype
+
+  for (var key in smx.fn) {
+
+    //_.extend(SMXNode.prototype,fns);
+    Object.assign(SMXNode.prototype, smx.fn[key]);
+  }
+
+  //expose
+  smx.Node = SMXNode;
+
+  ////////////////////////////////
+  // SMX NODE WRAPPER
+
+  $smx.node = function (elems) {
+
+    var _SMXNode = function _SMXNode(xmlNode) {
+
+      var id = null;
+
+      //if(!xmlNode) return;
+      //if (xmlNode.nodeName == 'undefined') return;
+      //if (typeof xmlNode.nodeType == 'undefined') return;
+      //if (xmlNode.nodeType != 1) return;
+
+      //can this try replace the 4 conditionals above? yes...
+      try {
+        id = xmlNode.getAttribute('id');
+      } catch (e) {}
+
+      //id attr is required!
+      if (!id) return;
+
+      //Does already exists a node with this id?
+      //prevent duplicated nodes and return existing one
+      if ($smx.cache[id]) return $smx.cache[id];
+
+      //create new SMXNode from given XMLNode
+      var node = new smx.Node(xmlNode);
+
+      //add it to nodes cache
+      $smx.cache[id] = node;
+
+      //return just created node
+      return node;
     };
+
+    if (elems && (_.isArray(elems) || !_.isUndefined(elems.length)) && _.isUndefined(elems.nodeType)) {
+      var result = [];
+      for (var i = 0; i < elems.length; i++) {
+        if (elems[i]) {
+          var node = elems[i][0] ? elems[i] : _SMXNode(elems[i]);
+          if (node) result.push(node);
+        }
+      }
+      return result;
+    } else if (elems) {
+      if (elems[0]) return elems;else return _SMXNode(elems);
+    } else return;
+  };
 })(window, window.smx);
 //# sourceMappingURL=Node.js.map
-;'use strict';
-
-(function (global, _, Sizzle, smx) {
-
-    var ComputedAttributes = {
-
-        /**
-         *  @method uri
-         *  Uniform Resource Identifier,"url id"
-         *  Calculate url hash path using cummulative ids up to root
-         */
-
-        'uri': function uri() {
-
-            var hash = this.id + '/';
-            var parent = this.parent();
-            if (parent) return parent.uri + hash;else return hash;
-        },
-
-        /**
-         *  @method url
-         *  Uniform Resource Locator (url path)
-         *  Calculate url folder path using cummulative paths up to root
-         */
-
-        'url': function url() {
-
-            var path = this.attr('path');
-
-            var parent = this.parent();
-
-            if (parent) {
-                if (_.isEmpty(path)) return parent.url;else {
-
-                    //add trail slash
-                    var trail = path.substr(-1);
-                    if (trail != '/') path += '/';
-
-                    return parent.url + path;
-                }
-            } else {
-
-                if (_.isEmpty(path)) return;
-
-                //add trail slash
-                var _trail = path.substr(-1);
-                if (_trail != '/') path += '/';
-
-                return path;
-            }
-        },
-
-        /**
-         *  @method file
-         *  url of xml source file of this node
-         */
-
-        'file': function file(node) {
-
-            var url = '';
-            var file = this.attr('file');
-            var parent = this.parent();
-
-            if (_.isEmpty(file)) return parent ? parent.file : undefined;else return this.url + file;
-        },
-
-        /**
-         *  @method index
-         *  position in parent children
-         */
-
-        'index': function index(node, selector) {
-
-            //0 by default
-            var index = 0;
-
-            //get parent node
-            var parent = this.parent();
-
-            //no parent? its kind of root so it has no sibling nodes
-            if (!parent) return index;
-
-            //get sibling nodes
-            var siblings = parent.children();
-
-            //filter siblings collection with a css selector if its defined
-            if (selector) siblings = _.filter(siblings, function (s) {
-                return Sizzle.matchesSelector(s[0], selector);
-            });
-
-            //get position in siblings collection
-            index = siblings.indexOf(node);
-
-            return index;
-        },
-
-        /**
-         *  @method link
-         *  calculates browser url
-         */
-
-        'link': function link(node, suffix) {
-
-            return (suffix || '#!/') + this.uri;
-        },
-
-        /**
-         *  @method type
-         *  return smx node type with 'smx' as default
-         */
-
-        'type': function type(node) {
-
-            return node[0].getAttribute('type') || 'smx';
-        },
-
-        /**
-         *  @method classes
-         *  return class attribute as array of
-         */
-
-        'className': function className(node) {
-
-            return this.attr('class');
-        }
-
-    };
-
-    //extend SMXNode with computed attribute functions as getters
-    _.each(ComputedAttributes, function (fn, key) {
-        Object.defineProperty(smx.Node.prototype, key, { get: fn });
-    });
-})(window, window._, window.Sizzle, window.smx);
-//# sourceMappingURL=Node.ComputedProperties.js.map
 ;'use strict';
 
 (function (global, _, Sizzle, smx) {

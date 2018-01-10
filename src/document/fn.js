@@ -161,6 +161,35 @@ fn.AttributeGetters = {
 
 fn.CoreMethods = {
 
+    /**
+     *  @method index
+     *  position in parent children
+     */
+
+    'index': function(selector){
+
+        //0 by default
+        var index = 0;
+
+        //get parent node
+        var parent = this.parent();
+
+        //no parent? its kind of root so it has no sibling nodes
+        if(!parent) return index;
+
+        //get sibling nodes
+        var siblings = parent.children();
+
+        //filter siblings collection with a css selector if its defined
+        if(selector) siblings = siblings.filter(function(s){ return Sizzle.matchesSelector(s[0],selector) });
+
+        //get position in siblings collection
+        index = siblings.indexOf(this);
+
+        return index;
+
+    },
+
     //return serialization of original XML node
     toString: function(){
 
@@ -171,11 +200,7 @@ fn.CoreMethods = {
 
     //return serialization of original XML node
     text: function(){
-
-        var str = this[0].text || this[0].textContent;
-
-        return str;
-
+        return this[0].text || this[0].textContent || '';
     },
     
     //return serialization of original XML node

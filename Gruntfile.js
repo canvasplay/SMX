@@ -85,7 +85,7 @@ module.exports = function(grunt) {
 
 
                     'dist/document/Node.js',
-                    'dist/document/Node.ComputedProperties.js',
+                    //'dist/document/Node.ComputedProperties.js',
                     'dist/document/Node.TreeMethods.js'
 
 
