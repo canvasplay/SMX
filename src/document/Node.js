@@ -14,8 +14,6 @@ $smx.cache = {};
 
 
 
-
-
 ////////////////////////////////
 // SMX NODE
 
@@ -23,26 +21,31 @@ class SMXNode{
   
   constructor(xmlNode){
 
-    //reference to original node
+    //original XML node for reference
     //jquery inspired using the [0] :D
     this[0] = xmlNode;
     
-    this.id = this[0].getAttribute('id');
-    
-    this.uid = (parseInt(_.uniqueId()).toString(36));
-    
-    this.name = this[0].nodeName;
-    
   }
+  
+  get id(){
+    return this[0].getAttribute('id');
+  }
+  
+  get name(){
+    return this[0].nodeName;
+  }
+  
   
 }
 
 //extend SMXNode prototype
-_.each(smx.fn, function(fns){
 
-    _.extend(SMXNode.prototype,fns);
+for(var key in smx.fn){
 
-});
+    //_.extend(SMXNode.prototype,fns);
+    Object.assign(SMXNode.prototype, smx.fn[key]);
+
+}
 
 //expose
 smx.Node = SMXNode;

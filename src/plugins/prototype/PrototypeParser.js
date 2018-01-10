@@ -73,7 +73,7 @@
             //reverse extracted prototypes...
             //so we apply from outter to the inner
             //so specific rules will overwrite global rules
-            options.data = _(options.data).reverse();
+            options.data = options.data.reverse();
 
             //APPLY EXTRACTED PROTOTYPES
             if(options.propagate) for (var x=0; x<options.data.length; x++) this.applyPrototypes(XML,options.data[x]);

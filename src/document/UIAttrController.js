@@ -12,7 +12,7 @@
      *  UI ATTR CONTROLLER
      *  @module UIAttrController
      *  Plugin Controller for attributes namespaced with 'ui-'
-     */ 
+     */
 
     var UIAttrController = {
 
@@ -31,7 +31,7 @@
 
             //resolve asset url
             if (!_.isEmpty(asset))
-                return this.resolveURL(node,asset);           
+                return this.resolveURL(node,asset);
 
             return;
 
@@ -42,7 +42,7 @@
 
             if (_.isEmpty(type)) return this.MEDIA_TYPES[0];
 
-            if (_.contains(this.MEDIA_TYPES,type))
+            if (_.includes(this.MEDIA_TYPES,type))
                 return type;
             else
                 return this.MEDIA_TYPES[0];

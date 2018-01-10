@@ -7284,16 +7284,13 @@ Sizzle.selectors.filters.regex = function (elem, i, match) {
                 // nodes missing the flag attr are the nodes we need to parse
                 var nodes;
                 if (!options.nodes) {
-                        /*
                         var selector = [];
                         selector.push('*'); //get all nodes as starting point
                         selector.push(':not(prototype)'); //ignore prototype elements
                         selector.push(':not(metadata *)'); //ignore contents of metadata elements
                         selector.push(':not([metadata-processed])'); //ignore already processed nodes
                         selector.push(':not([type] *)'); //ignore contents of nodes having type attribute
-                        */
-                        //using Sizzle.selectors.filters.regex.js
-                        var selector = ['metadata,:regex(meta-)'];
+                        selector = ['metadata,:regex(meta-)'];
                         nodes = Sizzle(selector.join(''), XML);
                         //include root node itself to the list
                         nodes.unshift(XML);
@@ -7677,11 +7674,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
     //extend SMXNode prototype
 
-    for (var key in smx.fn) {
 
-        //_.extend(SMXNode.prototype,fns);
-        Object.assign(SMXNode.prototype, smx.fn[key]);
-    }
+    _.each(smx.fn, function (fns) {
+
+        _.extend(SMXNode.prototype, fns);
+    });
 
     //expose
     smx.Node = SMXNode;

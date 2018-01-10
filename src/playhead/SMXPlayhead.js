@@ -344,7 +344,7 @@ class SMXPlayhead{
 			];
 
 			//is known keyword?
-			if (_.contains(keywords,keyword)){
+			if (_.includes(keywords,keyword)){
 				
 				//get go method by keyword
 				var method = this[keyword];
@@ -702,8 +702,8 @@ class SMXPlayhead{
 	_enterNode(_node){
 
 		//prevent re-enter in a node
-		var selectedIds = _.pluck(this.selection,'id');
-		if(_.contains(selectedIds,_node.id)) return;
+		var selectedIds = _.map(this.selection,'id');
+		if(_.includes(selectedIds,_node.id)) return;
 
 		//update selection array
 		this.selection.push(_node);

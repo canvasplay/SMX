@@ -65,7 +65,7 @@ TrackManager.prototype.initializeDocument = function(){
 			//add node id
 			track_attrs.id = node.id;
 
-			//add all attributes which names start with 'track-' 
+			//add all attributes which names start with 'track-'
 			for(var i = 0; i < attrs.length; i++) {
 				var attr_name = attrs[i].name;
 				var attr_value = attrs[i].value;
@@ -284,7 +284,7 @@ TrackManager.prototype.setTrigger = function(node, trigger){
 					var playhead = this.playhead;
 					var CALLBACK = trigger.callback.name;
 
-					_.defer(function(){ eval(CALLBACK+'()') });				
+					_.defer(function(){ eval(CALLBACK+'()') });
 
 				}
 				catch(e){}
@@ -298,8 +298,8 @@ TrackManager.prototype.setTrigger = function(node, trigger){
 
 					var alias = ['next','previous','parent','first','last','root'];
 					var id = args[0];
-					var target = id+"";			
-					if(_.contains(alias,id)) target = node[id]();
+					var target = id+"";
+					if(_.includes(alias,id)) target = node[id]();
 					else if(id=='this') target = node.id;
 					else if(!_.isString(target)) target = target.id;
 
@@ -315,8 +315,8 @@ TrackManager.prototype.setTrigger = function(node, trigger){
 
 					var alias = ['next','previous','parent','first','last','root'];
 					var id = args[0];
-					var target = id+"";			
-					if(_.contains(alias,id)) target = node[id]();
+					var target = id+"";
+					if(_.includes(alias,id)) target = node[id]();
 					else if(id=='this') target = node.id;
 					else if(!_.isString(target)) target = target.id;
 
@@ -440,7 +440,7 @@ TrackManager.prototype.get = function(id, key, format){
 						if (format!='text') return value;
 
 						var STATUS = {};
-						STATUS.NOTATTEMPTED    	= 0;    	
+						STATUS.NOTATTEMPTED    	= 0;
 						STATUS.INCOMPLETE      	= 1;    	// views>0
 						STATUS.COMPLETED      	= 2;    	// played & completed
 						STATUS.FAILED          	= 3;    	// completed & score<minScore
@@ -543,7 +543,7 @@ TrackManager.prototype.update = function(id, key){
 		//update selected keys
 		for(var i=0;i<keys.length;i++){
 			var handler = this.attrControllers[keys[i]];
-			if(handler && handler.update) handler.update(track, this);			
+			if(handler && handler.update) handler.update(track, this);
 		}
 
 	}
@@ -570,7 +570,7 @@ TrackManager.prototype.propagate = function(id, key, recursive){
 	//propagate needed keys
 	for(var i=0;i<keys.length;i++){
 		var handler = this.attrControllers[keys[i]];
-		if(handler && handler.propagate) handler.propagate(track, this, recursive);			
+		if(handler && handler.propagate) handler.propagate(track, this, recursive);
 	}
 
 	return;
@@ -599,7 +599,7 @@ TrackManager.prototype.onCollectionChange = function(track){
 			var handler = this.attrControllers[keys[i]];
 			if(handler.propagate){
 				handler.propagate(track, this, previous[keys[i]],previous_value);
-			}				
+			}
 
 		}
 		*/
@@ -691,7 +691,7 @@ TrackManager.prototype.onNodeExit = function(node){
 
 };
 
-TrackManager.prototype.onTimelineNodeEnter = function(evt){ 
+TrackManager.prototype.onTimelineNodeEnter = function(evt){
 
 	if (!evt || !evt.target) return;
 
@@ -815,7 +815,7 @@ TrackManager.prototype.onTimelineFinish = function(event){
 
 	//STATUS COMPLETED
 	if( this.has(node.id,'status') && this.get(node.id,'status')<2 )
-		this.set(node.id,'status', 2);		
+		this.set(node.id,'status', 2);
 
 	return;
 
@@ -902,7 +902,7 @@ TrackManager.prototype.toJSON = function (options){
 				}
 				else{
 					obj[key] = item.attributes[key];
-				}					
+				}
 
 			}
 			else{
@@ -914,11 +914,11 @@ TrackManager.prototype.toJSON = function (options){
 							obj[myDictionary[key]] = value;
 						}
 						else{
-							obj[key] = value;	
-						}						
+							obj[key] = value;
+						}
 
 					}
-				}	
+				}
 			}
 
 		}
@@ -1003,7 +1003,7 @@ TrackManager.prototype.setJSON = function (myJSON){
 				if(key!='trigger' && key!='id'){
 
 					if (!_.isUndefined(item[key]))
-						track.set(key, item[key], {'silent':true});	
+						track.set(key, item[key], {'silent':true});
 					}
 
 			}

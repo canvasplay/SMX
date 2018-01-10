@@ -11,11 +11,17 @@
 
 	var smx = {};
 
-	/* software version: major.minor.path */
-	smx.version = '0.8.1';
+	smx.version = '0.8.14';
+
+
+  
+  smx.cache = {};
+  
+  smx.document = null;
+  smx.documents = [];
+
 
 	//expose
-
 	window.smx = smx;
 
 

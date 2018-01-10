@@ -25,7 +25,7 @@
         "'": '&#039;'
       };
       return text.replace(/[&<>"']/g, function(m) { return map[m]; });
-    }
+    };
 
 
     MetadataParser.parseXML = function(xml, opt){
@@ -49,9 +49,22 @@
         // `metadata-processed` attribute is added while parsing process
         // nodes missing the flag attr are the nodes we need to parse
         var nodes;
-        if(!options.nodes) nodes = Sizzle('*:not(prototype):not(metadata *):not([metadata-processed]):not([type] *)', XML);
+        if(!options.nodes){
+          /*
+          var selector = [];
+          selector.push('*'); //get all nodes as starting point
+          selector.push(':not(prototype)'); //ignore prototype elements
+          selector.push(':not(metadata *)'); //ignore contents of metadata elements
+          selector.push(':not([metadata-processed])'); //ignore already processed nodes
+          selector.push(':not([type] *)'); //ignore contents of nodes having type attribute
+          */
+          //using Sizzle.selectors.filters.regex.js
+          var selector = ['metadata,:regex(meta-)'];
+          nodes = Sizzle(selector.join(''), XML);
+          //include root node itself to the list
+          nodes.unshift(XML);
+        }
         else nodes = options.nodes;
-
 
         //calculate percent progress
         if(nodes.length > options.total) options.total = nodes.length;
@@ -109,7 +122,7 @@
             LOG( 'REMOVING FLAGS...' );
             var flagged_nodes = Sizzle('[metadata-processed]', XML);
             _.each(flagged_nodes,function(node){
-                node.removeAttribute('metadata-processed')
+                node.removeAttribute('metadata-processed');
             });
 
             LOG( 'COMPLETE! ('+ options.total +'/'+ options.total +') 100%' );
@@ -125,8 +138,8 @@
         }
 
 
-        return
-    }
+        return;
+    };
 
 
     MetadataParser.parseMetadataNode = function(node){
@@ -241,8 +254,8 @@
         var attrs = node.attributes;
         var data = {};
 
-        var names = _.pluck(attrs,'name');
-        var values = _.pluck(attrs,'value');
+        var names = _.map(attrs,'name');
+        var values = _.map(attrs,'value');
 
         var len = attrs.length;
 

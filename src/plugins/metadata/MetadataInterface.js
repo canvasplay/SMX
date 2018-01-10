@@ -4,14 +4,7 @@
 // 'meta' attributes namespace
 
 
-(function(global){
- 
-
-    var smx = global.smx;
-
-
-    //smx is required!
-    if(!smx) return;
+(function(global, smx){
 
 
     if(!smx.fn) smx.fn = {};
@@ -67,4 +60,4 @@
 
 
 
-})(window);
+})(window, window.smx);
