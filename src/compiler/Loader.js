@@ -51,7 +51,6 @@ class SMXLoader {
   
 }
 
-
 smx.Loader = SMXLoader;
 
 })(window,_,$,smx,log);
