@@ -4,6 +4,10 @@
 //private namespace for SMX functions
 var fn = {};
 
+/**
+ * Extends SMXNode with utility attribute getters
+ * @class SMXNode.AttributeGetters
+ */
 
 
 

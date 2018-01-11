@@ -1,16 +1,19 @@
 (function(global, _, Sizzle, smx){
 
-
+/**
+ * Extends SMXNode with utility tree methods
+ * @class SMXNode.TreeMethods
+ */
 
 var TreeMethods = {
   
   
 // PARENT RELATED OPERATIONS
 
-
 /**
-*   @method parent
-*/
+ * asfasf asfas f
+ * @param {String} selector - filter selector
+ */
 parent: function(selector){
 
     if(!_.isEmpty(selector)){
