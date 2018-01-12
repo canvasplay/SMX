@@ -2,7 +2,7 @@
 
 /**
  * Extends SMXNode with utility tree methods
- * @class SMXNode.TreeMethods
+ * @memberof smx.Node
  */
 
 var TreeMethods = {

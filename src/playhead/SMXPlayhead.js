@@ -2,11 +2,10 @@
 
 
 /**
-*	SMXDocument Navigation controller class
-*
+ * SMX Document Navigation controller
+ * @memberof smx
 */
-
-class SMXPlayhead{
+class Playhead{
 
   /**
    * Create a playhead
@@ -872,7 +871,7 @@ class SMXPlayhead{
 
 
 //expose to global
-smx.Playhead = SMXPlayhead;
+smx.Playhead = Playhead;
 
 
 })(window, window._, window.Backbone, window.smx);

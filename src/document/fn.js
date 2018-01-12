@@ -6,7 +6,7 @@ var fn = {};
 
 /**
  * Extends SMXNode with utility attribute getters
- * @class SMXNode.AttributeGetters
+ * @memberof smx.Node
  */
 
 

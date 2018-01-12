@@ -12,8 +12,12 @@
 
     $smx.cache = {};
 
+/**
+ * Extends Node with utility tree methods
+ * @memberof smx
+ */
 
-    class SMXNode {
+    class Node {
 
         /**
          * @param {XMLNode} xmlNode
@@ -141,17 +145,17 @@
 
     }
 
-    //extend SMXNode prototype
+    //extend Node prototype
 
     for (var key in smx.fn) {
 
-        //_.extend(SMXNode.prototype,fns);
-        Object.assign(SMXNode.prototype, smx.fn[key]);
+        //_.extend(Node.prototype,fns);
+        Object.assign(Node.prototype, smx.fn[key]);
 
     }
 
     //expose
-    smx.Node = SMXNode;
+    smx.Node = Node;
 
 
 
@@ -163,7 +167,7 @@
 
 
 
-        var _SMXNode = function (xmlNode) {
+        var _Node = function (xmlNode) {
 
             var id = null;
 
@@ -184,7 +188,7 @@
             //prevent duplicated nodes and return existing one
             if ($smx.cache[id]) return $smx.cache[id];
 
-            //create new SMXNode from given XMLNode
+            //create new Node from given XMLNode
             var node = new smx.Node(xmlNode);
 
             //add it to nodes cache
@@ -202,14 +206,14 @@
             var result = [];
             for (var i = 0; i < elems.length; i++) {
                 if (elems[i]) {
-                    var node = (elems[i][0]) ? elems[i] : _SMXNode(elems[i]);
+                    var node = (elems[i][0]) ? elems[i] : _Node(elems[i]);
                     if (node) result.push(node);
                 }
             }
             return result;
         } else if (elems) {
             if (elems[0]) return elems;
-            else return _SMXNode(elems);
+            else return _Node(elems);
         } else return;
 
     };
