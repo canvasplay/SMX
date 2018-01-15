@@ -21,28 +21,38 @@ class Playhead{
 
 
 		/**
-		*	@property document
+		 *	The document to navigate
 		*	@type {SMXDocument}
-		*	The document to navigate
 		*/
 		this.document = doc;
 		
 
 		/**
-		*	@property selection
+		 *	Contains all nodes in which playhead has entered
+		 *	List ordered from outter to inner [root, ..., current_node]
 		*	@type {Array}
-		*	Contains all nodes in which playhead has entered
-		*	List ordered from outter to inner [root, ..., current_node]
 		*/
 		this.selection = [];
 
 
-		//selected timeline
+		/**
+		 * Currently active timeline
+		 * @type {Timeline}
+		 */
 		this.timeline = null;
 
-
-		//private last movement log
+		/**
+		 * List of nodes entered in last movement
+		 * @protected
+		 * @type {Array.<Node>}
+		 */
 		this._entered = [];
+
+		/**
+		 * List of nodes exited in last movement
+		 * @protected
+		 * @type {Array.<Node>}
+		 */
 		this._exited = [];
 	
 	
@@ -52,10 +62,9 @@ class Playhead{
 
 
 	/**
-	*	@method get
-	*	@param [key] {string} attribute name
-	*	@return attribute value
-	*
+	 * Property getter
+	 * @param {String} key - property key name
+	 * @return {Node} property value
 	*/
 	get(key){
 	  
@@ -90,9 +99,8 @@ class Playhead{
 	/* PUBLIC METHODS */
 
 	/**
-	*	@method play
-	*	@param [id] {string} id of target node
-	*
+	 * performs play action
+	 * @param {String|Node} target node
 	*/
 
 	play(id){
@@ -124,9 +132,8 @@ class Playhead{
 	}
 
 	/**
-	*	@method pause
-	*
-	*/
+	 * performs pause action
+	 */
 	pause(){
 
 		//call timeline pause
@@ -136,9 +143,8 @@ class Playhead{
 	}
 
 	/**
-	*	@method toggle
-	*
-	*/
+	 * performs toggle action, alternating from playing to paused
+	 */
 	toggle(){
 
 		//call timeline toggle
@@ -149,9 +155,8 @@ class Playhead{
 	}
 
 	/**
-	*	@method next
-	*
-	*/
+	 * navigate to next Node if exists
+	 */
 	next(){
 		
 		//get current node
@@ -169,9 +174,8 @@ class Playhead{
 	}
 
 	/**
-	*	@method previous
-	*
-	*/
+	 * navigate to previous Node if exists
+	 */
 	previous(){
 		
 		//get current node
@@ -189,9 +193,8 @@ class Playhead{
 	}
 	
 	/**
-	*	@method inside
-	*
-	*/
+	 * navigate inside current Node if posible
+	 */
 	inside(){
 	
 		//get current node
@@ -199,10 +202,10 @@ class Playhead{
 
 		//inside navigation is only allowed above nodes without timeline
 		if (cnode.timeline) return;
+		
+		//get children nodes
+		let children = cnode.children();
 
-    //get children nodes
-    let children = cnode.children();
-    
 		//no children?
 		if (!children.length) return;
 
@@ -218,9 +221,8 @@ class Playhead{
 	}
 
 	/**
-	*	@method outside
-	*
-	*/
+	 * navigate outside current Node if posible
+	 */
 	outside(){
 		
 		//get current node
@@ -238,10 +240,8 @@ class Playhead{
 	}
 
 	/**
-	*	@method outside
-	*
-	*/
-		
+	 * navigates up root
+	 */
 	root(){
 		
 		//get root node
@@ -257,10 +257,8 @@ class Playhead{
 	
 
 	/**
-	* @method forward
-	* @description Go to next node in flat tree mode
-	*
-	*/
+	 * Go to next node in flat tree mode
+	 */
 	forward(){
 		
 		let tnode, cnode, children;
@@ -303,10 +301,8 @@ class Playhead{
 	}
 
 	/**
-	* @method rewind
-	* @description Go to previous node in flat tree mode
-	*
-	*/
+	 * Go to previous node in flat tree mode
+	 */
 	rewind(){
 		
 		let cnode = this.get('head'); if(!cnode) return;
@@ -318,9 +314,8 @@ class Playhead{
 	}
 
 	/**
-	*	@method go
-	*   @description Go to given node
-	*/
+	 * Go to given node
+	 */
 	go(ref, opt){
 
 		//is ref a keyword?
@@ -494,7 +489,7 @@ class Playhead{
 			break;
 			case 'parent':
 			
-				//navigate parents from c_node until reach t_node
+				//navigates parents from c_node until reach t_node
 				let ref_node = c_node;
 				let t_node_found = false;
 				while (ref_node.hasParent() && !t_node_found){
@@ -624,22 +619,18 @@ class Playhead{
 
 
 	/**
-	 *  private methods
-	 *
+	 * @protected
 	 */
-
-
-
 	_goIterative(c_node,t_node){
 	
-		//ok! we are going to navigate from c_node(current node) to t_node(target node). Lets go!
+		//ok! we are going to navigates from c_node(current node) to t_node(target node). Lets go!
 		
-		//navigate from root
+		//navigates from root
 		if(!c_node)
 			this._enterStraight(null,t_node);
 	
 		else{
-		//navigate from current node
+		//navigates from current node
 		
 			//looks parents for a common parent between current and target node
 			let ref_node = c_node;
@@ -665,7 +656,10 @@ class Playhead{
 		
 		
 	}
-	
+
+	/**
+	 * @protected
+	 */
 	_enterStraight(parent_node,child_node){
 	
 		//Performs iterative 'enter' method on child nodes from parent_node to a known child_node
@@ -695,9 +689,10 @@ class Playhead{
 		this._enterNode(child_node);
 	
 	}
-	
-	
-
+		
+	/**
+	 * @protected
+	 */
 	_enterNode(_node){
 
 		//prevent re-enter in a node
@@ -719,7 +714,9 @@ class Playhead{
 		return;
 	}
 
-
+	/**
+	 * @protected
+	 */
 	_exitNode(_node){
 
 		//clear timeline
@@ -744,10 +741,8 @@ class Playhead{
 
 
 	/**
-	 *	PRIVATE TIMELINE MANAGING
-	 *
+	 * @protected
 	 */
-
 	_createTimeline(){
 	
 		var cnode = this.get('head');
@@ -766,7 +761,9 @@ class Playhead{
 	}
 
 
-
+	/**
+	 * @protected
+	 */
 	_destroyTimeline(){
 		
 		//remove listeners
@@ -791,6 +788,9 @@ class Playhead{
 	 *	Also useful for having a centralized playhead activity
 	 */
 
+	/**
+	 * @protected
+	 */
 	_bindTimelineListeners(){
 	
 		if (!this.timeline) return;
@@ -806,7 +806,10 @@ class Playhead{
 
 		return;
 	}
-	
+
+	/**
+	 * @protected
+	 */
 	_unbindTimelineListeners(){
 	
 		if (!this.timeline) return;
@@ -823,39 +826,66 @@ class Playhead{
 		return;
 	}
 
-
+	/**
+	 * @protected
+	 */
 	_onTimelinePlay(event){
 		this.trigger('timeline:play', event); return;
 	}
 
+	/**
+	 * @protected
+	 */
 	_onTimelinePause(event){
 		this.trigger('timeline:pause', event); return;
 	}
 
+	/**
+	 * @protected
+	 */
 	_onTimelineUpdate(event){
 		this.trigger('timeline:update', event);	return;
 	}
 
+	/**
+	 * @protected
+	 */
 	_onTimelineSeek(event){
 		this.trigger('timeline:seek', event); return;
 	}
 
+	/**
+	 * @protected
+	 */
 	_onTimelineFinish(event){
 		this.trigger('timeline:finish', event); return;
 	}
 
+	/**
+	 * @protected
+	 */
 	_onTimelineReset(event){
 		this.trigger('timeline:reset', event); return;
 	}
 
+	/**
+	 * @protected
+	 */
 	_onTimelineEnter(event){
 		this.trigger('timeline:enter', event); return;
 	}
 
+	/**
+	 * @protected
+	 */
 	_onTimelineExit(event){
 		this.trigger('timeline:exit', event); return;
 	}
 
+
+	/**
+	 * check wether a node access should be async or not, default to false, needs overwritting
+	 */
   requestAsyncNodeAccess(node){
   	
   	return false;
