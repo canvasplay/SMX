@@ -1,7 +1,7 @@
 /**
 *	SMX Synchronized Multimedia XML
 *
-*	@module smx
+*	@namespace smx
 *
 */
 

@@ -2,7 +2,7 @@
 
 /**
  * Extends SMXNode with utility tree methods
- * @mixin
+ * @memberof smx.Node
  */
 
 var TreeMethods = {

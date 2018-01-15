@@ -2,10 +2,10 @@
 
 
 /**
+<<<<<<< HEAD
 *	SMX Playhead class
 *
 */
-
 class Playhead{
 
   /**
