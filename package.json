@@ -9,8 +9,9 @@
     "type": "git",
     "url": "https://github.com/canvasplay/SMX.git"
   },
+  "bin": "./node_modules/.bin/",
   "scripts": {
-    "docs": "./node_modules/.bin/jsdoc.cmd -r -c jsdoc.json"
+    "docs": "jsdoc -r -c jsdoc.json"
   },
   "devDependencies": {
     "babel-preset-env": "^1.6.1",

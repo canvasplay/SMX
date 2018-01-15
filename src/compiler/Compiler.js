@@ -1,8 +1,3 @@
-/**
- * SMX DOCUMENT COMPILER
- * Load smx xml document, search and load recursively "include" nodes,...
- */
-
 (function(win,_,$,smx,log){
 
 
@@ -86,6 +81,11 @@
   
   
 
+/**
+ * SMX Compiler Class
+ * @class Compiler
+ */
+ 
  	var DocumentCompiler = function(options){
 
 
@@ -604,7 +604,7 @@
 
 
 
-
+/*
 // UTIL METHODS
 
 var CLEAN_XML_NODE = function(xml){
@@ -653,7 +653,7 @@ var CLEAN_XML_NODE = function(xml){
   LOG('CLEANING XML: '+ count+' nodes removed');
 
 };
-
+*/
 
 
 

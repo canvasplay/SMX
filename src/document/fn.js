@@ -6,22 +6,18 @@ var fn = {};
 
 /**
  * Extends SMXNode with utility attribute getters
- * @class SMXNode.AttributeGetters
+ * @module fn/core
  */
-
-
-
-//////////////////////////
-// ATTRIBUTE GETTERS
 
 fn.AttributeGetters = {
 
 
     /**
-    *   @method raw
-    *   @desc Get the raw value for specified attribute key in the original xml node
-    *   @param key {string} The name of the attribute
-    *   @return {string} resulting value
+    * Get the raw value for specified attribute key in the original xml node
+    * @method raw
+    * @param {String} key - The name of the attribute
+    * @return {String} resulting value
+    * @memberof AttributeGetters
     *
     */
 

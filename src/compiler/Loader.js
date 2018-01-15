@@ -1,8 +1,3 @@
-/**
- * SMX DOCUMENT COMPILER
- * Load smx xml document, search and load recursively "include" nodes,...
- */
-
 (function(global,_,$,smx,log){
 
 
@@ -10,9 +5,14 @@
 	const DEBUG = true;
 	const LOG = function(o){if(DEBUG)log('> '+o)};
 
-
-class SMXLoader {
+/**
+ * SMX Loader Class
+ */
+class Loader {
   
+  /**
+   * creates an SMXLoader
+   */
   constructor(){
     
     this.xhr = null;
@@ -51,6 +51,6 @@ class SMXLoader {
   
 }
 
-smx.Loader = SMXLoader;
+smx.Loader = Loader;
 
 })(window,_,$,smx,log);

@@ -3721,8 +3721,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				if (!t_node.isAccesible() && !global.app.config.FREE_ACCESS) throw new Error('NODE "' + c_node.id + '" IS NOT ACCESIBLE');
 
 				/**
-    		HERE YOU CAN PLUG ASYNC NAVIGATION CONTROLLERS... like SCORMX or VMSCO or...
-    		*/
+    	HERE YOU CAN PLUG ASYNC NAVIGATION CONTROLLERS... like SCORMX or VMSCO or...
+    	*/
 
 				try {
 
@@ -4277,8 +4277,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         var fn = {};
 
         /**
-         * askfjhask fjhaslkf haslfk hlh
-         * @class Node.AttributeGetters
+         * Extends SMXNode with utility attribute getters
+         * @class SMXNode.AttributeGetters
          */
 
         //////////////////////////
@@ -4287,10 +4287,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         fn.AttributeGetters = {
 
                 /**
-                *   @method raw
-                *   @desc Get the raw value for specified attribute key in the original xml node
-                *   @param key {string} The name of the attribute
-                *   @return {string} resulting value
+                * Get the raw value for specified attribute key in the original xml node
+                * @param {String} key - The name of the attribute
+                * @return {String} resulting value
                 *
                 */
 
@@ -9335,8 +9334,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 (function (global, _, Sizzle, smx) {
 
     /**
-     * asf
-     * @class Node.TreeMethods
+     * Extends SMXNode with utility tree methods
+     * @mixin
      */
 
     var TreeMethods = {
@@ -9344,8 +9343,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         // PARENT RELATED OPERATIONS
 
         /**
-         * @method parent
-         * @param {String} parent
+         * asfasf asfas f
+         * @param {String} selector - filter selector
          */
         parent: function parent(selector) {
 
