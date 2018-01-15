@@ -2,7 +2,6 @@
 
 
 /**
-<<<<<<< HEAD
 *	SMX Playhead class
 *
 */
