@@ -1,47 +1,19 @@
-/**
-
-Timeline Controller, Provides basic time handling
-
-@class Timeline
-@constructor
-@uses Timer
-@param node {Node} Node from which to create the timeline, required node using timeline
-
-*/
-
-/*
-
-	· time
-	. is_playing
-	. is_ready
-	· time2s[]
-	. keyframes{}
-
-	+ play
-	+ replay
-	+ next
-	+ previous
-	+ goTo
-
-	! update
-	! play
-	! pause
-	! seek
-	! timemark
-
-
-*/
 
 (function(smx){
 
 
 /**
-
-
-
-*/
-
-	var SMXTimeline = function(node){
+ * SMX Timeline Class
+ */
+class Timeline{
+  
+  
+  /**
+   * creates a new Timeline
+   * @param {Node} node node to be used as timeline base
+   * @return {Timeline}
+   */
+  constructor(node){
 
 		if(!node) return;
 
@@ -77,7 +49,7 @@ Timeline Controller, Provides basic time handling
 		this.duration = 0;
 		
 
-		//limit max update events per second 
+		//limit max update events per second
 		this.fps = 2;
 
 		//TIMER ENGINES
@@ -117,21 +89,23 @@ Timeline Controller, Provides basic time handling
 
 
 		this.debug = false;
+		
+		this.initialize();
+
+  }
+  
+	initialize(){
+
+		this.createTimer();
+
+		this.duration = this.node.time('duration');
+
+		this.synchronize();
+	
+	}
 
 
-		this.initialize = function(){
-
-			this.createTimer();
-
-			this.duration = this.node.time('duration');
-
-			this.synchronize();
-
-			return;
-		};
-
-
-		this.createTimer= function(){
+	createTimer(){
 		
 			//create timer engine
 			this.timer = new smx.time.Timer();
@@ -146,11 +120,10 @@ Timeline Controller, Provides basic time handling
 			//create observer for timer 'update' event
 			//this.scroller.on('update', this.onscroll, this);
 
-			return;
 			
-		};
+	}
 
-		this.destroyTimer= function(){
+	destroyTimer(){
 		
 			if (!this.timer) return;
 
@@ -167,13 +140,11 @@ Timeline Controller, Provides basic time handling
 			//this.scroller.destroy();
 
 			//this.scroller = null;
-
-			return;
 			
-		};
+	}
 
 
-		this.plugExtTimer = function(name, callback){
+		plugExtTimer(name, callback){
 
 			if (!this.timer || !name || !callback) return;
 
@@ -181,18 +152,18 @@ Timeline Controller, Provides basic time handling
 
 			return;
 
-		};
+		}
 
 
-		this.unplugExtTimer = function(name){
+		unplugExtTimer(name){
 
 			if (!this.timer || !name) return;
 
 			this.timer.unplugExtEngine(name);
-
 			return;
 
-		};
+
+		}
 
 
 		/*
@@ -204,7 +175,7 @@ Timeline Controller, Provides basic time handling
 		*/
 
 
-		this.synchronize = function(){
+		synchronize(){
 			
 			//create/reset empty object
 			this.keyFrames = {};
@@ -235,9 +206,9 @@ Timeline Controller, Provides basic time handling
 
 			return;
 				
-		};
+		}
 
-		this.addKeyFrame = function(t,id,action){
+		addKeyFrame(t,id,action){
 
 			//if keyframe[t] does not exist create keyframe array
 			if (!this.keyFrames[t+'']) this.keyFrames[t+''] = [];
@@ -247,14 +218,14 @@ Timeline Controller, Provides basic time handling
 
 			return;
 
-		};
+		}
 
 
 		//keyframes are stored in a plain object not in an array
 		//object properties are the keys time in seconds
 		//so properties may be unordered {5:x,2:y,12:z}
 		//the optimization consists in ordering keyframes object
-		this.optimizeKeyFrames = function(){
+		optimizeKeyFrames(){
 
 			//sort keyframes
 			var sorted_keyframes = {};
@@ -267,7 +238,7 @@ Timeline Controller, Provides basic time handling
 
 			return;
 
-		};
+		}
 
 
 
@@ -277,7 +248,7 @@ Timeline Controller, Provides basic time handling
 	     * @param {Number} (optional) update timeline at given time
 	     * @return {Boolean} success or not
 	     */
-		this.update = function(time){
+		update(time){
 			
 			//check for "is_ready" flag
 			if (!this.is_ready) return;
@@ -289,7 +260,7 @@ Timeline Controller, Provides basic time handling
 			var t = (typeof time != 'undefined')? parseInt(time) : false;
 
 			//update time
-			if (this.timer) this.time = this.timer.time; //update from timer					
+			if (this.timer) this.time = this.timer.time; //update from timer
 			else if(t!== false) this.time = t; // update from parameter
 			else return;
 
@@ -301,7 +272,7 @@ Timeline Controller, Provides basic time handling
 			if (this.time>=max){
 				this.time = max;
 				this.pause();
-				this.finish();	
+				this.finish();
 			}
 
 
@@ -331,7 +302,7 @@ Timeline Controller, Provides basic time handling
 							if(action>0)	this._enterNode(node);
 							else{
 								var last_frame = Math.floor(max/1000);
-								if (t!=last_frame) this._exitNode(node);	
+								if (t!=last_frame) this._exitNode(node);
 							}
 							
 
@@ -365,7 +336,7 @@ Timeline Controller, Provides basic time handling
 							var index = active_nodes.indexOf(node);
 
 							if(action>0) active_nodes.push(node);
-							else active_nodes.splice(index, 1);	
+							else active_nodes.splice(index, 1);
 							
 
 						}
@@ -411,10 +382,10 @@ Timeline Controller, Provides basic time handling
 
 			return ;
 			
-		};
+		}
 
 
-		this.isActive = function(node_or_id){
+		isActive(node_or_id){
 
 			var node = node_or_id;
 
@@ -424,9 +395,9 @@ Timeline Controller, Provides basic time handling
 
 			if(this.activeNodes.indexOf(node)>=0) return true;
 
-		};
+		}
 
-		this._enterNode = function(node){
+	  _enterNode(node){
 
 			//check node
 			if(!node) return;
@@ -451,9 +422,9 @@ Timeline Controller, Provides basic time handling
 
 			return;
 
-		};
+		}
 
-		this._exitNode = function(node){
+		_exitNode(node){
 
 			//check node
 			if(!node) return;
@@ -481,14 +452,14 @@ Timeline Controller, Provides basic time handling
 
 			return;
 
-		};
+		}
 
 
 		/**
 	     * Play timeline
 	     * @return {Boolean} success or not
 	     */
-		this.play = function(silent){
+		play(silent){
 
 			//if is scrolling stop scroll
 			//if(this.is_scrolling) this.stopScroll();
@@ -496,7 +467,7 @@ Timeline Controller, Provides basic time handling
 			//check for "is_ready" flag
 			if (!this.is_ready) return;
 			
-			//play in offset time become replay 
+			//play in offset time become replay
 			var max = this.duration*1000;
 			if (this.time>=max) return this.replay();
 
@@ -514,11 +485,11 @@ Timeline Controller, Provides basic time handling
 
 
 			return;
-		};
+		}
 
 
 
-		this.replay = function(){
+		replay(){
 
 			//if is scrolling stop scroll
 			//if(this.is_scrolling) this.stopScroll();
@@ -530,14 +501,14 @@ Timeline Controller, Provides basic time handling
 			this.play();
 
 			return;
-		};
+		}
 
 
 		/**
 	     * Pause timeline
 	     * @return {Boolean} success or not
 	     */
-		this.pause = function(silent){
+		pause(silent){
 			
 			//if is scrolling stop scroll
 			//if(this.is_scrolling) this.stopScroll();
@@ -560,13 +531,13 @@ Timeline Controller, Provides basic time handling
 			
 			return;
 
-		};
+		}
 		
 		/**
 	     * Toggle play/pause timeline
 	     * @return {Boolean} success or not
 	     */
-		this.toggle = function(){
+		toggle(){
 		
 			//if (!this.is_scrolling && !this.is_playing) this.play();
 			if (!this.is_playing) this.play();
@@ -574,10 +545,10 @@ Timeline Controller, Provides basic time handling
 
 			return;
 		
-		};
+		}
 		
 
-		this.finish = function(){
+		finish(){
 		
 			//update 'is_playing' flag
 			//this.is_playing = false;
@@ -597,10 +568,10 @@ Timeline Controller, Provides basic time handling
 
 			return;
 			
-		};
+		}
 
 
-		this.reset = function(){
+		reset(){
 		
 			//update 'is_playing' flag
 			this.is_playing = false;
@@ -616,11 +587,11 @@ Timeline Controller, Provides basic time handling
 
 			return;
 			
-		};
+		}
 		
 
 
-		this.seekTo = function(t){
+		seekTo(t){
 
 			//check for "is_ready" flag
 			if (!this.is_ready) return;
@@ -637,7 +608,7 @@ Timeline Controller, Provides basic time handling
 
 			return;
 		
-		};
+		}
 		
 		/*
 		this.scroll = function(factor){
@@ -723,7 +694,7 @@ Timeline Controller, Provides basic time handling
 		*/
 
 
-		this.buildEventObject = function(target){
+		buildEventObject(target){
 
 			var TimelineEvent = {
 
@@ -737,13 +708,13 @@ Timeline Controller, Provides basic time handling
 
 			return TimelineEvent;
 
-		};
+		}
 
 
 
 
 
-		this.destroy = function(){
+		destroy(){
 
 			//destroy timer
 			this.destroyTimer();
@@ -754,27 +725,21 @@ Timeline Controller, Provides basic time handling
 
 			return;
 
-		};
+		}
 
 
-		this._debug = function(msg){
+		_debug(msg){
 			if (this.debug) debug.log(msg);
 		}
 
 
 
-		this.initialize();
-
-
-		return this;
-
-
-	};
+	}
 
 
 	//expose
 
-	window.smx.time.Timeline = SMXTimeline;
+	window.smx.time.Timeline = Timeline;
 
 
 })(window.smx);

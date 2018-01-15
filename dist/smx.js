@@ -1801,7 +1801,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 /**
 *	SMX Synchronized Multimedia XML
 *
-*	@module smx
+*	@namespace smx
 *
 */
 
@@ -1823,11 +1823,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 ;'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
-/**
- * SMX DOCUMENT COMPILER
- * Load smx xml document, search and load recursively "include" nodes,...
- */
 
 (function (win, _, $, smx, log) {
 
@@ -1905,6 +1900,11 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 						return node;
 			}
+
+			/**
+    * SMX Compiler Class
+    * @class Compiler
+    */
 
 			var DocumentCompiler = function DocumentCompiler(options) {
 
@@ -2335,55 +2335,56 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 			//expose
 			smx.Compiler = DocumentCompiler;
 
-			// UTIL METHODS
-
-			var CLEAN_XML_NODE = function CLEAN_XML_NODE(xml) {
-
-						var count = 0;
-
-						function clean(node) {
-
-									for (var n = 0; n < node.childNodes.length; n++) {
-
-												var child = node.childNodes[n];
-
-												//	1	ELEMENT_NODE
-												//	2	ATTRIBUTE_NODE
-												//	3	TEXT_NODE
-												//	4	CDATA_SECTION_NODE
-												//	5	ENTITY_REFERENCE_NODE
-												//	6	ENTITY_NODE
-												//	7	PROCESSING_INSTRUCTION_NODE
-												//	8	COMMENT_NODE
-												//	9	DOCUMENT_NODE
-												//	10	DOCUMENT_TYPE_NODE
-												//	11	DOCUMENT_FRAGMENT_NODE
-												//	12	NOTATION_NODE
-
-												var isElementNode = function isElementNode(n) {
-															return n.nodeType === 1;
-												};
-												var isCommentNode = function isCommentNode(n) {
-															return n.nodeType === 8;
-												};
-												var isEmptyTextNode = function isEmptyTextNode(n) {
-															return n.nodeType === 3 && !/\S/.test(n.nodeValue);
-												};
-
-												if (isCommentNode(child) || isEmptyTextNode(child)) {
-															node.removeChild(child);
-															count++;
-															n--;
-												} else if (isElementNode(child)) {
-															clean(child);
-												}
-									}
-						}
-
-						clean(xml);
-
-						LOG('CLEANING XML: ' + count + ' nodes removed');
-			};
+			/*
+   // UTIL METHODS
+   
+   var CLEAN_XML_NODE = function(xml){
+   
+     var count = 0;
+   
+   	function clean(node){
+   
+   		for(var n = 0; n < node.childNodes.length; n ++){
+   
+   			var child = node.childNodes[n];
+   
+   			//	1	ELEMENT_NODE
+   			//	2	ATTRIBUTE_NODE
+   			//	3	TEXT_NODE
+   			//	4	CDATA_SECTION_NODE
+   			//	5	ENTITY_REFERENCE_NODE
+   			//	6	ENTITY_NODE
+   			//	7	PROCESSING_INSTRUCTION_NODE
+   			//	8	COMMENT_NODE
+   			//	9	DOCUMENT_NODE
+   			//	10	DOCUMENT_TYPE_NODE
+   			//	11	DOCUMENT_FRAGMENT_NODE
+   			//	12	NOTATION_NODE
+   			
+   			var isElementNode = function(n){ return n.nodeType===1 }
+   			var isCommentNode = function(n){ return n.nodeType===8 }
+   			var isEmptyTextNode = function(n){ return n.nodeType===3 && !/\S/.test(n.nodeValue) }
+   
+   			if( isCommentNode(child) || isEmptyTextNode(child) ){
+   			  node.removeChild(child);
+   			  count++;
+   			  n --;
+   			}
+   			else if( isElementNode(child) ){
+   			  clean(child);
+   			}
+   
+   
+   		}
+   
+   	}
+   
+   	clean(xml);
+   
+     LOG('CLEANING XML: '+ count+' nodes removed');
+   
+   };
+   */
 })(window, _, $, smx, log);
 //# sourceMappingURL=Compiler.js.map
 ;'use strict';
@@ -2391,11 +2392,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-/**
- * SMX DOCUMENT COMPILER
- * Load smx xml document, search and load recursively "include" nodes,...
- */
 
 (function (global, _, $, smx, log) {
 
@@ -2405,14 +2401,22 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     if (DEBUG) log('> ' + o);
   };
 
-  var SMXLoader = function () {
-    function SMXLoader() {
-      _classCallCheck(this, SMXLoader);
+  /**
+   * SMX Loader Class
+   */
+
+  var Loader = function () {
+
+    /**
+     * creates an SMXLoader
+     */
+    function Loader() {
+      _classCallCheck(this, Loader);
 
       this.xhr = null;
     }
 
-    _createClass(SMXLoader, [{
+    _createClass(Loader, [{
       key: 'load',
       value: function load(url) {
 
@@ -2442,10 +2446,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
       }
     }]);
 
-    return SMXLoader;
+    return Loader;
   }();
 
-  smx.Loader = SMXLoader;
+  smx.Loader = Loader;
 })(window, _, $, smx, log);
 //# sourceMappingURL=Loader.js.map
 ;"use strict";
@@ -2663,674 +2667,680 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 //# sourceMappingURL=Timer.js.map
 ;'use strict';
 
-/**
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-Timeline Controller, Provides basic time handling
-
-@class Timeline
-@constructor
-@uses Timer
-@param node {Node} Node from which to create the timeline, required node using timeline
-
-*/
-
-/*
-
-	· time
-	. is_playing
-	. is_ready
-	· time2s[]
-	. keyframes{}
-
-	+ play
-	+ replay
-	+ next
-	+ previous
-	+ goTo
-
-	! update
-	! play
-	! pause
-	! seek
-	! timemark
-
-
-*/
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 (function (smx) {
 
 			/**
-   
-   
-   
-   */
-
-			var SMXTimeline = function SMXTimeline(node) {
-
-						if (!node) return;
-
-						//extends with events
-						_.extend(this, Backbone.Events);
+    * SMX Timeline Class
+    */
+			var Timeline = function () {
 
 						/**
-      
-      Node from which the timeline is created
-      @property node {Node}
-      		*/
+       * creates a new Timeline
+       * @param {Node} node node to be used as timeline base
+       * @return {Timeline}
+       */
+						function Timeline(node) {
+									_classCallCheck(this, Timeline);
 
-						//define node ref
-						this.node = node;
+									if (!node) return;
 
-						/**
-      
-      Current time
-      @property time {Number}
-      @default 0
-      		*/
+									//extends with events
+									_.extend(this, Backbone.Events);
 
-						//current time
-						this.time = 0;
+									/**
+         
+         Node from which the timeline is created
+         @property node {Node}
+         		*/
 
-						//time cache
-						this.time2 = -2;
+									//define node ref
+									this.node = node;
 
-						//timeline duration
-						this.duration = 0;
+									/**
+         
+         Current time
+         @property time {Number}
+         @default 0
+         		*/
 
-						//limit max update events per second 
-						this.fps = 2;
+									//current time
+									this.time = 0;
 
-						//TIMER ENGINES
+									//time cache
+									this.time2 = -2;
 
-						/**
-      
-      Timer engine used for time tic tacking
-      @property timer {Object}
-      		*/
+									//timeline duration
+									this.duration = 0;
 
-						//used for playing
-						this.timer = null;
+									//limit max update events per second
+									this.fps = 2;
 
-						//used for scrolling
-						//this.scroller = null;
+									//TIMER ENGINES
 
-						//STATUS FLAGS
+									/**
+         
+         Timer engine used for time tic tacking
+         @property timer {Object}
+         		*/
 
-						//true if playing
-						this.is_playing = false;
-
-						//true when using high speed playback
-						//this.is_scrolling = false;
-
-						//is false when its busy :D
-						this.is_ready = true;
-
-						//TIMELINE SELECTION
-						//Array containing all selected nodes
-						this.activeNodes = [];
-
-						//KEYFRAMES
-						this.keyFrames = {};
-
-						this.debug = false;
-
-						this.initialize = function () {
-
-									this.createTimer();
-
-									this.duration = this.node.time('duration');
-
-									this.synchronize();
-
-									return;
-						};
-
-						this.createTimer = function () {
-
-									//create timer engine
-									this.timer = new smx.time.Timer();
-
-									//create observer for timer 'update' event
-									this.timer.on('update', this.update, this);
-
-									//create timer engine
-									//this.scroller = new smx.time.Timer();
-									//this.scroller.fps = 10;
-
-									//create observer for timer 'update' event
-									//this.scroller.on('update', this.onscroll, this);
-
-									return;
-						};
-
-						this.destroyTimer = function () {
-
-									if (!this.timer) return;
-
-									this.timer.off('update', this.update);
-
-									this.timer.destroy();
-
+									//used for playing
 									this.timer = null;
 
-									//if (!this.scroller) return;
-
-									//this.scroller.off('update', this.onscroll);
-
-									//this.scroller.destroy();
-
+									//used for scrolling
 									//this.scroller = null;
 
-									return;
-						};
+									//STATUS FLAGS
 
-						this.plugExtTimer = function (name, callback) {
+									//true if playing
+									this.is_playing = false;
 
-									if (!this.timer || !name || !callback) return;
+									//true when using high speed playback
+									//this.is_scrolling = false;
 
-									this.timer.plugExtEngine(name, callback);
+									//is false when its busy :D
+									this.is_ready = true;
 
-									return;
-						};
+									//TIMELINE SELECTION
+									//Array containing all selected nodes
+									this.activeNodes = [];
 
-						this.unplugExtTimer = function (name) {
-
-									if (!this.timer || !name) return;
-
-									this.timer.unplugExtEngine(name);
-
-									return;
-						};
-
-						/*
-      //!!! DEPRECATED -- not in use?
-      //better use duration property directly
-      this.getDuration = function(){
-      	return this.duration;
-      };
-      */
-
-						this.synchronize = function () {
-
-									//create/reset empty object
+									//KEYFRAMES
 									this.keyFrames = {};
 
-									//get timemarks
-									var childs = this.node.find('*');
+									this.debug = false;
 
-									for (var i = 0; i < childs.length; i++) {
+									this.initialize();
+						}
 
-												//get tm
-												var child = childs[i];
+						_createClass(Timeline, [{
+									key: 'initialize',
+									value: function initialize() {
 
-												//get resulting times
-												var _startTime = child.time('offset', this.node);
-												var _finishTime = child.time('offset', this.node) + child.time('duration');
+												this.createTimer();
 
-												//create activation keyframe at start time
-												this.addKeyFrame(_startTime, child.id, 1);
+												this.duration = this.node.time('duration');
 
-												//create deactivation keyframe at finish time
-												this.addKeyFrame(_finishTime, child.id, 0);
+												this.synchronize();
+									}
+						}, {
+									key: 'createTimer',
+									value: function createTimer() {
+
+												//create timer engine
+												this.timer = new smx.time.Timer();
+
+												//create observer for timer 'update' event
+												this.timer.on('update', this.update, this);
+
+												//create timer engine
+												//this.scroller = new smx.time.Timer();
+												//this.scroller.fps = 10;
+
+												//create observer for timer 'update' event
+												//this.scroller.on('update', this.onscroll, this);
+
+									}
+						}, {
+									key: 'destroyTimer',
+									value: function destroyTimer() {
+
+												if (!this.timer) return;
+
+												this.timer.off('update', this.update);
+
+												this.timer.destroy();
+
+												this.timer = null;
+
+												//if (!this.scroller) return;
+
+												//this.scroller.off('update', this.onscroll);
+
+												//this.scroller.destroy();
+
+												//this.scroller = null;
+									}
+						}, {
+									key: 'plugExtTimer',
+									value: function plugExtTimer(name, callback) {
+
+												if (!this.timer || !name || !callback) return;
+
+												this.timer.plugExtEngine(name, callback);
+
+												return;
+									}
+						}, {
+									key: 'unplugExtTimer',
+									value: function unplugExtTimer(name) {
+
+												if (!this.timer || !name) return;
+
+												this.timer.unplugExtEngine(name);
+												return;
 									}
 
-									this.optimizeKeyFrames();
+									/*
+         //!!! DEPRECATED -- not in use?
+         //better use duration property directly
+         this.getDuration = function(){
+         	return this.duration;
+         };
+         */
 
-									return;
-						};
+						}, {
+									key: 'synchronize',
+									value: function synchronize() {
 
-						this.addKeyFrame = function (t, id, action) {
+												//create/reset empty object
+												this.keyFrames = {};
 
-									//if keyframe[t] does not exist create keyframe array
-									if (!this.keyFrames[t + '']) this.keyFrames[t + ''] = [];
+												//get timemarks
+												var childs = this.node.find('*');
 
-									//the push keyframe in array
-									this.keyFrames[t + ''].push({ 'id': id, 'action': action });
+												for (var i = 0; i < childs.length; i++) {
 
-									return;
-						};
+															//get tm
+															var child = childs[i];
 
-						//keyframes are stored in a plain object not in an array
-						//object properties are the keys time in seconds
-						//so properties may be unordered {5:x,2:y,12:z}
-						//the optimization consists in ordering keyframes object
-						this.optimizeKeyFrames = function () {
+															//get resulting times
+															var _startTime = child.time('offset', this.node);
+															var _finishTime = child.time('offset', this.node) + child.time('duration');
 
-									//sort keyframes
-									var sorted_keyframes = {};
-									var kfs = _.keys(this.keyFrames);
-									kfs = _.sortBy(kfs, function (num) {
-												return parseFloat(num);
-									});
-									for (var i = 0; i < kfs.length; i++) {
-												sorted_keyframes[kfs[i]] = this.keyFrames[kfs[i]];
-									}
-									this.keyFrames = sorted_keyframes;
+															//create activation keyframe at start time
+															this.addKeyFrame(_startTime, child.id, 1);
 
-									return;
-						};
-
-						/**
-          * Method: Update timeline
-          * @param {Number} (optional) update timeline at given time
-          * @return {Boolean} success or not
-          */
-						this.update = function (time) {
-
-									//check for "is_ready" flag
-									if (!this.is_ready) return;
-
-									//check for "is_playing" flag
-									//if (!this.is_playing) return;
-
-									//process parameter
-									var t = typeof time != 'undefined' ? parseInt(time) : false;
-
-									//update time
-									if (this.timer) this.time = this.timer.time; //update from timer					
-									else if (t !== false) this.time = t; // update from parameter
-												else return;
-
-									//prevent LEFT timeline offset
-									if (this.time < 0) this.time = 0;
-
-									//prevent RIGHT timeline offset
-									var max = this.duration * 1000;
-									if (this.time >= max) {
-												this.time = max;
-												this.pause();
-												this.finish();
-									}
-
-									//check for keyframes
-									t = Math.floor(this.time / 1000);
-									if (this.time2 != t) {
-
-												var diff = t - this.time2;
-												if (diff > 0 && Math.abs(diff) <= 1) {
-
-															//is linear progress
-
-															//get keyframes for this frame
-															var kfs = this.keyFrames[t + ''];
-
-															//exist keyframes?
-															if (kfs) {
-
-																		//debug.log('keyframe found at '+t);
-
-																		for (var i = 0; i < kfs.length; i++) {
-
-																					var kf = kfs[i];
-																					var node = this.node.root().getNodeById(kf.id);
-																					var action = kf.action;
-
-																					if (action > 0) this._enterNode(node);else {
-																								var last_frame = Math.floor(max / 1000);
-																								if (t != last_frame) this._exitNode(node);
-																					}
-																		}
-															}
-												} else {
-
-															//is not linear progress
-
-															//get keyframes names: ['0','5','12',...]
-															var kfs = _.keys(this.keyFrames);
-
-															//aux array for active nodes
-															var active_nodes = [];
-
-															//loop trough keyframes before time t
-															for (var k = 0; k < kfs.length && parseInt(kfs[k]) <= parseInt(t); k++) {
-
-																		var kf = this.keyFrames[kfs[k]];
-
-																		for (var i = 0; i < kf.length; i++) {
-
-																					var item = kf[i];
-																					var node = this.node.root().getNodeById(item.id);
-																					var action = item.action;
-
-																					var index = active_nodes.indexOf(node);
-
-																					if (action > 0) active_nodes.push(node);else active_nodes.splice(index, 1);
-																		}
-															}
-
-															//perform resulting 'exit' nodes
-															var need_exit = [];
-															for (var i = 0; i < this.activeNodes.length; i++) {
-																		var node = this.activeNodes[i];
-																		if (active_nodes.indexOf(node) < 0) {
-																					need_exit.push(node);
-																		}
-															}
-															for (var i = 0; i < need_exit.length; i++) {
-																		this._exitNode(need_exit[i]);
-															} //perform resulting 'enter' nodes
-															for (var i = 0; i < active_nodes.length; i++) {
-																		this._enterNode(active_nodes[i]);
-															}
+															//create deactivation keyframe at finish time
+															this.addKeyFrame(_finishTime, child.id, 0);
 												}
 
-												//this._debug('-------------------------------');
-												//for (var i=0; i< this.activeNodes.length; i++) debug.log(''+this.activeNodes[i].nodeName +'#'+this.activeNodes[i].id);
+												this.optimizeKeyFrames();
 
+												return;
+									}
+						}, {
+									key: 'addKeyFrame',
+									value: function addKeyFrame(t, id, action) {
 
-												//update aux time
-												this.time2 = t;
+												//if keyframe[t] does not exist create keyframe array
+												if (!this.keyFrames[t + '']) this.keyFrames[t + ''] = [];
+
+												//the push keyframe in array
+												this.keyFrames[t + ''].push({ 'id': id, 'action': action });
+
+												return;
 									}
 
-									//create timeline event object
-									var e = this.buildEventObject(this.node);
+									//keyframes are stored in a plain object not in an array
+									//object properties are the keys time in seconds
+									//so properties may be unordered {5:x,2:y,12:z}
+									//the optimization consists in ordering keyframes object
 
-									//notify 'update'
-									this.trigger('update', e);
+						}, {
+									key: 'optimizeKeyFrames',
+									value: function optimizeKeyFrames() {
 
-									return;
-						};
+												//sort keyframes
+												var sorted_keyframes = {};
+												var kfs = _.keys(this.keyFrames);
+												kfs = _.sortBy(kfs, function (num) {
+															return parseFloat(num);
+												});
+												for (var i = 0; i < kfs.length; i++) {
+															sorted_keyframes[kfs[i]] = this.keyFrames[kfs[i]];
+												}
+												this.keyFrames = sorted_keyframes;
 
-						this.isActive = function (node_or_id) {
+												return;
+									}
 
-									var node = node_or_id;
+									/**
+             * Method: Update timeline
+             * @param {Number} (optional) update timeline at given time
+             * @return {Boolean} success or not
+             */
 
-									if (typeof node_or_id == 'string') node = this.node.root().getNodeById(node_or_id);
+						}, {
+									key: 'update',
+									value: function update(time) {
 
-									if (!node) return;
+												//check for "is_ready" flag
+												if (!this.is_ready) return;
 
-									if (this.activeNodes.indexOf(node) >= 0) return true;
-						};
+												//check for "is_playing" flag
+												//if (!this.is_playing) return;
 
-						this._enterNode = function (node) {
+												//process parameter
+												var t = typeof time != 'undefined' ? parseInt(time) : false;
 
-									//check node
-									if (!node) return;
+												//update time
+												if (this.timer) this.time = this.timer.time; //update from timer
+												else if (t !== false) this.time = t; // update from parameter
+															else return;
 
-									//check if already active
-									if (this.activeNodes.indexOf(node) >= 0) return;
+												//prevent LEFT timeline offset
+												if (this.time < 0) this.time = 0;
 
-									//add to active nodes
-									this.activeNodes.push(node);
+												//prevent RIGHT timeline offset
+												var max = this.duration * 1000;
+												if (this.time >= max) {
+															this.time = max;
+															this.pause();
+															this.finish();
+												}
 
-									//create timeline event object
-									var e = this.buildEventObject(node);
+												//check for keyframes
+												t = Math.floor(this.time / 1000);
+												if (this.time2 != t) {
 
-									//generic timeline enter event
-									this.trigger('enter', e);
+															var diff = t - this.time2;
+															if (diff > 0 && Math.abs(diff) <= 1) {
 
-									//specific timeline node enter event
-									this.trigger('enter:' + node.id, e);
+																		//is linear progress
 
-									//debug action
-									this._debug('TIMELINE !enter: ' + node.nodeName + '#' + node.id);
+																		//get keyframes for this frame
+																		var kfs = this.keyFrames[t + ''];
 
-									return;
-						};
+																		//exist keyframes?
+																		if (kfs) {
 
-						this._exitNode = function (node) {
+																					//debug.log('keyframe found at '+t);
 
-									//check node
-									if (!node) return;
+																					for (var i = 0; i < kfs.length; i++) {
 
-									//check if active
-									var index = this.activeNodes.indexOf(node);
-									if (index < 0) return;
+																								var kf = kfs[i];
+																								var node = this.node.root().getNodeById(kf.id);
+																								var action = kf.action;
 
-									//remove from active nodes
-									this.activeNodes.splice(index, 1);
+																								if (action > 0) this._enterNode(node);else {
+																											var last_frame = Math.floor(max / 1000);
+																											if (t != last_frame) this._exitNode(node);
+																								}
+																					}
+																		}
+															} else {
 
-									//create timeline event object
-									var e = this.buildEventObject(node);
+																		//is not linear progress
 
-									//generic timeline exit event
-									this.trigger('exit', e);
+																		//get keyframes names: ['0','5','12',...]
+																		var kfs = _.keys(this.keyFrames);
 
-									//specific timeline node exit event
-									this.trigger('exit:' + node.id, e);
+																		//aux array for active nodes
+																		var active_nodes = [];
 
-									//debug action
-									this._debug('TIMELINE !exit: ' + node.nodeName + '#' + node.id);
+																		//loop trough keyframes before time t
+																		for (var k = 0; k < kfs.length && parseInt(kfs[k]) <= parseInt(t); k++) {
 
-									return;
-						};
+																					var kf = this.keyFrames[kfs[k]];
 
-						/**
-          * Play timeline
-          * @return {Boolean} success or not
-          */
-						this.play = function (silent) {
+																					for (var i = 0; i < kf.length; i++) {
 
-									//if is scrolling stop scroll
-									//if(this.is_scrolling) this.stopScroll();
+																								var item = kf[i];
+																								var node = this.node.root().getNodeById(item.id);
+																								var action = item.action;
 
-									//check for "is_ready" flag
-									if (!this.is_ready) return;
+																								var index = active_nodes.indexOf(node);
 
-									//play in offset time become replay 
-									var max = this.duration * 1000;
-									if (this.time >= max) return this.replay();
+																								if (action > 0) active_nodes.push(node);else active_nodes.splice(index, 1);
+																					}
+																		}
 
-									//update "is_playing" flag
-									this.is_playing = true;
+																		//perform resulting 'exit' nodes
+																		var need_exit = [];
+																		for (var i = 0; i < this.activeNodes.length; i++) {
+																					var node = this.activeNodes[i];
+																					if (active_nodes.indexOf(node) < 0) {
+																								need_exit.push(node);
+																					}
+																		}
+																		for (var i = 0; i < need_exit.length; i++) {
+																					this._exitNode(need_exit[i]);
+																		} //perform resulting 'enter' nodes
+																		for (var i = 0; i < active_nodes.length; i++) {
+																					this._enterNode(active_nodes[i]);
+																		}
+															}
 
-									//start timer
-									if (this.timer) this.timer.start();
+															//this._debug('-------------------------------');
+															//for (var i=0; i< this.activeNodes.length; i++) debug.log(''+this.activeNodes[i].nodeName +'#'+this.activeNodes[i].id);
 
-									//create timeline event object
-									var e = this.buildEventObject(this.node);
 
-									//notify 'play'
-									if (!silent) this.trigger('play', e);
-
-									return;
-						};
-
-						this.replay = function () {
-
-									//if is scrolling stop scroll
-									//if(this.is_scrolling) this.stopScroll();
-
-									//check for "is_ready" flag
-									if (!this.is_ready) return;
-
-									this.seekTo(0);
-									this.play();
-
-									return;
-						};
-
-						/**
-          * Pause timeline
-          * @return {Boolean} success or not
-          */
-						this.pause = function (silent) {
-
-									//if is scrolling stop scroll
-									//if(this.is_scrolling) this.stopScroll();
-
-									if (this.is_playing) {
-
-												//update "is_playing" flag
-												this.is_playing = false;
-
-												//stop timer
-												if (this.timer) this.timer.stop();
+															//update aux time
+															this.time2 = t;
+												}
 
 												//create timeline event object
 												var e = this.buildEventObject(this.node);
 
-												//notify 'pause'
-												if (!silent) this.trigger('pause', e);
+												//notify 'update'
+												this.trigger('update', e);
+
+												return;
+									}
+						}, {
+									key: 'isActive',
+									value: function isActive(node_or_id) {
+
+												var node = node_or_id;
+
+												if (typeof node_or_id == 'string') node = this.node.root().getNodeById(node_or_id);
+
+												if (!node) return;
+
+												if (this.activeNodes.indexOf(node) >= 0) return true;
+									}
+						}, {
+									key: '_enterNode',
+									value: function _enterNode(node) {
+
+												//check node
+												if (!node) return;
+
+												//check if already active
+												if (this.activeNodes.indexOf(node) >= 0) return;
+
+												//add to active nodes
+												this.activeNodes.push(node);
+
+												//create timeline event object
+												var e = this.buildEventObject(node);
+
+												//generic timeline enter event
+												this.trigger('enter', e);
+
+												//specific timeline node enter event
+												this.trigger('enter:' + node.id, e);
+
+												//debug action
+												this._debug('TIMELINE !enter: ' + node.nodeName + '#' + node.id);
+
+												return;
+									}
+						}, {
+									key: '_exitNode',
+									value: function _exitNode(node) {
+
+												//check node
+												if (!node) return;
+
+												//check if active
+												var index = this.activeNodes.indexOf(node);
+												if (index < 0) return;
+
+												//remove from active nodes
+												this.activeNodes.splice(index, 1);
+
+												//create timeline event object
+												var e = this.buildEventObject(node);
+
+												//generic timeline exit event
+												this.trigger('exit', e);
+
+												//specific timeline node exit event
+												this.trigger('exit:' + node.id, e);
+
+												//debug action
+												this._debug('TIMELINE !exit: ' + node.nodeName + '#' + node.id);
+
+												return;
 									}
 
-									return;
-						};
+									/**
+             * Play timeline
+             * @return {Boolean} success or not
+             */
 
-						/**
-          * Toggle play/pause timeline
-          * @return {Boolean} success or not
-          */
-						this.toggle = function () {
+						}, {
+									key: 'play',
+									value: function play(silent) {
 
-									//if (!this.is_scrolling && !this.is_playing) this.play();
-									if (!this.is_playing) this.play();else this.pause();
+												//if is scrolling stop scroll
+												//if(this.is_scrolling) this.stopScroll();
 
-									return;
-						};
+												//check for "is_ready" flag
+												if (!this.is_ready) return;
 
-						this.finish = function () {
+												//play in offset time become replay
+												var max = this.duration * 1000;
+												if (this.time >= max) return this.replay();
 
-									//update 'is_playing' flag
-									//this.is_playing = false;
+												//update "is_playing" flag
+												this.is_playing = true;
 
-									//rewind
-									//this.seekTo(0);
-									this.pause();
+												//start timer
+												if (this.timer) this.timer.start();
 
-									//stop timer
-									if (this.timer) this.timer.reset();
+												//create timeline event object
+												var e = this.buildEventObject(this.node);
 
-									//create timeline event object
-									var e = this.buildEventObject(this.node);
+												//notify 'play'
+												if (!silent) this.trigger('play', e);
 
-									//notify reset
-									this.trigger('finish', e);
+												return;
+									}
+						}, {
+									key: 'replay',
+									value: function replay() {
 
-									return;
-						};
+												//if is scrolling stop scroll
+												//if(this.is_scrolling) this.stopScroll();
 
-						this.reset = function () {
+												//check for "is_ready" flag
+												if (!this.is_ready) return;
 
-									//update 'is_playing' flag
-									this.is_playing = false;
+												this.seekTo(0);
+												this.play();
 
-									//reset timer
-									if (this.timer) this.timer.reset();
+												return;
+									}
 
-									//rewind
-									this.seekTo(0);
+									/**
+             * Pause timeline
+             * @return {Boolean} success or not
+             */
 
-									//notify reset
-									this.trigger('reset');
+						}, {
+									key: 'pause',
+									value: function pause(silent) {
 
-									return;
-						};
+												//if is scrolling stop scroll
+												//if(this.is_scrolling) this.stopScroll();
 
-						this.seekTo = function (t) {
+												if (this.is_playing) {
 
-									//check for "is_ready" flag
-									if (!this.is_ready) return;
+															//update "is_playing" flag
+															this.is_playing = false;
 
-									//trying seek to start?
-									t = t ? t <= 0 ? 0 : t : 0;
+															//stop timer
+															if (this.timer) this.timer.stop();
 
-									//update time
-									if (this.timer) this.timer.setTime(t); //from timer
-									else this.update(t);
+															//create timeline event object
+															var e = this.buildEventObject(this.node);
 
-									//notify seek
-									this.trigger('seek', t);
+															//notify 'pause'
+															if (!silent) this.trigger('pause', e);
+												}
 
-									return;
-						};
+												return;
+									}
 
-						/*
-      this.scroll = function(factor){
-      			if (!this.scroller) return;
-      			if(!_.isNumber(factor) || factor===0){
-      				//set scroll factor
-      		this.stopScroll();
-      				return;
-      			}
-      			//pause timeline while scrolling
-      	this.pause();
-      			//update 'is_scrolling' flag
-      	this.is_scrolling = true;
-      			//set scroll factor
-      	this.scroller.factor = factor;
-      			//sync scroller with timer
-      	this.scroller.time = this.timer.time;
-      			//start scroll timer if is not already started
-      	if(this.scroller.paused) this.scroller.start();
-      
-      	return;
-      
-      };
-      		this.stopScroll = function(){
-      			if (!this.scroller) return;
-      			//set scroll factor
-      	this.scroller.factor = 0;
-      			//stop scroll timer
-      	this.scroller.stop();
-      			//update 'is_scrolling' flag
-      	this.is_scrolling = false;
-      			return;
-      
-      };
-      		this.onscroll = function(time){
-      			if(this.is_playing || !this.is_scrolling){
-      		this.stopScroll();	return;
-      	}
-      			//process parameter
-      	var t = (typeof time != 'undefined')? parseInt(time) : false;
-      			//update time
-      	if (this.scroller)	t = this.scroller.time; //update from timer
-      			//prevent LEFT timeline offset
-      	if (t<0){
-      		t = 0;
-      		this.stopScroll();
-      	}
-      			//prevent RIGHT timeline offset
-      	var max = this.duration*1000;
-      	if (t>=max){
-      		t = max;
-      		this.stopScroll();
-      	}
-      			this.seekTo(t);
-      			return;
-      
-      };
-      */
+									/**
+             * Toggle play/pause timeline
+             * @return {Boolean} success or not
+             */
 
-						this.buildEventObject = function (target) {
+						}, {
+									key: 'toggle',
+									value: function toggle() {
 
-									var TimelineEvent = {
+												//if (!this.is_scrolling && !this.is_playing) this.play();
+												if (!this.is_playing) this.play();else this.pause();
 
-												'target': target,
-												'active': this.activeNodes,
-												'time': this.time,
-												'duration': this.duration,
-												'progress': this.time / 1000 * 100 / this.duration
+												return;
+									}
+						}, {
+									key: 'finish',
+									value: function finish() {
 
-									};
+												//update 'is_playing' flag
+												//this.is_playing = false;
 
-									return TimelineEvent;
-						};
+												//rewind
+												//this.seekTo(0);
+												this.pause();
 
-						this.destroy = function () {
+												//stop timer
+												if (this.timer) this.timer.reset();
 
-									//destroy timer
-									this.destroyTimer();
+												//create timeline event object
+												var e = this.buildEventObject(this.node);
 
-									//notify destroy
-									this.trigger('destroy');
+												//notify reset
+												this.trigger('finish', e);
 
-									return;
-						};
+												return;
+									}
+						}, {
+									key: 'reset',
+									value: function reset() {
 
-						this._debug = function (msg) {
-									if (this.debug) debug.log(msg);
-						};
+												//update 'is_playing' flag
+												this.is_playing = false;
 
-						this.initialize();
+												//reset timer
+												if (this.timer) this.timer.reset();
 
-						return this;
-			};
+												//rewind
+												this.seekTo(0);
+
+												//notify reset
+												this.trigger('reset');
+
+												return;
+									}
+						}, {
+									key: 'seekTo',
+									value: function seekTo(t) {
+
+												//check for "is_ready" flag
+												if (!this.is_ready) return;
+
+												//trying seek to start?
+												t = t ? t <= 0 ? 0 : t : 0;
+
+												//update time
+												if (this.timer) this.timer.setTime(t); //from timer
+												else this.update(t);
+
+												//notify seek
+												this.trigger('seek', t);
+
+												return;
+									}
+
+									/*
+         this.scroll = function(factor){
+         			if (!this.scroller) return;
+         			if(!_.isNumber(factor) || factor===0){
+         				//set scroll factor
+         		this.stopScroll();
+         				return;
+         			}
+         			//pause timeline while scrolling
+         	this.pause();
+         			//update 'is_scrolling' flag
+         	this.is_scrolling = true;
+         			//set scroll factor
+         	this.scroller.factor = factor;
+         			//sync scroller with timer
+         	this.scroller.time = this.timer.time;
+         			//start scroll timer if is not already started
+         	if(this.scroller.paused) this.scroller.start();
+         
+         	return;
+         
+         };
+         		this.stopScroll = function(){
+         			if (!this.scroller) return;
+         			//set scroll factor
+         	this.scroller.factor = 0;
+         			//stop scroll timer
+         	this.scroller.stop();
+         			//update 'is_scrolling' flag
+         	this.is_scrolling = false;
+         			return;
+         
+         };
+         		this.onscroll = function(time){
+         			if(this.is_playing || !this.is_scrolling){
+         		this.stopScroll();	return;
+         	}
+         			//process parameter
+         	var t = (typeof time != 'undefined')? parseInt(time) : false;
+         			//update time
+         	if (this.scroller)	t = this.scroller.time; //update from timer
+         			//prevent LEFT timeline offset
+         	if (t<0){
+         		t = 0;
+         		this.stopScroll();
+         	}
+         			//prevent RIGHT timeline offset
+         	var max = this.duration*1000;
+         	if (t>=max){
+         		t = max;
+         		this.stopScroll();
+         	}
+         			this.seekTo(t);
+         			return;
+         
+         };
+         */
+
+						}, {
+									key: 'buildEventObject',
+									value: function buildEventObject(target) {
+
+												var TimelineEvent = {
+
+															'target': target,
+															'active': this.activeNodes,
+															'time': this.time,
+															'duration': this.duration,
+															'progress': this.time / 1000 * 100 / this.duration
+
+												};
+
+												return TimelineEvent;
+									}
+						}, {
+									key: 'destroy',
+									value: function destroy() {
+
+												//destroy timer
+												this.destroyTimer();
+
+												//notify destroy
+												this.trigger('destroy');
+
+												return;
+									}
+						}, {
+									key: '_debug',
+									value: function _debug(msg) {
+												if (this.debug) debug.log(msg);
+									}
+						}]);
+
+						return Timeline;
+			}();
 
 			//expose
 
-			window.smx.time.Timeline = SMXTimeline;
+			window.smx.time.Timeline = Timeline;
 })(window.smx);
 //# sourceMappingURL=Timeline.js.map
 ;'use strict';
@@ -3342,18 +3352,17 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 (function (global, _, Backbone, smx) {
 
 	/**
- *	SMXDocument Navigation controller class
+ *	SMX Playhead class
  *
  */
-
-	var SMXPlayhead = function () {
+	var Playhead = function () {
 
 		/**
    * Create a playhead
    * @param {SMXDocument} document - The document to navigate through
    */
-		function SMXPlayhead(doc) {
-			_classCallCheck(this, SMXPlayhead);
+		function Playhead(doc) {
+			_classCallCheck(this, Playhead);
 
 			//document argument is required!
 			if (!doc) return;
@@ -3362,37 +3371,47 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			_.extend(this, Backbone.Events);
 
 			/**
-   *	@property document
+    *	The document to navigate
    *	@type {SMXDocument}
-   *	The document to navigate
    */
 			this.document = doc;
 
 			/**
-   *	@property selection
+    *	Contains all nodes in which playhead has entered
+    *	List ordered from outter to inner [root, ..., current_node]
    *	@type {Array}
-   *	Contains all nodes in which playhead has entered
-   *	List ordered from outter to inner [root, ..., current_node]
    */
 			this.selection = [];
 
-			//selected timeline
+			/**
+    * Currently active timeline
+    * @type {Timeline}
+    */
 			this.timeline = null;
 
-			//private last movement log
+			/**
+    * List of nodes entered in last movement
+    * @protected
+    * @type {Array.<Node>}
+    */
 			this._entered = [];
+
+			/**
+    * List of nodes exited in last movement
+    * @protected
+    * @type {Array.<Node>}
+    */
 			this._exited = [];
 		}
 
 		/**
-  *	@method get
-  *	@param [key] {string} attribute name
-  *	@return attribute value
-  *
+   * Property getter
+   * @param {String} key - property key name
+   * @return {Node} property value
   */
 
 
-		_createClass(SMXPlayhead, [{
+		_createClass(Playhead, [{
 			key: 'get',
 			value: function get(key) {
 
@@ -3425,9 +3444,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			/* PUBLIC METHODS */
 
 			/**
-   *	@method play
-   *	@param [id] {string} id of target node
-   *
+    * performs play action
+    * @param {String|Node} target node
    */
 
 		}, {
@@ -3459,9 +3477,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 
 			/**
-   *	@method pause
-   *
-   */
+    * performs pause action
+    */
 
 		}, {
 			key: 'pause',
@@ -3474,9 +3491,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 
 			/**
-   *	@method toggle
-   *
-   */
+    * performs toggle action, alternating from playing to paused
+    */
 
 		}, {
 			key: 'toggle',
@@ -3489,9 +3505,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 
 			/**
-   *	@method next
-   *
-   */
+    * navigate to next Node if exists
+    */
 
 		}, {
 			key: 'next',
@@ -3511,9 +3526,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 
 			/**
-   *	@method previous
-   *
-   */
+    * navigate to previous Node if exists
+    */
 
 		}, {
 			key: 'previous',
@@ -3533,9 +3547,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 
 			/**
-   *	@method inside
-   *
-   */
+    * navigate inside current Node if posible
+    */
 
 		}, {
 			key: 'inside',
@@ -3564,9 +3577,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 
 			/**
-   *	@method outside
-   *
-   */
+    * navigate outside current Node if posible
+    */
 
 		}, {
 			key: 'outside',
@@ -3586,9 +3598,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 
 			/**
-   *	@method outside
-   *
-   */
+    * navigates up root
+    */
 
 		}, {
 			key: 'root',
@@ -3605,10 +3616,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 
 			/**
-   * @method forward
-   * @description Go to next node in flat tree mode
-   *
-   */
+    * Go to next node in flat tree mode
+    */
 
 		}, {
 			key: 'forward',
@@ -3647,10 +3656,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 
 			/**
-   * @method rewind
-   * @description Go to previous node in flat tree mode
-   *
-   */
+    * Go to previous node in flat tree mode
+    */
 
 		}, {
 			key: 'rewind',
@@ -3664,9 +3671,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 
 			/**
-   *	@method go
-   *   @description Go to given node
-   */
+    * Go to given node
+    */
 
 		}, {
 			key: 'go',
@@ -3801,7 +3807,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						break;
 					case 'parent':
 
-						//navigate parents from c_node until reach t_node
+						//navigates parents from c_node until reach t_node
 						var ref_node = c_node;
 						var t_node_found = false;
 						while (ref_node.hasParent() && !t_node_found) {
@@ -3901,19 +3907,18 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			/* PRIVATE METHODS */
 
 			/**
-    *  private methods
-    *
+    * @protected
     */
 
 		}, {
 			key: '_goIterative',
 			value: function _goIterative(c_node, t_node) {
 
-				//ok! we are going to navigate from c_node(current node) to t_node(target node). Lets go!
+				//ok! we are going to navigates from c_node(current node) to t_node(target node). Lets go!
 
-				//navigate from root
+				//navigates from root
 				if (!c_node) this._enterStraight(null, t_node);else {
-					//navigate from current node
+					//navigates from current node
 
 					//looks parents for a common parent between current and target node
 					var ref_node = c_node;
@@ -3935,6 +3940,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					}
 				}
 			}
+
+			/**
+    * @protected
+    */
+
 		}, {
 			key: '_enterStraight',
 			value: function _enterStraight(parent_node, child_node) {
@@ -3965,6 +3975,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				//call 'enter' method in child node
 				this._enterNode(child_node);
 			}
+
+			/**
+    * @protected
+    */
+
 		}, {
 			key: '_enterNode',
 			value: function _enterNode(_node) {
@@ -3987,6 +4002,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 				return;
 			}
+
+			/**
+    * @protected
+    */
+
 		}, {
 			key: '_exitNode',
 			value: function _exitNode(_node) {
@@ -4010,8 +4030,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 
 			/**
-    *	PRIVATE TIMELINE MANAGING
-    *
+    * @protected
     */
 
 		}, {
@@ -4032,6 +4051,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 				return;
 			}
+
+			/**
+    * @protected
+    */
+
 		}, {
 			key: '_destroyTimeline',
 			value: function _destroyTimeline() {
@@ -4055,6 +4079,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     *	Also useful for having a centralized playhead activity
     */
 
+			/**
+    * @protected
+    */
+
 		}, {
 			key: '_bindTimelineListeners',
 			value: function _bindTimelineListeners() {
@@ -4072,6 +4100,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 				return;
 			}
+
+			/**
+    * @protected
+    */
+
 		}, {
 			key: '_unbindTimelineListeners',
 			value: function _unbindTimelineListeners() {
@@ -4089,46 +4122,91 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 				return;
 			}
+
+			/**
+    * @protected
+    */
+
 		}, {
 			key: '_onTimelinePlay',
 			value: function _onTimelinePlay(event) {
 				this.trigger('timeline:play', event);return;
 			}
+
+			/**
+    * @protected
+    */
+
 		}, {
 			key: '_onTimelinePause',
 			value: function _onTimelinePause(event) {
 				this.trigger('timeline:pause', event);return;
 			}
+
+			/**
+    * @protected
+    */
+
 		}, {
 			key: '_onTimelineUpdate',
 			value: function _onTimelineUpdate(event) {
 				this.trigger('timeline:update', event);return;
 			}
+
+			/**
+    * @protected
+    */
+
 		}, {
 			key: '_onTimelineSeek',
 			value: function _onTimelineSeek(event) {
 				this.trigger('timeline:seek', event);return;
 			}
+
+			/**
+    * @protected
+    */
+
 		}, {
 			key: '_onTimelineFinish',
 			value: function _onTimelineFinish(event) {
 				this.trigger('timeline:finish', event);return;
 			}
+
+			/**
+    * @protected
+    */
+
 		}, {
 			key: '_onTimelineReset',
 			value: function _onTimelineReset(event) {
 				this.trigger('timeline:reset', event);return;
 			}
+
+			/**
+    * @protected
+    */
+
 		}, {
 			key: '_onTimelineEnter',
 			value: function _onTimelineEnter(event) {
 				this.trigger('timeline:enter', event);return;
 			}
+
+			/**
+    * @protected
+    */
+
 		}, {
 			key: '_onTimelineExit',
 			value: function _onTimelineExit(event) {
 				this.trigger('timeline:exit', event);return;
 			}
+
+			/**
+    * check wether a node access should be async or not, default to false, needs overwritting
+    */
+
 		}, {
 			key: 'requestAsyncNodeAccess',
 			value: function requestAsyncNodeAccess(node) {
@@ -4137,13 +4215,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 		}]);
 
-		return SMXPlayhead;
+		return Playhead;
 	}();
 
 	//expose to global
 
 
-	smx.Playhead = SMXPlayhead;
+	smx.Playhead = Playhead;
 })(window, window._, window.Backbone, window.smx);
 //# sourceMappingURL=SMXPlayhead.js.map
 ;'use strict';
@@ -4278,19 +4356,16 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
         /**
          * Extends SMXNode with utility attribute getters
-         * @class SMXNode.AttributeGetters
+         * @module Node/AttributeGetters
          */
-
-        //////////////////////////
-        // ATTRIBUTE GETTERS
 
         fn.AttributeGetters = {
 
                 /**
                 * Get the raw value for specified attribute key in the original xml node
+                * @method raw
                 * @param {String} key - The name of the attribute
                 * @return {String} resulting value
-                *
                 */
 
                 raw: function raw(key) {
@@ -4299,13 +4374,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                 },
 
                 /**
-                *
-                *   Get the value for specified attribute key in attributes collection
-                *
-                *   @method attr
-                *   @param key {String} The name of the attribute
-                *   @return {String} resulting value
-                *
+                * Get the value for specified attribute key in attributes collection
+                * @method attr
+                * @param key {String} The name of the attribute
+                * @return {String} resulting value
                 */
                 attr: function attr(key) {
 
@@ -4313,13 +4385,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                 },
 
                 /**
-                *
-                *   Determine if node has the specified key attribute
-                *
-                *   @method has
-                *   @param key {String} The name of the attribute
-                *   @return {Bollean} resulting value
-                *
+                * Determine if node has the specified key attribute
+                * @method has
+                * @param key {String} The name of the attribute
+                * @return {Bollean} resulting value
                 */
                 has: function has(key) {
 
@@ -4329,14 +4398,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                 },
 
                 /**
-                *
-                *   Get the value for specified attribute key, computed or not
-                *   If there is no computed attribute with given key will use attr method
-                *
-                *   @method get
-                *   @param key {string} The name of the attribute
-                *   @return resulting value
-                *
+                * Get the value for specified attribute key, computed or not
+                * If there is no computed attribute with given key will use attr method
+                * @method get
+                * @param key {string} The name of the attribute
+                * @return resulting value
                 */
                 get: function get(key, options) {
 
@@ -4353,14 +4419,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                 },
 
                 /**
-                 *  Delimiter Separated Value
-                 *  @method dsv
-                 *  An utility method converts given attribute value into dsv array
-                 *
-                 *  @param key {string} the name of the attribute
-                 *  @param delimiter {string} defaults to ' '
-                 *  @return dsv array
-                 *
+                 * Delimiter Separated Value
+                 * An utility method converts given attribute value into dsv array
+                * @method dsv
+                 * @param key {string} the name of the attribute
+                 * @param delimiter {string} defaults to ' '
+                 * @return dsv array
                  */
 
                 dsv: function dsv(key, delimiter) {
@@ -4400,12 +4464,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                 },
 
                 /**
-                 *  @method csv
-                 *  Utility method, converts the given key attribute value into csv array
-                 *
-                 *  @param key {string} the name of the attribute
-                 *  @return csv array
-                 *
+                 * Utility method, converts the given key attribute value into csv array
+                * @method csv
+                 * @param key {string} the name of the attribute
+                 * @return csv array
                  */
 
                 csv: function csv(key) {
@@ -4415,13 +4477,17 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
         };
 
+        /**
+         * Extends SMXNode with utility attribute getters
+         * @module Node/Core
+         */
+
         fn.CoreMethods = {
 
                 /**
-                 *  @method index
-                 *  position in parent children
+                 * position in parent children
+                 * @method index
                  */
-
                 'index': function index(selector) {
 
                         //0 by default
@@ -4447,19 +4513,31 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                         return index;
                 },
 
-                //return serialization of original XML node
+                /**
+                 * get string representation of a node
+                 * @method toString
+                 * @return {String}
+                 */
                 toString: function toString() {
 
                         //this looks better in console
                         return this.name + '#' + this.id;
                 },
 
-                //return serialization of original XML node
+                /**
+                 * get node's text contents
+                 * @method text
+                 * @return {String}
+                 */
                 text: function text() {
                         return this[0].text || this[0].textContent || '';
                 },
 
-                //return serialization of original XML node
+                /**
+                 * get node's html content
+                 * @method getInnerHTML
+                 * @return {String}
+                 */
                 getInnerHTML: function getInnerHTML() {
 
                         var childs = this[0].childNodes;
@@ -4475,6 +4553,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                         return str;
                 },
 
+                /**
+                 * get JSON representation of a node
+                 * @method toJSON
+                 * @return {Object}
+                 */
                 toJSON: function toJSON() {
 
                         var attrs = this[0].attributes;
@@ -4513,9 +4596,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
                                 json.children = [];
 
-                                for (var i = 0; i < childs.length; i++) {
+                                for (var c = 0; c < childs.length; c++) {
 
-                                        json.children.push(childs[i].toJSON());
+                                        json.children.push(childs[c].toJSON());
                                 }
                         }
 
@@ -4530,6 +4613,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
          *  Plugin Method for attributes namespaced with 'rel'
          *  rel attributes may indicate the id of a somehow related node
          *
+         */
+
+        /**
+         * Relations Methods
+         * @module Node/Rel
          */
 
         fn.RelAttrInterface = {
@@ -4553,6 +4641,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         // shortcut for UIAttrController.get
         // definend in smx/document/UIAttrController.js
 
+        /**
+         * UserInterface Methods
+         * @module Node/UI
+         */
+
         fn.UIAttrInterface = {
 
                 /**
@@ -4570,6 +4663,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         // 'time' attributes namespace
         // definend in smx/document/TimeAttrController.js
 
+        /**
+         * Time Interface Methods
+         * @module Node/Time
+         */
         fn.TimeInterface = {
 
                 /**
@@ -4619,8 +4716,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
                 /**
                  *  TIME ATTR CONTROLLER
-                 *  @module TimeAttrController
                  *  Plugin Controller for attributes namespace with 'ui'
+                 *  @module TimeAttrController
                  */
 
                 var TimeAttrController = {
@@ -4807,19 +4904,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 //# sourceMappingURL=TimeAttrController.js.map
 ;'use strict';
 
-/**
-*   SMX Node Class
-*
-*   @Module Node
-*
-*/
-
 (function (smx) {
 
             /**
              *  UI ATTR CONTROLLER
-             *  @module UIAttrController
              *  Plugin Controller for attributes namespaced with 'ui-'
+             *  @module UIAttrController
              */
 
             var UIAttrController = {
@@ -9038,7 +9128,8 @@ Sizzle.selectors.filters.regex = function (elem, i, match) {
     var methods = {
 
         /**
-        *   @method tags
+        * get collection of node's tags
+        * @return {Array.<String>}
         */
         tags: function tags(namespace) {
 
@@ -9060,7 +9151,8 @@ Sizzle.selectors.filters.regex = function (elem, i, match) {
         },
 
         /**
-        *   @method categories
+        * get collection of categories
+        * @return {Array.<String>}
         */
         categories: function categories(namespace) {
 
@@ -9082,7 +9174,8 @@ Sizzle.selectors.filters.regex = function (elem, i, match) {
         },
 
         /**
-        *   @method categories
+        * get collection of node's branches
+        * @return {Array.<String>}
         */
         branches: function branches() {
 
@@ -9126,13 +9219,17 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
     $smx.cache = {};
 
-    var SMXNode = function () {
+    /**
+     * SMX Node Class
+     */
+
+    var Node = function () {
 
         /**
          * @param {XMLNode} xmlNode
          */
-        function SMXNode(xmlNode) {
-            _classCallCheck(this, SMXNode);
+        function Node(xmlNode) {
+            _classCallCheck(this, Node);
 
             /**
              * original XML node for reference
@@ -9148,7 +9245,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
          */
 
 
-        _createClass(SMXNode, [{
+        _createClass(Node, [{
             key: 'id',
             get: function get() {
                 return this[0].id;
@@ -9264,26 +9361,26 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             }
         }]);
 
-        return SMXNode;
+        return Node;
     }();
 
-    //extend SMXNode prototype
+    //extend Node prototype
 
     for (var key in smx.fn) {
 
-        //_.extend(SMXNode.prototype,fns);
-        Object.assign(SMXNode.prototype, smx.fn[key]);
+        //_.extend(Node.prototype,fns);
+        Object.assign(Node.prototype, smx.fn[key]);
     }
 
     //expose
-    smx.Node = SMXNode;
+    smx.Node = Node;
 
     ////////////////////////////////
     // SMX NODE WRAPPER
 
     $smx.node = function (elems) {
 
-        var _SMXNode = function _SMXNode(xmlNode) {
+        var _Node = function _Node(xmlNode) {
 
             var id = null;
 
@@ -9304,7 +9401,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             //prevent duplicated nodes and return existing one
             if ($smx.cache[id]) return $smx.cache[id];
 
-            //create new SMXNode from given XMLNode
+            //create new Node from given XMLNode
             var node = new smx.Node(xmlNode);
 
             //add it to nodes cache
@@ -9318,13 +9415,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             var result = [];
             for (var i = 0; i < elems.length; i++) {
                 if (elems[i]) {
-                    var node = elems[i][0] ? elems[i] : _SMXNode(elems[i]);
+                    var node = elems[i][0] ? elems[i] : _Node(elems[i]);
                     if (node) result.push(node);
                 }
             }
             return result;
         } else if (elems) {
-            if (elems[0]) return elems;else return _SMXNode(elems);
+            if (elems[0]) return elems;else return _Node(elems);
         } else return;
     };
 })(window, window.smx);
@@ -9335,7 +9432,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
     /**
      * Extends SMXNode with utility tree methods
-     * @mixin
+     * @module Node/TreeMethods
      */
 
     var TreeMethods = {
@@ -9343,8 +9440,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         // PARENT RELATED OPERATIONS
 
         /**
-         * asfasf asfas f
+         * get parent node
+         * @method parent
          * @param {String} selector - filter selector
+         * @return {Node}
          */
         parent: function parent(selector) {
 
@@ -9364,8 +9463,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         },
 
         /**
-        *   @method parents
-        */
+         * get list of parent nodes up to root
+         * @method parents
+         * @return {Array.<Node>}
+         */
         parents: function parents() {
 
             if (!this[0].parentNode) return [];else {
@@ -9380,8 +9481,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         },
 
         /**
-        *   @method root
-        *   Find top most parent
+        * get the top most parent node
+        * @method root
+        * @return {Node}
         */
 
         'root': function root() {
@@ -9401,8 +9503,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         // EXTRA - PARENT RELATED OPERATIONS
 
         /**
-        *   @method isParentOf
-        */
+         * resolve wether a node is parent of another
+         * @method isParentOf
+         * @param {Node} node - reference node
+         * @return {Boolean}
+         */
         isParentOf: function isParentOf(node) {
 
             //validate given node (smx node required)
@@ -9413,8 +9518,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         },
 
         /**
-        *   @method hasParent
-        */
+         * resolve wether a node has a parent or not
+         * @method hasParent
+         * @return {Boolean}
+         */
         hasParent: function hasParent() {
 
             return this[0].parentNode ? true : false;
@@ -9422,6 +9529,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
         // CHILD RELATED OPERATIONS
 
+        /**
+         * get node by identifier
+         * @method getNodeById
+         * @return {Node}
+         */
         getNodeById: function getNodeById(id) {
 
             //is nodes cache array?
@@ -9435,21 +9547,32 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             return;
         },
 
-        //GID  nice shortcut for getNodeById :D
+        /**
+         * get node by identifier (alias for getNodeById)
+         * @method gid
+         * @return {Node}
+         */
+
         gid: function gid(id) {
             return this.getNodeById(id);
         },
 
         /**
-        *   @method match
-        */
+         * resolve wether a node matches a selector
+         * @method match
+         * @param {String} selector - css selector to match
+         * @return {Boolean}
+         */
         match: function match(selector) {
             return Sizzle.matchesSelector(this[0], selector);
         },
 
         /**
-        *   @method find
-        */
+         * find descendant nodes by a given selector
+         * @method find
+         * @param {String} selector - search selector
+         * @return {Array.<Node>}
+         */
         find: function find(selector) {
 
             if (!this[0].childNodes.length) return [];
@@ -9472,9 +9595,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         },
 
         /**
-        *   @method one
-        *   Like find but returns only first matching node
-        */
+         * Like find but returns only first matching node
+         * @method one
+         * @param {String} selector - search selector
+         * @return {Node}
+         */
         one: function one(selector) {
 
             if (!this[0].childNodes.length) return;
@@ -9496,22 +9621,28 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         },
 
         /**
-        *   @method children
-        */
+         * get child nodes
+         * @method children
+         * @return {Array.<Node>}
+         */
         children: function children() {
             return $smx.node(this[0].childNodes);
         },
 
         /**
-        *   @method first
-        */
+         * get first child
+         * @method first
+         * @return {Node}
+         */
         first: function first() {
             return $smx.node(_.first(this[0].childNodes));
         },
 
         /**
-        *   @method last
-        */
+         * get last child
+         * @method last
+         * @return {Node}
+         */
         last: function last() {
             return $smx.node(_.last(this[0].childNodes));
         },
@@ -9519,15 +9650,21 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         // EXTRA - CHILD RELATED OPERATIONS
 
         /**
-        *   @method childAt
-        */
+         * get child at given index
+         * @method childAt
+         * @param {Integer} index - index position
+         * @return {Node}
+         */
         childAt: function childAt(index) {
             return $smx.node(this[0].childNodes[index]);
         },
 
         /**
-        *   @method isChildOf
-        */
+         * reslve wether a node is child of another
+         * @method isChildOf
+         * @param {Node} node - reference node
+         * @return {Boolean}
+         */
         isChildOf: function isChildOf(node) {
 
             //validate given node (smx node required)
@@ -9541,16 +9678,20 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 
         /**
-        *   @method next
-        */
+         * get next sibling node
+         * @method next
+         * @return {Node}
+         */
         next: function next(selector) {
             var el = this[0].nextElementSibling || this[0].nextSibling;
             return selector ? Sizzle.matchesSelector(el, selector) ? $smx.node(el) : undefined : $smx.node(el);
         },
 
         /**
-        *   @method previous
-        */
+         * get previous sibling node
+         * @method previous
+         * @return {Node}
+         */
         previous: function previous(selector) {
             var el = this[0].previousElementSibling || this[0].previousSibling;
             return selector ? Sizzle.matchesSelector(el, selector) ? $smx.node(el) : undefined : $smx.node(el);
@@ -9559,8 +9700,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         // FLAT TREE SIBLINGS
 
         /**
-        *   @method getStepBack
-        */
+         * get previous node in a flat tree
+         * @method getStepBack
+         * @return {Node}
+         */
         stepBack: function stepBack() {
 
             //previousSibling?
@@ -9576,8 +9719,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         },
 
         /**
-        *   @method getStepForward
-        */
+         * get next node in a flat tree
+         * @method getStepForward
+         * @return {Node}
+         */
         stepForward: function stepForward(from_last_child) {
 
             //in recursive calls indicate if last recursion come from lastChild of its parent

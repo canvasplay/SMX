@@ -6,7 +6,7 @@ var fn = {};
 
 /**
  * Extends SMXNode with utility attribute getters
- * @module fn/core
+ * @module Node/AttributeGetters
  */
 
 fn.AttributeGetters = {
@@ -17,8 +17,6 @@ fn.AttributeGetters = {
     * @method raw
     * @param {String} key - The name of the attribute
     * @return {String} resulting value
-    * @memberof AttributeGetters
-    *
     */
 
     raw:function(key){
@@ -29,13 +27,10 @@ fn.AttributeGetters = {
 
 
     /**
-    *
-    *   Get the value for specified attribute key in attributes collection
-    *
-    *   @method attr
-    *   @param key {String} The name of the attribute
-    *   @return {String} resulting value
-    *
+    * Get the value for specified attribute key in attributes collection
+    * @method attr
+    * @param key {String} The name of the attribute
+    * @return {String} resulting value
     */
     attr:function(key){
 
@@ -43,13 +38,10 @@ fn.AttributeGetters = {
     },
 
     /**
-    *
-    *   Determine if node has the specified key attribute
-    *
-    *   @method has
-    *   @param key {String} The name of the attribute
-    *   @return {Bollean} resulting value
-    *
+    * Determine if node has the specified key attribute
+    * @method has
+    * @param key {String} The name of the attribute
+    * @return {Bollean} resulting value
     */
     has:function(key){
 
@@ -61,14 +53,11 @@ fn.AttributeGetters = {
 
 
     /**
-    *
-    *   Get the value for specified attribute key, computed or not
-    *   If there is no computed attribute with given key will use attr method
-    *
-    *   @method get
-    *   @param key {string} The name of the attribute
-    *   @return resulting value
-    *
+    * Get the value for specified attribute key, computed or not
+    * If there is no computed attribute with given key will use attr method
+    * @method get
+    * @param key {string} The name of the attribute
+    * @return resulting value
     */
     get:function(key, options){
 
@@ -88,14 +77,12 @@ fn.AttributeGetters = {
 
 
     /**
-     *  Delimiter Separated Value
-     *  @method dsv
-     *  An utility method converts given attribute value into dsv array
-     *
-     *  @param key {string} the name of the attribute
-     *  @param delimiter {string} defaults to ' '
-     *  @return dsv array
-     *
+     * Delimiter Separated Value
+     * An utility method converts given attribute value into dsv array
+    * @method dsv
+     * @param key {string} the name of the attribute
+     * @param delimiter {string} defaults to ' '
+     * @return dsv array
      */
 
     dsv: function(key, delimiter){
@@ -138,12 +125,10 @@ fn.AttributeGetters = {
     },
     
     /**
-     *  @method csv
-     *  Utility method, converts the given key attribute value into csv array
-     *
-     *  @param key {string} the name of the attribute
-     *  @return csv array
-     *
+     * Utility method, converts the given key attribute value into csv array
+    * @method csv
+     * @param key {string} the name of the attribute
+     * @return csv array
      */
 
     csv: function(key){
@@ -157,15 +142,17 @@ fn.AttributeGetters = {
 
 
 
-
+/**
+ * Extends SMXNode with utility attribute getters
+ * @module Node/Core
+ */
 
 fn.CoreMethods = {
 
     /**
-     *  @method index
-     *  position in parent children
+     * position in parent children
+     * @method index
      */
-
     'index': function(selector){
 
         //0 by default
@@ -190,7 +177,11 @@ fn.CoreMethods = {
 
     },
 
-    //return serialization of original XML node
+    /**
+     * get string representation of a node
+     * @method toString
+     * @return {String}
+     */
     toString: function(){
 
         //this looks better in console
@@ -198,12 +189,20 @@ fn.CoreMethods = {
 
     },
 
-    //return serialization of original XML node
+    /**
+     * get node's text contents
+     * @method text
+     * @return {String}
+     */
     text: function(){
         return this[0].text || this[0].textContent || '';
     },
     
-    //return serialization of original XML node
+    /**
+     * get node's html content
+     * @method getInnerHTML
+     * @return {String}
+     */
     getInnerHTML: function(){
 
         var childs = this[0].childNodes;
@@ -219,7 +218,12 @@ fn.CoreMethods = {
         return str;
 
     },
-
+    
+    /**
+     * get JSON representation of a node
+     * @method toJSON
+     * @return {Object}
+     */
     toJSON: function(){
 
         var attrs = this[0].attributes;
@@ -260,9 +264,9 @@ fn.CoreMethods = {
 
             json.children = [];
 
-            for(var i=0; i<childs.length;i++){
+            for(var c=0; c<childs.length;c++){
 
-                json.children.push(childs[i].toJSON());
+                json.children.push(childs[c].toJSON());
 
             }
 
@@ -287,6 +291,12 @@ fn.CoreMethods = {
  *  rel attributes may indicate the id of a somehow related node
  *
  */
+
+/**
+ * Relations Methods
+ * @module Node/Rel
+ */
+
 
 fn.RelAttrInterface = {
 
@@ -319,6 +329,12 @@ fn.RelAttrInterface = {
 // shortcut for UIAttrController.get
 // definend in smx/document/UIAttrController.js
 
+/**
+ * UserInterface Methods
+ * @module Node/UI
+ */
+
+
 fn.UIAttrInterface = {
 
     /**
@@ -340,6 +356,10 @@ fn.UIAttrInterface = {
 // 'time' attributes namespace
 // definend in smx/document/TimeAttrController.js
 
+/**
+ * Time Interface Methods
+ * @module Node/Time
+ */
 fn.TimeInterface = {
 
 

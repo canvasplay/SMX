@@ -1,17 +1,10 @@
-/**
-*   SMX Node Class
-*
-*   @Module Node
-*
-*/
-
 (function(smx){
  
 
     /**
      *  UI ATTR CONTROLLER
-     *  @module UIAttrController
      *  Plugin Controller for attributes namespaced with 'ui-'
+     *  @module UIAttrController
      */
 
     var UIAttrController = {

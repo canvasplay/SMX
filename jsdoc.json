@@ -5,7 +5,8 @@
         "includePattern": ".+\\.js(doc|x)?$",
         "excludePattern": "(^|\\/|\\\\)_",
         "exclude": [
-            "node_modules"
+            "node_modules",
+            "**/_*.*"
         ],
         "include":[
             "src"
@@ -22,7 +23,7 @@
         "applicationName": "jsdocs-test"
     },
     "opts": {
-        "destination": "./docs/",
-        "template": "./node_modules/@pixi/jsdoc-template"
+        "destination": "./docs/"
+        //"template": "./node_modules/@pixi/jsdoc-template"
     }
 }

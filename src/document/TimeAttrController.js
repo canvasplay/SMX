@@ -4,8 +4,8 @@
 
     /**
      *  TIME ATTR CONTROLLER
-     *  @module TimeAttrController
      *  Plugin Controller for attributes namespace with 'ui'
+     *  @module TimeAttrController
      */
 
 

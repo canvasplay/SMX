@@ -1,13 +1,16 @@
 (function(global, _, Sizzle, smx){
 
-
+/**
+ * Extends SMXNode with utility tree methods
+ * @module Node/ComputedMethods
+ */
 
 var ComputedAttributes = {
 
     /**
-     *  @method uri
      *  Uniform Resource Identifier,"url id"
      *  Calculate url hash path using cummulative ids up to root
+     *  @method uri
      */
 
     'uri' : function(){
@@ -21,9 +24,9 @@ var ComputedAttributes = {
 
 
     /**
-     *  @method url
      *  Uniform Resource Locator (url path)
      *  Calculate url folder path using cummulative paths up to root
+     *  @method url
      */
 
     'url': function(){
@@ -60,8 +63,8 @@ var ComputedAttributes = {
     },
 
     /**
+     *  get url of xml source file of this node
      *  @method file
-     *  url of xml source file of this node
      */
 
     'file': function(node){
@@ -79,8 +82,8 @@ var ComputedAttributes = {
     },
 
     /**
-     *  @method index
      *  position in parent children
+     *  @method index
      */
 
     'index': function(node, selector){
@@ -108,8 +111,8 @@ var ComputedAttributes = {
     },
 
     /**
-     *  @method link
      *  calculates browser url
+     *  @method link
      */
 
     'link': function(node, suffix){
@@ -119,8 +122,8 @@ var ComputedAttributes = {
     },
 
     /**
-     *  @method type
      *  return smx node type with 'smx' as default
+     *  @method type
      */
 
     'type': function(node){
@@ -130,8 +133,8 @@ var ComputedAttributes = {
     },
 
     /**
-     *  @method classes
      *  return class attribute as array of
+     *  @method classes
      */
 
     'className': function(node){

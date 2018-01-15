@@ -2,7 +2,7 @@
 
 /**
  * Extends SMXNode with utility tree methods
- * @memberof smx.Node
+ * @module Node/TreeMethods
  */
 
 var TreeMethods = {
@@ -11,8 +11,10 @@ var TreeMethods = {
 // PARENT RELATED OPERATIONS
 
 /**
- * asfasf asfas f
+ * get parent node
+ * @method parent
  * @param {String} selector - filter selector
+ * @return {Node}
  */
 parent: function(selector){
 
@@ -36,8 +38,10 @@ parent: function(selector){
 },
 
 /**
-*   @method parents
-*/
+ * get list of parent nodes up to root
+ * @method parents
+ * @return {Array.<Node>}
+ */
 parents: function(){
 
     if (!this[0].parentNode) return [];
@@ -53,8 +57,9 @@ parents: function(){
 },
 
 /**
-*   @method root
-*   Find top most parent
+* get the top most parent node
+* @method root
+* @return {Node}
 */
 
 'root': function(){
@@ -77,8 +82,11 @@ parents: function(){
 // EXTRA - PARENT RELATED OPERATIONS
 
 /**
-*   @method isParentOf
-*/
+ * resolve wether a node is parent of another
+ * @method isParentOf
+ * @param {Node} node - reference node
+ * @return {Boolean}
+ */
 isParentOf: function(node){
 
     //validate given node (smx node required)
@@ -91,8 +99,10 @@ isParentOf: function(node){
 },
 
 /**
-*   @method hasParent
-*/
+ * resolve wether a node has a parent or not
+ * @method hasParent
+ * @return {Boolean}
+ */
 hasParent: function(){
 
    return (this[0].parentNode)? true : false;
@@ -102,6 +112,11 @@ hasParent: function(){
 
 // CHILD RELATED OPERATIONS
 
+/**
+ * get node by identifier
+ * @method getNodeById
+ * @return {Node}
+ */
 getNodeById: function(id){
 
     //is nodes cache array?
@@ -116,22 +131,33 @@ getNodeById: function(id){
 
 },
 
-//GID  nice shortcut for getNodeById :D
+/**
+ * get node by identifier (alias for getNodeById)
+ * @method gid
+ * @return {Node}
+ */
+
 gid: function(id){ return this.getNodeById(id) },
 
 
 
 /**
-*   @method match
-*/
+ * resolve wether a node matches a selector
+ * @method match
+ * @param {String} selector - css selector to match
+ * @return {Boolean}
+ */
 match: function(selector){
     return Sizzle.matchesSelector(this[0],selector);
 },
 
 
 /**
-*   @method find
-*/
+ * find descendant nodes by a given selector
+ * @method find
+ * @param {String} selector - search selector
+ * @return {Array.<Node>}
+ */
 find: function(selector){
 
     if (!this[0].childNodes.length) return [];
@@ -154,9 +180,11 @@ find: function(selector){
 
 
 /**
-*   @method one
-*   Like find but returns only first matching node
-*/
+ * Like find but returns only first matching node
+ * @method one
+ * @param {String} selector - search selector
+ * @return {Node}
+ */
 one: function(selector){
 
     if (!this[0].childNodes.length) return;
@@ -180,16 +208,20 @@ one: function(selector){
 
 
 /**
-*   @method children
-*/
+ * get child nodes
+ * @method children
+ * @return {Array.<Node>}
+ */
 children: function(){
     return $smx.node(this[0].childNodes);
 },
 
 
 /**
-*   @method first
-*/
+ * get first child
+ * @method first
+ * @return {Node}
+ */
 first : function(){
     return $smx.node(_.first(this[0].childNodes));
 
@@ -197,8 +229,10 @@ first : function(){
 
 
 /**
-*   @method last
-*/
+ * get last child
+ * @method last
+ * @return {Node}
+ */
 last : function(){
     return $smx.node(_.last(this[0].childNodes));
 },
@@ -208,16 +242,22 @@ last : function(){
 // EXTRA - CHILD RELATED OPERATIONS
 
 /**
-*   @method childAt
-*/
+ * get child at given index
+ * @method childAt
+ * @param {Integer} index - index position
+ * @return {Node}
+ */
 childAt : function(index){
     return $smx.node(this[0].childNodes[index]);
 },
 
 
 /**
-*   @method isChildOf
-*/
+ * reslve wether a node is child of another
+ * @method isChildOf
+ * @param {Node} node - reference node
+ * @return {Boolean}
+ */
 isChildOf: function(node){
 
     //validate given node (smx node required)
@@ -234,16 +274,20 @@ isChildOf: function(node){
 
 
 /**
-*   @method next
-*/
+ * get next sibling node
+ * @method next
+ * @return {Node}
+ */
 next : function(selector){
     var el = this[0].nextElementSibling || this[0].nextSibling;
     return (selector)? (Sizzle.matchesSelector(el,selector))? $smx.node(el) : undefined : $smx.node(el);
 },
 
 /**
-*   @method previous
-*/
+ * get previous sibling node
+ * @method previous
+ * @return {Node}
+ */
 previous : function(selector){
     var el = this[0].previousElementSibling || this[0].previousSibling;
     return (selector)? (Sizzle.matchesSelector(el,selector))? $smx.node(el) : undefined : $smx.node(el);
@@ -254,8 +298,10 @@ previous : function(selector){
 // FLAT TREE SIBLINGS
 
 /**
-*   @method getStepBack
-*/
+ * get previous node in a flat tree
+ * @method getStepBack
+ * @return {Node}
+ */
 stepBack: function(){
 
     //previousSibling?
@@ -272,8 +318,10 @@ stepBack: function(){
 },
 
 /**
-*   @method getStepForward
-*/
+ * get next node in a flat tree
+ * @method getStepForward
+ * @return {Node}
+ */
 stepForward: function(from_last_child){
 
     //in recursive calls indicate if last recursion come from lastChild of its parent
