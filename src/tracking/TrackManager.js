@@ -5,7 +5,10 @@ var DEBUG = true; var LOG = function(str){ if (win.console&&win.console.log&&DEB
 
 
 
-
+/**
+ * SMX Tracking class
+ * @class Tracking
+ */
 var TrackManager = function(doc){
 
 	//document && playhead params are required
@@ -397,12 +400,11 @@ TrackManager.prototype.unsetTrigger = function(code){
  *	Get raw value for specified node id and attribute key
  *	Uses SMXNode 'raw' method
  *
- *  @method raw
  *  @param id {string} node id
  *  @param key {string} attribute key
  *  @return {string} resulting value or null
  *
-	 */
+ */
 
 TrackManager.prototype.raw = function(id, key){
 
@@ -422,15 +424,13 @@ TrackManager.prototype.raw = function(id, key){
 
 
 /**
- *	Answer this question:
- *	Has key attribute the node with give id?
+ * Answer this question:
+ * Has key attribute the node with give id?
+ * @param {String} id  - node id
+ * @param {String} key - attribute key
+ * @return {Boolean} has or not the specified key
  *
- *  @method has
- *  @param id {String} node id
- *  @param key {String} attribute key
- *  @return {Boolean} has or not the specified key
- *
-	 */
+ */
 
 TrackManager.prototype.has = function(id, key){
 
@@ -515,7 +515,11 @@ TrackManager.prototype.set = function(id, key, value, propagate, recursive){
 };
 
 
-
+/**
+* Updates tracking data for the given node id
+* @param {String} id - node id
+* @param {String=} key - tracking field key name
+*/
 TrackManager.prototype.update = function(id, key){
 
 	var tracks;
@@ -552,6 +556,13 @@ TrackManager.prototype.update = function(id, key){
 
 };
 
+/**
+* Propagates tracking data for the given node id
+* @param {String} id - node id
+* @param {String=} key - tracking field key name
+* @param {String=} [recursive=false]
+*/
+
 TrackManager.prototype.propagate = function(id, key, recursive){
 
 	//get track by given id
@@ -578,6 +589,26 @@ TrackManager.prototype.propagate = function(id, key, recursive){
 };
 
 
+
+/**
+ * Global change event
+ * @event Tracking#change
+ * @type {object}
+ */
+
+/**
+ * Track change event
+ * @event Tracking#change:id
+ * @type {object}
+ */
+
+/**
+ * Track field change event
+ * @event Tracking#change:id:key
+ * @type {object}
+ */
+
+     
 TrackManager.prototype.onCollectionChange = function(track){
 
 	
@@ -888,6 +919,11 @@ TrackManager.prototype.exportsCode = function (options){
 
 }
 
+/**
+ * Exports tracking data
+ * @param {Object=} options
+ * @return {data}
+ */
 TrackManager.prototype.exports = function (options){
 	
 	var defaults = {
@@ -1017,20 +1053,25 @@ TrackManager.prototype.exports = function (options){
 };
 
 
-TrackManager.prototype.imports = function(myJSON){
+/**
+ * Imports tracking data
+ * @param {Object|String} data
+ * @return {data}
+ */
+TrackManager.prototype.imports = function(_data_){
 	
 	//no JSON?
-	if (!myJSON || !_.isObject(JSON)) return;
+	if (!_data_ || !_.isObject(JSON)) return;
 
 	//process input param into data object
 	var data = null;
 
 	try{
-		if (typeof myJSON == 'string' && myJSON!=''){
-			data = eval( '('+ myJSON +')' );
+		if (typeof _data_ == 'string' && _data_!=''){
+			data = eval( '('+ _data_ +')' );
 		}
 		else{
-			data = myJSON;
+			data = _data_;
 		}
 	}
 	catch(e){}

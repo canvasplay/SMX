@@ -5,7 +5,11 @@
 // convert first level children nodes into meta-* attributes
 // and apply those attributes to direct parent node
 
-
+/**
+ * SMX Metadata class
+ * @class Metadata
+ */
+ 
 (function(global, Sizzle, smx){
  
 

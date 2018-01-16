@@ -1,8 +1,7 @@
-
-////////////////////////////////
-// META INTERFACE
-// 'meta' attributes namespace
-
+/**
+ * Extends SMXNode with utility attribute getters
+ * @module Node/Metadata
+ */
 
 (function(global, smx){
 
@@ -14,8 +13,12 @@
         
                     
         /**
-        *   @method meta
-        */
+         * Gets the metadata field value for the given associated to the node
+         * @method meta
+         * @param {String} key - key name of meta field
+         * @param {String=} lang - langcode
+         * @return {String}
+         */
         meta: function(key, lang){
 
             var value;
@@ -33,8 +36,13 @@
 
 
         /**
-        *   @method interpolate
-        */
+         * This method is like {@linkcode Node/Metadata~meta meta} but will return
+         * an interpolated version of the value using the node as context
+         * @method interpolate
+         * @param {String} key - key name of meta field
+         * @param {String=} lang - langcode
+         * @return {String}
+         */
         interpolate: function(key, lang){
 
             var str = this.meta(key, lang);
