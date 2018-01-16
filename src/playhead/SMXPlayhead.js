@@ -28,11 +28,11 @@ class Playhead{
 		
 
 		/**
-		 *	Contains all nodes in which playhead has entered
-		 *	List ordered from outter to inner [root, ..., current_node]
-		*	@type {Array}
-		*/
-		this.selection = [];
+		 * Contains all nodes in which playhead has entered
+		 * List ordered from outter to inner [root, ..., current_node]
+		 * @type {Array}
+		 */
+		this._selection = [];
 
 
 		/**
@@ -72,13 +72,13 @@ class Playhead{
 	  
 		switch(key){
 			case 'selected':
-				result = this.selection;
+				result = this._selection;
 			break;
 			case 'head':
-				result = this.selection[this.selection.length-1];
+				result = this._selection[this._selection.length-1];
 			break;
 			case 'root':
-				result = this.selection[0];
+				result = this._selection[0];
 			break;
 			case 'entered':
 				result = this._entered;
@@ -96,7 +96,34 @@ class Playhead{
 	}
 
 
-	/* PUBLIC METHODS */
+    /**
+     * Gets currently selected nodes
+     * @type {Node[]}
+     * @readonly
+     */
+    get path() {
+        return this._selection;
+    }
+
+    /**
+     * Gets the most outter selected node
+     * @type {Node}
+     * @readonly
+     */
+    get root() {
+        return this._selection[0];
+    }
+
+
+    /**
+     * Gets the most inner selected node
+     * @type {Node}
+     * @readonly
+     */
+    get head() {
+        return this._selection[this._selection.length-1];
+    }
+
 
 	/**
 	 * performs play action
@@ -696,11 +723,11 @@ class Playhead{
 	_enterNode(_node){
 
 		//prevent re-enter in a node
-		var selectedIds = _.map(this.selection,'id');
+		var selectedIds = _.map(this._selection,'id');
 		if(_.includes(selectedIds,_node.id)) return;
 
 		//update selection array
-		this.selection.push(_node);
+		this._selection.push(_node);
 
 		//update last move registry
 		this._entered.push(_node);
@@ -723,7 +750,7 @@ class Playhead{
 		if(this.timeline) this._destroyTimeline();
 
 		//update blocks array
-		this.selection.pop();
+		this._selection.pop();
 
 		//update last move registry
 		this._exited.push(_node);
