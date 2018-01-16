@@ -387,7 +387,7 @@ h4.name>.type-signature:first-of-type {
 }
 
 pre.prettyprint {
-    margin: 0 -999em;
+    margin: 0 -999em 2.5em;
     padding: 2rem 999em;
     position: relative;
 }
