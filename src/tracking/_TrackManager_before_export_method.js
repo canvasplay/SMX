@@ -14,9 +14,6 @@ var TrackManager = function(doc){
 	//extend with Backbone Events
 	_.extend(this, Backbone.Events);
 
-	//ready flag
-	this.ready = false;
-
 	//set document
 	this.document = doc;
 
@@ -34,24 +31,13 @@ var TrackManager = function(doc){
 
 	this.attrControllers = smx.tracking.attributes;
 
-	this.initializeDocument(_.bind(function(){ this.setReady() },this));
-
+	this.initializeDocument();
 
 	return this;
 
 };
 
-TrackManager.prototype.setReady = function(){
-
-	this.ready = true;
-	this.trigger('ready');
-
-	return
-
-};
-
-
-TrackManager.prototype.initializeDocument = function(_callback){
+TrackManager.prototype.initializeDocument = function(){
 
 	//get the nodes that will have a track
 	//actually all document nodes could contain tracks
@@ -79,7 +65,7 @@ TrackManager.prototype.initializeDocument = function(_callback){
 			//add node id
 			track_attrs.id = node.id;
 
-			//add all attributes which names start with 'track-' 
+			//add all attributes which names start with 'track-'
 			for(var i = 0; i < attrs.length; i++) {
 				var attr_name = attrs[i].name;
 				var attr_value = attrs[i].value;
@@ -113,15 +99,15 @@ TrackManager.prototype.initializeDocument = function(_callback){
 	this.playhead.on('exit', this.onNodeExit, this);
 
 	//set timeline observers
-	//this.playhead.on('timeline:enter', this.onTimelineNodeEnter, this);
-	//this.playhead.on('timeline:exit', this.onTimelineNodeExit, this);
-	//this.playhead.on('timeline:play', this.onTimelinePlay, this);
-	//this.playhead.on('timeline:pause', this.onTimelinePause, this);
-	//this.playhead.on('timeline:update', this.onTimelineUpdate, this);
-	//this.playhead.on('timeline:finish', this.onTimelineFinish, this);
+	this.playhead.on('timeline:enter', this.onTimelineNodeEnter, this);
+	this.playhead.on('timeline:exit', this.onTimelineNodeExit, this);
+	this.playhead.on('timeline:play', this.onTimelinePlay, this);
+	this.playhead.on('timeline:pause', this.onTimelinePause, this);
+	this.playhead.on('timeline:update', this.onTimelineUpdate, this);
+	this.playhead.on('timeline:finish', this.onTimelineFinish, this);
 
 
-	this.setTriggers(_callback);
+	this.setTriggers();
 
 
 	return this;
@@ -129,10 +115,10 @@ TrackManager.prototype.initializeDocument = function(_callback){
 };
 
 
-TrackManager.prototype.setTriggers = function(_callback){
+TrackManager.prototype.setTriggers = function(){
 
 
-	var nodes = this.document.find('[track-trigger]:not([track-trigger-processed])');
+	var nodes = this.document.find('[track-trigger]');
 	if(this.document.has('track-trigger')) nodes.push(this.document);
 
 	var parseTriggerExpression = function(exp){
@@ -222,10 +208,7 @@ TrackManager.prototype.setTriggers = function(_callback){
 
 
 
-	var max_iterations = 10;
-	var iterations = 0;
-
-	for(var i=0; i<nodes.length && iterations<max_iterations; i++){
+	for(var i=0; i< nodes.length; i++){
 
 		var node = nodes[i];
 
@@ -244,23 +227,9 @@ TrackManager.prototype.setTriggers = function(_callback){
 
 		}
 
-		node[0].setAttribute('track-trigger-processed','true')
-
-		iterations++;
 
 	}
 
-
-	LOG('SETTING UP TRACK TRIGGERS!');
-
-	var __callback = (_callback)? _callback : function(){};
-
-	if(iterations<nodes.length) _.delay(_.bind(function(){
-		this.setTriggers(__callback);
-	},this),0);
-	else _callback();
-
-	return;
 
 };
 
@@ -315,7 +284,7 @@ TrackManager.prototype.setTrigger = function(node, trigger){
 					var playhead = this.playhead;
 					var CALLBACK = trigger.callback.name;
 
-					_.defer(function(){ eval(CALLBACK+'()') });				
+					_.defer(function(){ eval(CALLBACK+'()') });
 
 				}
 				catch(e){}
@@ -329,28 +298,15 @@ TrackManager.prototype.setTrigger = function(node, trigger){
 
 					var alias = ['next','previous','parent','first','last','root'];
 					var id = args[0];
-					var target = id+"";			
-					if(_.contains(alias,id)) target = node[id]();
+					var target = id+"";
+					if(_.includes(alias,id)) target = node[id]();
 					else if(id=='this') target = node.id;
 					else if(!_.isString(target)) target = target.id;
 
-					//normalize target as id (String)
 					if (target && target.id) target = target.id;
+					if (target) this.set(target, args[1], args[2], args[3]);
 
-					
-					//aliased?? wtf!?
-					//var value_aliased = this.get(node.id,expval);
-					//if(value_aliased) args[2] = value_aliased;
-
-
-					//eval!!!
-					var exp = (args[2] +'').trim();
-					var fn = new Function('value','var v;try{v=('+ exp +')}catch(e){}return v;');
-					var expval = fn(v1);
-
-					if (target) this.set(target, args[1], expval, args[3] || false);
-
-					LOG(target+' '+args[1]+' '+expval+' '+ (args[3] || false ));
+					LOG(target+' '+args[1]+' '+args[2]+' '+args[3]);
 
 				}
 				else if(trigger.callback.name=='tracking.propagate'){
@@ -359,8 +315,8 @@ TrackManager.prototype.setTrigger = function(node, trigger){
 
 					var alias = ['next','previous','parent','first','last','root'];
 					var id = args[0];
-					var target = id+"";			
-					if(_.contains(alias,id)) target = node[id]();
+					var target = id+"";
+					if(_.includes(alias,id)) target = node[id]();
 					else if(id=='this') target = node.id;
 					else if(!_.isString(target)) target = target.id;
 
@@ -416,7 +372,7 @@ TrackManager.prototype.raw = function(id, key){
 	if (!node) return;
 
 	//return value or undefined
-	return node.raw('track-'+ key);
+	return node.attr('track-'+ key);
 
 };
 
@@ -444,7 +400,7 @@ TrackManager.prototype.has = function(id, key){
 	if (!node) return false;
 
 	//get raw value by key
-	var value = node.raw('track-'+ key);
+	var value = node.attr('track-'+ key);
 
 	//raw will always return String or null value
 	return (_.isString(value))? true : false;
@@ -467,11 +423,11 @@ TrackManager.prototype.get = function(id, key, format){
 	if (!this.has(id,key)) return;
 
 
+
 	/*
 	//!!SHIT!!!
 	//ONLY USING VMSCO...
 	try{
-		
 		var VMSCO = window.parent.parent.parent.parent.VMSCO;
 		if (VMSCO){
 			var node = this.document.getNodeById(id);
@@ -484,7 +440,7 @@ TrackManager.prototype.get = function(id, key, format){
 						if (format!='text') return value;
 
 						var STATUS = {};
-						STATUS.NOTATTEMPTED    	= 0;    	
+						STATUS.NOTATTEMPTED    	= 0;
 						STATUS.INCOMPLETE      	= 1;    	// views>0
 						STATUS.COMPLETED      	= 2;    	// played & completed
 						STATUS.FAILED          	= 3;    	// completed & score<minScore
@@ -526,8 +482,6 @@ TrackManager.prototype.get = function(id, key, format){
 	return value;
 
 };
-
-
 
 TrackManager.prototype.set = function(id, key, value, propagate, recursive){
 
@@ -589,7 +543,7 @@ TrackManager.prototype.update = function(id, key){
 		//update selected keys
 		for(var i=0;i<keys.length;i++){
 			var handler = this.attrControllers[keys[i]];
-			if(handler && handler.update) handler.update(track, this);			
+			if(handler && handler.update) handler.update(track, this);
 		}
 
 	}
@@ -616,7 +570,7 @@ TrackManager.prototype.propagate = function(id, key, recursive){
 	//propagate needed keys
 	for(var i=0;i<keys.length;i++){
 		var handler = this.attrControllers[keys[i]];
-		if(handler && handler.propagate) handler.propagate(track, this, recursive);			
+		if(handler && handler.propagate) handler.propagate(track, this, recursive);
 	}
 
 	return;
@@ -645,7 +599,7 @@ TrackManager.prototype.onCollectionChange = function(track){
 			var handler = this.attrControllers[keys[i]];
 			if(handler.propagate){
 				handler.propagate(track, this, previous[keys[i]],previous_value);
-			}				
+			}
 
 		}
 		*/
@@ -701,8 +655,6 @@ TrackManager.prototype.onNodeEnter = function(node){
 		this.set(node.id,'status', 1);
 
 
-	//propagate recursively
-	this.update(node.id);
 
 	return;
 
@@ -711,7 +663,6 @@ TrackManager.prototype.onNodeEnter = function(node){
 TrackManager.prototype.onNodeExit = function(node){
 
 	/*
-
 	//this is handler for 2 events
 	//1 - timeline event, recives event object
 	//2- playhead event, node
@@ -734,13 +685,13 @@ TrackManager.prototype.onNodeExit = function(node){
 	*/
 
 	//propagate recursively
-	this.propagate(node.id,null, true,true);
+	this.propagate(node.id,null, true);
 
 	return;
 
 };
 
-TrackManager.prototype.onTimelineNodeEnter = function(evt){ 
+TrackManager.prototype.onTimelineNodeEnter = function(evt){
 
 	if (!evt || !evt.target) return;
 
@@ -864,7 +815,7 @@ TrackManager.prototype.onTimelineFinish = function(event){
 
 	//STATUS COMPLETED
 	if( this.has(node.id,'status') && this.get(node.id,'status')<2 )
-		this.set(node.id,'status', 2);		
+		this.set(node.id,'status', 2);
 
 	return;
 
@@ -874,10 +825,10 @@ TrackManager.prototype.onTimelineFinish = function(event){
 
 
 
-/**
- *	EXPORT + IMPORT
- *
- */
+/*
+	JSON IO API
+
+*/
 
 
 TrackManager.prototype.dictionary = {
@@ -889,52 +840,7 @@ TrackManager.prototype.dictionary = {
 };
 
 
-TrackManager.prototype.exportsCode = function (options){
-
-	var data = this.exports({
-		'format':'json',
-		'onlychanged': true,
-		'singlequotes': false
-	});
-
-	if(!data || !data.length) return '';
-
-	var str = '';
-
-	var codes = {
-		'id': 		'#',
-		'status': 	'!',
-		'progress': '%',
-		'points': 	'$',
-		'score': 	'@',
-		'access': 	'·'
-	};
-
-
-	for(var i=0; i<data.length; i++){
-
-		var item = data[i];
-	
-		var keys = _.keys(item);
-		var values = _.values(item);
-
-
-		for(var n = 0; n<keys.length;n++){
-
-			var k = keys[n];
-			var v = values[n];
-
-			if(codes[k]) str+=codes[k]+v;
-
-		}
-
-	}
-
-	return str;
-
-}
-
-TrackManager.prototype.exports = function (options){
+TrackManager.prototype.toJSON = function (options){
 	
 	var defaults = {
 		'node': null, // node to use as root
@@ -986,7 +892,7 @@ TrackManager.prototype.exports = function (options){
 
 			var key = keys[a];
 
-			var raw_value = _this.raw(item.id, key);
+			var raw_value = _this.attr(item.id, key);
 			var value = _this.get(item.id, key);
 
 			if (!options.onlychanged){
@@ -996,44 +902,23 @@ TrackManager.prototype.exports = function (options){
 				}
 				else{
 					obj[key] = item.attributes[key];
-				}					
+				}
 
 			}
 			else{
 
 				if(!_.isUndefined(raw_value) && raw_value!='none' && raw_value!='auto'){
+					if(value!=raw_value){
 
-					if(key=='score'){
-
-						if(raw_value[0]!=value){
-
-							if (options.codify && myDictionary[key]){
-								obj[myDictionary[key]] = value;
-							}
-							else{
-								obj[key] = value;	
-							}
-
+						if (options.codify && myDictionary[key]){
+							obj[myDictionary[key]] = value;
+						}
+						else{
+							obj[key] = value;
 						}
 
 					}
-					else{
-
-						if(value!=raw_value){
-
-							if (options.codify && myDictionary[key]){
-								obj[myDictionary[key]] = value;
-							}
-							else{
-								obj[key] = value;	
-							}						
-
-						}
-
-					}
-
-
-				}	
+				}
 			}
 
 		}
@@ -1053,8 +938,7 @@ TrackManager.prototype.exports = function (options){
 		myJSON = JSON.stringify(myJSON);
 
 		//convert doble quotes into single quotes
-		if(options.singlequotes)
-			myJSON = myJSON.replace(/"/g, '\'');
+		myJSON = myJSON.replace(/"/g, '\'');
 	}
 
 	return myJSON;
@@ -1062,8 +946,14 @@ TrackManager.prototype.exports = function (options){
 
 };
 
+TrackManager.prototype.toJSONString = function (options){
 
-TrackManager.prototype.imports = function(myJSON){
+	//set output format as text
+	options.format = 'text';
+	return this.toJSON(options);
+};
+
+TrackManager.prototype.setJSON = function (myJSON){
 	
 	//no JSON?
 	if (!myJSON || !_.isObject(JSON)) return;
@@ -1098,7 +988,6 @@ TrackManager.prototype.imports = function(myJSON){
 
 
 	for (var i=len-1; i>-1;i--){
-
 		//try apply processed data
 		try{
 
@@ -1113,10 +1002,9 @@ TrackManager.prototype.imports = function(myJSON){
 				var key = keys[a];
 				if(key!='trigger' && key!='id'){
 
-						if (!_.isUndefined(item[key]))
-							track.set(key, item[key], {'silent':true});	
-						
-				}
+					if (!_.isUndefined(item[key]))
+						track.set(key, item[key], {'silent':true});
+					}
 
 			}
 
@@ -1129,7 +1017,7 @@ TrackManager.prototype.imports = function(myJSON){
 
 		}
 		catch(e){
-			console.log(e);
+			return e;
 		}
 
 	}

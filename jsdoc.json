@@ -5,10 +5,12 @@
         "includePattern": ".+\\.js(doc|x)?$",
         "excludePattern": "(^|\\/|\\\\)_",
         "exclude": [
-            "node_modules"
+            "node_modules",
+            "**/_*.*"
         ],
         "include":[
-            "src"
+            "src",
+            "README.md"
         ]
     },
     "sourceType": "module",
@@ -17,12 +19,14 @@
         "dictionaries": ["jsdoc","closure"]
     },
     "templates": {
-        "cleverLinks": false,
-        "monospaceLinks": false,
+        "cleverLinks": true,
+        "monospaceLinks": true,
         "applicationName": "jsdocs-test"
     },
     "opts": {
         "destination": "./docs/",
-        "template": "./node_modules/@pixi/jsdoc-template"
+        "sort": false,
+        "template": "docs_template"
+        //"template": "./node_modules/@pixi/jsdoc-template"
     }
 }

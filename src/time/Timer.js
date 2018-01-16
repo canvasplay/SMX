@@ -8,10 +8,14 @@
 (function(win, _, Backbone, smx){
 
 
+/**
+ * SMX Timer Class
+ */
+class Timer{
 
-class SMXTimer{
-
-
+  /**
+   * creates a Timer
+   **/
   constructor(){
     
   	//inherit events behavior
@@ -45,6 +49,9 @@ class SMXTimer{
   	
   }
 
+  /**
+   * Starts the timer
+   */
 	start(){
 	
 		//prevents duplicated runs
@@ -62,21 +69,29 @@ class SMXTimer{
 
 	}
 	
+	/**
+	 * Plugs an external time engine
+	 * @param {String} engine id
+	 * @param {Function} callback - Function returning current time in ms when invoked
+	 */
+	plugExtEngine(id, callback){
 	
-	plugExtEngine(engineId, engine_callback){
-	
-		//engine_callback must be a function returning current time in ms
-		this.extEngines.unshift({'id': engineId, 'callback': engine_callback});
+		//callback must be a function returning current time in ms
+		this.extEngines.unshift({'id': id, 'callback': callback});
 
 		return;
 	
 	}
 	
-	unplugExtEngine(engineId){
+	/**
+	 * Unplugs an external engine
+	 * @param {String} id - Identifier of the engine to be removed
+	 */
+	unplugExtEngine(id){
 	
 		var found_at_index = -1;
 		for (var i=0; i< this.extEngines.length; i++){
-			if(this.extEngines[i].id==engineId){
+			if(this.extEngines[i].id==id){
 				this.extEngines[i] = null;
 				found_at_index = i;
 			}
@@ -91,6 +106,9 @@ class SMXTimer{
 	
 	}
 	
+	/**
+	 * Updates the timer
+	 */
 	update(time,timerId){
 	
 		//using internal engine 'update' recives 0 parameters
@@ -152,7 +170,10 @@ class SMXTimer{
 
 	}
 	
-	
+	/**
+	 * Sets a given time in ms
+	 * @param {Number} t - time to be set
+	 */
 	setTime(t){
 	
 		this.time = t;
@@ -163,6 +184,9 @@ class SMXTimer{
 
 	}
 
+  /**
+   * Stops the timer
+   */
 	stop(){
 	
 		//reset timeout
@@ -182,6 +206,9 @@ class SMXTimer{
 
 	}
 	
+  /**
+   * Resets the timer
+   */
 	reset(){
 	
 		this.stop();
@@ -189,6 +216,9 @@ class SMXTimer{
 
 	}
 	
+  /**
+   * Destroys the timer
+   */
 	destroy(){
 
 		//kill loop process
@@ -206,7 +236,7 @@ class SMXTimer{
 
 
 //expose class in smx namespace
-smx.time.Timer = SMXTimer;
+smx.time.Timer = Timer;
 
 
 })(window, window._, window.Backbone, window.smx);

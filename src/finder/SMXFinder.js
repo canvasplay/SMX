@@ -61,7 +61,7 @@ class SMXFinder{
   
   		_.each($meta, function(value, key, list){
   
-  			if(_.contains(ids,key)) datas.push(value);
+  			if(_.includes(ids,key)) datas.push(value);
   
   		});
   

@@ -4,8 +4,8 @@
 
     /**
      *  TIME ATTR CONTROLLER
-     *  @module TimeAttrController
      *  Plugin Controller for attributes namespace with 'ui'
+     *  @module TimeAttrController
      */
 
 
@@ -144,7 +144,7 @@
                 }
 
                 //get it from attribute
-                start = parseInt(node.raw('start'));
+                start = parseInt(node.attr('start'));
                 if(_.isNaN(start) || start<0) start = 0;
 
                 //set local value

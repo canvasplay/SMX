@@ -1,12 +1,17 @@
+/**
+ * Extends SMXNode with utility attribute getters
+ * @module Node/Tracking
+ */
+
 (function(global, _, smx){
-
-
 
 let methods = {
 
   /**
-  *   @method isAccesible
-  */
+   * Checks if the node can be accessed
+   * @method isAccesible
+   * @return {Boolean}
+   */
   isAccesible: function(){
 
       if(global.app.config.FREE_ACCESS) return true;
@@ -34,8 +39,12 @@ let methods = {
 
 
   /**
-  *   @method track
-  */
+   * Gets tracking data for the given key name associated to the node
+   * @method track
+   * @param {String} key - tracking field key name
+   * @param {String=} format - desired format data
+   * @return {String|Number}
+   */
   track: function(key, format){
 
       //if exists ($tracking) TrackManager use it
@@ -59,10 +68,10 @@ let methods = {
   },
 
   /**
-  *   Returns true if this node uses tracking attributes
+  *   Checks if the node has associated tracking data, can check for any tracking data or specific field
   *   @method isTracking
-  *   @param {String} (optional) key
-  *   @return {Boolean} result
+  *   @param {String=} key - tracking field key name
+  *   @return {Boolean}
   */
   isTracking: function(key){
 
@@ -96,8 +105,9 @@ let methods = {
 
 
   /**
-  *   @method     update
-  *   @desc       shortcut of TrackManager.update from given node
+  * Performs a Tracking.update for this node
+  * @method update
+  * @param {String=} key - tracking field key name
   */
   update: function(key){
 
@@ -110,10 +120,11 @@ let methods = {
 
   },
 
-
   /**
-  *   @method track
-  *   @desc       shortcut of TrackManager.propagate from given node
+  * Performs a Tracking.propagate for this node
+  * @method update
+  * @param {String=} key - tracking field key name
+  * @param {String=} [recursive=false]
   */
   propagate: function(key, recursive){
 

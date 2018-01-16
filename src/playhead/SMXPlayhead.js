@@ -2,15 +2,14 @@
 
 
 /**
-*	SMXDocument Navigation controller class
+*	SMX Playhead class
 *
 */
-
-class SMXPlayhead{
+class Playhead{
 
   /**
    * Create a playhead
-   * @param {SMXDocument} document - The document to navigate through
+   * @param {Document} document - The document to navigate through
    */
   constructor(doc){
     
@@ -22,28 +21,38 @@ class SMXPlayhead{
 
 
 		/**
-		*	@property document
-		*	@type {SMXDocument}
-		*	The document to navigate
+		 *	The document to navigate
+		*	@type {Document}
 		*/
 		this.document = doc;
 		
 
 		/**
-		*	@property selection
-		*	@type {Array}
-		*	Contains all nodes in which playhead has entered
-		*	List ordered from outter to inner [root, ..., current_node]
-		*/
-		this.selection = [];
+		 * Contains all nodes in which playhead has entered
+		 * List ordered from outter to inner [root, ..., current_node]
+		 * @type {Array}
+		 */
+		this._selection = [];
 
 
-		//selected timeline
+		/**
+		 * Currently active timeline
+		 * @type {Timeline}
+		 */
 		this.timeline = null;
 
-
-		//private last movement log
+		/**
+		 * List of nodes entered in last movement
+		 * @protected
+		 * @type {Array.<Node>}
+		 */
 		this._entered = [];
+
+		/**
+		 * List of nodes exited in last movement
+		 * @protected
+		 * @type {Array.<Node>}
+		 */
 		this._exited = [];
 	
 	
@@ -53,10 +62,9 @@ class SMXPlayhead{
 
 
 	/**
-	*	@method get
-	*	@param [key] {string} attribute name
-	*	@return attribute value
-	*
+	 * Property getter
+	 * @param {String} key - property key name
+	 * @return {Node} property value
 	*/
 	get(key){
 	  
@@ -64,13 +72,13 @@ class SMXPlayhead{
 	  
 		switch(key){
 			case 'selected':
-				result = this.selection;
+				result = this._selection;
 			break;
 			case 'head':
-				result = this.selection[this.selection.length-1];
+				result = this._selection[this._selection.length-1];
 			break;
 			case 'root':
-				result = this.selection[0];
+				result = this._selection[0];
 			break;
 			case 'entered':
 				result = this._entered;
@@ -88,12 +96,38 @@ class SMXPlayhead{
 	}
 
 
-	/* PUBLIC METHODS */
+    /**
+     * Gets currently selected nodes ordered from outter to inner
+     * @type {Node[]}
+     * @readonly
+     */
+    get path() {
+        return this._selection;
+    }
+
+    /**
+     * Gets the most outter selected node
+     * @type {Node}
+     * @readonly
+     */
+    get root() {
+        return this._selection[0];
+    }
+
+
+    /**
+     * Gets the most inner selected node
+     * @type {Node}
+     * @readonly
+     */
+    get head() {
+        return this._selection[this._selection.length-1];
+    }
+
 
 	/**
-	*	@method play
-	*	@param [id] {string} id of target node
-	*
+	 * performs play action
+	 * @param {String|Node} target node
 	*/
 
 	play(id){
@@ -125,9 +159,8 @@ class SMXPlayhead{
 	}
 
 	/**
-	*	@method pause
-	*
-	*/
+	 * performs pause action
+	 */
 	pause(){
 
 		//call timeline pause
@@ -137,9 +170,8 @@ class SMXPlayhead{
 	}
 
 	/**
-	*	@method toggle
-	*
-	*/
+	 * performs toggle action, alternating from playing to paused
+	 */
 	toggle(){
 
 		//call timeline toggle
@@ -150,9 +182,8 @@ class SMXPlayhead{
 	}
 
 	/**
-	*	@method next
-	*
-	*/
+	 * navigate to next Node if exists
+	 */
 	next(){
 		
 		//get current node
@@ -170,9 +201,8 @@ class SMXPlayhead{
 	}
 
 	/**
-	*	@method previous
-	*
-	*/
+	 * navigate to previous Node if exists
+	 */
 	previous(){
 		
 		//get current node
@@ -190,9 +220,8 @@ class SMXPlayhead{
 	}
 	
 	/**
-	*	@method inside
-	*
-	*/
+	 * navigate inside current Node if posible
+	 */
 	inside(){
 	
 		//get current node
@@ -200,10 +229,10 @@ class SMXPlayhead{
 
 		//inside navigation is only allowed above nodes without timeline
 		if (cnode.timeline) return;
+		
+		//get children nodes
+		let children = cnode.children();
 
-    //get children nodes
-    let children = cnode.children();
-    
 		//no children?
 		if (!children.length) return;
 
@@ -219,9 +248,8 @@ class SMXPlayhead{
 	}
 
 	/**
-	*	@method outside
-	*
-	*/
+	 * navigate outside current Node if posible
+	 */
 	outside(){
 		
 		//get current node
@@ -239,10 +267,8 @@ class SMXPlayhead{
 	}
 
 	/**
-	*	@method outside
-	*
-	*/
-		
+	 * navigates up root
+	 */
 	root(){
 		
 		//get root node
@@ -258,10 +284,8 @@ class SMXPlayhead{
 	
 
 	/**
-	* @method forward
-	* @description Go to next node in flat tree mode
-	*
-	*/
+	 * Go to next node in flat tree mode
+	 */
 	forward(){
 		
 		let tnode, cnode, children;
@@ -304,10 +328,8 @@ class SMXPlayhead{
 	}
 
 	/**
-	* @method rewind
-	* @description Go to previous node in flat tree mode
-	*
-	*/
+	 * Go to previous node in flat tree mode
+	 */
 	rewind(){
 		
 		let cnode = this.get('head'); if(!cnode) return;
@@ -319,9 +341,8 @@ class SMXPlayhead{
 	}
 
 	/**
-	*	@method go
-	*   @description Go to given node
-	*/
+	 * Go to given node
+	 */
 	go(ref, opt){
 
 		//is ref a keyword?
@@ -344,7 +365,7 @@ class SMXPlayhead{
 			];
 
 			//is known keyword?
-			if (_.contains(keywords,keyword)){
+			if (_.includes(keywords,keyword)){
 				
 				//get go method by keyword
 				var method = this[keyword];
@@ -495,7 +516,7 @@ class SMXPlayhead{
 			break;
 			case 'parent':
 			
-				//navigate parents from c_node until reach t_node
+				//navigates parents from c_node until reach t_node
 				let ref_node = c_node;
 				let t_node_found = false;
 				while (ref_node.hasParent() && !t_node_found){
@@ -625,22 +646,18 @@ class SMXPlayhead{
 
 
 	/**
-	 *  private methods
-	 *
+	 * @protected
 	 */
-
-
-
 	_goIterative(c_node,t_node){
 	
-		//ok! we are going to navigate from c_node(current node) to t_node(target node). Lets go!
+		//ok! we are going to navigates from c_node(current node) to t_node(target node). Lets go!
 		
-		//navigate from root
+		//navigates from root
 		if(!c_node)
 			this._enterStraight(null,t_node);
 	
 		else{
-		//navigate from current node
+		//navigates from current node
 		
 			//looks parents for a common parent between current and target node
 			let ref_node = c_node;
@@ -666,7 +683,10 @@ class SMXPlayhead{
 		
 		
 	}
-	
+
+	/**
+	 * @protected
+	 */
 	_enterStraight(parent_node,child_node){
 	
 		//Performs iterative 'enter' method on child nodes from parent_node to a known child_node
@@ -696,17 +716,18 @@ class SMXPlayhead{
 		this._enterNode(child_node);
 	
 	}
-	
-	
-
+		
+	/**
+	 * @protected
+	 */
 	_enterNode(_node){
 
 		//prevent re-enter in a node
-		var selectedIds = _.pluck(this.selection,'id');
-		if(_.contains(selectedIds,_node.id)) return;
+		var selectedIds = _.map(this._selection,'id');
+		if(_.includes(selectedIds,_node.id)) return;
 
 		//update selection array
-		this.selection.push(_node);
+		this._selection.push(_node);
 
 		//update last move registry
 		this._entered.push(_node);
@@ -720,14 +741,16 @@ class SMXPlayhead{
 		return;
 	}
 
-
+	/**
+	 * @protected
+	 */
 	_exitNode(_node){
 
 		//clear timeline
 		if(this.timeline) this._destroyTimeline();
 
 		//update blocks array
-		this.selection.pop();
+		this._selection.pop();
 
 		//update last move registry
 		this._exited.push(_node);
@@ -745,10 +768,8 @@ class SMXPlayhead{
 
 
 	/**
-	 *	PRIVATE TIMELINE MANAGING
-	 *
+	 * @protected
 	 */
-
 	_createTimeline(){
 	
 		var cnode = this.get('head');
@@ -767,7 +788,9 @@ class SMXPlayhead{
 	}
 
 
-
+	/**
+	 * @protected
+	 */
 	_destroyTimeline(){
 		
 		//remove listeners
@@ -792,6 +815,9 @@ class SMXPlayhead{
 	 *	Also useful for having a centralized playhead activity
 	 */
 
+	/**
+	 * @protected
+	 */
 	_bindTimelineListeners(){
 	
 		if (!this.timeline) return;
@@ -807,7 +833,10 @@ class SMXPlayhead{
 
 		return;
 	}
-	
+
+	/**
+	 * @protected
+	 */
 	_unbindTimelineListeners(){
 	
 		if (!this.timeline) return;
@@ -824,39 +853,66 @@ class SMXPlayhead{
 		return;
 	}
 
-
+	/**
+	 * @protected
+	 */
 	_onTimelinePlay(event){
 		this.trigger('timeline:play', event); return;
 	}
 
+	/**
+	 * @protected
+	 */
 	_onTimelinePause(event){
 		this.trigger('timeline:pause', event); return;
 	}
 
+	/**
+	 * @protected
+	 */
 	_onTimelineUpdate(event){
 		this.trigger('timeline:update', event);	return;
 	}
 
+	/**
+	 * @protected
+	 */
 	_onTimelineSeek(event){
 		this.trigger('timeline:seek', event); return;
 	}
 
+	/**
+	 * @protected
+	 */
 	_onTimelineFinish(event){
 		this.trigger('timeline:finish', event); return;
 	}
 
+	/**
+	 * @protected
+	 */
 	_onTimelineReset(event){
 		this.trigger('timeline:reset', event); return;
 	}
 
+	/**
+	 * @protected
+	 */
 	_onTimelineEnter(event){
 		this.trigger('timeline:enter', event); return;
 	}
 
+	/**
+	 * @protected
+	 */
 	_onTimelineExit(event){
 		this.trigger('timeline:exit', event); return;
 	}
 
+
+	/**
+	 * check wether a node access should be async or not, default to false, needs overwritting
+	 */
   requestAsyncNodeAccess(node){
   	
   	return false;
@@ -872,7 +928,7 @@ class SMXPlayhead{
 
 
 //expose to global
-smx.Playhead = SMXPlayhead;
+smx.Playhead = Playhead;
 
 
 })(window, window._, window.Backbone, window.smx);

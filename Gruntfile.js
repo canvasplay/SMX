@@ -41,6 +41,7 @@ module.exports = function(grunt) {
                     'dist/smx.js',
 
                     'dist/compiler/Compiler.js',
+                    'dist/compiler/Loader.js',
 
                     'dist/time/time.js',
                     'dist/time/Timer.js',
@@ -74,6 +75,7 @@ module.exports = function(grunt) {
                     'dist/plugins/prototype/PrototypeParser.js',
                     
                     //Metadata
+                    'dist/plugins/metadata/Sizzle.selectors.filters.regex.js',
                     'dist/plugins/metadata/MetadataParser.js',
                     'dist/plugins/metadata/MetadataInterface.js',
 
@@ -82,7 +84,9 @@ module.exports = function(grunt) {
                     'dist/plugins/taxonomy/TaxonomyInterface.js',
 
 
-                    'dist/document/Node.js'
+                    'dist/document/Node.js',
+                    //'dist/document/Node.ComputedProperties.js',
+                    'dist/document/Node.TreeMethods.js'
 
 
                 ],

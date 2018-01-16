@@ -1,8 +1,3 @@
-/**
- * SMX DOCUMENT COMPILER
- * Load smx xml document, search and load recursively "include" nodes,...
- */
-
 (function(win,_,$,smx,log){
 
 
@@ -17,7 +12,7 @@
 	 *	returns unique base36 ids strings [0-9]+[a-z]
 	 *
 	 *	based on _.uniqueId(), incremental starting at 0
-	 *	Native Intger.toString handle only up base 36
+	 *	Native Intger.toString only handles up base 36
 	 *
 	 *  base36 [0-9]+[a-z]
    *  base62 [0-9]+[a-z]+[A-Z] but requires BigInt.js!
@@ -41,7 +36,7 @@
       var name = attrs[i].name;
       var value = attrs[i].value;
       
-      if(!_.contains(ignore_attributes, name)){
+      if(!_.includes(ignore_attributes, name)){
         var attr = targetNode.getAttribute(name);
         if(typeof attr === undefined || attr === null || attr === false)
           targetNode.setAttribute(name, value);
@@ -86,6 +81,11 @@
   
   
 
+/**
+ * SMX Compiler Class
+ * @class Compiler
+ */
+ 
  	var DocumentCompiler = function(options){
 
 
@@ -210,6 +210,7 @@
 				//replace old node with new node
 				//create clone of new node due wired ipad IOS4 jquery error
 				//WRONG_DOCUMENT_ERR node was used in a different document...
+				//$(old_node).replaceWith(new_node));
 				$(old_node).replaceWith($(new_node).clone());
 
 			}
@@ -347,40 +348,6 @@
 
 
 
-		/*
-
-		!!!WARNING - THIS IS USELESS
-
-
-		using this search: $(XML).find('*')
-		all the returning nodes will be nodeType = 1
-		so all nodes pass the filter...
-
-
-		this.cleanUp = function(XML){
-
-			//cleanup! remove undesired content like xml comments and other unwanted nodetypes
-			//leave only node elements
-
-			var $nodes = $(XML).find('*');
-
-			$nodes.each(function(index,item){
-
-				console.log(item.nodeType);
-				if(item.nodeType != 1){
-					$(item).remove()
-				}
-
-			});
-
-			LOG('CLEAN UP ('+ $nodes.length +' nodes)')
-
-			return XML;
-
-		};
-
-
-		*/
 
 
 		this.normalizeIdAttributes = function(xml){
@@ -424,7 +391,7 @@
 
 				var new_id = GET_UNIQUE_ID();
 
-				while(_.contains(in_use_ids,new_id)){
+				while(_.includes(in_use_ids,new_id)){
  					new_id = GET_UNIQUE_ID();
 				}
 
@@ -606,20 +573,20 @@
 
 			var XML = null;
 
-            if (win.ActiveXObject){
+      if (win.ActiveXObject){
 
-              var XML = new ActiveXObject('Microsoft.XMLDOM');
-              XML.async = 'false';
-              XML.loadXML(str);
+        var XML = new ActiveXObject('Microsoft.XMLDOM');
+        XML.async = 'false';
+        XML.loadXML(str);
 
-            } else {
+      } else {
 
-              var parser = new DOMParser();
-              var XML = parser.parseFromString(str,'text/xml');
+        var parser = new DOMParser();
+        var XML = parser.parseFromString(str,'text/xml');
 
-            }
+      }
 
-            return XML;
+      return XML;
 		};
 
 
@@ -637,10 +604,10 @@
 
 
 
-
+/*
 // UTIL METHODS
 
-var CLEAN_TEXT_NODES = function(xml){
+var CLEAN_XML_NODE = function(xml){
 
   var count = 0;
 
@@ -686,7 +653,7 @@ var CLEAN_TEXT_NODES = function(xml){
   LOG('CLEANING XML: '+ count+' nodes removed');
 
 };
-
+*/
 
 
 

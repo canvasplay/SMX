@@ -5,10 +5,14 @@ var DEBUG = true; var LOG = function(str){ if (win.console&&win.console.log&&DEB
 
 
 
-
+/**
+ * SMX Tracking class
+ * @class Tracking
+ * @param {Document} document
+ */
 var TrackManager = function(doc){
 
-	//document && playhead params are required
+	//document
 	if(!doc) return;
 
 	//extend with Backbone Events
@@ -79,7 +83,7 @@ TrackManager.prototype.initializeDocument = function(_callback){
 			//add node id
 			track_attrs.id = node.id;
 
-			//add all attributes which names start with 'track-' 
+			//add all attributes which names start with 'track-'
 			for(var i = 0; i < attrs.length; i++) {
 				var attr_name = attrs[i].name;
 				var attr_value = attrs[i].value;
@@ -312,10 +316,10 @@ TrackManager.prototype.setTrigger = function(node, trigger){
 
 				try{
 
-					var playhead = this.playhead;
+					//var playhead = this.playhead;
 					var CALLBACK = trigger.callback.name;
 
-					_.defer(function(){ eval(CALLBACK+'()') });				
+					_.defer(function(){ eval(CALLBACK+'()') });
 
 				}
 				catch(e){}
@@ -329,8 +333,8 @@ TrackManager.prototype.setTrigger = function(node, trigger){
 
 					var alias = ['next','previous','parent','first','last','root'];
 					var id = args[0];
-					var target = id+"";			
-					if(_.contains(alias,id)) target = node[id]();
+					var target = id+"";
+					if(_.includes(alias,id)) target = node[id]();
 					else if(id=='this') target = node.id;
 					else if(!_.isString(target)) target = target.id;
 
@@ -359,8 +363,8 @@ TrackManager.prototype.setTrigger = function(node, trigger){
 
 					var alias = ['next','previous','parent','first','last','root'];
 					var id = args[0];
-					var target = id+"";			
-					if(_.contains(alias,id)) target = node[id]();
+					var target = id+"";
+					if(_.includes(alias,id)) target = node[id]();
 					else if(id=='this') target = node.id;
 					else if(!_.isString(target)) target = target.id;
 
@@ -397,12 +401,11 @@ TrackManager.prototype.unsetTrigger = function(code){
  *	Get raw value for specified node id and attribute key
  *	Uses SMXNode 'raw' method
  *
- *  @method raw
  *  @param id {string} node id
  *  @param key {string} attribute key
  *  @return {string} resulting value or null
  *
-	 */
+ */
 
 TrackManager.prototype.raw = function(id, key){
 
@@ -416,21 +419,19 @@ TrackManager.prototype.raw = function(id, key){
 	if (!node) return;
 
 	//return value or undefined
-	return node.raw('track-'+ key);
+	return node.attr('track-'+ key);
 
 };
 
 
 /**
- *	Answer this question:
- *	Has key attribute the node with give id?
+ * Answer this question:
+ * Has key attribute the node with give id?
+ * @param {String} id  - node id
+ * @param {String} key - attribute key
+ * @return {Boolean} has or not the specified key
  *
- *  @method has
- *  @param id {String} node id
- *  @param key {String} attribute key
- *  @return {Boolean} has or not the specified key
- *
-	 */
+ */
 
 TrackManager.prototype.has = function(id, key){
 
@@ -444,7 +445,7 @@ TrackManager.prototype.has = function(id, key){
 	if (!node) return false;
 
 	//get raw value by key
-	var value = node.raw('track-'+ key);
+	var value = node.attr('track-'+ key);
 
 	//raw will always return String or null value
 	return (_.isString(value))? true : false;
@@ -515,7 +516,11 @@ TrackManager.prototype.set = function(id, key, value, propagate, recursive){
 };
 
 
-
+/**
+* Updates tracking data for the given node id
+* @param {String} id - node id
+* @param {String=} key - tracking field key name
+*/
 TrackManager.prototype.update = function(id, key){
 
 	var tracks;
@@ -543,7 +548,7 @@ TrackManager.prototype.update = function(id, key){
 		//update selected keys
 		for(var i=0;i<keys.length;i++){
 			var handler = this.attrControllers[keys[i]];
-			if(handler && handler.update) handler.update(track, this);			
+			if(handler && handler.update) handler.update(track, this);
 		}
 
 	}
@@ -551,6 +556,13 @@ TrackManager.prototype.update = function(id, key){
 	return;
 
 };
+
+/**
+* Propagates tracking data for the given node id
+* @param {String} id - node id
+* @param {String=} key - tracking field key name
+* @param {String=} [recursive=false]
+*/
 
 TrackManager.prototype.propagate = function(id, key, recursive){
 
@@ -570,7 +582,7 @@ TrackManager.prototype.propagate = function(id, key, recursive){
 	//propagate needed keys
 	for(var i=0;i<keys.length;i++){
 		var handler = this.attrControllers[keys[i]];
-		if(handler && handler.propagate) handler.propagate(track, this, recursive);			
+		if(handler && handler.propagate) handler.propagate(track, this, recursive);
 	}
 
 	return;
@@ -578,6 +590,26 @@ TrackManager.prototype.propagate = function(id, key, recursive){
 };
 
 
+
+/**
+ * Global change event
+ * @event Tracking#change
+ * @type {object}
+ */
+
+/**
+ * Track change event
+ * @event Tracking#change:id
+ * @type {object}
+ */
+
+/**
+ * Track field change event
+ * @event Tracking#change:id:key
+ * @type {object}
+ */
+
+     
 TrackManager.prototype.onCollectionChange = function(track){
 
 	
@@ -599,7 +631,7 @@ TrackManager.prototype.onCollectionChange = function(track){
 			var handler = this.attrControllers[keys[i]];
 			if(handler.propagate){
 				handler.propagate(track, this, previous[keys[i]],previous_value);
-			}				
+			}
 
 		}
 		*/
@@ -694,7 +726,7 @@ TrackManager.prototype.onNodeExit = function(node){
 
 };
 
-TrackManager.prototype.onTimelineNodeEnter = function(evt){ 
+TrackManager.prototype.onTimelineNodeEnter = function(evt){
 
 	if (!evt || !evt.target) return;
 
@@ -818,7 +850,7 @@ TrackManager.prototype.onTimelineFinish = function(event){
 
 	//STATUS COMPLETED
 	if( this.has(node.id,'status') && this.get(node.id,'status')<2 )
-		this.set(node.id,'status', 2);		
+		this.set(node.id,'status', 2);
 
 	return;
 
@@ -888,6 +920,11 @@ TrackManager.prototype.exportsCode = function (options){
 
 }
 
+/**
+ * Exports tracking data
+ * @param {Object=} options
+ * @return {data}
+ */
 TrackManager.prototype.exports = function (options){
 	
 	var defaults = {
@@ -940,8 +977,8 @@ TrackManager.prototype.exports = function (options){
 
 			var key = keys[a];
 
-			var raw_value = _this.raw(item.id, key);
-			var value = _this.get(item.id, key);
+			var raw_value = _this.attr(item.id, key);
+			var value = _this.attr(item.id, key);
 
 			if (!options.onlychanged){
 
@@ -950,7 +987,7 @@ TrackManager.prototype.exports = function (options){
 				}
 				else{
 					obj[key] = item.attributes[key];
-				}					
+				}
 
 			}
 			else{
@@ -965,7 +1002,7 @@ TrackManager.prototype.exports = function (options){
 								obj[myDictionary[key]] = value;
 							}
 							else{
-								obj[key] = value;	
+								obj[key] = value;
 							}
 
 						}
@@ -979,15 +1016,15 @@ TrackManager.prototype.exports = function (options){
 								obj[myDictionary[key]] = value;
 							}
 							else{
-								obj[key] = value;	
-							}						
+								obj[key] = value;
+							}
 
 						}
 
 					}
 
 
-				}	
+				}
 			}
 
 		}
@@ -1017,20 +1054,25 @@ TrackManager.prototype.exports = function (options){
 };
 
 
-TrackManager.prototype.imports = function(myJSON){
+/**
+ * Imports tracking data
+ * @param {Object|String} data
+ * @return {data}
+ */
+TrackManager.prototype.imports = function(_data_){
 	
 	//no JSON?
-	if (!myJSON || !_.isObject(JSON)) return;
+	if (!_data_ || !_.isObject(JSON)) return;
 
 	//process input param into data object
 	var data = null;
 
 	try{
-		if (typeof myJSON == 'string' && myJSON!=''){
-			data = eval( '('+ myJSON +')' );
+		if (typeof _data_ == 'string' && _data_!=''){
+			data = eval( '('+ _data_ +')' );
 		}
 		else{
-			data = myJSON;
+			data = _data_;
 		}
 	}
 	catch(e){}
@@ -1068,7 +1110,7 @@ TrackManager.prototype.imports = function(myJSON){
 				if(key!='trigger' && key!='id'){
 
 						if (!_.isUndefined(item[key])){
-							//track.set(key, item[key], {'silent':true});	
+							//track.set(key, item[key], {'silent':true});
 							this.set(item.id, key, item[key]);
 						}
 						

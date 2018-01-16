@@ -1801,30 +1801,86 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 /**
 *	SMX Synchronized Multimedia XML
 *
-*	@module smx
+*	@namespace smx
 *
 */
 
-(function (window) {
+(function (global) {
 
-	var smx = {};
+    var smx = {};
 
-	/* software version: major.minor.path */
-	smx.version = '0.8.1';
+    smx.version = '0.8.14';
 
-	//expose
+    smx.cache = {};
 
-	window.smx = smx;
+    smx.document = null;
+    smx.documents = [];
+
+    //declare and expose $smx namespace
+    var $smx = global['$smx'] = {};
+
+    ////////////////////////////////
+    // PRIVATE INDEXED NODE LIST CACHE
+
+    $smx.cache = {};
+
+    ////////////////////////////////
+    // SMX NODE WRAPPER
+
+    $smx.node = function (elems) {
+
+        var _Node = function _Node(xmlNode) {
+
+            var id = null;
+
+            //if(!xmlNode) return;
+            //if (xmlNode.nodeName == 'undefined') return;
+            //if (typeof xmlNode.nodeType == 'undefined') return;
+            //if (xmlNode.nodeType != 1) return;
+
+            //can this try replace the 4 conditionals above? yes...
+            try {
+                id = xmlNode.getAttribute('id');
+            } catch (e) {}
+
+            //id attr is required!
+            if (!id) return;
+
+            //Does already exists a node with this id?
+            //prevent duplicated nodes and return existing one
+            if ($smx.cache[id]) return $smx.cache[id];
+
+            //create new Node from given XMLNode
+            var node = new smx.Node(xmlNode);
+
+            //add it to nodes cache
+            $smx.cache[id] = node;
+
+            //return just created node
+            return node;
+        };
+
+        if (elems && (_.isArray(elems) || !_.isUndefined(elems.length)) && _.isUndefined(elems.nodeType)) {
+            var result = [];
+            for (var i = 0; i < elems.length; i++) {
+                if (elems[i]) {
+                    var node = elems[i][0] ? elems[i] : _Node(elems[i]);
+                    if (node) result.push(node);
+                }
+            }
+            return result;
+        } else if (elems) {
+            if (elems[0]) return elems;else return _Node(elems);
+        } else return;
+    };
+
+    //expose
+    global.smx = smx;
 })(window);
 //# sourceMappingURL=smx.js.map
 ;'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
-/**
- * SMX DOCUMENT COMPILER
- * Load smx xml document, search and load recursively "include" nodes,...
- */
 
 (function (win, _, $, smx, log) {
 
@@ -1840,7 +1896,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     *	returns unique base36 ids strings [0-9]+[a-z]
     *
     *	based on _.uniqueId(), incremental starting at 0
-    *	Native Intger.toString handle only up base 36
+    *	Native Intger.toString only handles up base 36
     *
     *  base36 [0-9]+[a-z]
      *  base62 [0-9]+[a-z]+[A-Z] but requires BigInt.js!
@@ -1864,7 +1920,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 									var name = attrs[i].name;
 									var value = attrs[i].value;
 
-									if (!_.contains(ignore_attributes, name)) {
+									if (!_.includes(ignore_attributes, name)) {
 												var attr = targetNode.getAttribute(name);
 												if ((typeof attr === 'undefined' ? 'undefined' : _typeof(attr)) === undefined || attr === null || attr === false) targetNode.setAttribute(name, value);
 									}
@@ -1902,6 +1958,11 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 						return node;
 			}
+
+			/**
+    * SMX Compiler Class
+    * @class Compiler
+    */
 
 			var DocumentCompiler = function DocumentCompiler(options) {
 
@@ -2016,6 +2077,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 												//replace old node with new node
 												//create clone of new node due wired ipad IOS4 jquery error
 												//WRONG_DOCUMENT_ERR node was used in a different document...
+												//$(old_node).replaceWith(new_node));
 												$(old_node).replaceWith($(new_node).clone());
 									}
 
@@ -2129,29 +2191,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 									return;
 						};
 
-						/*
-      		!!!WARNING - THIS IS USELESS
-      
-      using this search: $(XML).find('*')
-      all the returning nodes will be nodeType = 1
-      so all nodes pass the filter...
-      
-      this.cleanUp = function(XML){
-      			//cleanup! remove undesired content like xml comments and other unwanted nodetypes
-      	//leave only node elements
-      			var $nodes = $(XML).find('*');
-      			$nodes.each(function(index,item){
-      				console.log(item.nodeType);
-      		if(item.nodeType != 1){
-      			$(item).remove()
-      		}
-      			});
-      			LOG('CLEAN UP ('+ $nodes.length +' nodes)')
-      			return XML;
-      		};
-      
-      */
-
 						this.normalizeIdAttributes = function (xml) {
 
 									//ids control
@@ -2186,7 +2225,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 												var new_id = GET_UNIQUE_ID();
 
-												while (_.contains(in_use_ids, new_id)) {
+												while (_.includes(in_use_ids, new_id)) {
 															new_id = GET_UNIQUE_ID();
 												}
 
@@ -2354,57 +2393,128 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 			//expose
 			smx.Compiler = DocumentCompiler;
 
-			// UTIL METHODS
-
-			var CLEAN_TEXT_NODES = function CLEAN_TEXT_NODES(xml) {
-
-						var count = 0;
-
-						function clean(node) {
-
-									for (var n = 0; n < node.childNodes.length; n++) {
-
-												var child = node.childNodes[n];
-
-												//	1	ELEMENT_NODE
-												//	2	ATTRIBUTE_NODE
-												//	3	TEXT_NODE
-												//	4	CDATA_SECTION_NODE
-												//	5	ENTITY_REFERENCE_NODE
-												//	6	ENTITY_NODE
-												//	7	PROCESSING_INSTRUCTION_NODE
-												//	8	COMMENT_NODE
-												//	9	DOCUMENT_NODE
-												//	10	DOCUMENT_TYPE_NODE
-												//	11	DOCUMENT_FRAGMENT_NODE
-												//	12	NOTATION_NODE
-
-												var isElementNode = function isElementNode(n) {
-															return n.nodeType === 1;
-												};
-												var isCommentNode = function isCommentNode(n) {
-															return n.nodeType === 8;
-												};
-												var isEmptyTextNode = function isEmptyTextNode(n) {
-															return n.nodeType === 3 && !/\S/.test(n.nodeValue);
-												};
-
-												if (isCommentNode(child) || isEmptyTextNode(child)) {
-															node.removeChild(child);
-															count++;
-															n--;
-												} else if (isElementNode(child)) {
-															clean(child);
-												}
-									}
-						}
-
-						clean(xml);
-
-						LOG('CLEANING XML: ' + count + ' nodes removed');
-			};
+			/*
+   // UTIL METHODS
+   
+   var CLEAN_XML_NODE = function(xml){
+   
+     var count = 0;
+   
+   	function clean(node){
+   
+   		for(var n = 0; n < node.childNodes.length; n ++){
+   
+   			var child = node.childNodes[n];
+   
+   			//	1	ELEMENT_NODE
+   			//	2	ATTRIBUTE_NODE
+   			//	3	TEXT_NODE
+   			//	4	CDATA_SECTION_NODE
+   			//	5	ENTITY_REFERENCE_NODE
+   			//	6	ENTITY_NODE
+   			//	7	PROCESSING_INSTRUCTION_NODE
+   			//	8	COMMENT_NODE
+   			//	9	DOCUMENT_NODE
+   			//	10	DOCUMENT_TYPE_NODE
+   			//	11	DOCUMENT_FRAGMENT_NODE
+   			//	12	NOTATION_NODE
+   			
+   			var isElementNode = function(n){ return n.nodeType===1 }
+   			var isCommentNode = function(n){ return n.nodeType===8 }
+   			var isEmptyTextNode = function(n){ return n.nodeType===3 && !/\S/.test(n.nodeValue) }
+   
+   			if( isCommentNode(child) || isEmptyTextNode(child) ){
+   			  node.removeChild(child);
+   			  count++;
+   			  n --;
+   			}
+   			else if( isElementNode(child) ){
+   			  clean(child);
+   			}
+   
+   
+   		}
+   
+   	}
+   
+   	clean(xml);
+   
+     LOG('CLEANING XML: '+ count+' nodes removed');
+   
+   };
+   */
 })(window, _, $, smx, log);
 //# sourceMappingURL=Compiler.js.map
+;'use strict';
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+(function (global, _, $, smx, log) {
+
+  //private aux debug system
+  var DEBUG = true;
+  var LOG = function LOG(o) {
+    if (DEBUG) log('> ' + o);
+  };
+
+  /**
+   * SMX Loader Class
+   */
+
+  var Loader = function () {
+
+    /**
+     * creates a new Loader
+     */
+    function Loader() {
+      _classCallCheck(this, Loader);
+
+      this.xhr = null;
+    }
+    /**
+     * load resource by given url
+     * @param {String}
+     */
+
+
+    _createClass(Loader, [{
+      key: 'load',
+      value: function load(url) {
+
+        var onSuccess = _.bind(this.onSuccess, this);
+        var onError = _.bind(this.onError, this);
+
+        this.xhr = global.ActiveXObject ? new global.ActiveXObject("MSXML2.XMLHTTP.3.0") : new global.XMLHttpRequest();
+        this.xhr.open('GET', url);
+        this.xhr.onload = function (evt) {
+          if (evt.target.status === 200) onSuccess(evt.target);else onError(evt.target);
+        };
+        this.xhr.send();
+
+        return;
+      }
+    }, {
+      key: 'onSuccess',
+      value: function onSuccess(xhr) {
+        LOG(xhr.responseURL + ' ' + xhr.status + ' (' + xhr.statusText + ')');
+        LOG(xhr.responseText);
+      }
+    }, {
+      key: 'onError',
+      value: function onError(xhr) {
+        LOG(xhr.responseURL + '" ' + xhr.status + ' (' + xhr.statusText + ')');
+        LOG(xhr.responseText);
+      }
+    }]);
+
+    return Loader;
+  }();
+
+  smx.Loader = Loader;
+})(window, _, $, smx, log);
+//# sourceMappingURL=Loader.js.map
 ;"use strict";
 
 (function (smx) {
@@ -2427,867 +2537,925 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 */
 
 (function (win, _, Backbone, smx) {
-		var SMXTimer = function () {
-				function SMXTimer() {
-						_classCallCheck(this, SMXTimer);
 
-						//inherit events behavior
-						_.extend(this, Backbone.Events);
+	/**
+  * SMX Timer Class
+  */
+	var Timer = function () {
 
-						//fps only applied when using internal timer
-						//[ 16 | 24 | 32 | 48 | 64 ... ] higher values may push performance limits (not recommended)
-						this.fps = 16;
+		/**
+   * creates a Timer
+   **/
+		function Timer() {
+			_classCallCheck(this, Timer);
 
-						//internal timer engine object
-						//usually return value of setTimeout or setInterval
-						this.engine = null;
+			//inherit events behavior
+			_.extend(this, Backbone.Events);
 
-						//external engine collection
-						this.extEngines = [];
+			//fps only applied when using internal timer
+			//[ 16 | 24 | 32 | 48 | 64 ... ] higher values may push performance limits (not recommended)
+			this.fps = 16;
 
-						//time counter
-						this.time = 0;
+			//internal timer engine object
+			//usually return value of setTimeout or setInterval
+			this.engine = null;
 
-						//aux time flag
-						this.time_flag = null;
+			//external engine collection
+			this.extEngines = [];
 
-						//bool engine paused or not
-						this.paused = true;
+			//time counter
+			this.time = 0;
 
-						//bool flag requestAnimationFrame?
-						this.rAF = false;
+			//aux time flag
+			this.time_flag = null;
 
-						//fps multiplier
-						this.factor = 1;
+			//bool engine paused or not
+			this.paused = true;
+
+			//bool flag requestAnimationFrame?
+			this.rAF = false;
+
+			//fps multiplier
+			this.factor = 1;
+		}
+
+		/**
+   * Starts the timer
+   */
+
+
+		_createClass(Timer, [{
+			key: 'start',
+			value: function start() {
+
+				//prevents duplicated runs
+				if (this.engine) this.stop();
+
+				//set time_flag
+				this.time_flag = new Date().getTime();
+
+				//activate loop
+				this.paused = false;
+
+				//set timeout
+				if (this.rAF) this.engine = global.requestAnimationFrame(_.bind(this.update, this));else this.engine = setTimeout(_.bind(this.update, this), 1000 / this.fps);
+			}
+
+			/**
+    * Plugs an external time engine
+    * @param {String} engine id
+    * @param {Function} callback - Function returning current time in ms when invoked
+    */
+
+		}, {
+			key: 'plugExtEngine',
+			value: function plugExtEngine(id, callback) {
+
+				//callback must be a function returning current time in ms
+				this.extEngines.unshift({ 'id': id, 'callback': callback });
+
+				return;
+			}
+
+			/**
+    * Unplugs an external engine
+    * @param {String} id - Identifier of the engine to be removed
+    */
+
+		}, {
+			key: 'unplugExtEngine',
+			value: function unplugExtEngine(id) {
+
+				var found_at_index = -1;
+				for (var i = 0; i < this.extEngines.length; i++) {
+					if (this.extEngines[i].id == id) {
+						this.extEngines[i] = null;
+						found_at_index = i;
+					}
+				}
+				if (found_at_index >= 0) {
+					this.extEngines.splice(found_at_index, 1);
 				}
 
-				_createClass(SMXTimer, [{
-						key: 'start',
-						value: function start() {
+				if (!this.extEngines.length && !this.paused) this.start();
 
-								//prevents duplicated runs
-								if (this.engine) this.stop();
+				return;
+			}
 
-								//set time_flag
-								this.time_flag = new Date().getTime();
+			/**
+    * Updates the timer
+    */
 
-								//activate loop
-								this.paused = false;
+		}, {
+			key: 'update',
+			value: function update(time, timerId) {
 
-								//set timeout
-								if (this.rAF) this.engine = global.requestAnimationFrame(_.bind(this.update, this));else this.engine = setTimeout(_.bind(this.update, this), 1000 / this.fps);
-						}
-				}, {
-						key: 'plugExtEngine',
-						value: function plugExtEngine(engineId, engine_callback) {
+				//using internal engine 'update' recives 0 parameters
+				//and will use new Date().getTime() to calculate time ellapsed since last update
 
-								//engine_callback must be a function returning current time in ms
-								this.extEngines.unshift({ 'id': engineId, 'callback': engine_callback });
+				//using an external engine callback must recive 2 param
+				//time: target time
+				//timerId: id of a registered external engine
+				//only registered engines via 'plugExtEngine' method take effect
+				//if timerId is not found time param will be ignored and will exit silently
 
-								return;
-						}
-				}, {
-						key: 'unplugExtEngine',
-						value: function unplugExtEngine(engineId) {
+				if (typeof time != 'undefined' && typeof timerId != 'undefined') {
 
-								var found_at_index = -1;
-								for (var i = 0; i < this.extEngines.length; i++) {
-										if (this.extEngines[i].id == engineId) {
-												this.extEngines[i] = null;
-												found_at_index = i;
-										}
-								}
-								if (found_at_index >= 0) {
-										this.extEngines.splice(found_at_index, 1);
-								}
+					//multiple external engines are not supported
+					//so, always take only the first extEngine and ignore the others
+					if (this.extEngines[0].id == timerId) {
 
-								if (!this.extEngines.length && !this.paused) this.start();
+						//update using param provided by external engine
+						this.time = time;
+						//debug.log('TIMER - timer:'+ parseInt(this.time) +' from externalEngine:'+this.extEngines[0].id);
 
-								return;
-						}
-				}, {
-						key: 'update',
-						value: function update(time, timerId) {
+						//notify update and exit
+						this.trigger('update');
+						return;
+					} else {
 
-								//using internal engine 'update' recives 0 parameters
-								//and will use new Date().getTime() to calculate time ellapsed since last update
+						//timerId not found, exit silently
+						return;
+					}
+				}
 
-								//using an external engine callback must recive 2 param
-								//time: target time
-								//timerId: id of a registered external engine
-								//only registered engines via 'plugExtEngine' method take effect
-								//if timerId is not found time param will be ignored and will exit silently
+				//calculate time ellapsed since last update
+				var time_now = new Date().getTime();
+				var time_offset = this.time_flag !== null ? time_now - this.time_flag : 0;
+				this.time_flag = time_now;
 
-								if (typeof time != 'undefined' && typeof timerId != 'undefined') {
+				//calculate real fps
+				//var fps = 1000/time_offset;
 
-										//multiple external engines are not supported
-										//so, always take only the first extEngine and ignore the others
-										if (this.extEngines[0].id == timerId) {
-
-												//update using param provided by external engine
-												this.time = time;
-												//debug.log('TIMER - timer:'+ parseInt(this.time) +' from externalEngine:'+this.extEngines[0].id);
-
-												//notify update and exit
-												this.trigger('update');
-												return;
-										} else {
-
-												//timerId not found, exit silently
-												return;
-										}
-								}
-
-								//calculate time ellapsed since last update
-								var time_now = new Date().getTime();
-								var time_offset = this.time_flag !== null ? time_now - this.time_flag : 0;
-								this.time_flag = time_now;
-
-								//calculate real fps
-								//var fps = 1000/time_offset;
-
-								//update time
-								this.time += time_offset * this.factor;
-								//debug.log('TIMER - timer:'+ parseInt(this.time) +' from internal engine');
+				//update time
+				this.time += time_offset * this.factor;
+				//debug.log('TIMER - timer:'+ parseInt(this.time) +' from internal engine');
 
 
-								//set timeout to next frame
-								if (!this.paused && !this.extEngines.length) {
-										if (this.rAF) this.engine = global.requestAnimationFrame(_.bind(this.update, this));else this.engine = setTimeout(_.bind(this.update, this), 1000 / this.fps);
-								}
+				//set timeout to next frame
+				if (!this.paused && !this.extEngines.length) {
+					if (this.rAF) this.engine = global.requestAnimationFrame(_.bind(this.update, this));else this.engine = setTimeout(_.bind(this.update, this), 1000 / this.fps);
+				}
 
-								//notify update and exit
-								this.trigger('update');
+				//notify update and exit
+				this.trigger('update');
 
-								return;
-						}
-				}, {
-						key: 'setTime',
-						value: function setTime(t) {
+				return;
+			}
 
-								this.time = t;
+			/**
+    * Sets a given time in ms
+    * @param {Number} t - time to be set
+    */
 
-								//notify update
-								this.trigger('update');
-						}
-				}, {
-						key: 'stop',
-						value: function stop() {
+		}, {
+			key: 'setTime',
+			value: function setTime(t) {
 
-								//reset timeout
-								if (this.engine) {
-										if (this.rAF) global.cancelAnimationFrame(this.engine);else clearTimeout(this.engine);
-										this.engine = null;
-								}
+				this.time = t;
 
-								//reset time_flag
-								this.time_flag = null;
+				//notify update
+				this.trigger('update');
+			}
 
-								//deactivate update loop
-								this.paused = true;
+			/**
+    * Stops the timer
+    */
 
-								return;
-						}
-				}, {
-						key: 'reset',
-						value: function reset() {
+		}, {
+			key: 'stop',
+			value: function stop() {
 
-								this.stop();
-								this.time = 0;
-						}
-				}, {
-						key: 'destroy',
-						value: function destroy() {
+				//reset timeout
+				if (this.engine) {
+					if (this.rAF) global.cancelAnimationFrame(this.engine);else clearTimeout(this.engine);
+					this.engine = null;
+				}
 
-								//kill loop process
-								this.stop();
+				//reset time_flag
+				this.time_flag = null;
 
-								//clear extEngines
-								this.extEngines = [];
+				//deactivate update loop
+				this.paused = true;
 
-								return;
-						}
-				}]);
+				return;
+			}
 
-				return SMXTimer;
-		}();
+			/**
+    * Resets the timer
+    */
 
-		//expose class in smx namespace
+		}, {
+			key: 'reset',
+			value: function reset() {
+
+				this.stop();
+				this.time = 0;
+			}
+
+			/**
+    * Destroys the timer
+    */
+
+		}, {
+			key: 'destroy',
+			value: function destroy() {
+
+				//kill loop process
+				this.stop();
+
+				//clear extEngines
+				this.extEngines = [];
+
+				return;
+			}
+		}]);
+
+		return Timer;
+	}();
+
+	//expose class in smx namespace
 
 
-		smx.time.Timer = SMXTimer;
+	smx.time.Timer = Timer;
 })(window, window._, window.Backbone, window.smx);
 //# sourceMappingURL=Timer.js.map
 ;'use strict';
 
-/**
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-Timeline Controller, Provides basic time handling
-
-@class Timeline
-@constructor
-@uses Timer
-@param node {Node} Node from which to create the timeline, required node using timeline
-
-*/
-
-/*
-
-	· time
-	. is_playing
-	. is_ready
-	· time2s[]
-	. keyframes{}
-
-	+ play
-	+ replay
-	+ next
-	+ previous
-	+ goTo
-
-	! update
-	! play
-	! pause
-	! seek
-	! timemark
-
-
-*/
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 (function (smx) {
 
 			/**
-   
-   
-   
-   */
-
-			var SMXTimeline = function SMXTimeline(node) {
-
-						if (!node) return;
-
-						//extends with events
-						_.extend(this, Backbone.Events);
+    * SMX Timeline Class
+    */
+			var Timeline = function () {
 
 						/**
-      
-      Node from which the timeline is created
-      @property node {Node}
-      		*/
+       * creates a new Timeline
+       * @param {Node} node node to be used as timeline base
+       * @return {Timeline}
+       */
+						function Timeline(node) {
+									_classCallCheck(this, Timeline);
 
-						//define node ref
-						this.node = node;
+									if (!node) return;
 
-						/**
-      
-      Current time
-      @property time {Number}
-      @default 0
-      		*/
+									//extends with events
+									_.extend(this, Backbone.Events);
 
-						//current time
-						this.time = 0;
+									/**
+         
+         Node from which the timeline is created
+         @property node {Node}
+         		*/
 
-						//time cache
-						this.time2 = -2;
+									//define node ref
+									this.node = node;
 
-						//timeline duration
-						this.duration = 0;
+									/**
+         
+         Current time
+         @property time {Number}
+         @default 0
+         		*/
 
-						//limit max update events per second 
-						this.fps = 2;
+									//current time
+									this.time = 0;
 
-						//TIMER ENGINES
+									//time cache
+									this.time2 = -2;
 
-						/**
-      
-      Timer engine used for time tic tacking
-      @property timer {Object}
-      		*/
+									//timeline duration
+									this.duration = 0;
 
-						//used for playing
-						this.timer = null;
+									//limit max update events per second
+									this.fps = 2;
 
-						//used for scrolling
-						//this.scroller = null;
+									//TIMER ENGINES
 
-						//STATUS FLAGS
+									/**
+         
+         Timer engine used for time tic tacking
+         @property timer {Object}
+         		*/
 
-						//true if playing
-						this.is_playing = false;
-
-						//true when using high speed playback
-						//this.is_scrolling = false;
-
-						//is false when its busy :D
-						this.is_ready = true;
-
-						//TIMELINE SELECTION
-						//Array containing all selected nodes
-						this.activeNodes = [];
-
-						//KEYFRAMES
-						this.keyFrames = {};
-
-						this.debug = false;
-
-						this.initialize = function () {
-
-									this.createTimer();
-
-									this.duration = this.node.time('duration');
-
-									this.synchronize();
-
-									return;
-						};
-
-						this.createTimer = function () {
-
-									//create timer engine
-									this.timer = new smx.time.Timer();
-
-									//create observer for timer 'update' event
-									this.timer.on('update', this.update, this);
-
-									//create timer engine
-									//this.scroller = new smx.time.Timer();
-									//this.scroller.fps = 10;
-
-									//create observer for timer 'update' event
-									//this.scroller.on('update', this.onscroll, this);
-
-									return;
-						};
-
-						this.destroyTimer = function () {
-
-									if (!this.timer) return;
-
-									this.timer.off('update', this.update);
-
-									this.timer.destroy();
-
+									//used for playing
 									this.timer = null;
 
-									//if (!this.scroller) return;
-
-									//this.scroller.off('update', this.onscroll);
-
-									//this.scroller.destroy();
-
+									//used for scrolling
 									//this.scroller = null;
 
-									return;
-						};
+									//STATUS FLAGS
 
-						this.plugExtTimer = function (name, callback) {
+									//true if playing
+									this.is_playing = false;
 
-									if (!this.timer || !name || !callback) return;
+									//true when using high speed playback
+									//this.is_scrolling = false;
 
-									this.timer.plugExtEngine(name, callback);
+									//is false when its busy :D
+									this.is_ready = true;
 
-									return;
-						};
+									//TIMELINE SELECTION
+									//Array containing all selected nodes
+									this.activeNodes = [];
 
-						this.unplugExtTimer = function (name) {
-
-									if (!this.timer || !name) return;
-
-									this.timer.unplugExtEngine(name);
-
-									return;
-						};
-
-						/*
-      //!!! DEPRECATED -- not in use?
-      //better use duration property directly
-      this.getDuration = function(){
-      	return this.duration;
-      };
-      */
-
-						this.synchronize = function () {
-
-									//create/reset empty object
+									//KEYFRAMES
 									this.keyFrames = {};
 
-									//get timemarks
-									var childs = this.node.find('*');
+									this.debug = false;
 
-									for (var i = 0; i < childs.length; i++) {
+									this.initialize();
+						}
 
-												//get tm
-												var child = childs[i];
+						_createClass(Timeline, [{
+									key: 'initialize',
+									value: function initialize() {
 
-												//get resulting times
-												var _startTime = child.time('offset', this.node);
-												var _finishTime = child.time('offset', this.node) + child.time('duration');
+												this.createTimer();
 
-												//create activation keyframe at start time
-												this.addKeyFrame(_startTime, child.id, 1);
+												this.duration = this.node.time('duration');
 
-												//create deactivation keyframe at finish time
-												this.addKeyFrame(_finishTime, child.id, 0);
+												this.synchronize();
+									}
+						}, {
+									key: 'createTimer',
+									value: function createTimer() {
+
+												//create timer engine
+												this.timer = new smx.time.Timer();
+
+												//create observer for timer 'update' event
+												this.timer.on('update', this.update, this);
+
+												//create timer engine
+												//this.scroller = new smx.time.Timer();
+												//this.scroller.fps = 10;
+
+												//create observer for timer 'update' event
+												//this.scroller.on('update', this.onscroll, this);
+
+									}
+						}, {
+									key: 'destroyTimer',
+									value: function destroyTimer() {
+
+												if (!this.timer) return;
+
+												this.timer.off('update', this.update);
+
+												this.timer.destroy();
+
+												this.timer = null;
+
+												//if (!this.scroller) return;
+
+												//this.scroller.off('update', this.onscroll);
+
+												//this.scroller.destroy();
+
+												//this.scroller = null;
+									}
+						}, {
+									key: 'plugExtTimer',
+									value: function plugExtTimer(name, callback) {
+
+												if (!this.timer || !name || !callback) return;
+
+												this.timer.plugExtEngine(name, callback);
+
+												return;
+									}
+						}, {
+									key: 'unplugExtTimer',
+									value: function unplugExtTimer(name) {
+
+												if (!this.timer || !name) return;
+
+												this.timer.unplugExtEngine(name);
+												return;
 									}
 
-									this.optimizeKeyFrames();
+									/*
+         //!!! DEPRECATED -- not in use?
+         //better use duration property directly
+         this.getDuration = function(){
+         	return this.duration;
+         };
+         */
 
-									return;
-						};
+						}, {
+									key: 'synchronize',
+									value: function synchronize() {
 
-						this.addKeyFrame = function (t, id, action) {
+												//create/reset empty object
+												this.keyFrames = {};
 
-									//if keyframe[t] does not exist create keyframe array
-									if (!this.keyFrames[t + '']) this.keyFrames[t + ''] = [];
+												//get timemarks
+												var childs = this.node.find('*');
 
-									//the push keyframe in array
-									this.keyFrames[t + ''].push({ 'id': id, 'action': action });
+												for (var i = 0; i < childs.length; i++) {
 
-									return;
-						};
+															//get tm
+															var child = childs[i];
 
-						//keyframes are stored in a plain object not in an array
-						//object properties are the keys time in seconds
-						//so properties may be unordered {5:x,2:y,12:z}
-						//the optimization consists in ordering keyframes object
-						this.optimizeKeyFrames = function () {
+															//get resulting times
+															var _startTime = child.time('offset', this.node);
+															var _finishTime = child.time('offset', this.node) + child.time('duration');
 
-									//sort keyframes
-									var sorted_keyframes = {};
-									var kfs = _.keys(this.keyFrames);
-									kfs = _.sortBy(kfs, function (num) {
-												return parseFloat(num);
-									});
-									for (var i = 0; i < kfs.length; i++) {
-												sorted_keyframes[kfs[i]] = this.keyFrames[kfs[i]];
-									}
-									this.keyFrames = sorted_keyframes;
+															//create activation keyframe at start time
+															this.addKeyFrame(_startTime, child.id, 1);
 
-									return;
-						};
-
-						/**
-          * Method: Update timeline
-          * @param {Number} (optional) update timeline at given time
-          * @return {Boolean} success or not
-          */
-						this.update = function (time) {
-
-									//check for "is_ready" flag
-									if (!this.is_ready) return;
-
-									//check for "is_playing" flag
-									//if (!this.is_playing) return;
-
-									//process parameter
-									var t = typeof time != 'undefined' ? parseInt(time) : false;
-
-									//update time
-									if (this.timer) this.time = this.timer.time; //update from timer					
-									else if (t !== false) this.time = t; // update from parameter
-												else return;
-
-									//prevent LEFT timeline offset
-									if (this.time < 0) this.time = 0;
-
-									//prevent RIGHT timeline offset
-									var max = this.duration * 1000;
-									if (this.time >= max) {
-												this.time = max;
-												this.pause();
-												this.finish();
-									}
-
-									//check for keyframes
-									t = Math.floor(this.time / 1000);
-									if (this.time2 != t) {
-
-												var diff = t - this.time2;
-												if (diff > 0 && Math.abs(diff) <= 1) {
-
-															//is linear progress
-
-															//get keyframes for this frame
-															var kfs = this.keyFrames[t + ''];
-
-															//exist keyframes?
-															if (kfs) {
-
-																		//debug.log('keyframe found at '+t);
-
-																		for (var i = 0; i < kfs.length; i++) {
-
-																					var kf = kfs[i];
-																					var node = this.node.root().getNodeById(kf.id);
-																					var action = kf.action;
-
-																					if (action > 0) this._enterNode(node);else {
-																								var last_frame = Math.floor(max / 1000);
-																								if (t != last_frame) this._exitNode(node);
-																					}
-																		}
-															}
-												} else {
-
-															//is not linear progress
-
-															//get keyframes names: ['0','5','12',...]
-															var kfs = _.keys(this.keyFrames);
-
-															//aux array for active nodes
-															var active_nodes = [];
-
-															//loop trough keyframes before time t
-															for (var k = 0; k < kfs.length && parseInt(kfs[k]) <= parseInt(t); k++) {
-
-																		var kf = this.keyFrames[kfs[k]];
-
-																		for (var i = 0; i < kf.length; i++) {
-
-																					var item = kf[i];
-																					var node = this.node.root().getNodeById(item.id);
-																					var action = item.action;
-
-																					var index = active_nodes.indexOf(node);
-
-																					if (action > 0) active_nodes.push(node);else active_nodes.splice(index, 1);
-																		}
-															}
-
-															//perform resulting 'exit' nodes
-															var need_exit = [];
-															for (var i = 0; i < this.activeNodes.length; i++) {
-																		var node = this.activeNodes[i];
-																		if (active_nodes.indexOf(node) < 0) {
-																					need_exit.push(node);
-																		}
-															}
-															for (var i = 0; i < need_exit.length; i++) {
-																		this._exitNode(need_exit[i]);
-															} //perform resulting 'enter' nodes
-															for (var i = 0; i < active_nodes.length; i++) {
-																		this._enterNode(active_nodes[i]);
-															}
+															//create deactivation keyframe at finish time
+															this.addKeyFrame(_finishTime, child.id, 0);
 												}
 
-												//this._debug('-------------------------------');
-												//for (var i=0; i< this.activeNodes.length; i++) debug.log(''+this.activeNodes[i].nodeName +'#'+this.activeNodes[i].id);
+												this.optimizeKeyFrames();
 
+												return;
+									}
+						}, {
+									key: 'addKeyFrame',
+									value: function addKeyFrame(t, id, action) {
 
-												//update aux time
-												this.time2 = t;
+												//if keyframe[t] does not exist create keyframe array
+												if (!this.keyFrames[t + '']) this.keyFrames[t + ''] = [];
+
+												//the push keyframe in array
+												this.keyFrames[t + ''].push({ 'id': id, 'action': action });
+
+												return;
 									}
 
-									//create timeline event object
-									var e = this.buildEventObject(this.node);
+									//keyframes are stored in a plain object not in an array
+									//object properties are the keys time in seconds
+									//so properties may be unordered {5:x,2:y,12:z}
+									//the optimization consists in ordering keyframes object
 
-									//notify 'update'
-									this.trigger('update', e);
+						}, {
+									key: 'optimizeKeyFrames',
+									value: function optimizeKeyFrames() {
 
-									return;
-						};
+												//sort keyframes
+												var sorted_keyframes = {};
+												var kfs = _.keys(this.keyFrames);
+												kfs = _.sortBy(kfs, function (num) {
+															return parseFloat(num);
+												});
+												for (var i = 0; i < kfs.length; i++) {
+															sorted_keyframes[kfs[i]] = this.keyFrames[kfs[i]];
+												}
+												this.keyFrames = sorted_keyframes;
 
-						this.isActive = function (node_or_id) {
+												return;
+									}
 
-									var node = node_or_id;
+									/**
+             * Method: Update timeline
+             * @param {Number} (optional) update timeline at given time
+             * @return {Boolean} success or not
+             */
 
-									if (typeof node_or_id == 'string') node = this.node.root().getNodeById(node_or_id);
+						}, {
+									key: 'update',
+									value: function update(time) {
 
-									if (!node) return;
+												//check for "is_ready" flag
+												if (!this.is_ready) return;
 
-									if (this.activeNodes.indexOf(node) >= 0) return true;
-						};
+												//check for "is_playing" flag
+												//if (!this.is_playing) return;
 
-						this._enterNode = function (node) {
+												//process parameter
+												var t = typeof time != 'undefined' ? parseInt(time) : false;
 
-									//check node
-									if (!node) return;
+												//update time
+												if (this.timer) this.time = this.timer.time; //update from timer
+												else if (t !== false) this.time = t; // update from parameter
+															else return;
 
-									//check if already active
-									if (this.activeNodes.indexOf(node) >= 0) return;
+												//prevent LEFT timeline offset
+												if (this.time < 0) this.time = 0;
 
-									//add to active nodes
-									this.activeNodes.push(node);
+												//prevent RIGHT timeline offset
+												var max = this.duration * 1000;
+												if (this.time >= max) {
+															this.time = max;
+															this.pause();
+															this.finish();
+												}
 
-									//create timeline event object
-									var e = this.buildEventObject(node);
+												//check for keyframes
+												t = Math.floor(this.time / 1000);
+												if (this.time2 != t) {
 
-									//generic timeline enter event
-									this.trigger('enter', e);
+															var diff = t - this.time2;
+															if (diff > 0 && Math.abs(diff) <= 1) {
 
-									//specific timeline node enter event
-									this.trigger('enter:' + node.id, e);
+																		//is linear progress
 
-									//debug action
-									this._debug('TIMELINE !enter: ' + node.nodeName + '#' + node.id);
+																		//get keyframes for this frame
+																		var kfs = this.keyFrames[t + ''];
 
-									return;
-						};
+																		//exist keyframes?
+																		if (kfs) {
 
-						this._exitNode = function (node) {
+																					//debug.log('keyframe found at '+t);
 
-									//check node
-									if (!node) return;
+																					for (var i = 0; i < kfs.length; i++) {
 
-									//check if active
-									var index = this.activeNodes.indexOf(node);
-									if (index < 0) return;
+																								var kf = kfs[i];
+																								var node = this.node.root().getNodeById(kf.id);
+																								var action = kf.action;
 
-									//remove from active nodes
-									this.activeNodes.splice(index, 1);
+																								if (action > 0) this._enterNode(node);else {
+																											var last_frame = Math.floor(max / 1000);
+																											if (t != last_frame) this._exitNode(node);
+																								}
+																					}
+																		}
+															} else {
 
-									//create timeline event object
-									var e = this.buildEventObject(node);
+																		//is not linear progress
 
-									//generic timeline exit event
-									this.trigger('exit', e);
+																		//get keyframes names: ['0','5','12',...]
+																		var kfs = _.keys(this.keyFrames);
 
-									//specific timeline node exit event
-									this.trigger('exit:' + node.id, e);
+																		//aux array for active nodes
+																		var active_nodes = [];
 
-									//debug action
-									this._debug('TIMELINE !exit: ' + node.nodeName + '#' + node.id);
+																		//loop trough keyframes before time t
+																		for (var k = 0; k < kfs.length && parseInt(kfs[k]) <= parseInt(t); k++) {
 
-									return;
-						};
+																					var kf = this.keyFrames[kfs[k]];
 
-						/**
-          * Play timeline
-          * @return {Boolean} success or not
-          */
-						this.play = function (silent) {
+																					for (var i = 0; i < kf.length; i++) {
 
-									//if is scrolling stop scroll
-									//if(this.is_scrolling) this.stopScroll();
+																								var item = kf[i];
+																								var node = this.node.root().getNodeById(item.id);
+																								var action = item.action;
 
-									//check for "is_ready" flag
-									if (!this.is_ready) return;
+																								var index = active_nodes.indexOf(node);
 
-									//play in offset time become replay 
-									var max = this.duration * 1000;
-									if (this.time >= max) return this.replay();
+																								if (action > 0) active_nodes.push(node);else active_nodes.splice(index, 1);
+																					}
+																		}
 
-									//update "is_playing" flag
-									this.is_playing = true;
+																		//perform resulting 'exit' nodes
+																		var need_exit = [];
+																		for (var i = 0; i < this.activeNodes.length; i++) {
+																					var node = this.activeNodes[i];
+																					if (active_nodes.indexOf(node) < 0) {
+																								need_exit.push(node);
+																					}
+																		}
+																		for (var i = 0; i < need_exit.length; i++) {
+																					this._exitNode(need_exit[i]);
+																		} //perform resulting 'enter' nodes
+																		for (var i = 0; i < active_nodes.length; i++) {
+																					this._enterNode(active_nodes[i]);
+																		}
+															}
 
-									//start timer
-									if (this.timer) this.timer.start();
+															//this._debug('-------------------------------');
+															//for (var i=0; i< this.activeNodes.length; i++) debug.log(''+this.activeNodes[i].nodeName +'#'+this.activeNodes[i].id);
 
-									//create timeline event object
-									var e = this.buildEventObject(this.node);
 
-									//notify 'play'
-									if (!silent) this.trigger('play', e);
-
-									return;
-						};
-
-						this.replay = function () {
-
-									//if is scrolling stop scroll
-									//if(this.is_scrolling) this.stopScroll();
-
-									//check for "is_ready" flag
-									if (!this.is_ready) return;
-
-									this.seekTo(0);
-									this.play();
-
-									return;
-						};
-
-						/**
-          * Pause timeline
-          * @return {Boolean} success or not
-          */
-						this.pause = function (silent) {
-
-									//if is scrolling stop scroll
-									//if(this.is_scrolling) this.stopScroll();
-
-									if (this.is_playing) {
-
-												//update "is_playing" flag
-												this.is_playing = false;
-
-												//stop timer
-												if (this.timer) this.timer.stop();
+															//update aux time
+															this.time2 = t;
+												}
 
 												//create timeline event object
 												var e = this.buildEventObject(this.node);
 
-												//notify 'pause'
-												if (!silent) this.trigger('pause', e);
+												//notify 'update'
+												this.trigger('update', e);
+
+												return;
+									}
+						}, {
+									key: 'isActive',
+									value: function isActive(node_or_id) {
+
+												var node = node_or_id;
+
+												if (typeof node_or_id == 'string') node = this.node.root().getNodeById(node_or_id);
+
+												if (!node) return;
+
+												if (this.activeNodes.indexOf(node) >= 0) return true;
+									}
+						}, {
+									key: '_enterNode',
+									value: function _enterNode(node) {
+
+												//check node
+												if (!node) return;
+
+												//check if already active
+												if (this.activeNodes.indexOf(node) >= 0) return;
+
+												//add to active nodes
+												this.activeNodes.push(node);
+
+												//create timeline event object
+												var e = this.buildEventObject(node);
+
+												//generic timeline enter event
+												this.trigger('enter', e);
+
+												//specific timeline node enter event
+												this.trigger('enter:' + node.id, e);
+
+												//debug action
+												this._debug('TIMELINE !enter: ' + node.nodeName + '#' + node.id);
+
+												return;
+									}
+						}, {
+									key: '_exitNode',
+									value: function _exitNode(node) {
+
+												//check node
+												if (!node) return;
+
+												//check if active
+												var index = this.activeNodes.indexOf(node);
+												if (index < 0) return;
+
+												//remove from active nodes
+												this.activeNodes.splice(index, 1);
+
+												//create timeline event object
+												var e = this.buildEventObject(node);
+
+												//generic timeline exit event
+												this.trigger('exit', e);
+
+												//specific timeline node exit event
+												this.trigger('exit:' + node.id, e);
+
+												//debug action
+												this._debug('TIMELINE !exit: ' + node.nodeName + '#' + node.id);
+
+												return;
 									}
 
-									return;
-						};
+									/**
+             * Play timeline
+             * @return {Boolean} success or not
+             */
 
-						/**
-          * Toggle play/pause timeline
-          * @return {Boolean} success or not
-          */
-						this.toggle = function () {
+						}, {
+									key: 'play',
+									value: function play(silent) {
 
-									//if (!this.is_scrolling && !this.is_playing) this.play();
-									if (!this.is_playing) this.play();else this.pause();
+												//if is scrolling stop scroll
+												//if(this.is_scrolling) this.stopScroll();
 
-									return;
-						};
+												//check for "is_ready" flag
+												if (!this.is_ready) return;
 
-						this.finish = function () {
+												//play in offset time become replay
+												var max = this.duration * 1000;
+												if (this.time >= max) return this.replay();
 
-									//update 'is_playing' flag
-									//this.is_playing = false;
+												//update "is_playing" flag
+												this.is_playing = true;
 
-									//rewind
-									//this.seekTo(0);
-									this.pause();
+												//start timer
+												if (this.timer) this.timer.start();
 
-									//stop timer
-									if (this.timer) this.timer.reset();
+												//create timeline event object
+												var e = this.buildEventObject(this.node);
 
-									//create timeline event object
-									var e = this.buildEventObject(this.node);
+												//notify 'play'
+												if (!silent) this.trigger('play', e);
 
-									//notify reset
-									this.trigger('finish', e);
+												return;
+									}
+						}, {
+									key: 'replay',
+									value: function replay() {
 
-									return;
-						};
+												//if is scrolling stop scroll
+												//if(this.is_scrolling) this.stopScroll();
 
-						this.reset = function () {
+												//check for "is_ready" flag
+												if (!this.is_ready) return;
 
-									//update 'is_playing' flag
-									this.is_playing = false;
+												this.seekTo(0);
+												this.play();
 
-									//reset timer
-									if (this.timer) this.timer.reset();
+												return;
+									}
 
-									//rewind
-									this.seekTo(0);
+									/**
+             * Pause timeline
+             * @return {Boolean} success or not
+             */
 
-									//notify reset
-									this.trigger('reset');
+						}, {
+									key: 'pause',
+									value: function pause(silent) {
 
-									return;
-						};
+												//if is scrolling stop scroll
+												//if(this.is_scrolling) this.stopScroll();
 
-						this.seekTo = function (t) {
+												if (this.is_playing) {
 
-									//check for "is_ready" flag
-									if (!this.is_ready) return;
+															//update "is_playing" flag
+															this.is_playing = false;
 
-									//trying seek to start?
-									t = t ? t <= 0 ? 0 : t : 0;
+															//stop timer
+															if (this.timer) this.timer.stop();
 
-									//update time
-									if (this.timer) this.timer.setTime(t); //from timer
-									else this.update(t);
+															//create timeline event object
+															var e = this.buildEventObject(this.node);
 
-									//notify seek
-									this.trigger('seek', t);
+															//notify 'pause'
+															if (!silent) this.trigger('pause', e);
+												}
 
-									return;
-						};
+												return;
+									}
 
-						/*
-      this.scroll = function(factor){
-      			if (!this.scroller) return;
-      			if(!_.isNumber(factor) || factor===0){
-      				//set scroll factor
-      		this.stopScroll();
-      				return;
-      			}
-      			//pause timeline while scrolling
-      	this.pause();
-      			//update 'is_scrolling' flag
-      	this.is_scrolling = true;
-      			//set scroll factor
-      	this.scroller.factor = factor;
-      			//sync scroller with timer
-      	this.scroller.time = this.timer.time;
-      			//start scroll timer if is not already started
-      	if(this.scroller.paused) this.scroller.start();
-      
-      	return;
-      
-      };
-      		this.stopScroll = function(){
-      			if (!this.scroller) return;
-      			//set scroll factor
-      	this.scroller.factor = 0;
-      			//stop scroll timer
-      	this.scroller.stop();
-      			//update 'is_scrolling' flag
-      	this.is_scrolling = false;
-      			return;
-      
-      };
-      		this.onscroll = function(time){
-      			if(this.is_playing || !this.is_scrolling){
-      		this.stopScroll();	return;
-      	}
-      			//process parameter
-      	var t = (typeof time != 'undefined')? parseInt(time) : false;
-      			//update time
-      	if (this.scroller)	t = this.scroller.time; //update from timer
-      			//prevent LEFT timeline offset
-      	if (t<0){
-      		t = 0;
-      		this.stopScroll();
-      	}
-      			//prevent RIGHT timeline offset
-      	var max = this.duration*1000;
-      	if (t>=max){
-      		t = max;
-      		this.stopScroll();
-      	}
-      			this.seekTo(t);
-      			return;
-      
-      };
-      */
+									/**
+             * Toggle play/pause timeline
+             * @return {Boolean} success or not
+             */
 
-						this.buildEventObject = function (target) {
+						}, {
+									key: 'toggle',
+									value: function toggle() {
 
-									var TimelineEvent = {
+												//if (!this.is_scrolling && !this.is_playing) this.play();
+												if (!this.is_playing) this.play();else this.pause();
 
-												'target': target,
-												'active': this.activeNodes,
-												'time': this.time,
-												'duration': this.duration,
-												'progress': this.time / 1000 * 100 / this.duration
+												return;
+									}
+						}, {
+									key: 'finish',
+									value: function finish() {
 
-									};
+												//update 'is_playing' flag
+												//this.is_playing = false;
 
-									return TimelineEvent;
-						};
+												//rewind
+												//this.seekTo(0);
+												this.pause();
 
-						this.destroy = function () {
+												//stop timer
+												if (this.timer) this.timer.reset();
 
-									//destroy timer
-									this.destroyTimer();
+												//create timeline event object
+												var e = this.buildEventObject(this.node);
 
-									//notify destroy
-									this.trigger('destroy');
+												//notify reset
+												this.trigger('finish', e);
 
-									return;
-						};
+												return;
+									}
+						}, {
+									key: 'reset',
+									value: function reset() {
 
-						this._debug = function (msg) {
-									if (this.debug) debug.log(msg);
-						};
+												//update 'is_playing' flag
+												this.is_playing = false;
 
-						this.initialize();
+												//reset timer
+												if (this.timer) this.timer.reset();
 
-						return this;
-			};
+												//rewind
+												this.seekTo(0);
+
+												//notify reset
+												this.trigger('reset');
+
+												return;
+									}
+						}, {
+									key: 'seekTo',
+									value: function seekTo(t) {
+
+												//check for "is_ready" flag
+												if (!this.is_ready) return;
+
+												//trying seek to start?
+												t = t ? t <= 0 ? 0 : t : 0;
+
+												//update time
+												if (this.timer) this.timer.setTime(t); //from timer
+												else this.update(t);
+
+												//notify seek
+												this.trigger('seek', t);
+
+												return;
+									}
+
+									/*
+         this.scroll = function(factor){
+         			if (!this.scroller) return;
+         			if(!_.isNumber(factor) || factor===0){
+         				//set scroll factor
+         		this.stopScroll();
+         				return;
+         			}
+         			//pause timeline while scrolling
+         	this.pause();
+         			//update 'is_scrolling' flag
+         	this.is_scrolling = true;
+         			//set scroll factor
+         	this.scroller.factor = factor;
+         			//sync scroller with timer
+         	this.scroller.time = this.timer.time;
+         			//start scroll timer if is not already started
+         	if(this.scroller.paused) this.scroller.start();
+         
+         	return;
+         
+         };
+         		this.stopScroll = function(){
+         			if (!this.scroller) return;
+         			//set scroll factor
+         	this.scroller.factor = 0;
+         			//stop scroll timer
+         	this.scroller.stop();
+         			//update 'is_scrolling' flag
+         	this.is_scrolling = false;
+         			return;
+         
+         };
+         		this.onscroll = function(time){
+         			if(this.is_playing || !this.is_scrolling){
+         		this.stopScroll();	return;
+         	}
+         			//process parameter
+         	var t = (typeof time != 'undefined')? parseInt(time) : false;
+         			//update time
+         	if (this.scroller)	t = this.scroller.time; //update from timer
+         			//prevent LEFT timeline offset
+         	if (t<0){
+         		t = 0;
+         		this.stopScroll();
+         	}
+         			//prevent RIGHT timeline offset
+         	var max = this.duration*1000;
+         	if (t>=max){
+         		t = max;
+         		this.stopScroll();
+         	}
+         			this.seekTo(t);
+         			return;
+         
+         };
+         */
+
+						}, {
+									key: 'buildEventObject',
+									value: function buildEventObject(target) {
+
+												var TimelineEvent = {
+
+															'target': target,
+															'active': this.activeNodes,
+															'time': this.time,
+															'duration': this.duration,
+															'progress': this.time / 1000 * 100 / this.duration
+
+												};
+
+												return TimelineEvent;
+									}
+						}, {
+									key: 'destroy',
+									value: function destroy() {
+
+												//destroy timer
+												this.destroyTimer();
+
+												//notify destroy
+												this.trigger('destroy');
+
+												return;
+									}
+						}, {
+									key: '_debug',
+									value: function _debug(msg) {
+												if (this.debug) debug.log(msg);
+									}
+						}]);
+
+						return Timeline;
+			}();
 
 			//expose
 
-			window.smx.time.Timeline = SMXTimeline;
+			window.smx.time.Timeline = Timeline;
 })(window.smx);
 //# sourceMappingURL=Timeline.js.map
 ;'use strict';
@@ -3299,18 +3467,17 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 (function (global, _, Backbone, smx) {
 
 	/**
- *	SMXDocument Navigation controller class
+ *	SMX Playhead class
  *
  */
-
-	var SMXPlayhead = function () {
+	var Playhead = function () {
 
 		/**
    * Create a playhead
-   * @param {SMXDocument} document - The document to navigate through
+   * @param {Document} document - The document to navigate through
    */
-		function SMXPlayhead(doc) {
-			_classCallCheck(this, SMXPlayhead);
+		function Playhead(doc) {
+			_classCallCheck(this, Playhead);
 
 			//document argument is required!
 			if (!doc) return;
@@ -3319,37 +3486,47 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			_.extend(this, Backbone.Events);
 
 			/**
-   *	@property document
-   *	@type {SMXDocument}
-   *	The document to navigate
+    *	The document to navigate
+   *	@type {Document}
    */
 			this.document = doc;
 
 			/**
-   *	@property selection
-   *	@type {Array}
-   *	Contains all nodes in which playhead has entered
-   *	List ordered from outter to inner [root, ..., current_node]
-   */
-			this.selection = [];
+    * Contains all nodes in which playhead has entered
+    * List ordered from outter to inner [root, ..., current_node]
+    * @type {Array}
+    */
+			this._selection = [];
 
-			//selected timeline
+			/**
+    * Currently active timeline
+    * @type {Timeline}
+    */
 			this.timeline = null;
 
-			//private last movement log
+			/**
+    * List of nodes entered in last movement
+    * @protected
+    * @type {Array.<Node>}
+    */
 			this._entered = [];
+
+			/**
+    * List of nodes exited in last movement
+    * @protected
+    * @type {Array.<Node>}
+    */
 			this._exited = [];
 		}
 
 		/**
-  *	@method get
-  *	@param [key] {string} attribute name
-  *	@return attribute value
-  *
+   * Property getter
+   * @param {String} key - property key name
+   * @return {Node} property value
   */
 
 
-		_createClass(SMXPlayhead, [{
+		_createClass(Playhead, [{
 			key: 'get',
 			value: function get(key) {
 
@@ -3357,13 +3534,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 				switch (key) {
 					case 'selected':
-						result = this.selection;
+						result = this._selection;
 						break;
 					case 'head':
-						result = this.selection[this.selection.length - 1];
+						result = this._selection[this._selection.length - 1];
 						break;
 					case 'root':
-						result = this.selection[0];
+						result = this._selection[0];
 						break;
 					case 'entered':
 						result = this._entered;
@@ -3379,16 +3556,21 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				return result;
 			}
 
-			/* PUBLIC METHODS */
-
 			/**
-   *	@method play
-   *	@param [id] {string} id of target node
-   *
-   */
+    * Gets currently selected nodes
+    * @type {Node[]}
+    * @readonly
+    */
 
 		}, {
 			key: 'play',
+
+
+			/**
+    * performs play action
+    * @param {String|Node} target node
+   */
+
 			value: function play(id) {
 
 				var cnode = null;
@@ -3416,9 +3598,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 
 			/**
-   *	@method pause
-   *
-   */
+    * performs pause action
+    */
 
 		}, {
 			key: 'pause',
@@ -3431,9 +3612,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 
 			/**
-   *	@method toggle
-   *
-   */
+    * performs toggle action, alternating from playing to paused
+    */
 
 		}, {
 			key: 'toggle',
@@ -3446,9 +3626,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 
 			/**
-   *	@method next
-   *
-   */
+    * navigate to next Node if exists
+    */
 
 		}, {
 			key: 'next',
@@ -3468,9 +3647,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 
 			/**
-   *	@method previous
-   *
-   */
+    * navigate to previous Node if exists
+    */
 
 		}, {
 			key: 'previous',
@@ -3490,9 +3668,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 
 			/**
-   *	@method inside
-   *
-   */
+    * navigate inside current Node if posible
+    */
 
 		}, {
 			key: 'inside',
@@ -3521,9 +3698,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 
 			/**
-   *	@method outside
-   *
-   */
+    * navigate outside current Node if posible
+    */
 
 		}, {
 			key: 'outside',
@@ -3543,9 +3719,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 
 			/**
-   *	@method outside
-   *
-   */
+    * navigates up root
+    */
 
 		}, {
 			key: 'root',
@@ -3562,10 +3737,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 
 			/**
-   * @method forward
-   * @description Go to next node in flat tree mode
-   *
-   */
+    * Go to next node in flat tree mode
+    */
 
 		}, {
 			key: 'forward',
@@ -3604,10 +3777,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 
 			/**
-   * @method rewind
-   * @description Go to previous node in flat tree mode
-   *
-   */
+    * Go to previous node in flat tree mode
+    */
 
 		}, {
 			key: 'rewind',
@@ -3621,9 +3792,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 
 			/**
-   *	@method go
-   *   @description Go to given node
-   */
+    * Go to given node
+    */
 
 		}, {
 			key: 'go',
@@ -3640,7 +3810,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					var keywords = ['play', 'pause', 'toggle', 'next', 'previous', 'inside', 'outside', 'root'];
 
 					//is known keyword?
-					if (_.contains(keywords, keyword)) {
+					if (_.includes(keywords, keyword)) {
 
 						//get go method by keyword
 						var method = this[keyword];
@@ -3758,7 +3928,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						break;
 					case 'parent':
 
-						//navigate parents from c_node until reach t_node
+						//navigates parents from c_node until reach t_node
 						var ref_node = c_node;
 						var t_node_found = false;
 						while (ref_node.hasParent() && !t_node_found) {
@@ -3858,19 +4028,18 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			/* PRIVATE METHODS */
 
 			/**
-    *  private methods
-    *
+    * @protected
     */
 
 		}, {
 			key: '_goIterative',
 			value: function _goIterative(c_node, t_node) {
 
-				//ok! we are going to navigate from c_node(current node) to t_node(target node). Lets go!
+				//ok! we are going to navigates from c_node(current node) to t_node(target node). Lets go!
 
-				//navigate from root
+				//navigates from root
 				if (!c_node) this._enterStraight(null, t_node);else {
-					//navigate from current node
+					//navigates from current node
 
 					//looks parents for a common parent between current and target node
 					var ref_node = c_node;
@@ -3892,6 +4061,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					}
 				}
 			}
+
+			/**
+    * @protected
+    */
+
 		}, {
 			key: '_enterStraight',
 			value: function _enterStraight(parent_node, child_node) {
@@ -3922,16 +4096,21 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				//call 'enter' method in child node
 				this._enterNode(child_node);
 			}
+
+			/**
+    * @protected
+    */
+
 		}, {
 			key: '_enterNode',
 			value: function _enterNode(_node) {
 
 				//prevent re-enter in a node
-				var selectedIds = _.pluck(this.selection, 'id');
-				if (_.contains(selectedIds, _node.id)) return;
+				var selectedIds = _.map(this._selection, 'id');
+				if (_.includes(selectedIds, _node.id)) return;
 
 				//update selection array
-				this.selection.push(_node);
+				this._selection.push(_node);
 
 				//update last move registry
 				this._entered.push(_node);
@@ -3944,6 +4123,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 				return;
 			}
+
+			/**
+    * @protected
+    */
+
 		}, {
 			key: '_exitNode',
 			value: function _exitNode(_node) {
@@ -3952,7 +4136,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				if (this.timeline) this._destroyTimeline();
 
 				//update blocks array
-				this.selection.pop();
+				this._selection.pop();
 
 				//update last move registry
 				this._exited.push(_node);
@@ -3967,8 +4151,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 
 			/**
-    *	PRIVATE TIMELINE MANAGING
-    *
+    * @protected
     */
 
 		}, {
@@ -3989,6 +4172,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 				return;
 			}
+
+			/**
+    * @protected
+    */
+
 		}, {
 			key: '_destroyTimeline',
 			value: function _destroyTimeline() {
@@ -4012,6 +4200,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     *	Also useful for having a centralized playhead activity
     */
 
+			/**
+    * @protected
+    */
+
 		}, {
 			key: '_bindTimelineListeners',
 			value: function _bindTimelineListeners() {
@@ -4029,6 +4221,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 				return;
 			}
+
+			/**
+    * @protected
+    */
+
 		}, {
 			key: '_unbindTimelineListeners',
 			value: function _unbindTimelineListeners() {
@@ -4046,61 +4243,135 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 				return;
 			}
+
+			/**
+    * @protected
+    */
+
 		}, {
 			key: '_onTimelinePlay',
 			value: function _onTimelinePlay(event) {
 				this.trigger('timeline:play', event);return;
 			}
+
+			/**
+    * @protected
+    */
+
 		}, {
 			key: '_onTimelinePause',
 			value: function _onTimelinePause(event) {
 				this.trigger('timeline:pause', event);return;
 			}
+
+			/**
+    * @protected
+    */
+
 		}, {
 			key: '_onTimelineUpdate',
 			value: function _onTimelineUpdate(event) {
 				this.trigger('timeline:update', event);return;
 			}
+
+			/**
+    * @protected
+    */
+
 		}, {
 			key: '_onTimelineSeek',
 			value: function _onTimelineSeek(event) {
 				this.trigger('timeline:seek', event);return;
 			}
+
+			/**
+    * @protected
+    */
+
 		}, {
 			key: '_onTimelineFinish',
 			value: function _onTimelineFinish(event) {
 				this.trigger('timeline:finish', event);return;
 			}
+
+			/**
+    * @protected
+    */
+
 		}, {
 			key: '_onTimelineReset',
 			value: function _onTimelineReset(event) {
 				this.trigger('timeline:reset', event);return;
 			}
+
+			/**
+    * @protected
+    */
+
 		}, {
 			key: '_onTimelineEnter',
 			value: function _onTimelineEnter(event) {
 				this.trigger('timeline:enter', event);return;
 			}
+
+			/**
+    * @protected
+    */
+
 		}, {
 			key: '_onTimelineExit',
 			value: function _onTimelineExit(event) {
 				this.trigger('timeline:exit', event);return;
 			}
+
+			/**
+    * check wether a node access should be async or not, default to false, needs overwritting
+    */
+
 		}, {
 			key: 'requestAsyncNodeAccess',
 			value: function requestAsyncNodeAccess(node) {
 
 				return false;
 			}
+		}, {
+			key: 'path',
+			get: function get() {
+				return this._selection;
+			}
+
+			/**
+    * Gets the most outter selected node
+    * @type {Node}
+    * @readonly
+    */
+
+		}, {
+			key: 'root',
+			get: function get() {
+				return this._selection[0];
+			}
+
+			/**
+    * Gets the most inner selected node
+    * @type {Node}
+    * @readonly
+    */
+
+		}, {
+			key: 'head',
+			get: function get() {
+				return this._selection[this._selection.length - 1];
+			}
 		}]);
 
-		return SMXPlayhead;
+		return Playhead;
 	}();
 
 	//expose to global
 
 
-	smx.Playhead = SMXPlayhead;
+	smx.Playhead = Playhead;
 })(window, window._, window.Backbone, window.smx);
 //# sourceMappingURL=SMXPlayhead.js.map
 ;'use strict';
@@ -4168,7 +4439,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
           _.each($meta, function (value, key, list) {
 
-            if (_.contains(ids, key)) datas.push(value);
+            if (_.includes(ids, key)) datas.push(value);
           });
 
           json = _.map(datas, function (data, index) {
@@ -4234,226 +4505,73 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         var fn = {};
 
         /**
-         *  COMPUTED ATTRIBUTES
-         *
-         *  Methods returning calculated values from attribute values
-         *
-         *
+         * Extends SMXNode with utility attribute getters
+         * @module Node/AttributeGetters
          */
-
-        fn.ComputedAttributes = {
-
-                /**
-                 *  @method uri
-                 *  Uniform Resource Identifier,"url id"
-                 *  Calculate url hash path using cummulative ids up to root
-                 */
-
-                'uri': function uri(node) {
-
-                        var hash = node.id + '/';
-                        var parent = node.parent();
-                        if (parent) return parent.get('uri') + hash;else return hash;
-                },
-
-                /**
-                 *  @method url
-                 *  Uniform Resource Locator (url path)
-                 *  Calculate url folder path using cummulative paths up to root
-                 */
-
-                'url': function url(node) {
-
-                        var path = node.get('path');
-
-                        var parent = node.parent();
-
-                        if (parent) {
-                                if (_.isEmpty(path)) return parent.get('url');else {
-
-                                        //add trail slash
-                                        var trail = path.substr(-1);
-                                        if (trail != '/') path += '/';
-
-                                        return parent.get('url') + path;
-                                }
-                        } else {
-
-                                if (_.isEmpty(path)) return;
-
-                                //add trail slash
-                                var _trail = path.substr(-1);
-                                if (_trail != '/') path += '/';
-
-                                return path;
-                        }
-                },
-
-                /**
-                 *  @method file
-                 *  url of xml source file of this node
-                 */
-
-                'file': function file(node) {
-
-                        var url = '';
-                        var file = node.attr('file');
-                        var parent = node.parent();
-
-                        if (_.isEmpty(file)) return parent ? parent.get('file') : undefined;else return node.get('url') + file;
-                },
-
-                /**
-                 *  @method index
-                 *  position in parent children
-                 */
-
-                'index': function index(node, selector) {
-
-                        //0 by default
-                        var index = 0;
-
-                        //get parent node
-                        var parent = node.parent();
-
-                        //no parent? its kind of root so it has no sibling nodes
-                        if (!parent) return index;
-
-                        //get sibling nodes
-                        var siblings = parent.children();
-
-                        //filter siblings collection with a css selector if its defined
-                        if (selector) siblings = _.filter(siblings, function (s) {
-                                return Sizzle.matchesSelector(s[0], selector);
-                        });
-
-                        //get position in siblings collection
-                        index = siblings.indexOf(node);
-
-                        return index;
-                },
-
-                /**
-                 *  @method link
-                 *  calculates browser url
-                 */
-
-                'link': function link(node) {
-
-                        return '#!/' + node.get('uri');
-                },
-
-                /**
-                 *  @method type
-                 *  return smx node type with 'smx' as default
-                 */
-
-                'type': function type(node) {
-
-                        return node[0].getAttribute('type') || 'smx';
-                },
-
-                /**
-                 *  @method classes
-                 *  return class attribute as array of
-                 */
-
-                'classes': function classes(node) {
-
-                        return (node[0].getAttribute('class') || '').split(' ');
-                }
-
-        };
-
-        //////////////////////////
-        // ATTRIBUTE GETTERS
 
         fn.AttributeGetters = {
 
                 /**
-                *   @method raw
-                *   @desc Get the raw value for specified attribute key in the original xml node
-                *   @param key {string} The name of the attribute
-                *   @return {string} resulting value
+                * Get attribute value for the given key from the inner XMLNode
+                * @method attr
+                * @param {String} name - attribute name
+                * @return {String} value
+                * @example
                 *
+                * var users = [
+                *   { 'user': 'barney',  'active': false },
+                *   { 'user': 'fred',    'active': false },
+                *   { 'user': 'pebbles', 'active': true }
+                * ];
+                *
+                * _.findIndex(users, function(o) { return o.user == 'barney'; });
+                * // => 0
+                *
+                * // The `_.matches` iteratee shorthand.
+                * _.findIndex(users, { 'user': 'fred', 'active': false });
+                * // => 1
+                *
+                * // The `_.matchesProperty` iteratee shorthand.
+                * _.findIndex(users, ['active', false]);
+                * // => 0
+                *
+                * // The `_.property` iteratee shorthand.
+                * _.findIndex(users, 'active');
+                * // => 2
                 */
-
-                raw: function raw(key) {
-
-                        return this[0].getAttribute(key);
+                attr: function attr(name) {
+                        return this[0].getAttribute(name);
                 },
 
                 /**
-                *
-                *   Get the value for specified attribute key in attributes collection
-                *
-                *   @method attr
-                *   @param key {String} The name of the attribute
-                *   @return {String} resulting value
-                *
+                * Determine if inner XMLNode has an attribute with the given name
+                * @method has
+                * @param {String} name - attribute name
+                * @return {Boolean}
                 */
-                attr: function attr(key) {
-
-                        return this.raw(key);
-                },
-
-                /**
-                *
-                *   Determine if node has the specified key attribute
-                *
-                *   @method has
-                *   @param key {String} The name of the attribute
-                *   @return {Bollean} resulting value
-                *
-                */
-                has: function has(key) {
-
-                        //return this[0].hasAttribute(key);
+                has: function has(name) {
+                        //return this[0].hasAttribute(name);
                         //IE8 does not support XMLNode.hasAttribute, so...
-                        return this[0].getAttribute(key) !== null;
+                        return this[0].getAttribute(name) !== null;
                 },
 
                 /**
-                *
-                *   Get the value for specified attribute key, computed or not
-                *   If there is no computed attribute with given key will use attr method
-                *
-                *   @method get
-                *   @param key {string} The name of the attribute
-                *   @return resulting value
-                *
-                */
-                get: function get(key, options) {
-
-                        //key is required to be non empty string
-                        if (_.isEmpty(key) || !_.isString(key)) return;
-
-                        //try using defined attribute getter
-                        var getter = smx.fn.ComputedAttributes[key];
-                        if (_.isFunction(getter)) return getter(this, options);
-
-                        //use default attr getter
-                        return this.attr(key);
-                },
-
-                /**
-                 *  @method dsv
-                 *  An utility method converts given attribute value into dsv array
-                 *
-                 *  @param key {string} the name of the attribute
-                 *  @param delimiter {string} defaults to ' '
-                 *  @return dsv array
-                 *
+                 * Get Delimiter Separated Value
+                 * An utility method converts given attribute value into dsv array
+                 * @method dsv
+                 * @param name {String} the name of the attribute
+                 * @param delimiter {String=} delimiter string
+                 * @return {Array.<String>}
                  */
-
-                dsv: function dsv(key, delimiter) {
+                dsv: function dsv(name, delimiter) {
 
                         //ignore undefined attributes
-                        if (!this.has(key)) return;
+                        if (!this.has(name)) return;
 
-                        //get attr's value by key
-                        var value = this.attr(key);
+                        //get attr's value by name
+                        var value = this.attr(name);
 
+                        //delimiter defaults to space
                         var d = delimiter || ' ';
 
                         //if attribute exists value must be String
@@ -4468,7 +4586,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                                 str = str.replace(/^\s+/, '');
                                 for (var i = str.length - 1; i >= 0; i--) {
                                         if (/\S/.test(str.charAt(i))) {
-                                                str = str.substring(0, i + 1);
+                                                str = str.subString(0, i + 1);
                                                 break;
                                         }
                                 }
@@ -4482,39 +4600,82 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                 },
 
                 /**
-                 *  @method csv
-                 *  Utility method, converts the given key attribute value into csv array
-                 *
-                 *  @param key {string} the name of the attribute
-                 *  @return csv array
-                 *
+                 * Utility method, converts the given name attribute value into csv array
+                 * @method csv
+                 * @param name {String} the name of the attribute
+                 * @return csv array
                  */
 
-                csv: function csv(key) {
+                csv: function csv(name) {
 
-                        return this.dsv(key, ',');
+                        return this.dsv(name, ',');
                 }
 
         };
 
+        /**
+         * Extends SMXNode with utility attribute getters
+         * @module Node/Core
+         */
+
         fn.CoreMethods = {
 
-                //return serialization of original XML node
+                /**
+                 * Gets index position in matching sibling nodes
+                 * @method index
+                 * @param {String=} selector - css selector filter
+                 * @return {Integer}
+                 */
+                'index': function index(selector) {
+
+                        //0 by default
+                        var index = 0;
+
+                        //get parent node
+                        var parent = this.parent();
+
+                        //no parent? its kind of root so it has no sibling nodes
+                        if (!parent) return index;
+
+                        //get sibling nodes
+                        var siblings = parent.children();
+
+                        //filter siblings collection with a css selector if its defined
+                        if (selector) siblings = siblings.filter(function (s) {
+                                return Sizzle.matchesSelector(s[0], selector);
+                        });
+
+                        //get position in siblings collection
+                        index = siblings.indexOf(this);
+
+                        return index;
+                },
+
+                /**
+                 * get String representation of a node
+                 * @method toString
+                 * @return {String}
+                 */
                 toString: function toString() {
 
-                        //this looks better for console loggin...
+                        //this looks better in console
                         return this.name + '#' + this.id;
                 },
 
-                //return serialization of original XML node
+                /**
+                 * get node's text contents
+                 * @method text
+                 * @return {String}
+                 */
                 text: function text() {
-
-                        var str = this[0].text || this[0].textContent;
-
-                        return str;
+                        return this[0].text || this[0].textContent || '';
                 },
 
-                //return serialization of original XML node
+                /**
+                 * get node's html content
+                 * @method getInnerHTML
+                 * @return {String}
+                 */
                 getInnerHTML: function getInnerHTML() {
 
                         var childs = this[0].childNodes;
@@ -4530,6 +4691,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                         return str;
                 },
 
+                /**
+                 * get JSON representation of a node
+                 * @method toJSON
+                 * @return {Object}
+                 */
                 toJSON: function toJSON() {
 
                         var attrs = this[0].attributes;
@@ -4568,289 +4734,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
                                 json.children = [];
 
-                                for (var i = 0; i < childs.length; i++) {
+                                for (var c = 0; c < childs.length; c++) {
 
-                                        json.children.push(childs[i].toJSON());
+                                        json.children.push(childs[c].toJSON());
                                 }
                         }
 
                         return json;
-                }
-
-        };
-
-        //////////////////////////
-        // TREE NODE OPERATIONS
-
-
-        fn.TreeNodeMethods = {
-
-                /**
-                *   @method match
-                */
-                match: function match(selector) {
-                        return Sizzle.matchesSelector(this[0], selector);
-                },
-
-                // PARENT RELATED OPERATIONS
-
-
-                /**
-                *   @method parent
-                */
-                parent: function parent(selector) {
-
-                        if (!_.isEmpty(selector)) {
-
-                                var parents = this.parents();
-                                var found;
-                                while (parents.length > 0 && !found) {
-                                        var p = parents.pop();
-                                        if (p.match(selector)) found = p;
-                                }
-
-                                return found;
-                        } else {
-                                return $smx.node(this[0].parentNode);
-                        }
-                },
-
-                /**
-                *   @method parents
-                */
-                parents: function parents() {
-
-                        if (!this[0].parentNode) return [];else {
-                                var parent = this.parent();
-                                var parents = [parent];
-                                while (parent && parent.parent()) {
-                                        parent = parent.parent();
-                                        if (parent) parents.unshift(parent);
-                                }
-                                return parents;
-                        }
-                },
-
-                /**
-                *   @method root
-                *   Find top most parent
-                */
-
-                'root': function root() {
-
-                        if (this.parent()) {
-
-                                //get all ancestors
-                                var parents = this.parents();
-
-                                //return top most parent node
-                                return parents[0];
-                        }
-
-                        return this;
-                },
-
-                // EXTRA - PARENT RELATED OPERATIONS
-
-                /**
-                *   @method isParentOf
-                */
-                isParentOf: function isParentOf(node) {
-
-                        //validate given node (smx node required)
-                        if (!node.parents) return false;
-
-                        var parentsId = _.map(node.parents(), 'id');
-                        if (_.contains(parentsId, this.id)) return true;else return false;
-                },
-
-                /**
-                *   @method hasParent
-                */
-                hasParent: function hasParent() {
-
-                        return this[0].parentNode ? true : false;
-                },
-
-                // CHILD RELATED OPERATIONS
-
-                getNodeById: function getNodeById(id) {
-
-                        //is nodes cache array?
-                        if ($smx.cache[id]) return $smx.cache[id];
-
-                        //search in document
-                        var node = Sizzle('#' + id, this[0]);
-                        if (node.length > 0) return $smx.node(node[0]);
-
-                        //not found
-                        return;
-                },
-
-                //GID  nice shortcut for getNodeById :D
-                gid: function gid(id) {
-                        return this.getNodeById(id);
-                },
-
-                /**
-                *   @method find
-                */
-                find: function find(selector) {
-
-                        if (!this[0].childNodes.length > 0) return [];
-                        if (!_.isString(selector) || _.isEmpty(selector)) return [];
-
-                        //var query = selector || '>';
-                        var query = selector;
-
-                        //get search context
-                        var nodes = [];
-                        try {
-                                nodes = Sizzle(query, this[0]);
-                        } catch (e) {}
-
-                        //ensure returning unique nodes
-                        if (_.isArray(nodes)) nodes = _.unique(nodes);
-
-                        //return smx node array
-                        return $smx.node(nodes);
-                },
-
-                /**
-                *   @method one
-                *   Like find but returns only first matching node
-                */
-                one: function one(selector) {
-
-                        if (!this[0].childNodes.length > 0) return;
-                        if (!_.isString(selector) || _.isEmpty(selector)) return;
-
-                        //var query = selector || '>';
-                        var query = selector;
-
-                        //get search context
-                        var nodes = [];
-                        try {
-                                nodes = Sizzle(query, this[0]);
-                        } catch (e) {}
-
-                        var node = nodes[0];
-
-                        //return smx node
-                        return $smx.node(node);
-                },
-
-                /**
-                *   @method children
-                */
-                children: function children() {
-                        return $smx.node(this[0].childNodes);
-                },
-
-                /**
-                *   @method first
-                */
-                first: function first() {
-                        return $smx.node(_.first(this[0].childNodes));
-                },
-
-                /**
-                *   @method last
-                */
-                last: function last() {
-                        return $smx.node(_.last(this[0].childNodes));
-                },
-
-                // EXTRA - CHILD RELATED OPERATIONS
-
-                /**
-                *   @method childAt
-                */
-                childAt: function childAt(index) {
-                        return $smx.node(this[0].childNodes[index]);
-                },
-
-                /**
-                *   @method isChildOf
-                */
-                isChildOf: function isChildOf(node) {
-
-                        //validate given node (smx node required)
-                        if (!node.parents) return false;
-
-                        var parentsId = _.map(this.parents(), 'id');
-                        if (_.contains(parentsId, node.id)) return true;else return false;
-                },
-
-                // SIBLING RELATED OPERATIONS
-
-
-                /**
-                *   @method next
-                */
-                next: function next(selector) {
-                        var el = this[0].nextElementSibling || this[0].nextSibling;
-                        return selector ? Sizzle.matchesSelector(el, selector) ? $smx.node(el) : undefined : $smx.node(el);
-                },
-
-                /**
-                *   @method previous
-                */
-
-                previous: function previous(selector) {
-                        var el = this[0].previousElementSibling || this[0].previousSibling;
-                        return selector ? Sizzle.matchesSelector(el, selector) ? $smx.node(el) : undefined : $smx.node(el);
-                },
-
-                // FLAT TREE SIBLINGS
-
-                /**
-                *   @method getStepBack
-                */
-                stepBack: function stepBack() {
-
-                        //previousSibling?
-                        var _prev_sibling_node = this.previous();
-                        if (_prev_sibling_node) return _prev_sibling_node;
-
-                        //parentNode?
-                        var _parent_node = this.parent();
-                        if (_parent_node) return _parent_node;
-
-                        //nothing found...
-                        return;
-                },
-
-                /**
-                *   @method getStepForward
-                */
-                stepForward: function stepForward(from_last_child) {
-
-                        //in recursive calls indicate if last recursion come from lastChild of its parent
-                        var _from_last_child = from_last_child ? from_last_child : false;
-
-                        // 1. use children, trying to get deep inside node
-                        // if (_from_last_child) means we arleady searched on childNodes and avoid it
-                        // we avoid children when content is not smx
-                        if (!_from_last_child && this.get('type') === 'smx' && !this.time('timed')) {
-
-                                var _first_childnode = this.first();
-
-                                if (_first_childnode.get('type') === 'smx') {
-                                        return _first_childnode;
-                                }
-                        }
-
-                        //2. search nextSibling:
-                        var _next_sibling_node = this.next();
-                        if (_next_sibling_node) return _next_sibling_node;
-
-                        //3. search on parentNode
-                        var _parent_node = this.parent();
-                        if (_parent_node) return _parent_node.stepForward(true);
-
-                        //4. nothing found: return null!!
-                        return;
                 }
 
         };
@@ -4861,6 +4751,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
          *  Plugin Method for attributes namespaced with 'rel'
          *  rel attributes may indicate the id of a somehow related node
          *
+         */
+
+        /**
+         * Relations Methods
+         * @module Node/Rel
          */
 
         fn.RelAttrInterface = {
@@ -4884,6 +4779,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         // shortcut for UIAttrController.get
         // definend in smx/document/UIAttrController.js
 
+        /**
+         * UserInterface Methods
+         * @module Node/UI
+         */
+
         fn.UIAttrInterface = {
 
                 /**
@@ -4901,6 +4801,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         // 'time' attributes namespace
         // definend in smx/document/TimeAttrController.js
 
+        /**
+         * Time Interface Methods
+         * @module Node/Time
+         */
         fn.TimeInterface = {
 
                 /**
@@ -4950,8 +4854,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
                 /**
                  *  TIME ATTR CONTROLLER
-                 *  @module TimeAttrController
                  *  Plugin Controller for attributes namespace with 'ui'
+                 *  @module TimeAttrController
                  */
 
                 var TimeAttrController = {
@@ -5073,7 +4977,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                                                                 }
 
                                                                 //get it from attribute
-                                                                start = parseInt(node.raw('start'));
+                                                                start = parseInt(node.attr('start'));
                                                                 if (_.isNaN(start) || start < 0) start = 0;
 
                                                                 //set local value
@@ -5138,19 +5042,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 //# sourceMappingURL=TimeAttrController.js.map
 ;'use strict';
 
-/**
-*   SMX Node Class
-*
-*   @Module Node
-*
-*/
-
 (function (smx) {
 
             /**
              *  UI ATTR CONTROLLER
-             *  @module UIAttrController
              *  Plugin Controller for attributes namespaced with 'ui-'
+             *  @module UIAttrController
              */
 
             var UIAttrController = {
@@ -5178,7 +5075,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
                                     if (_.isEmpty(type)) return this.MEDIA_TYPES[0];
 
-                                    if (_.contains(this.MEDIA_TYPES, type)) return type;else return this.MEDIA_TYPES[0];
+                                    if (_.includes(this.MEDIA_TYPES, type)) return type;else return this.MEDIA_TYPES[0];
                         },
 
                         'resolveURL': function resolveURL(node, asset) {
@@ -5208,9 +5105,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		if (win.console && win.console.log && DEBUG) win.console.log('TRACKING: ' + str);
 	};
 
+	/**
+  * SMX Tracking class
+  * @class Tracking
+  * @param {Document} document
+  */
 	var TrackManager = function TrackManager(doc) {
 
-		//document && playhead params are required
+		//document
 		if (!doc) return;
 
 		//extend with Backbone Events
@@ -5279,7 +5181,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				//add node id
 				track_attrs.id = node.id;
 
-				//add all attributes which names start with 'track-' 
+				//add all attributes which names start with 'track-'
 				for (var i = 0; i < attrs.length; i++) {
 					var attr_name = attrs[i].name;
 					var attr_value = attrs[i].value;
@@ -5487,7 +5389,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 					try {
 
-						var playhead = this.playhead;
+						//var playhead = this.playhead;
 						var CALLBACK = trigger.callback.name;
 
 						_.defer(function () {
@@ -5503,7 +5405,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						var alias = ['next', 'previous', 'parent', 'first', 'last', 'root'];
 						var id = args[0];
 						var target = id + "";
-						if (_.contains(alias, id)) target = node[id]();else if (id == 'this') target = node.id;else if (!_.isString(target)) target = target.id;
+						if (_.includes(alias, id)) target = node[id]();else if (id == 'this') target = node.id;else if (!_.isString(target)) target = target.id;
 
 						//normalize target as id (String)
 						if (target && target.id) target = target.id;
@@ -5528,7 +5430,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						var alias = ['next', 'previous', 'parent', 'first', 'last', 'root'];
 						var id = args[0];
 						var target = id + "";
-						if (_.contains(alias, id)) target = node[id]();else if (id == 'this') target = node.id;else if (!_.isString(target)) target = target.id;
+						if (_.includes(alias, id)) target = node[id]();else if (id == 'this') target = node.id;else if (!_.isString(target)) target = target.id;
 
 						if (target && target.id) target = target.id;
 						if (target) this.propagate(target);
@@ -5553,12 +5455,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
   *	Get raw value for specified node id and attribute key
   *	Uses SMXNode 'raw' method
   *
-  *  @method raw
   *  @param id {string} node id
   *  @param key {string} attribute key
   *  @return {string} resulting value or null
   *
- 	 */
+  */
 
 	TrackManager.prototype.raw = function (id, key) {
 
@@ -5572,19 +5473,17 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		if (!node) return;
 
 		//return value or undefined
-		return node.raw('track-' + key);
+		return node.attr('track-' + key);
 	};
 
 	/**
-  *	Answer this question:
-  *	Has key attribute the node with give id?
+  * Answer this question:
+  * Has key attribute the node with give id?
+  * @param {String} id  - node id
+  * @param {String} key - attribute key
+  * @return {Boolean} has or not the specified key
   *
-  *  @method has
-  *  @param id {String} node id
-  *  @param key {String} attribute key
-  *  @return {Boolean} has or not the specified key
-  *
- 	 */
+  */
 
 	TrackManager.prototype.has = function (id, key) {
 
@@ -5598,7 +5497,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		if (!node) return false;
 
 		//get raw value by key
-		var value = node.raw('track-' + key);
+		var value = node.attr('track-' + key);
 
 		//raw will always return String or null value
 		return _.isString(value) ? true : false;
@@ -5660,6 +5559,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		return val;
 	};
 
+	/**
+ * Updates tracking data for the given node id
+ * @param {String} id - node id
+ * @param {String=} key - tracking field key name
+ */
 	TrackManager.prototype.update = function (id, key) {
 
 		var tracks;
@@ -5694,6 +5598,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		return;
 	};
 
+	/**
+ * Propagates tracking data for the given node id
+ * @param {String} id - node id
+ * @param {String=} key - tracking field key name
+ * @param {String=} [recursive=false]
+ */
+
 	TrackManager.prototype.propagate = function (id, key, recursive) {
 
 		//get track by given id
@@ -5717,6 +5628,24 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		return;
 	};
 
+	/**
+  * Global change event
+  * @event Tracking#change
+  * @type {object}
+  */
+
+	/**
+  * Track change event
+  * @event Tracking#change:id
+  * @type {object}
+  */
+
+	/**
+  * Track field change event
+  * @event Tracking#change:id:key
+  * @type {object}
+  */
+
 	TrackManager.prototype.onCollectionChange = function (track) {
 
 		if (track.changed) {
@@ -5734,7 +5663,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
    	var handler = this.attrControllers[keys[i]];
    	if(handler.propagate){
    		handler.propagate(track, this, previous[keys[i]],previous_value);
-   	}				
+   	}
    		}
    */
 
@@ -5984,6 +5913,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		return str;
 	};
 
+	/**
+  * Exports tracking data
+  * @param {Object=} options
+  * @return {data}
+  */
 	TrackManager.prototype.exports = function (options) {
 
 		var defaults = {
@@ -6024,8 +5958,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 				var key = keys[a];
 
-				var raw_value = _this.raw(item.id, key);
-				var value = _this.get(item.id, key);
+				var raw_value = _this.attr(item.id, key);
+				var value = _this.attr(item.id, key);
 
 				if (!options.onlychanged) {
 
@@ -6079,19 +6013,24 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		return myJSON;
 	};
 
-	TrackManager.prototype.imports = function (myJSON) {
+	/**
+  * Imports tracking data
+  * @param {Object|String} data
+  * @return {data}
+  */
+	TrackManager.prototype.imports = function (_data_) {
 
 		//no JSON?
-		if (!myJSON || !_.isObject(JSON)) return;
+		if (!_data_ || !_.isObject(JSON)) return;
 
 		//process input param into data object
 		var data = null;
 
 		try {
-			if (typeof myJSON == 'string' && myJSON != '') {
-				data = eval('(' + myJSON + ')');
+			if (typeof _data_ == 'string' && _data_ != '') {
+				data = eval('(' + _data_ + ')');
 			} else {
-				data = myJSON;
+				data = _data_;
 			}
 		} catch (e) {}
 
@@ -6124,7 +6063,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					if (key != 'trigger' && key != 'id') {
 
 						if (!_.isUndefined(item[key])) {
-							//track.set(key, item[key], {'silent':true});	
+							//track.set(key, item[key], {'silent':true});
 							this.set(item.id, key, item[key]);
 						}
 					}
@@ -7191,13 +7130,20 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 //# sourceMappingURL=points.js.map
 ;'use strict';
 
+/**
+ * Extends SMXNode with utility attribute getters
+ * @module Node/Tracking
+ */
+
 (function (global, _, smx) {
 
       var methods = {
 
             /**
-            *   @method isAccesible
-            */
+             * Checks if the node can be accessed
+             * @method isAccesible
+             * @return {Boolean}
+             */
             isAccesible: function isAccesible() {
 
                   if (global.app.config.FREE_ACCESS) return true;
@@ -7221,8 +7167,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             },
 
             /**
-            *   @method track
-            */
+             * Gets tracking data for the given key name associated to the node
+             * @method track
+             * @param {String} key - tracking field key name
+             * @param {String=} format - desired format data
+             * @return {String|Number}
+             */
             track: function track(key, format) {
 
                   //if exists ($tracking) TrackManager use it
@@ -7245,10 +7195,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             },
 
             /**
-            *   Returns true if this node uses tracking attributes
+            *   Checks if the node has associated tracking data, can check for any tracking data or specific field
             *   @method isTracking
-            *   @param {String} (optional) key
-            *   @return {Boolean} result
+            *   @param {String=} key - tracking field key name
+            *   @return {Boolean}
             */
             isTracking: function isTracking(key) {
 
@@ -7275,8 +7225,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             },
 
             /**
-            *   @method     update
-            *   @desc       shortcut of TrackManager.update from given node
+            * Performs a Tracking.update for this node
+            * @method update
+            * @param {String=} key - tracking field key name
             */
             update: function update(key) {
 
@@ -7289,8 +7240,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             },
 
             /**
-            *   @method track
-            *   @desc       shortcut of TrackManager.propagate from given node
+            * Performs a Tracking.propagate for this node
+            * @method update
+            * @param {String=} key - tracking field key name
+            * @param {String=} [recursive=false]
             */
             propagate: function propagate(key, recursive) {
 
@@ -7308,31 +7261,1478 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
       smx.fn = _.extend(smx.fn, { TrackingInterface: methods });
 })(window, window._, window.smx);
 //# sourceMappingURL=TrackInterface.js.map
-;"use strict";function _defineProperty(obj,key,value){if(key in obj){Object.defineProperty(obj,key,{value:value,enumerable:true,configurable:true,writable:true});}else{obj[key]=value;}return obj;}(function(global){var _kCOLOR_NAMES,_jscsspToken$prototyp;/*
+;"use strict";
 
-JSCSSP a CSS parser
-http://www.glazman.org/JSCSSP/
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-Useful because we want to use non CSS definitions
-It parses even invalid CSS rules
-We can keep accesing parsed data models
+(function (global) {
+	var _kCOLOR_NAMES, _jscsspToken$prototyp;
 
-@clopez: modified version 20130612
+	/*
+ 
+ JSCSSP a CSS parser
+ http://www.glazman.org/JSCSSP/
+ 
+ Useful because we want to use non CSS definitions
+ It parses even invalid CSS rules
+ We can keep accesing parsed data models
+ 
+ @clopez: modified version 20130612
+ 
+ Original version uses javascript keyword "const" which is not valid ECMA5
+ Here we replace "const" with "var"
+ Minified version also required adding some semicolons :D
+ 
+ */
 
-Original version uses javascript keyword "const" which is not valid ECMA5
-Here we replace "const" with "var"
-Minified version also required adding some semicolons :D
+	var kCHARSET_RULE_MISSING_SEMICOLON = "Missing semicolon at the end of @charset rule";var kCHARSET_RULE_CHARSET_IS_STRING = "The charset in the @charset rule should be a string";var kCHARSET_RULE_MISSING_WS = "Missing mandatory whitespace after @charset";var kIMPORT_RULE_MISSING_URL = "Missing URL in @import rule";var kURL_EOF = "Unexpected end of stylesheet";var kURL_WS_INSIDE = "Multiple tokens inside a url() notation";var kVARIABLES_RULE_POSITION = "@variables rule invalid at this position in the stylesheet";var kIMPORT_RULE_POSITION = "@import rule invalid at this position in the stylesheet";var kNAMESPACE_RULE_POSITION = "@namespace rule invalid at this position in the stylesheet";var kCHARSET_RULE_CHARSET_SOF = "@charset rule invalid at this position in the stylesheet";var kUNKNOWN_AT_RULE = "Unknow @-rule";var kENGINES = ["webkit", "presto", "trident", "generic"];var kCSS_VENDOR_VALUES = { "-moz-box": { "webkit": "-webkit-box", "presto": "", "trident": "", "generic": "box" }, "-moz-inline-box": { "webkit": "-webkit-inline-box", "presto": "", "trident": "", "generic": "inline-box" }, "-moz-initial": { "webkit": "", "presto": "", "trident": "", "generic": "initial" }, "-moz-linear-gradient": { "webkit20110101": FilterLinearGradientForOutput, "webkit": FilterLinearGradientForOutput, "presto": "", "trident": "", "generic": FilterLinearGradientForOutput }, "-moz-radial-gradient": { "webkit20110101": FilterRadialGradientForOutput, "webkit": FilterRadialGradientForOutput, "presto": "", "trident": "", "generic": FilterRadialGradientForOutput }, "-moz-repeating-linear-gradient": { "webkit20110101": "", "webkit": FilterRepeatingGradientForOutput, "presto": "", "trident": "", "generic": FilterRepeatingGradientForOutput }, "-moz-repeating-radial-gradient": { "webkit20110101": "", "webkit": FilterRepeatingGradientForOutput, "presto": "", "trident": "", "generic": FilterRepeatingGradientForOutput } };var kCSS_VENDOR_PREFIXES = { "lastUpdate": 1304175007, "properties": [{ "gecko": "", "webkit": "", "presto": "", "trident": "-ms-accelerator", "status": "P" }, { "gecko": "", "webkit": "", "presto": "-wap-accesskey", "trident": "", "status": "" }, { "gecko": "-moz-animation", "webkit": "-webkit-animation", "presto": "", "trident": "", "status": "WD" }, { "gecko": "-moz-animation-delay", "webkit": "-webkit-animation-delay", "presto": "", "trident": "", "status": "WD" }, { "gecko": "-moz-animation-direction", "webkit": "-webkit-animation-direction", "presto": "", "trident": "", "status": "WD" }, { "gecko": "-moz-animation-duration", "webkit": "-webkit-animation-duration", "presto": "", "trident": "", "status": "WD" }, { "gecko": "-moz-animation-fill-mode", "webkit": "-webkit-animation-fill-mode", "presto": "", "trident": "", "status": "ED" }, { "gecko": "-moz-animation-iteration-count", "webkit": "-webkit-animation-iteration-count", "presto": "", "trident": "", "status": "WD" }, { "gecko": "-moz-animation-name", "webkit": "-webkit-animation-name", "presto": "", "trident": "", "status": "WD" }, { "gecko": "-moz-animation-play-state", "webkit": "-webkit-animation-play-state", "presto": "", "trident": "", "status": "WD" }, { "gecko": "-moz-animation-timing-function", "webkit": "-webkit-animation-timing-function", "presto": "", "trident": "", "status": "WD" }, { "gecko": "-moz-appearance", "webkit": "-webkit-appearance", "presto": "", "trident": "", "status": "CR" }, { "gecko": "", "webkit": "-webkit-backface-visibility", "presto": "", "trident": "", "status": "WD" }, { "gecko": "background-clip", "webkit": "-webkit-background-clip", "presto": "background-clip", "trident": "background-clip", "status": "WD" }, { "gecko": "", "webkit": "-webkit-background-composite", "presto": "", "trident": "", "status": "" }, { "gecko": "-moz-background-inline-policy", "webkit": "", "presto": "", "trident": "", "status": "P" }, { "gecko": "background-origin", "webkit": "-webkit-background-origin", "presto": "background-origin", "trident": "background-origin", "status": "WD" }, { "gecko": "", "webkit": "background-position-x", "presto": "", "trident": "-ms-background-position-x", "status": "" }, { "gecko": "", "webkit": "background-position-y", "presto": "", "trident": "-ms-background-position-y", "status": "" }, { "gecko": "background-size", "webkit": "-webkit-background-size", "presto": "background-size", "trident": "background-size", "status": "WD" }, { "gecko": "", "webkit": "", "presto": "", "trident": "-ms-behavior", "status": "" }, { "gecko": "-moz-binding", "webkit": "", "presto": "", "trident": "", "status": "P" }, { "gecko": "", "webkit": "", "presto": "", "trident": "-ms-block-progression", "status": "" }, { "gecko": "", "webkit": "-webkit-border-after", "presto": "", "trident": "", "status": "ED" }, { "gecko": "", "webkit": "-webkit-border-after-color", "presto": "", "trident": "", "status": "ED" }, { "gecko": "", "webkit": "-webkit-border-after-style", "presto": "", "trident": "", "status": "ED" }, { "gecko": "", "webkit": "-webkit-border-after-width", "presto": "", "trident": "", "status": "ED" }, { "gecko": "", "webkit": "-webkit-border-before", "presto": "", "trident": "", "status": "ED" }, { "gecko": "", "webkit": "-webkit-border-before-color", "presto": "", "trident": "", "status": "ED" }, { "gecko": "", "webkit": "-webkit-border-before-style", "presto": "", "trident": "", "status": "ED" }, { "gecko": "", "webkit": "-webkit-border-before-width", "presto": "", "trident": "", "status": "ED" }, { "gecko": "-moz-border-bottom-colors", "webkit": "", "presto": "", "trident": "", "status": "P" }, { "gecko": "border-bottom-left-radius", "webkit": "-webkit-border-bottom-left-radius", "presto": "border-bottom-left-radius", "trident": "border-bottom-left-radius", "status": "WD" }, { "gecko": "", "webkit": "-webkit-border-bottom-left-radius = border-bottom-left-radius", "presto": "", "trident": "", "status": "" }, { "gecko": "border-bottom-right-radius", "webkit": "-webkit-border-bottom-right-radius", "presto": "border-bottom-right-radius", "trident": "border-bottom-right-radius", "status": "WD" }, { "gecko": "", "webkit": "-webkit-border-bottom-right-radius = border-bottom-right-radius", "presto": "", "trident": "", "status": "" }, { "gecko": "-moz-border-end", "webkit": "-webkit-border-end", "presto": "", "trident": "", "status": "ED" }, { "gecko": "-moz-border-end-color", "webkit": "-webkit-border-end-color", "presto": "", "trident": "", "status": "ED" }, { "gecko": "-moz-border-end-style", "webkit": "-webkit-border-end-style", "presto": "", "trident": "", "status": "ED" }, { "gecko": "-moz-border-end-width", "webkit": "-webkit-border-end-width", "presto": "", "trident": "", "status": "ED" }, { "gecko": "", "webkit": "-webkit-border-fit", "presto": "", "trident": "", "status": "" }, { "gecko": "", "webkit": "-webkit-border-horizontal-spacing", "presto": "", "trident": "", "status": "" }, { "gecko": "-moz-border-image", "webkit": "-webkit-border-image", "presto": "-o-border-image", "trident": "", "status": "WD" }, { "gecko": "-moz-border-left-colors", "webkit": "", "presto": "", "trident": "", "status": "P" }, { "gecko": "border-radius", "webkit": "-webkit-border-radius", "presto": "border-radius", "trident": "border-radius", "status": "WD" }, { "gecko": "-moz-border-right-colors", "webkit": "", "presto": "", "trident": "", "status": "P" }, { "gecko": "-moz-border-start", "webkit": "-webkit-border-start", "presto": "", "trident": "", "status": "ED" }, { "gecko": "-moz-border-start-color", "webkit": "-webkit-border-start-color", "presto": "", "trident": "", "status": "ED" }, { "gecko": "-moz-border-start-style", "webkit": "-webkit-border-start-style", "presto": "", "trident": "", "status": "ED" }, { "gecko": "-moz-border-start-width", "webkit": "-webkit-border-start-width", "presto": "", "trident": "", "status": "ED" }, { "gecko": "-moz-border-top-colors", "webkit": "", "presto": "", "trident": "", "status": "P" }, { "gecko": "border-top-left-radius", "webkit": "-webkit-border-top-left-radius", "presto": "border-top-left-radius", "trident": "border-top-left-radius", "status": "WD" }, { "gecko": "", "webkit": "-webkit-border-top-left-radius = border-top-left-radius", "presto": "", "trident": "", "status": "" }, { "gecko": "border-top-right-radius", "webkit": "-webkit-border-top-right-radius", "presto": "border-top-right-radius", "trident": "border-top-right-radius", "status": "WD" }, { "gecko": "", "webkit": "-webkit-border-top-right-radius = border-top-right-radius", "presto": "", "trident": "", "status": "" }, { "gecko": "", "webkit": "-webkit-border-vertical-spacing", "presto": "", "trident": "", "status": "" }, { "gecko": "-moz-box-align", "webkit": "-webkit-box-align", "presto": "", "trident": "-ms-box-align", "status": "WD" }, { "gecko": "-moz-box-direction", "webkit": "-webkit-box-direction", "presto": "", "trident": "-ms-box-direction", "status": "WD" }, { "gecko": "-moz-box-flex", "webkit": "-webkit-box-flex", "presto": "", "trident": "-ms-box-flex", "status": "WD" }, { "gecko": "", "webkit": "-webkit-box-flex-group", "presto": "", "trident": "", "status": "WD" }, { "gecko": "", "webkit": "", "presto": "", "trident": "-ms-box-line-progression", "status": "" }, { "gecko": "", "webkit": "-webkit-box-lines", "presto": "", "trident": "-ms-box-lines", "status": "WD" }, { "gecko": "-moz-box-ordinal-group", "webkit": "-webkit-box-ordinal-group", "presto": "", "trident": "-ms-box-ordinal-group", "status": "WD" }, { "gecko": "-moz-box-orient", "webkit": "-webkit-box-orient", "presto": "", "trident": "-ms-box-orient", "status": "WD" }, { "gecko": "-moz-box-pack", "webkit": "-webkit-box-pack", "presto": "", "trident": "-ms-box-pack", "status": "WD" }, { "gecko": "", "webkit": "-webkit-box-reflect", "presto": "", "trident": "", "status": "" }, { "gecko": "box-shadow", "webkit": "-webkit-box-shadow", "presto": "box-shadow", "trident": "box-shadow", "status": "WD" }, { "gecko": "-moz-box-sizing", "webkit": "box-sizing", "presto": "box-sizing", "trident": "", "status": "CR" }, { "gecko": "", "webkit": "-webkit-box-sizing = box-sizing", "presto": "", "trident": "", "status": "" }, { "gecko": "", "webkit": "-epub-caption-side = caption-side", "presto": "", "trident": "", "status": "" }, { "gecko": "", "webkit": "-webkit-color-correction", "presto": "", "trident": "", "status": "" }, { "gecko": "", "webkit": "-webkit-column-break-after", "presto": "", "trident": "", "status": "" }, { "gecko": "", "webkit": "-webkit-column-break-before", "presto": "", "trident": "", "status": "" }, { "gecko": "", "webkit": "-webkit-column-break-inside", "presto": "", "trident": "", "status": "" }, { "gecko": "-moz-column-count", "webkit": "-webkit-column-count", "presto": "column-count", "trident": "column-count", "status": "CR" }, { "gecko": "-moz-column-gap", "webkit": "-webkit-column-gap", "presto": "column-gap", "trident": "column-gap", "status": "CR" }, { "gecko": "-moz-column-rule", "webkit": "-webkit-column-rule", "presto": "column-rule", "trident": "column-rule", "status": "CR" }, { "gecko": "-moz-column-rule-color", "webkit": "-webkit-column-rule-color", "presto": "column-rule-color", "trident": "column-rule-color", "status": "CR" }, { "gecko": "-moz-column-rule-style", "webkit": "-webkit-column-rule-style", "presto": "column-rule-style", "trident": "column-rule-style", "status": "CR" }, { "gecko": "-moz-column-rule-width", "webkit": "-webkit-column-rule-width", "presto": "column-rule-width", "trident": "column-rule-width", "status": "CR" }, { "gecko": "", "webkit": "-webkit-column-span", "presto": "column-span", "trident": "column-span", "status": "CR" }, { "gecko": "-moz-column-width", "webkit": "-webkit-column-width", "presto": "column-width", "trident": "column-width", "status": "CR" }, { "gecko": "", "webkit": "-webkit-columns", "presto": "columns", "trident": "columns", "status": "CR" }, { "gecko": "", "webkit": "-webkit-dashboard-region", "presto": "-apple-dashboard-region", "trident": "", "status": "" }, { "gecko": "filter", "webkit": "", "presto": "filter", "trident": "-ms-filter", "status": "" }, { "gecko": "-moz-float-edge", "webkit": "", "presto": "", "trident": "", "status": "P" }, { "gecko": "", "webkit": "", "presto": "-o-focus-opacity", "trident": "", "status": "" }, { "gecko": "-moz-font-feature-settings", "webkit": "", "presto": "", "trident": "", "status": "" }, { "gecko": "-moz-font-language-override", "webkit": "", "presto": "", "trident": "", "status": "" }, { "gecko": "", "webkit": "-webkit-font-size-delta", "presto": "", "trident": "", "status": "" }, { "gecko": "", "webkit": "-webkit-font-smoothing", "presto": "", "trident": "", "status": "" }, { "gecko": "-moz-force-broken-image-icon", "webkit": "", "presto": "", "trident": "", "status": "" }, { "gecko": "", "webkit": "", "presto": "", "trident": "-ms-grid-column", "status": "WD" }, { "gecko": "", "webkit": "", "presto": "", "trident": "-ms-grid-column-align", "status": "WD" }, { "gecko": "", "webkit": "", "presto": "", "trident": "-ms-grid-column-span", "status": "WD" }, { "gecko": "", "webkit": "", "presto": "", "trident": "-ms-grid-columns", "status": "WD" }, { "gecko": "", "webkit": "", "presto": "", "trident": "-ms-grid-layer", "status": "WD" }, { "gecko": "", "webkit": "", "presto": "", "trident": "-ms-grid-row", "status": "WD" }, { "gecko": "", "webkit": "", "presto": "", "trident": "-ms-grid-row-align", "status": "WD" }, { "gecko": "", "webkit": "", "presto": "", "trident": "-ms-grid-row-span", "status": "WD" }, { "gecko": "", "webkit": "", "presto": "", "trident": "-ms-grid-rows", "status": "WD" }, { "gecko": "", "webkit": "-webkit-highlight", "presto": "", "trident": "", "status": "" }, { "gecko": "", "webkit": "-webkit-hyphenate-character", "presto": "", "trident": "", "status": "WD" }, { "gecko": "", "webkit": "-webkit-hyphenate-limit-after", "presto": "", "trident": "", "status": "" }, { "gecko": "", "webkit": "-webkit-hyphenate-limit-before", "presto": "", "trident": "", "status": "" }, { "gecko": "", "webkit": "-webkit-hyphens", "presto": "", "trident": "", "status": "WD" }, { "gecko": "", "webkit": "-epub-hyphens = -webkit-hyphens", "presto": "", "trident": "", "status": "" }, { "gecko": "-moz-image-region", "webkit": "", "presto": "", "trident": "", "status": "P" }, { "gecko": "ime-mode", "webkit": "", "presto": "", "trident": "-ms-ime-mode", "status": "" }, { "gecko": "", "webkit": "", "presto": "-wap-input-format", "trident": "", "status": "" }, { "gecko": "", "webkit": "", "presto": "-wap-input-required", "trident": "", "status": "" }, { "gecko": "", "webkit": "", "presto": "", "trident": "-ms-interpolation-mode", "status": "" }, { "gecko": "", "webkit": "", "presto": "-xv-interpret-as", "trident": "", "status": "" }, { "gecko": "", "webkit": "", "presto": "", "trident": "-ms-layout-flow", "status": "" }, { "gecko": "", "webkit": "", "presto": "", "trident": "-ms-layout-grid", "status": "" }, { "gecko": "", "webkit": "", "presto": "", "trident": "-ms-layout-grid-char", "status": "" }, { "gecko": "", "webkit": "", "presto": "", "trident": "-ms-layout-grid-line", "status": "" }, { "gecko": "", "webkit": "", "presto": "", "trident": "-ms-layout-grid-mode", "status": "" }, { "gecko": "", "webkit": "", "presto": "", "trident": "-ms-layout-grid-type", "status": "" }, { "gecko": "", "webkit": "-webkit-line-box-contain", "presto": "", "trident": "", "status": "" }, { "gecko": "", "webkit": "-webkit-line-break", "presto": "", "trident": "-ms-line-break", "status": "" }, { "gecko": "", "webkit": "-webkit-line-clamp", "presto": "", "trident": "", "status": "" }, { "gecko": "", "webkit": "", "presto": "", "trident": "-ms-line-grid-mode", "status": "" }, { "gecko": "", "webkit": "", "presto": "-o-link", "trident": "", "status": "" }, { "gecko": "", "webkit": "", "presto": "-o-link-source", "trident": "", "status": "" }, { "gecko": "", "webkit": "-webkit-locale", "presto": "", "trident": "", "status": "" }, { "gecko": "", "webkit": "-webkit-logical-height", "presto": "", "trident": "", "status": "ED" }, { "gecko": "", "webkit": "-webkit-logical-width", "presto": "", "trident": "", "status": "ED" }, { "gecko": "", "webkit": "-webkit-margin-after", "presto": "", "trident": "", "status": "ED" }, { "gecko": "", "webkit": "-webkit-margin-after-collapse", "presto": "", "trident": "", "status": "" }, { "gecko": "", "webkit": "-webkit-margin-before", "presto": "", "trident": "", "status": "ED" }, { "gecko": "", "webkit": "-webkit-margin-before-collapse", "presto": "", "trident": "", "status": "" }, { "gecko": "", "webkit": "-webkit-margin-bottom-collapse", "presto": "", "trident": "", "status": "" }, { "gecko": "", "webkit": "-webkit-margin-collapse", "presto": "", "trident": "", "status": "" }, { "gecko": "-moz-margin-end", "webkit": "-webkit-margin-end", "presto": "", "trident": "", "status": "ED" }, { "gecko": "-moz-margin-start", "webkit": "-webkit-margin-start", "presto": "", "trident": "", "status": "ED" }, { "gecko": "", "webkit": "-webkit-margin-top-collapse", "presto": "", "trident": "", "status": "" }, { "gecko": "", "webkit": "-webkit-marquee", "presto": "", "trident": "", "status": "" }, { "gecko": "", "webkit": "", "presto": "-wap-marquee-dir", "trident": "", "status": "" }, { "gecko": "", "webkit": "-webkit-marquee-direction", "presto": "", "trident": "", "status": "WD" }, { "gecko": "", "webkit": "-webkit-marquee-increment", "presto": "", "trident": "", "status": "" }, { "gecko": "", "webkit": "", "presto": "-wap-marquee-loop", "trident": "", "status": "WD" }, { "gecko": "", "webkit": "-webkit-marquee-repetition", "presto": "", "trident": "", "status": "" }, { "gecko": "", "webkit": "-webkit-marquee-speed", "presto": "-wap-marquee-speed", "trident": "", "status": "WD" }, { "gecko": "", "webkit": "-webkit-marquee-style", "presto": "-wap-marquee-style", "trident": "", "status": "WD" }, { "gecko": "mask", "webkit": "-webkit-mask", "presto": "mask", "trident": "", "status": "" }, { "gecko": "", "webkit": "-webkit-mask-attachment", "presto": "", "trident": "", "status": "" }, { "gecko": "", "webkit": "-webkit-mask-box-image", "presto": "", "trident": "", "status": "" }, { "gecko": "", "webkit": "-webkit-mask-clip", "presto": "", "trident": "", "status": "" }, { "gecko": "", "webkit": "-webkit-mask-composite", "presto": "", "trident": "", "status": "" }, { "gecko": "", "webkit": "-webkit-mask-image", "presto": "", "trident": "", "status": "" }, { "gecko": "", "webkit": "-webkit-mask-origin", "presto": "", "trident": "", "status": "" }, { "gecko": "", "webkit": "-webkit-mask-position", "presto": "", "trident": "", "status": "" }, { "gecko": "", "webkit": "-webkit-mask-position-x", "presto": "", "trident": "", "status": "" }, { "gecko": "", "webkit": "-webkit-mask-position-y", "presto": "", "trident": "", "status": "" }, { "gecko": "", "webkit": "-webkit-mask-repeat", "presto": "", "trident": "", "status": "" }, { "gecko": "", "webkit": "-webkit-mask-repeat-x", "presto": "", "trident": "", "status": "" }, { "gecko": "", "webkit": "-webkit-mask-repeat-y", "presto": "", "trident": "", "status": "" }, { "gecko": "", "webkit": "-webkit-mask-size", "presto": "", "trident": "", "status": "" }, { "gecko": "", "webkit": "-webkit-match-nearest-mail-blockquote-color", "presto": "", "trident": "", "status": "" }, { "gecko": "", "webkit": "-webkit-max-logical-height", "presto": "", "trident": "", "status": "" }, { "gecko": "", "webkit": "-webkit-max-logical-width", "presto": "", "trident": "", "status": "ED" }, { "gecko": "", "webkit": "-webkit-min-logical-height", "presto": "", "trident": "", "status": "ED" }, { "gecko": "", "webkit": "-webkit-min-logical-width", "presto": "", "trident": "", "status": "ED" }, { "gecko": "", "webkit": "", "presto": "-o-mini-fold", "trident": "", "status": "" }, { "gecko": "", "webkit": "-webkit-nbsp-mode", "presto": "", "trident": "", "status": "P" }, { "gecko": "", "webkit": "", "presto": "-o-object-fit", "trident": "", "status": "ED" }, { "gecko": "", "webkit": "", "presto": "-o-object-position", "trident": "", "status": "ED" }, { "gecko": "opacity", "webkit": "-webkit-opacity", "presto": "opacity", "trident": "opacity", "status": "WD" }, { "gecko": "", "webkit": "-webkit-opacity = opacity", "presto": "", "trident": "", "status": "" }, { "gecko": "-moz-outline-radius", "webkit": "", "presto": "", "trident": "", "status": "P" }, { "gecko": "-moz-outline-radius-bottomleft", "webkit": "", "presto": "", "trident": "", "status": "P" }, { "gecko": "-moz-outline-radius-bottomright", "webkit": "", "presto": "", "trident": "", "status": "P" }, { "gecko": "-moz-outline-radius-topleft", "webkit": "", "presto": "", "trident": "", "status": "P" }, { "gecko": "-moz-outline-radius-topright", "webkit": "", "presto": "", "trident": "", "status": "P" }, { "gecko": "overflow-x", "webkit": "overflow-x", "presto": "overflow-x", "trident": "-ms-overflow-x", "status": "WD" }, { "gecko": "overflow-y", "webkit": "overflow-y", "presto": "overflow-y", "trident": "-ms-overflow-y", "status": "WD" }, { "gecko": "", "webkit": "-webkit-padding-after", "presto": "", "trident": "", "status": "ED" }, { "gecko": "", "webkit": "-webkit-padding-before", "presto": "", "trident": "", "status": "ED" }, { "gecko": "-moz-padding-end", "webkit": "-webkit-padding-end", "presto": "", "trident": "", "status": "ED" }, { "gecko": "-moz-padding-start", "webkit": "-webkit-padding-start", "presto": "", "trident": "", "status": "ED" }, { "gecko": "", "webkit": "-webkit-perspective", "presto": "", "trident": "", "status": "WD" }, { "gecko": "", "webkit": "-webkit-perspective-origin", "presto": "", "trident": "", "status": "WD" }, { "gecko": "", "webkit": "-webkit-perspective-origin-x", "presto": "", "trident": "", "status": "" }, { "gecko": "", "webkit": "-webkit-perspective-origin-y", "presto": "", "trident": "", "status": "" }, { "gecko": "", "webkit": "", "presto": "-xv-phonemes", "trident": "", "status": "" }, { "gecko": "", "webkit": "-webkit-rtl-ordering", "presto": "", "trident": "", "status": "P" }, { "gecko": "-moz-script-level", "webkit": "", "presto": "", "trident": "", "status": "" }, { "gecko": "-moz-script-min-size", "webkit": "", "presto": "", "trident": "", "status": "" }, { "gecko": "-moz-script-size-multiplier", "webkit": "", "presto": "", "trident": "", "status": "" }, { "gecko": "", "webkit": "", "presto": "scrollbar-3dlight-color", "trident": "-ms-scrollbar-3dlight-color", "status": "P" }, { "gecko": "", "webkit": "", "presto": "scrollbar-arrow-color", "trident": "-ms-scrollbar-arrow-color", "status": "P" }, { "gecko": "", "webkit": "", "presto": "scrollbar-base-color", "trident": "-ms-scrollbar-base-color", "status": "P" }, { "gecko": "", "webkit": "", "presto": "scrollbar-darkshadow-color", "trident": "-ms-scrollbar-darkshadow-color", "status": "P" }, { "gecko": "", "webkit": "", "presto": "scrollbar-face-color", "trident": "-ms-scrollbar-face-color", "status": "P" }, { "gecko": "", "webkit": "", "presto": "scrollbar-highlight-color", "trident": "-ms-scrollbar-highlight-color", "status": "P" }, { "gecko": "", "webkit": "", "presto": "scrollbar-shadow-color", "trident": "-ms-scrollbar-shadow-color", "status": "P" }, { "gecko": "", "webkit": "", "presto": "scrollbar-track-color", "trident": "-ms-scrollbar-track-color", "status": "P" }, { "gecko": "-moz-stack-sizing", "webkit": "", "presto": "", "trident": "", "status": "P" }, { "gecko": "", "webkit": "-webkit-svg-shadow", "presto": "", "trident": "", "status": "" }, { "gecko": "-moz-tab-size", "webkit": "", "presto": "-o-tab-size", "trident": "", "status": "" }, { "gecko": "", "webkit": "", "presto": "-o-table-baseline", "trident": "", "status": "" }, { "gecko": "", "webkit": "-webkit-tap-highlight-color", "presto": "", "trident": "", "status": "P" }, { "gecko": "", "webkit": "", "presto": "", "trident": "-ms-text-align-last", "status": "WD" }, { "gecko": "", "webkit": "", "presto": "", "trident": "-ms-text-autospace", "status": "WD" }, { "gecko": "-moz-text-blink", "webkit": "", "presto": "", "trident": "", "status": "" }, { "gecko": "", "webkit": "-webkit-text-combine", "presto": "", "trident": "", "status": "" }, { "gecko": "", "webkit": "-epub-text-combine = -webkit-text-combine", "presto": "", "trident": "", "status": "" }, { "gecko": "-moz-text-decoration-color", "webkit": "", "presto": "", "trident": "", "status": "" }, { "gecko": "-moz-text-decoration-line", "webkit": "", "presto": "", "trident": "", "status": "" }, { "gecko": "-moz-text-decoration-style", "webkit": "", "presto": "", "trident": "", "status": "" }, { "gecko": "", "webkit": "-webkit-text-decorations-in-effect", "presto": "", "trident": "", "status": "" }, { "gecko": "", "webkit": "-webkit-text-emphasis", "presto": "", "trident": "", "status": "" }, { "gecko": "", "webkit": "-epub-text-emphasis = -webkit-text-emphasis", "presto": "", "trident": "", "status": "" }, { "gecko": "", "webkit": "-webkit-text-emphasis-color", "presto": "", "trident": "", "status": "" }, { "gecko": "", "webkit": "-epub-text-emphasis-color = -webkit-text-emphasis-color", "presto": "", "trident": "", "status": "" }, { "gecko": "", "webkit": "-webkit-text-emphasis-position", "presto": "", "trident": "", "status": "" }, { "gecko": "", "webkit": "-webkit-text-emphasis-style", "presto": "", "trident": "", "status": "" }, { "gecko": "", "webkit": "-epub-text-emphasis-style = -webkit-text-emphasis-style", "presto": "", "trident": "", "status": "" }, { "gecko": "", "webkit": "-webkit-text-fill-color", "presto": "", "trident": "", "status": "P" }, { "gecko": "", "webkit": "", "presto": "", "trident": "-ms-text-justify", "status": "WD" }, { "gecko": "", "webkit": "", "presto": "", "trident": "-ms-text-kashida-space", "status": "P" }, { "gecko": "", "webkit": "-webkit-text-orientation", "presto": "", "trident": "", "status": "" }, { "gecko": "", "webkit": "-epub-text-orientation = -webkit-text-orientation", "presto": "", "trident": "", "status": "" }, { "gecko": "", "webkit": "text-overflow", "presto": "text-overflow", "trident": "-ms-text-overflow", "status": "WD" }, { "gecko": "", "webkit": "-webkit-text-security", "presto": "", "trident": "", "status": "P" }, { "gecko": "", "webkit": "-webkit-text-size-adjust", "presto": "", "trident": "-ms-text-size-adjust", "status": "" }, { "gecko": "", "webkit": "-webkit-text-stroke", "presto": "", "trident": "", "status": "P" }, { "gecko": "", "webkit": "-webkit-text-stroke-color", "presto": "", "trident": "", "status": "P" }, { "gecko": "", "webkit": "-webkit-text-stroke-width", "presto": "", "trident": "", "status": "P" }, { "gecko": "", "webkit": "-epub-text-transform = text-transform", "presto": "", "trident": "", "status": "" }, { "gecko": "", "webkit": "", "presto": "", "trident": "-ms-text-underline-position", "status": "P" }, { "gecko": "", "webkit": "-webkit-touch-callout", "presto": "", "trident": "", "status": "P" }, { "gecko": "-moz-transform", "webkit": "-webkit-transform", "presto": "-o-transform", "trident": "-ms-transform", "status": "WD" }, { "gecko": "-moz-transform-origin", "webkit": "-webkit-transform-origin", "presto": "-o-transform-origin", "trident": "-ms-transform-origin", "status": "WD" }, { "gecko": "", "webkit": "-webkit-transform-origin-x", "presto": "", "trident": "", "status": "P" }, { "gecko": "", "webkit": "-webkit-transform-origin-y", "presto": "", "trident": "", "status": "P" }, { "gecko": "", "webkit": "-webkit-transform-origin-z", "presto": "", "trident": "", "status": "P" }, { "gecko": "", "webkit": "-webkit-transform-style", "presto": "", "trident": "", "status": "WD" }, { "gecko": "-moz-transition", "webkit": "-webkit-transition", "presto": "-o-transition", "trident": "", "status": "WD" }, { "gecko": "-moz-transition-delay", "webkit": "-webkit-transition-delay", "presto": "-o-transition-delay", "trident": "", "status": "WD" }, { "gecko": "-moz-transition-duration", "webkit": "-webkit-transition-duration", "presto": "-o-transition-duration", "trident": "", "status": "WD" }, { "gecko": "-moz-transition-property", "webkit": "-webkit-transition-property", "presto": "-o-transition-property", "trident": "", "status": "WD" }, { "gecko": "-moz-transition-timing-function", "webkit": "-webkit-transition-timing-function", "presto": "-o-transition-timing-function", "trident": "", "status": "WD" }, { "gecko": "", "webkit": "-webkit-user-drag", "presto": "", "trident": "", "status": "P" }, { "gecko": "-moz-user-focus", "webkit": "", "presto": "", "trident": "", "status": "P" }, { "gecko": "-moz-user-input", "webkit": "", "presto": "", "trident": "", "status": "P" }, { "gecko": "-moz-user-modify", "webkit": "-webkit-user-modify", "presto": "", "trident": "", "status": "P" }, { "gecko": "-moz-user-select", "webkit": "-webkit-user-select", "presto": "", "trident": "", "status": "P" }, { "gecko": "", "webkit": "", "presto": "-xv-voice-balance", "trident": "", "status": "" }, { "gecko": "", "webkit": "", "presto": "-xv-voice-duration", "trident": "", "status": "" }, { "gecko": "", "webkit": "", "presto": "-xv-voice-pitch", "trident": "", "status": "" }, { "gecko": "", "webkit": "", "presto": "-xv-voice-pitch-range", "trident": "", "status": "" }, { "gecko": "", "webkit": "", "presto": "-xv-voice-rate", "trident": "", "status": "" }, { "gecko": "", "webkit": "", "presto": "-xv-voice-stress", "trident": "", "status": "" }, { "gecko": "", "webkit": "", "presto": "-xv-voice-volume", "trident": "", "status": "" }, { "gecko": "-moz-window-shadow", "webkit": "", "presto": "", "trident": "", "status": "P" }, { "gecko": "", "webkit": "word-break", "presto": "", "trident": "-ms-word-break", "status": "WD" }, { "gecko": "", "webkit": "-epub-word-break = word-break", "presto": "", "trident": "", "status": "" }, { "gecko": "word-wrap", "webkit": "word-wrap", "presto": "word-wrap", "trident": "-ms-word-wrap", "status": "WD" }, { "gecko": "", "webkit": "-webkit-writing-mode", "presto": "writing-mode", "trident": "-ms-writing-mode", "status": "ED" }, { "gecko": "", "webkit": "-epub-writing-mode = -webkit-writing-mode", "presto": "", "trident": "", "status": "" }, { "gecko": "", "webkit": "zoom", "presto": "", "trident": "-ms-zoom", "status": "" }] };var kCSS_PREFIXED_VALUE = [{ "gecko": "-moz-box", "webkit": "-moz-box", "presto": "", "trident": "", "generic": "box" }];var CssInspector = { mVENDOR_PREFIXES: null, kEXPORTS_FOR_GECKO: true, kEXPORTS_FOR_WEBKIT: true, kEXPORTS_FOR_PRESTO: true, kEXPORTS_FOR_TRIDENT: true, cleanPrefixes: function cleanPrefixes() {
+			this.mVENDOR_PREFIXES = null;
+		}, prefixesForProperty: function prefixesForProperty(aProperty) {
+			if (!this.mVENDOR_PREFIXES) {
+				this.mVENDOR_PREFIXES = {};for (var i = 0; i < kCSS_VENDOR_PREFIXES.properties.length; i++) {
+					var p = kCSS_VENDOR_PREFIXES.properties[i];if (p.gecko && (p.webkit || p.presto || p.trident)) {
+						var o = {};if (this.kEXPORTS_FOR_GECKO) o[p.gecko] = true;if (this.kEXPORTS_FOR_WEBKIT && p.webkit) o[p.webkit] = true;if (this.kEXPORTS_FOR_PRESTO && p.presto) o[p.presto] = true;if (this.kEXPORTS_FOR_TRIDENT && p.trident) o[p.trident] = true;this.mVENDOR_PREFIXES[p.gecko] = [];for (var j in o) {
+							this.mVENDOR_PREFIXES[p.gecko].push(j);
+						}
+					}
+				}
+			}if (aProperty in this.mVENDOR_PREFIXES) return this.mVENDOR_PREFIXES[aProperty].sort();return null;
+		}, parseColorStop: function parseColorStop(parser, token) {
+			var color = parser.parseColor(token);var position = "";if (!color) return null;token = parser.getToken(true, true);if (token.isPercentage() || token.isDimensionOfUnit("cm") || token.isDimensionOfUnit("mm") || token.isDimensionOfUnit("in") || token.isDimensionOfUnit("pc") || token.isDimensionOfUnit("px") || token.isDimensionOfUnit("em") || token.isDimensionOfUnit("ex") || token.isDimensionOfUnit("pt")) {
+				position = token.value;token = parser.getToken(true, true);
+			}return { color: color, position: position };
+		}, parseGradient: function parseGradient(parser, token) {
+			var isRadial = false;var gradient = { isRepeating: false };if (token.isNotNull()) {
+				if (token.isFunction("-moz-linear-gradient(") || token.isFunction("-moz-radial-gradient(") || token.isFunction("-moz-repeating-linear-gradient(") || token.isFunction("-moz-repeating-radial-gradient(")) {
+					if (token.isFunction("-moz-radial-gradient(") || token.isFunction("-moz-repeating-radial-gradient(")) {
+						gradient.isRadial = true;
+					}if (token.isFunction("-moz-repeating-linear-gradient(") || token.isFunction("-moz-repeating-radial-gradient(")) {
+						gradient.isRepeating = true;
+					}token = parser.getToken(true, true);var haveGradientLine = false;var foundHorizPosition = false;var haveAngle = false;if (token.isAngle()) {
+						gradient.angle = token.value;haveGradientLine = true;haveAngle = true;token = parser.getToken(true, true);
+					}if (token.isLength() || token.isIdent("top") || token.isIdent("center") || token.isIdent("bottom") || token.isIdent("left") || token.isIdent("right")) {
+						haveGradientLine = true;if (token.isLength() || token.isIdent("left") || token.isIdent("right")) {
+							foundHorizPosition = true;
+						}gradient.position = token.value;token = parser.getToken(true, true);
+					}if (haveGradientLine) {
+						if (!haveAngle && token.isAngle()) {
+							gradient.angle = token.value;haveAngle = true;token = parser.getToken(true, true);
+						} else if (token.isLength() || foundHorizPosition && (token.isIdent("top") || token.isIdent("center") || token.isIdent("bottom")) || !foundHorizPosition && (token.isLength() || token.isIdent("top") || token.isIdent("center") || token.isIdent("bottom") || token.isIdent("left") || token.isIdent("right"))) {
+							gradient.position = "position" in gradient ? gradient.position + " " : "";gradient.position += token.value;token = parser.getToken(true, true);
+						}if (!haveAngle && token.isAngle()) {
+							gradient.angle = token.value;haveAngle = true;token = parser.getToken(true, true);
+						}if (!token.isSymbol(",")) return null;token = parser.getToken(true, true);
+					}if (gradient.isRadial) {
+						if (token.isIdent("circle") || token.isIdent("ellipse")) {
+							gradient.shape = token.value;token = parser.getToken(true, true);
+						}if (token.isIdent("closest-side") || token.isIdent("closest-corner") || token.isIdent("farthest-side") || token.isIdent("farthest-corner") || token.isIdent("contain") || token.isIdent("cover")) {
+							gradient.size = token.value;token = parser.getToken(true, true);
+						}if (!("shape" in gradient) && (token.isIdent("circle") || token.isIdent("ellipse"))) {
+							gradient.shape = token.value;token = parser.getToken(true, true);
+						}if (("shape" in gradient || "size" in gradient) && !token.isSymbol(",")) return null;else if ("shape" in gradient || "size" in gradient) token = parser.getToken(true, true);
+					}var stop1 = this.parseColorStop(parser, token);if (!stop1) return null;token = parser.currentToken();if (!token.isSymbol(",")) return null;token = parser.getToken(true, true);var stop2 = this.parseColorStop(parser, token);if (!stop2) return null;token = parser.currentToken();if (token.isSymbol(",")) {
+						token = parser.getToken(true, true);
+					}gradient.stops = [stop1, stop2];while (!token.isSymbol(")")) {
+						var colorstop = this.parseColorStop(parser, token);if (!colorstop) return null;token = parser.currentToken();if (!token.isSymbol(")") && !token.isSymbol(",")) return null;if (token.isSymbol(",")) token = parser.getToken(true, true);gradient.stops.push(colorstop);
+					}return gradient;
+				}
+			}return null;
+		}, parseBoxShadows: function parseBoxShadows(aString) {
+			var parser = new CSSParser();parser._init();parser.mPreserveWS = false;parser.mPreserveComments = false;parser.mPreservedTokens = [];parser.mScanner.init(aString);var shadows = [];var token = parser.getToken(true, true);var color = "",
+			    blurRadius = "0px",
+			    offsetX = "0px",
+			    offsetY = "0px",
+			    spreadRadius = "0px";var inset = false;while (token.isNotNull()) {
+				if (token.isIdent("none")) {
+					shadows.push({ none: true });token = parser.getToken(true, true);
+				} else {
+					if (token.isIdent('inset')) {
+						inset = true;token = parser.getToken(true, true);
+					}if (token.isPercentage() || token.isDimensionOfUnit("cm") || token.isDimensionOfUnit("mm") || token.isDimensionOfUnit("in") || token.isDimensionOfUnit("pc") || token.isDimensionOfUnit("px") || token.isDimensionOfUnit("em") || token.isDimensionOfUnit("ex") || token.isDimensionOfUnit("pt")) {
+						var offsetX = token.value;token = parser.getToken(true, true);
+					} else return [];if (!inset && token.isIdent('inset')) {
+						inset = true;token = parser.getToken(true, true);
+					}if (token.isPercentage() || token.isDimensionOfUnit("cm") || token.isDimensionOfUnit("mm") || token.isDimensionOfUnit("in") || token.isDimensionOfUnit("pc") || token.isDimensionOfUnit("px") || token.isDimensionOfUnit("em") || token.isDimensionOfUnit("ex") || token.isDimensionOfUnit("pt")) {
+						var offsetX = token.value;token = parser.getToken(true, true);
+					} else return [];if (!inset && token.isIdent('inset')) {
+						inset = true;token = parser.getToken(true, true);
+					}if (token.isPercentage() || token.isDimensionOfUnit("cm") || token.isDimensionOfUnit("mm") || token.isDimensionOfUnit("in") || token.isDimensionOfUnit("pc") || token.isDimensionOfUnit("px") || token.isDimensionOfUnit("em") || token.isDimensionOfUnit("ex") || token.isDimensionOfUnit("pt")) {
+						var blurRadius = token.value;token = parser.getToken(true, true);
+					}if (!inset && token.isIdent('inset')) {
+						inset = true;token = parser.getToken(true, true);
+					}if (token.isPercentage() || token.isDimensionOfUnit("cm") || token.isDimensionOfUnit("mm") || token.isDimensionOfUnit("in") || token.isDimensionOfUnit("pc") || token.isDimensionOfUnit("px") || token.isDimensionOfUnit("em") || token.isDimensionOfUnit("ex") || token.isDimensionOfUnit("pt")) {
+						var spreadRadius = token.value;token = parser.getToken(true, true);
+					}if (!inset && token.isIdent('inset')) {
+						inset = true;token = parser.getToken(true, true);
+					}if (token.isFunction("rgb(") || token.isFunction("rgba(") || token.isFunction("hsl(") || token.isFunction("hsla(") || token.isSymbol("#") || token.isIdent()) {
+						var color = parser.parseColor(token);token = parser.getToken(true, true);
+					}if (!inset && token.isIdent('inset')) {
+						inset = true;token = parser.getToken(true, true);
+					}shadows.push({ none: false, color: color, offsetX: offsetX, offsetY: offsetY, blurRadius: blurRadius, spreadRadius: spreadRadius });if (token.isSymbol(",")) {
+						inset = false;color = "";blurRadius = "0px";spreadRadius = "0px";offsetX = "0px";offsetY = "0px";token = parser.getToken(true, true);
+					} else if (!token.isNotNull()) return shadows;else return [];
+				}
+			}return shadows;
+		}, parseTextShadows: function parseTextShadows(aString) {
+			var parser = new CSSParser();parser._init();parser.mPreserveWS = false;parser.mPreserveComments = false;parser.mPreservedTokens = [];parser.mScanner.init(aString);var shadows = [];var token = parser.getToken(true, true);var color = "",
+			    blurRadius = "0px",
+			    offsetX = "0px",
+			    offsetY = "0px";while (token.isNotNull()) {
+				if (token.isIdent("none")) {
+					shadows.push({ none: true });token = parser.getToken(true, true);
+				} else {
+					if (token.isFunction("rgb(") || token.isFunction("rgba(") || token.isFunction("hsl(") || token.isFunction("hsla(") || token.isSymbol("#") || token.isIdent()) {
+						var color = parser.parseColor(token);token = parser.getToken(true, true);
+					}if (token.isPercentage() || token.isDimensionOfUnit("cm") || token.isDimensionOfUnit("mm") || token.isDimensionOfUnit("in") || token.isDimensionOfUnit("pc") || token.isDimensionOfUnit("px") || token.isDimensionOfUnit("em") || token.isDimensionOfUnit("ex") || token.isDimensionOfUnit("pt")) {
+						var offsetX = token.value;token = parser.getToken(true, true);
+					} else return [];if (token.isPercentage() || token.isDimensionOfUnit("cm") || token.isDimensionOfUnit("mm") || token.isDimensionOfUnit("in") || token.isDimensionOfUnit("pc") || token.isDimensionOfUnit("px") || token.isDimensionOfUnit("em") || token.isDimensionOfUnit("ex") || token.isDimensionOfUnit("pt")) {
+						var offsetY = token.value;token = parser.getToken(true, true);
+					} else return [];if (token.isPercentage() || token.isDimensionOfUnit("cm") || token.isDimensionOfUnit("mm") || token.isDimensionOfUnit("in") || token.isDimensionOfUnit("pc") || token.isDimensionOfUnit("px") || token.isDimensionOfUnit("em") || token.isDimensionOfUnit("ex") || token.isDimensionOfUnit("pt")) {
+						var blurRadius = token.value;token = parser.getToken(true, true);
+					}if (!color && (token.isFunction("rgb(") || token.isFunction("rgba(") || token.isFunction("hsl(") || token.isFunction("hsla(") || token.isSymbol("#") || token.isIdent())) {
+						var color = parser.parseColor(token);token = parser.getToken(true, true);
+					}shadows.push({ none: false, color: color, offsetX: offsetX, offsetY: offsetY, blurRadius: blurRadius });if (token.isSymbol(",")) {
+						color = "";blurRadius = "0px";offsetX = "0px";offsetY = "0px";token = parser.getToken(true, true);
+					} else if (!token.isNotNull()) return shadows;else return [];
+				}
+			}return shadows;
+		}, parseBackgroundImages: function parseBackgroundImages(aString) {
+			var parser = new CSSParser();parser._init();parser.mPreserveWS = false;parser.mPreserveComments = false;parser.mPreservedTokens = [];parser.mScanner.init(aString);var backgrounds = [];var token = parser.getToken(true, true);while (token.isNotNull()) {
+				if (token.isFunction("url(")) {
+					token = parser.getToken(true, true);var urlContent = parser.parseURL(token);backgrounds.push({ type: "image", value: "url(" + urlContent });token = parser.getToken(true, true);
+				} else if (token.isFunction("-moz-linear-gradient(") || token.isFunction("-moz-radial-gradient(") || token.isFunction("-moz-repeating-linear-gradient(") || token.isFunction("-moz-repeating-radial-gradient(")) {
+					var gradient = this.parseGradient(parser, token);backgrounds.push({ type: gradient.isRadial ? "radial-gradient" : "linear-gradient", value: gradient });token = parser.getToken(true, true);
+				} else return null;if (token.isSymbol(",")) {
+					token = parser.getToken(true, true);if (!token.isNotNull()) return null;
+				}
+			}return backgrounds;
+		}, serializeGradient: function serializeGradient(gradient) {
+			var s = gradient.isRadial ? gradient.isRepeating ? "-moz-repeating-radial-gradient(" : "-moz-radial-gradient(" : gradient.isRepeating ? "-moz-repeating-linear-gradient(" : "-moz-linear-gradient(";if (gradient.angle || gradient.position) s += (gradient.angle ? gradient.angle + " " : "") + (gradient.position ? gradient.position : "") + ", ";if (gradient.isRadial && (gradient.shape || gradient.size)) s += (gradient.shape ? gradient.shape : "") + " " + (gradient.size ? gradient.size : "") + ", ";for (var i = 0; i < gradient.stops.length; i++) {
+				var colorstop = gradient.stops[i];s += colorstop.color + (colorstop.position ? " " + colorstop.position : "");if (i != gradient.stops.length - 1) s += ", ";
+			}s += ")";return s;
+		}, parseBorderImage: function parseBorderImage(aString) {
+			var parser = new CSSParser();parser._init();parser.mPreserveWS = false;parser.mPreserveComments = false;parser.mPreservedTokens = [];parser.mScanner.init(aString);var borderImage = { url: "", offsets: [], widths: [], sizes: [] };var token = parser.getToken(true, true);if (token.isFunction("url(")) {
+				token = parser.getToken(true, true);var urlContent = parser.parseURL(token);if (urlContent) {
+					borderImage.url = urlContent.substr(0, urlContent.length - 1).trim();if (borderImage.url[0] == '"' && borderImage.url[borderImage.url.length - 1] == '"' || borderImage.url[0] == "'" && borderImage.url[borderImage.url.length - 1] == "'") borderImage.url = borderImage.url.substr(1, borderImage.url.length - 2);
+				} else return null;
+			} else return null;token = parser.getToken(true, true);if (token.isNumber() || token.isPercentage()) borderImage.offsets.push(token.value);else return null;var i;for (i = 0; i < 3; i++) {
+				token = parser.getToken(true, true);if (token.isNumber() || token.isPercentage()) borderImage.offsets.push(token.value);else break;
+			}if (i == 3) token = parser.getToken(true, true);if (token.isSymbol("/")) {
+				token = parser.getToken(true, true);if (token.isDimension() || token.isNumber("0") || token.isIdent() && token.value in parser.kBORDER_WIDTH_NAMES) borderImage.widths.push(token.value);else return null;for (var i = 0; i < 3; i++) {
+					token = parser.getToken(true, true);if (token.isDimension() || token.isNumber("0") || token.isIdent() && token.value in parser.kBORDER_WIDTH_NAMES) borderImage.widths.push(token.value);else break;
+				}if (i == 3) token = parser.getToken(true, true);
+			}for (var i = 0; i < 2; i++) {
+				if (token.isIdent("stretch") || token.isIdent("repeat") || token.isIdent("round")) borderImage.sizes.push(token.value);else if (!token.isNotNull()) return borderImage;else return null;token = parser.getToken(true, true);
+			}if (!token.isNotNull()) return borderImage;return null;
+		}, parseMediaQuery: function parseMediaQuery(aString) {
+			var kCONSTRAINTS = { "width": true, "min-width": true, "max-width": true, "height": true, "min-height": true, "max-height": true, "device-width": true, "min-device-width": true, "max-device-width": true, "device-height": true, "min-device-height": true, "max-device-height": true, "orientation": true, "aspect-ratio": true, "min-aspect-ratio": true, "max-aspect-ratio": true, "device-aspect-ratio": true, "min-device-aspect-ratio": true, "max-device-aspect-ratio": true, "color": true, "min-color": true, "max-color": true, "color-index": true, "min-color-index": true, "max-color-index": true, "monochrome": true, "min-monochrome": true, "max-monochrome": true, "resolution": true, "min-resolution": true, "max-resolution": true, "scan": true, "grid": true };var parser = new CSSParser();parser._init();parser.mPreserveWS = false;parser.mPreserveComments = false;parser.mPreservedTokens = [];parser.mScanner.init(aString);var m = { amplifier: "", medium: "", constraints: [] };var token = parser.getToken(true, true);if (token.isIdent("all") || token.isIdent("aural") || token.isIdent("braille") || token.isIdent("handheld") || token.isIdent("print") || token.isIdent("projection") || token.isIdent("screen") || token.isIdent("tty") || token.isIdent("tv")) {
+				m.medium = token.value;token = parser.getToken(true, true);
+			} else if (token.isIdent("not") || token.isIdent("only")) {
+				m.amplifier = token.value;token = parser.getToken(true, true);if (token.isIdent("all") || token.isIdent("aural") || token.isIdent("braille") || token.isIdent("handheld") || token.isIdent("print") || token.isIdent("projection") || token.isIdent("screen") || token.isIdent("tty") || token.isIdent("tv")) {
+					m.medium = token.value;token = parser.getToken(true, true);
+				} else return null;
+			}if (m.medium) {
+				if (!token.isNotNull()) return m;if (token.isIdent("and")) {
+					token = parser.getToken(true, true);
+				} else return null;
+			}while (token.isSymbol("(")) {
+				token = parser.getToken(true, true);if (token.isIdent() && token.value in kCONSTRAINTS) {
+					var constraint = token.value;token = parser.getToken(true, true);if (token.isSymbol(":")) {
+						token = parser.getToken(true, true);var values = [];while (!token.isSymbol(")")) {
+							values.push(token.value);token = parser.getToken(true, true);
+						}if (token.isSymbol(")")) {
+							m.constraints.push({ constraint: constraint, value: values });token = parser.getToken(true, true);if (token.isNotNull()) {
+								if (token.isIdent("and")) {
+									token = parser.getToken(true, true);
+								} else return null;
+							} else return m;
+						} else return null;
+					} else if (token.isSymbol(")")) {
+						m.constraints.push({ constraint: constraint, value: null });token = parser.getToken(true, true);if (token.isNotNull()) {
+							if (token.isIdent("and")) {
+								token = parser.getToken(true, true);
+							} else return null;
+						} else return m;
+					} else return null;
+				} else return null;
+			}return m;
+		} };var CSS_ESCAPE = '\\';var IS_HEX_DIGIT = 1;var START_IDENT = 2;var IS_IDENT = 4;var IS_WHITESPACE = 8;var W = IS_WHITESPACE;var I = IS_IDENT;var S = START_IDENT;var SI = IS_IDENT | START_IDENT;var XI = IS_IDENT | IS_HEX_DIGIT;var XSI = IS_IDENT | START_IDENT | IS_HEX_DIGIT;function CSSScanner(aString) {
+		this.init(aString);
+	}CSSScanner.prototype = { kLexTable: [0, 0, 0, 0, 0, 0, 0, 0, 0, W, W, 0, W, W, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, W, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, I, 0, 0, XI, XI, XI, XI, XI, XI, XI, XI, XI, XI, 0, 0, 0, 0, 0, 0, 0, XSI, XSI, XSI, XSI, XSI, XSI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, 0, S, 0, 0, SI, 0, XSI, XSI, XSI, XSI, XSI, XSI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI, SI], kHexValues: { "0": 0, "1": 1, "2": 2, "3": 3, "4": 4, "5": 5, "6": 6, "7": 7, "8": 8, "9": 9, "a": 10, "b": 11, "c": 12, "d": 13, "e": 14, "f": 15 }, mString: "", mPos: 0, mPreservedPos: [], init: function init(aString) {
+			this.mString = aString;this.mPos = 0;this.mPreservedPos = [];
+		}, getCurrentPos: function getCurrentPos() {
+			return this.mPos;
+		}, getAlreadyScanned: function getAlreadyScanned() {
+			return this.mString.substr(0, this.mPos);
+		}, preserveState: function preserveState() {
+			this.mPreservedPos.push(this.mPos);
+		}, restoreState: function restoreState() {
+			if (this.mPreservedPos.length) {
+				this.mPos = this.mPreservedPos.pop();
+			}
+		}, forgetState: function forgetState() {
+			if (this.mPreservedPos.length) {
+				this.mPreservedPos.pop();
+			}
+		}, read: function read() {
+			if (this.mPos < this.mString.length) return this.mString.charAt(this.mPos++);return -1;
+		}, peek: function peek() {
+			if (this.mPos < this.mString.length) return this.mString.charAt(this.mPos);return -1;
+		}, isHexDigit: function isHexDigit(c) {
+			var code = c.charCodeAt(0);return code < 256 && (this.kLexTable[code] & IS_HEX_DIGIT) != 0;
+		}, isIdentStart: function isIdentStart(c) {
+			var code = c.charCodeAt(0);return code >= 256 || (this.kLexTable[code] & START_IDENT) != 0;
+		}, startsWithIdent: function startsWithIdent(aFirstChar, aSecondChar) {
+			var code = aFirstChar.charCodeAt(0);return this.isIdentStart(aFirstChar) || aFirstChar == "-" && this.isIdentStart(aSecondChar);
+		}, isIdent: function isIdent(c) {
+			var code = c.charCodeAt(0);return code >= 256 || (this.kLexTable[code] & IS_IDENT) != 0;
+		}, pushback: function pushback() {
+			this.mPos--;
+		}, nextHexValue: function nextHexValue() {
+			var c = this.read();if (c == -1 || !this.isHexDigit(c)) return new jscsspToken(jscsspToken.NULL_TYPE, null);var s = c;c = this.read();while (c != -1 && this.isHexDigit(c)) {
+				s += c;c = this.read();
+			}if (c != -1) this.pushback();return new jscsspToken(jscsspToken.HEX_TYPE, s);
+		}, gatherEscape: function gatherEscape() {
+			var c = this.peek();if (c == -1) return "";if (this.isHexDigit(c)) {
+				var code = 0;for (var i = 0; i < 6; i++) {
+					c = this.read();if (this.isHexDigit(c)) code = code * 16 + this.kHexValues[c.toLowerCase()];else if (!this.isHexDigit(c) && !this.isWhiteSpace(c)) {
+						this.pushback();break;
+					} else break;
+				}if (i == 6) {
+					c = this.peek();if (this.isWhiteSpace(c)) this.read();
+				}return String.fromCharCode(code);
+			}c = this.read();if (c != "\n") return c;return "";
+		}, gatherIdent: function gatherIdent(c) {
+			var s = "";if (c == CSS_ESCAPE) s += this.gatherEscape();else s += c;c = this.read();while (c != -1 && (this.isIdent(c) || c == CSS_ESCAPE)) {
+				if (c == CSS_ESCAPE) s += this.gatherEscape();else s += c;c = this.read();
+			}if (c != -1) this.pushback();return s;
+		}, parseIdent: function parseIdent(c) {
+			var value = this.gatherIdent(c);var nextChar = this.peek();if (nextChar == "(") {
+				value += this.read();return new jscsspToken(jscsspToken.FUNCTION_TYPE, value);
+			}return new jscsspToken(jscsspToken.IDENT_TYPE, value);
+		}, isDigit: function isDigit(c) {
+			return c >= '0' && c <= '9';
+		}, parseComment: function parseComment(c) {
+			var s = c;while ((c = this.read()) != -1) {
+				s += c;if (c == "*") {
+					c = this.read();if (c == -1) break;if (c == "/") {
+						s += c;break;
+					}this.pushback();
+				}
+			}return new jscsspToken(jscsspToken.COMMENT_TYPE, s);
+		}, parseNumber: function parseNumber(c) {
+			var s = c;var foundDot = false;while ((c = this.read()) != -1) {
+				if (c == ".") {
+					if (foundDot) break;else {
+						s += c;foundDot = true;
+					}
+				} else if (this.isDigit(c)) s += c;else break;
+			}if (c != -1 && this.startsWithIdent(c, this.peek())) {
+				var unit = this.gatherIdent(c);s += unit;return new jscsspToken(jscsspToken.DIMENSION_TYPE, s, unit);
+			} else if (c == "%") {
+				s += "%";return new jscsspToken(jscsspToken.PERCENTAGE_TYPE, s);
+			} else if (c != -1) this.pushback();return new jscsspToken(jscsspToken.NUMBER_TYPE, s);
+		}, parseString: function parseString(aStop) {
+			var s = aStop;var previousChar = aStop;var c;while ((c = this.read()) != -1) {
+				if (c == aStop && previousChar != CSS_ESCAPE) {
+					s += c;break;
+				} else if (c == CSS_ESCAPE) {
+					c = this.peek();if (c == -1) break;else if (c == "\n" || c == "\r" || c == "\f") {
+						d = c;c = this.read();if (d == "\r") {
+							c = this.peek();if (c == "\n") c = this.read();
+						}
+					} else {
+						s += this.gatherEscape();c = this.peek();
+					}
+				} else if (c == "\n" || c == "\r" || c == "\f") {
+					break;
+				} else s += c;previousChar = c;
+			}return new jscsspToken(jscsspToken.STRING_TYPE, s);
+		}, isWhiteSpace: function isWhiteSpace(c) {
+			var code = c.charCodeAt(0);return code < 256 && (this.kLexTable[code] & IS_WHITESPACE) != 0;
+		}, eatWhiteSpace: function eatWhiteSpace(c) {
+			var s = c;while ((c = this.read()) != -1) {
+				if (!this.isWhiteSpace(c)) break;s += c;
+			}if (c != -1) this.pushback();return s;
+		}, parseAtKeyword: function parseAtKeyword(c) {
+			return new jscsspToken(jscsspToken.ATRULE_TYPE, this.gatherIdent(c));
+		}, nextToken: function nextToken() {
+			var c = this.read();if (c == -1) return new jscsspToken(jscsspToken.NULL_TYPE, null);if (this.startsWithIdent(c, this.peek())) return this.parseIdent(c);if (c == '@') {
+				var nextChar = this.read();if (nextChar != -1) {
+					var followingChar = this.peek();this.pushback();if (this.startsWithIdent(nextChar, followingChar)) return this.parseAtKeyword(c);
+				}
+			}if (c == "." || c == "+" || c == "-") {
+				var nextChar = this.peek();if (this.isDigit(nextChar)) return this.parseNumber(c);else if (nextChar == "." && c != ".") {
+					firstChar = this.read();var secondChar = this.peek();this.pushback();if (this.isDigit(secondChar)) return this.parseNumber(c);
+				}
+			}if (this.isDigit(c)) {
+				return this.parseNumber(c);
+			}if (c == "'" || c == '"') return this.parseString(c);if (this.isWhiteSpace(c)) {
+				var s = this.eatWhiteSpace(c);return new jscsspToken(jscsspToken.WHITESPACE_TYPE, s);
+			}if (c == "|" || c == "~" || c == "^" || c == "$" || c == "*") {
+				var nextChar = this.read();if (nextChar == "=") {
+					switch (c) {case "~":
+							return new jscsspToken(jscsspToken.INCLUDES_TYPE, "~=");case "|":
+							return new jscsspToken(jscsspToken.DASHMATCH_TYPE, "|=");case "^":
+							return new jscsspToken(jscsspToken.BEGINSMATCH_TYPE, "^=");case "$":
+							return new jscsspToken(jscsspToken.ENDSMATCH_TYPE, "$=");case "*":
+							return new jscsspToken(jscsspToken.CONTAINSMATCH_TYPE, "*=");default:
+							break;}
+				} else if (nextChar != -1) this.pushback();
+			}if (c == "/" && this.peek() == "*") return this.parseComment(c);return new jscsspToken(jscsspToken.SYMBOL_TYPE, c);
+		} };function CSSParser(aString) {
+		this.mToken = null;this.mLookAhead = null;this.mScanner = new CSSScanner(aString);this.mPreserveWS = true;this.mPreserveComments = true;this.mPreservedTokens = [];this.mError = null;
+	}CSSParser.prototype = { _init: function _init() {
+			this.mToken = null;this.mLookAhead = null;
+		}, kINHERIT: "inherit", kBORDER_WIDTH_NAMES: { "thin": true, "medium": true, "thick": true }, kBORDER_STYLE_NAMES: { "none": true, "hidden": true, "dotted": true, "dashed": true, "solid": true, "double": true, "groove": true, "ridge": true, "inset": true, "outset": true }, kCOLOR_NAMES: (_kCOLOR_NAMES = { "transparent": true, "black": true, "silver": true, "gray": true, "white": true, "maroon": true, "red": true, "purple": true, "fuchsia": true, "green": true, "lime": true, "olive": true, "yellow": true, "navy": true, "blue": true, "teal": true, "aqua": true, "aliceblue": true, "antiquewhite": true }, _defineProperty(_kCOLOR_NAMES, "aqua", true), _defineProperty(_kCOLOR_NAMES, "aquamarine", true), _defineProperty(_kCOLOR_NAMES, "azure", true), _defineProperty(_kCOLOR_NAMES, "beige", true), _defineProperty(_kCOLOR_NAMES, "bisque", true), _defineProperty(_kCOLOR_NAMES, "black", true), _defineProperty(_kCOLOR_NAMES, "blanchedalmond", true), _defineProperty(_kCOLOR_NAMES, "blue", true), _defineProperty(_kCOLOR_NAMES, "blueviolet", true), _defineProperty(_kCOLOR_NAMES, "brown", true), _defineProperty(_kCOLOR_NAMES, "burlywood", true), _defineProperty(_kCOLOR_NAMES, "cadetblue", true), _defineProperty(_kCOLOR_NAMES, "chartreuse", true), _defineProperty(_kCOLOR_NAMES, "chocolate", true), _defineProperty(_kCOLOR_NAMES, "coral", true), _defineProperty(_kCOLOR_NAMES, "cornflowerblue", true), _defineProperty(_kCOLOR_NAMES, "cornsilk", true), _defineProperty(_kCOLOR_NAMES, "crimson", true), _defineProperty(_kCOLOR_NAMES, "cyan", true), _defineProperty(_kCOLOR_NAMES, "darkblue", true), _defineProperty(_kCOLOR_NAMES, "darkcyan", true), _defineProperty(_kCOLOR_NAMES, "darkgoldenrod", true), _defineProperty(_kCOLOR_NAMES, "darkgray", true), _defineProperty(_kCOLOR_NAMES, "darkgreen", true), _defineProperty(_kCOLOR_NAMES, "darkgrey", true), _defineProperty(_kCOLOR_NAMES, "darkkhaki", true), _defineProperty(_kCOLOR_NAMES, "darkmagenta", true), _defineProperty(_kCOLOR_NAMES, "darkolivegreen", true), _defineProperty(_kCOLOR_NAMES, "darkorange", true), _defineProperty(_kCOLOR_NAMES, "darkorchid", true), _defineProperty(_kCOLOR_NAMES, "darkred", true), _defineProperty(_kCOLOR_NAMES, "darksalmon", true), _defineProperty(_kCOLOR_NAMES, "darkseagreen", true), _defineProperty(_kCOLOR_NAMES, "darkslateblue", true), _defineProperty(_kCOLOR_NAMES, "darkslategray", true), _defineProperty(_kCOLOR_NAMES, "darkslategrey", true), _defineProperty(_kCOLOR_NAMES, "darkturquoise", true), _defineProperty(_kCOLOR_NAMES, "darkviolet", true), _defineProperty(_kCOLOR_NAMES, "deeppink", true), _defineProperty(_kCOLOR_NAMES, "deepskyblue", true), _defineProperty(_kCOLOR_NAMES, "dimgray", true), _defineProperty(_kCOLOR_NAMES, "dimgrey", true), _defineProperty(_kCOLOR_NAMES, "dodgerblue", true), _defineProperty(_kCOLOR_NAMES, "firebrick", true), _defineProperty(_kCOLOR_NAMES, "floralwhite", true), _defineProperty(_kCOLOR_NAMES, "forestgreen", true), _defineProperty(_kCOLOR_NAMES, "fuchsia", true), _defineProperty(_kCOLOR_NAMES, "gainsboro", true), _defineProperty(_kCOLOR_NAMES, "ghostwhite", true), _defineProperty(_kCOLOR_NAMES, "gold", true), _defineProperty(_kCOLOR_NAMES, "goldenrod", true), _defineProperty(_kCOLOR_NAMES, "gray", true), _defineProperty(_kCOLOR_NAMES, "green", true), _defineProperty(_kCOLOR_NAMES, "greenyellow", true), _defineProperty(_kCOLOR_NAMES, "grey", true), _defineProperty(_kCOLOR_NAMES, "honeydew", true), _defineProperty(_kCOLOR_NAMES, "hotpink", true), _defineProperty(_kCOLOR_NAMES, "indianred", true), _defineProperty(_kCOLOR_NAMES, "indigo", true), _defineProperty(_kCOLOR_NAMES, "ivory", true), _defineProperty(_kCOLOR_NAMES, "khaki", true), _defineProperty(_kCOLOR_NAMES, "lavender", true), _defineProperty(_kCOLOR_NAMES, "lavenderblush", true), _defineProperty(_kCOLOR_NAMES, "lawngreen", true), _defineProperty(_kCOLOR_NAMES, "lemonchiffon", true), _defineProperty(_kCOLOR_NAMES, "lightblue", true), _defineProperty(_kCOLOR_NAMES, "lightcoral", true), _defineProperty(_kCOLOR_NAMES, "lightcyan", true), _defineProperty(_kCOLOR_NAMES, "lightgoldenrodyellow", true), _defineProperty(_kCOLOR_NAMES, "lightgray", true), _defineProperty(_kCOLOR_NAMES, "lightgreen", true), _defineProperty(_kCOLOR_NAMES, "lightgrey", true), _defineProperty(_kCOLOR_NAMES, "lightpink", true), _defineProperty(_kCOLOR_NAMES, "lightsalmon", true), _defineProperty(_kCOLOR_NAMES, "lightseagreen", true), _defineProperty(_kCOLOR_NAMES, "lightskyblue", true), _defineProperty(_kCOLOR_NAMES, "lightslategray", true), _defineProperty(_kCOLOR_NAMES, "lightslategrey", true), _defineProperty(_kCOLOR_NAMES, "lightsteelblue", true), _defineProperty(_kCOLOR_NAMES, "lightyellow", true), _defineProperty(_kCOLOR_NAMES, "lime", true), _defineProperty(_kCOLOR_NAMES, "limegreen", true), _defineProperty(_kCOLOR_NAMES, "linen", true), _defineProperty(_kCOLOR_NAMES, "magenta", true), _defineProperty(_kCOLOR_NAMES, "maroon", true), _defineProperty(_kCOLOR_NAMES, "mediumaquamarine", true), _defineProperty(_kCOLOR_NAMES, "mediumblue", true), _defineProperty(_kCOLOR_NAMES, "mediumorchid", true), _defineProperty(_kCOLOR_NAMES, "mediumpurple", true), _defineProperty(_kCOLOR_NAMES, "mediumseagreen", true), _defineProperty(_kCOLOR_NAMES, "mediumslateblue", true), _defineProperty(_kCOLOR_NAMES, "mediumspringgreen", true), _defineProperty(_kCOLOR_NAMES, "mediumturquoise", true), _defineProperty(_kCOLOR_NAMES, "mediumvioletred", true), _defineProperty(_kCOLOR_NAMES, "midnightblue", true), _defineProperty(_kCOLOR_NAMES, "mintcream", true), _defineProperty(_kCOLOR_NAMES, "mistyrose", true), _defineProperty(_kCOLOR_NAMES, "moccasin", true), _defineProperty(_kCOLOR_NAMES, "navajowhite", true), _defineProperty(_kCOLOR_NAMES, "navy", true), _defineProperty(_kCOLOR_NAMES, "oldlace", true), _defineProperty(_kCOLOR_NAMES, "olive", true), _defineProperty(_kCOLOR_NAMES, "olivedrab", true), _defineProperty(_kCOLOR_NAMES, "orange", true), _defineProperty(_kCOLOR_NAMES, "orangered", true), _defineProperty(_kCOLOR_NAMES, "orchid", true), _defineProperty(_kCOLOR_NAMES, "palegoldenrod", true), _defineProperty(_kCOLOR_NAMES, "palegreen", true), _defineProperty(_kCOLOR_NAMES, "paleturquoise", true), _defineProperty(_kCOLOR_NAMES, "palevioletred", true), _defineProperty(_kCOLOR_NAMES, "papayawhip", true), _defineProperty(_kCOLOR_NAMES, "peachpuff", true), _defineProperty(_kCOLOR_NAMES, "peru", true), _defineProperty(_kCOLOR_NAMES, "pink", true), _defineProperty(_kCOLOR_NAMES, "plum", true), _defineProperty(_kCOLOR_NAMES, "powderblue", true), _defineProperty(_kCOLOR_NAMES, "purple", true), _defineProperty(_kCOLOR_NAMES, "red", true), _defineProperty(_kCOLOR_NAMES, "rosybrown", true), _defineProperty(_kCOLOR_NAMES, "royalblue", true), _defineProperty(_kCOLOR_NAMES, "saddlebrown", true), _defineProperty(_kCOLOR_NAMES, "salmon", true), _defineProperty(_kCOLOR_NAMES, "sandybrown", true), _defineProperty(_kCOLOR_NAMES, "seagreen", true), _defineProperty(_kCOLOR_NAMES, "seashell", true), _defineProperty(_kCOLOR_NAMES, "sienna", true), _defineProperty(_kCOLOR_NAMES, "silver", true), _defineProperty(_kCOLOR_NAMES, "skyblue", true), _defineProperty(_kCOLOR_NAMES, "slateblue", true), _defineProperty(_kCOLOR_NAMES, "slategray", true), _defineProperty(_kCOLOR_NAMES, "slategrey", true), _defineProperty(_kCOLOR_NAMES, "snow", true), _defineProperty(_kCOLOR_NAMES, "springgreen", true), _defineProperty(_kCOLOR_NAMES, "steelblue", true), _defineProperty(_kCOLOR_NAMES, "tan", true), _defineProperty(_kCOLOR_NAMES, "teal", true), _defineProperty(_kCOLOR_NAMES, "thistle", true), _defineProperty(_kCOLOR_NAMES, "tomato", true), _defineProperty(_kCOLOR_NAMES, "turquoise", true), _defineProperty(_kCOLOR_NAMES, "violet", true), _defineProperty(_kCOLOR_NAMES, "wheat", true), _defineProperty(_kCOLOR_NAMES, "white", true), _defineProperty(_kCOLOR_NAMES, "whitesmoke", true), _defineProperty(_kCOLOR_NAMES, "yellow", true), _defineProperty(_kCOLOR_NAMES, "yellowgreen", true), _defineProperty(_kCOLOR_NAMES, "activeborder", true), _defineProperty(_kCOLOR_NAMES, "activecaption", true), _defineProperty(_kCOLOR_NAMES, "appworkspace", true), _defineProperty(_kCOLOR_NAMES, "background", true), _defineProperty(_kCOLOR_NAMES, "buttonface", true), _defineProperty(_kCOLOR_NAMES, "buttonhighlight", true), _defineProperty(_kCOLOR_NAMES, "buttonshadow", true), _defineProperty(_kCOLOR_NAMES, "buttontext", true), _defineProperty(_kCOLOR_NAMES, "captiontext", true), _defineProperty(_kCOLOR_NAMES, "graytext", true), _defineProperty(_kCOLOR_NAMES, "highlight", true), _defineProperty(_kCOLOR_NAMES, "highlighttext", true), _defineProperty(_kCOLOR_NAMES, "inactiveborder", true), _defineProperty(_kCOLOR_NAMES, "inactivecaption", true), _defineProperty(_kCOLOR_NAMES, "inactivecaptiontext", true), _defineProperty(_kCOLOR_NAMES, "infobackground", true), _defineProperty(_kCOLOR_NAMES, "infotext", true), _defineProperty(_kCOLOR_NAMES, "menu", true), _defineProperty(_kCOLOR_NAMES, "menutext", true), _defineProperty(_kCOLOR_NAMES, "scrollbar", true), _defineProperty(_kCOLOR_NAMES, "threeddarkshadow", true), _defineProperty(_kCOLOR_NAMES, "threedface", true), _defineProperty(_kCOLOR_NAMES, "threedhighlight", true), _defineProperty(_kCOLOR_NAMES, "threedlightshadow", true), _defineProperty(_kCOLOR_NAMES, "threedshadow", true), _defineProperty(_kCOLOR_NAMES, "window", true), _defineProperty(_kCOLOR_NAMES, "windowframe", true), _defineProperty(_kCOLOR_NAMES, "windowtext", true), _kCOLOR_NAMES), kLIST_STYLE_TYPE_NAMES: { "decimal": true, "decimal-leading-zero": true, "lower-roman": true, "upper-roman": true, "georgian": true, "armenian": true, "lower-latin": true, "lower-alpha": true, "upper-latin": true, "upper-alpha": true, "lower-greek": true, "disc": true, "circle": true, "square": true, "none": true, "box": true, "check": true, "diamond": true, "hyphen": true, "lower-armenian": true, "cjk-ideographic": true, "ethiopic-numeric": true, "hebrew": true, "japanese-formal": true, "japanese-informal": true, "simp-chinese-formal": true, "simp-chinese-informal": true, "syriac": true, "tamil": true, "trad-chinese-formal": true, "trad-chinese-informal": true, "upper-armenian": true, "arabic-indic": true, "binary": true, "bengali": true, "cambodian": true, "khmer": true, "devanagari": true, "gujarati": true, "gurmukhi": true, "kannada": true, "lower-hexadecimal": true, "lao": true, "malayalam": true, "mongolian": true, "myanmar": true, "octal": true, "oriya": true, "persian": true, "urdu": true, "telugu": true, "tibetan": true, "upper-hexadecimal": true, "afar": true, "ethiopic-halehame-aa-et": true, "ethiopic-halehame-am-et": true, "amharic-abegede": true, "ehiopic-abegede-am-et": true, "cjk-earthly-branch": true, "cjk-heavenly-stem": true, "ethiopic": true, "ethiopic-abegede": true, "ethiopic-abegede-gez": true, "hangul-consonant": true, "hangul": true, "hiragana-iroha": true, "hiragana": true, "katakana-iroha": true, "katakana": true, "lower-norwegian": true, "oromo": true, "ethiopic-halehame-om-et": true, "sidama": true, "ethiopic-halehame-sid-et": true, "somali": true, "ethiopic-halehame-so-et": true, "tigre": true, "ethiopic-halehame-tig": true, "tigrinya-er-abegede": true, "ethiopic-abegede-ti-er": true, "tigrinya-et": true, "ethiopic-halehame-ti-et": true, "upper-greek": true, "asterisks": true, "footnotes": true, "circled-decimal": true, "circled-lower-latin": true, "circled-upper-latin": true, "dotted-decimal": true, "double-circled-decimal": true, "filled-circled-decimal": true, "parenthesised-decimal": true, "parenthesised-lower-latin": true }, reportError: function reportError(aMsg) {
+			this.mError = aMsg;
+		}, consumeError: function consumeError() {
+			var e = this.mError;this.mError = null;return e;
+		}, currentToken: function currentToken() {
+			return this.mToken;
+		}, getHexValue: function getHexValue() {
+			this.mToken = this.mScanner.nextHexValue();return this.mToken;
+		}, getToken: function getToken(aSkipWS, aSkipComment) {
+			if (this.mLookAhead) {
+				this.mToken = this.mLookAhead;this.mLookAhead = null;return this.mToken;
+			}this.mToken = this.mScanner.nextToken();while (this.mToken && (aSkipWS && this.mToken.isWhiteSpace() || aSkipComment && this.mToken.isComment())) {
+				this.mToken = this.mScanner.nextToken();
+			}return this.mToken;
+		}, lookAhead: function lookAhead(aSkipWS, aSkipComment) {
+			var preservedToken = this.mToken;this.mScanner.preserveState();var token = this.getToken(aSkipWS, aSkipComment);this.mScanner.restoreState();this.mToken = preservedToken;return token;
+		}, ungetToken: function ungetToken() {
+			this.mLookAhead = this.mToken;
+		}, addUnknownAtRule: function addUnknownAtRule(aSheet, aString) {
+			var currentLine = CountLF(this.mScanner.getAlreadyScanned());var blocks = [];var token = this.getToken(false, false);while (token.isNotNull()) {
+				aString += token.value;if (token.isSymbol(";") && !blocks.length) break;else if (token.isSymbol("{") || token.isSymbol("(") || token.isSymbol("[") || token.type == "function") {
+					blocks.push(token.isFunction() ? "(" : token.value);
+				} else if (token.isSymbol("}") || token.isSymbol(")") || token.isSymbol("]")) {
+					if (blocks.length) {
+						var ontop = blocks[blocks.length - 1];if (token.isSymbol("}") && ontop == "{" || token.isSymbol(")") && ontop == "(" || token.isSymbol("]") && ontop == "[") {
+							blocks.pop();if (!blocks.length && token.isSymbol("}")) break;
+						}
+					}
+				}token = this.getToken(false, false);
+			}this.addUnknownRule(aSheet, aString, currentLine);
+		}, addUnknownRule: function addUnknownRule(aSheet, aString, aCurrentLine) {
+			var errorMsg = this.consumeError();var rule = new jscsspErrorRule(errorMsg);rule.currentLine = aCurrentLine;rule.parsedCssText = aString;rule.parentStyleSheet = aSheet;aSheet.cssRules.push(rule);
+		}, addWhitespace: function addWhitespace(aSheet, aString) {
+			var rule = new jscsspWhitespace();rule.parsedCssText = aString;rule.parentStyleSheet = aSheet;aSheet.cssRules.push(rule);
+		}, addComment: function addComment(aSheet, aString) {
+			var rule = new jscsspComment();rule.parsedCssText = aString;rule.parentStyleSheet = aSheet;aSheet.cssRules.push(rule);
+		}, parseCharsetRule: function parseCharsetRule(aToken, aSheet) {
+			var s = aToken.value;var token = this.getToken(false, false);s += token.value;if (token.isWhiteSpace(" ")) {
+				token = this.getToken(false, false);s += token.value;if (token.isString()) {
+					var encoding = token.value;token = this.getToken(false, false);s += token.value;if (token.isSymbol(";")) {
+						var rule = new jscsspCharsetRule();rule.encoding = encoding;rule.parsedCssText = s;rule.parentStyleSheet = aSheet;aSheet.cssRules.push(rule);return true;
+					} else this.reportError(kCHARSET_RULE_MISSING_SEMICOLON);
+				} else this.reportError(kCHARSET_RULE_CHARSET_IS_STRING);
+			} else this.reportError(kCHARSET_RULE_MISSING_WS);this.addUnknownAtRule(aSheet, s);return false;
+		}, parseImportRule: function parseImportRule(aToken, aSheet) {
+			var currentLine = CountLF(this.mScanner.getAlreadyScanned());var s = aToken.value;this.preserveState();var token = this.getToken(true, true);var media = [];var href = "";if (token.isString()) {
+				href = token.value;s += " " + href;
+			} else if (token.isFunction("url(")) {
+				token = this.getToken(true, true);var urlContent = this.parseURL(token);if (urlContent) {
+					href = "url(" + urlContent;s += " " + href;
+				}
+			} else this.reportError(kIMPORT_RULE_MISSING_URL);if (href) {
+				token = this.getToken(true, true);while (token.isIdent()) {
+					s += " " + token.value;media.push(token.value);token = this.getToken(true, true);if (!token) break;if (token.isSymbol(",")) {
+						s += ",";
+					} else if (token.isSymbol(";")) {
+						break;
+					} else break;token = this.getToken(true, true);
+				}if (!media.length) {
+					media.push("all");
+				}if (token.isSymbol(";")) {
+					s += ";";this.forgetState();var rule = new jscsspImportRule();rule.currentLine = currentLine;rule.parsedCssText = s;rule.href = href;rule.media = media;rule.parentStyleSheet = aSheet;aSheet.cssRules.push(rule);return true;
+				}
+			}this.restoreState();this.addUnknownAtRule(aSheet, "@import");return false;
+		}, parseVariablesRule: function parseVariablesRule(token, aSheet) {
+			var currentLine = CountLF(this.mScanner.getAlreadyScanned());var s = token.value;var declarations = [];var valid = false;this.preserveState();token = this.getToken(true, true);var media = [];var foundMedia = false;while (token.isNotNull()) {
+				if (token.isIdent()) {
+					foundMedia = true;s += " " + token.value;media.push(token.value);token = this.getToken(true, true);if (token.isSymbol(",")) {
+						s += ",";
+					} else {
+						if (token.isSymbol("{")) this.ungetToken();else {
+							token.type = jscsspToken.NULL_TYPE;break;
+						}
+					}
+				} else if (token.isSymbol("{")) break;else if (foundMedia) {
+					token.type = jscsspToken.NULL_TYPE;break;
+				}token = this.getToken(true, true);
+			}if (token.isSymbol("{")) {
+				s += " {";token = this.getToken(true, true);while (true) {
+					if (!token.isNotNull()) {
+						valid = true;break;
+					}if (token.isSymbol("}")) {
+						s += "}";valid = true;break;
+					} else {
+						var d = this.parseDeclaration(token, declarations, true, false, aSheet);s += (d && declarations.length ? " " : "") + d;
+					}token = this.getToken(true, false);
+				}
+			}if (valid) {
+				this.forgetState();var rule = new jscsspVariablesRule();rule.currentLine = currentLine;rule.parsedCssText = s;rule.declarations = declarations;rule.media = media;rule.parentStyleSheet = aSheet;aSheet.cssRules.push(rule);return true;
+			}this.restoreState();return false;
+		}, parseNamespaceRule: function parseNamespaceRule(aToken, aSheet) {
+			var currentLine = CountLF(this.mScanner.getAlreadyScanned());var s = aToken.value;var valid = false;this.preserveState();var token = this.getToken(true, true);if (token.isNotNull()) {
+				var prefix = "";var url = "";if (token.isIdent()) {
+					prefix = token.value;s += " " + prefix;token = this.getToken(true, true);
+				}if (token) {
+					var foundURL = false;if (token.isString()) {
+						foundURL = true;url = token.value;s += " " + url;
+					} else if (token.isFunction("url(")) {
+						token = this.getToken(true, true);var urlContent = this.parseURL(token);if (urlContent) {
+							url += "url(" + urlContent;foundURL = true;s += " " + urlContent;
+						}
+					}
+				}if (foundURL) {
+					token = this.getToken(true, true);if (token.isSymbol(";")) {
+						s += ";";this.forgetState();var rule = new jscsspNamespaceRule();rule.currentLine = currentLine;rule.parsedCssText = s;rule.prefix = prefix;rule.url = url;rule.parentStyleSheet = aSheet;aSheet.cssRules.push(rule);return true;
+					}
+				}
+			}this.restoreState();this.addUnknownAtRule(aSheet, "@namespace");return false;
+		}, parseFontFaceRule: function parseFontFaceRule(aToken, aSheet) {
+			var currentLine = CountLF(this.mScanner.getAlreadyScanned());var s = aToken.value;var valid = false;var descriptors = [];this.preserveState();var token = this.getToken(true, true);if (token.isNotNull()) {
+				if (token.isSymbol("{")) {
+					s += " " + token.value;var token = this.getToken(true, false);while (true) {
+						if (token.isSymbol("}")) {
+							s += "}";valid = true;break;
+						} else {
+							var d = this.parseDeclaration(token, descriptors, false, false, aSheet);s += (d && descriptors.length ? " " : "") + d;
+						}token = this.getToken(true, false);
+					}
+				}
+			}if (valid) {
+				this.forgetState();var rule = new jscsspFontFaceRule();rule.currentLine = currentLine;rule.parsedCssText = s;rule.descriptors = descriptors;rule.parentStyleSheet = aSheet;aSheet.cssRules.push(rule);return true;
+			}this.restoreState();return false;
+		}, parsePageRule: function parsePageRule(aToken, aSheet) {
+			var currentLine = CountLF(this.mScanner.getAlreadyScanned());var s = aToken.value;var valid = false;var declarations = [];this.preserveState();var token = this.getToken(true, true);var pageSelector = "";if (token.isSymbol(":") || token.isIdent()) {
+				if (token.isSymbol(":")) {
+					pageSelector = ":";token = this.getToken(false, false);
+				}if (token.isIdent()) {
+					pageSelector += token.value;s += " " + pageSelector;token = this.getToken(true, true);
+				}
+			}if (token.isNotNull()) {
+				if (token.isSymbol("{")) {
+					s += " " + token.value;var token = this.getToken(true, false);while (true) {
+						if (token.isSymbol("}")) {
+							s += "}";valid = true;break;
+						} else {
+							var d = this.parseDeclaration(token, declarations, true, true, aSheet);s += (d && declarations.length ? " " : "") + d;
+						}token = this.getToken(true, false);
+					}
+				}
+			}if (valid) {
+				this.forgetState();var rule = new jscsspPageRule();rule.currentLine = currentLine;rule.parsedCssText = s;rule.pageSelector = pageSelector;rule.declarations = declarations;rule.parentStyleSheet = aSheet;aSheet.cssRules.push(rule);return true;
+			}this.restoreState();return false;
+		}, parseDefaultPropertyValue: function parseDefaultPropertyValue(token, aDecl, aAcceptPriority, descriptor, aSheet) {
+			var valueText = "";var blocks = [];var foundPriority = false;var values = [];while (token.isNotNull()) {
+				if ((token.isSymbol(";") || token.isSymbol("}") || token.isSymbol("!")) && !blocks.length) {
+					if (token.isSymbol("}")) this.ungetToken();break;
+				}if (token.isIdent(this.kINHERIT)) {
+					if (values.length) {
+						return "";
+					} else {
+						valueText = this.kINHERIT;var value = new jscsspVariable(kJscsspINHERIT_VALUE, aSheet);values.push(value);token = this.getToken(true, true);break;
+					}
+				} else if (token.isSymbol("{") || token.isSymbol("(") || token.isSymbol("[")) {
+					blocks.push(token.value);
+				} else if (token.isSymbol("}") || token.isSymbol("]")) {
+					if (blocks.length) {
+						var ontop = blocks[blocks.length - 1];if (token.isSymbol("}") && ontop == "{" || token.isSymbol(")") && ontop == "(" || token.isSymbol("]") && ontop == "[") {
+							blocks.pop();
+						}
+					}
+				}if (token.isFunction()) {
+					if (token.isFunction("var(")) {
+						token = this.getToken(true, true);if (token.isIdent()) {
+							var name = token.value;token = this.getToken(true, true);if (token.isSymbol(")")) {
+								var value = new jscsspVariable(kJscsspVARIABLE_VALUE, aSheet);valueText += "var(" + name + ")";value.name = name;values.push(value);
+							} else return "";
+						} else return "";
+					} else {
+						var fn = token.value;token = this.getToken(false, true);var arg = this.parseFunctionArgument(token);if (arg) {
+							valueText += fn + arg;var value = new jscsspVariable(kJscsspPRIMITIVE_VALUE, aSheet);value.value = fn + arg;values.push(value);
+						} else return "";
+					}
+				} else if (token.isSymbol("#")) {
+					var color = this.parseColor(token);if (color) {
+						valueText += color;var value = new jscsspVariable(kJscsspPRIMITIVE_VALUE, aSheet);value.value = color;values.push(value);
+					} else return "";
+				} else if (!token.isWhiteSpace() && !token.isSymbol(",")) {
+					var value = new jscsspVariable(kJscsspPRIMITIVE_VALUE, aSheet);value.value = token.value;values.push(value);valueText += token.value;
+				} else valueText += token.value;token = this.getToken(false, true);
+			}if (values.length && valueText) {
+				this.forgetState();aDecl.push(this._createJscsspDeclarationFromValuesArray(descriptor, values, valueText));return valueText;
+			}return "";
+		}, parseMarginOrPaddingShorthand: function parseMarginOrPaddingShorthand(token, aDecl, aAcceptPriority, aProperty) {
+			var top = null;var bottom = null;var left = null;var right = null;var values = [];while (true) {
+				if (!token.isNotNull()) break;if (token.isSymbol(";") || aAcceptPriority && token.isSymbol("!") || token.isSymbol("}")) {
+					if (token.isSymbol("}")) this.ungetToken();break;
+				} else if (!values.length && token.isIdent(this.kINHERIT)) {
+					values.push(token.value);token = this.getToken(true, true);break;
+				} else if (token.isDimension() || token.isNumber("0") || token.isPercentage() || token.isIdent("auto")) {
+					values.push(token.value);
+				} else return "";token = this.getToken(true, true);
+			}var count = values.length;switch (count) {case 1:
+					top = values[0];bottom = top;left = top;right = top;break;case 2:
+					top = values[0];bottom = top;left = values[1];right = left;break;case 3:
+					top = values[0];left = values[1];right = left;bottom = values[2];break;case 4:
+					top = values[0];right = values[1];bottom = values[2];left = values[3];break;default:
+					return "";}this.forgetState();aDecl.push(this._createJscsspDeclarationFromValue(aProperty + "-top", top));aDecl.push(this._createJscsspDeclarationFromValue(aProperty + "-right", right));aDecl.push(this._createJscsspDeclarationFromValue(aProperty + "-bottom", bottom));aDecl.push(this._createJscsspDeclarationFromValue(aProperty + "-left", left));return top + " " + right + " " + bottom + " " + left;
+		}, parseBorderColorShorthand: function parseBorderColorShorthand(token, aDecl, aAcceptPriority) {
+			var top = null;var bottom = null;var left = null;var right = null;var values = [];while (true) {
+				if (!token.isNotNull()) break;if (token.isSymbol(";") || aAcceptPriority && token.isSymbol("!") || token.isSymbol("}")) {
+					if (token.isSymbol("}")) this.ungetToken();break;
+				} else if (!values.length && token.isIdent(this.kINHERIT)) {
+					values.push(token.value);token = this.getToken(true, true);break;
+				} else {
+					var color = this.parseColor(token);if (color) values.push(color);else return "";
+				}token = this.getToken(true, true);
+			}var count = values.length;switch (count) {case 1:
+					top = values[0];bottom = top;left = top;right = top;break;case 2:
+					top = values[0];bottom = top;left = values[1];right = left;break;case 3:
+					top = values[0];left = values[1];right = left;bottom = values[2];break;case 4:
+					top = values[0];right = values[1];bottom = values[2];left = values[3];break;default:
+					return "";}this.forgetState();aDecl.push(this._createJscsspDeclarationFromValue("border-top-color", top));aDecl.push(this._createJscsspDeclarationFromValue("border-right-color", right));aDecl.push(this._createJscsspDeclarationFromValue("border-bottom-color", bottom));aDecl.push(this._createJscsspDeclarationFromValue("border-left-color", left));return top + " " + right + " " + bottom + " " + left;
+		}, parseCueShorthand: function parseCueShorthand(token, declarations, aAcceptPriority) {
+			var before = "";var after = "";var values = [];var values = [];while (true) {
+				if (!token.isNotNull()) break;if (token.isSymbol(";") || aAcceptPriority && token.isSymbol("!") || token.isSymbol("}")) {
+					if (token.isSymbol("}")) this.ungetToken();break;
+				} else if (!values.length && token.isIdent(this.kINHERIT)) {
+					values.push(token.value);
+				} else if (token.isIdent("none")) values.push(token.value);else if (token.isFunction("url(")) {
+					var token = this.getToken(true, true);var urlContent = this.parseURL(token);if (urlContent) values.push("url(" + urlContent);else return "";
+				} else return "";token = this.getToken(true, true);
+			}var count = values.length;switch (count) {case 1:
+					before = values[0];after = before;break;case 2:
+					before = values[0];after = values[1];break;default:
+					return "";}this.forgetState();aDecl.push(this._createJscsspDeclarationFromValue("cue-before", before));aDecl.push(this._createJscsspDeclarationFromValue("cue-after", after));return before + " " + after;
+		}, parsePauseShorthand: function parsePauseShorthand(token, declarations, aAcceptPriority) {
+			var before = "";var after = "";var values = [];var values = [];while (true) {
+				if (!token.isNotNull()) break;if (token.isSymbol(";") || aAcceptPriority && token.isSymbol("!") || token.isSymbol("}")) {
+					if (token.isSymbol("}")) this.ungetToken();break;
+				} else if (!values.length && token.isIdent(this.kINHERIT)) {
+					values.push(token.value);
+				} else if (token.isDimensionOfUnit("ms") || token.isDimensionOfUnit("s") || token.isPercentage() || token.isNumber("0")) values.push(token.value);else return "";token = this.getToken(true, true);
+			}var count = values.length;switch (count) {case 1:
+					before = values[0];after = before;break;case 2:
+					before = values[0];after = values[1];break;default:
+					return "";}this.forgetState();aDecl.push(this._createJscsspDeclarationFromValue("pause-before", before));aDecl.push(this._createJscsspDeclarationFromValue("pause-after", after));return before + " " + after;
+		}, parseBorderWidthShorthand: function parseBorderWidthShorthand(token, aDecl, aAcceptPriority) {
+			var top = null;var bottom = null;var left = null;var right = null;var values = [];while (true) {
+				if (!token.isNotNull()) break;if (token.isSymbol(";") || aAcceptPriority && token.isSymbol("!") || token.isSymbol("}")) {
+					if (token.isSymbol("}")) this.ungetToken();break;
+				} else if (!values.length && token.isIdent(this.kINHERIT)) {
+					values.push(token.value);
+				} else if (token.isDimension() || token.isNumber("0") || token.isIdent() && token.value in this.kBORDER_WIDTH_NAMES) {
+					values.push(token.value);
+				} else return "";token = this.getToken(true, true);
+			}var count = values.length;switch (count) {case 1:
+					top = values[0];bottom = top;left = top;right = top;break;case 2:
+					top = values[0];bottom = top;left = values[1];right = left;break;case 3:
+					top = values[0];left = values[1];right = left;bottom = values[2];break;case 4:
+					top = values[0];right = values[1];bottom = values[2];left = values[3];break;default:
+					return "";}this.forgetState();aDecl.push(this._createJscsspDeclarationFromValue("border-top-width", top));aDecl.push(this._createJscsspDeclarationFromValue("border-right-width", right));aDecl.push(this._createJscsspDeclarationFromValue("border-bottom-width", bottom));aDecl.push(this._createJscsspDeclarationFromValue("border-left-width", left));return top + " " + right + " " + bottom + " " + left;
+		}, parseBorderStyleShorthand: function parseBorderStyleShorthand(token, aDecl, aAcceptPriority) {
+			var top = null;var bottom = null;var left = null;var right = null;var values = [];while (true) {
+				if (!token.isNotNull()) break;if (token.isSymbol(";") || aAcceptPriority && token.isSymbol("!") || token.isSymbol("}")) {
+					if (token.isSymbol("}")) this.ungetToken();break;
+				} else if (!values.length && token.isIdent(this.kINHERIT)) {
+					values.push(token.value);
+				} else if (token.isIdent() && token.value in this.kBORDER_STYLE_NAMES) {
+					values.push(token.value);
+				} else return "";token = this.getToken(true, true);
+			}var count = values.length;switch (count) {case 1:
+					top = values[0];bottom = top;left = top;right = top;break;case 2:
+					top = values[0];bottom = top;left = values[1];right = left;break;case 3:
+					top = values[0];left = values[1];right = left;bottom = values[2];break;case 4:
+					top = values[0];right = values[1];bottom = values[2];left = values[3];break;default:
+					return "";}this.forgetState();aDecl.push(this._createJscsspDeclarationFromValue("border-top-style", top));aDecl.push(this._createJscsspDeclarationFromValue("border-right-style", right));aDecl.push(this._createJscsspDeclarationFromValue("border-bottom-style", bottom));aDecl.push(this._createJscsspDeclarationFromValue("border-left-style", left));return top + " " + right + " " + bottom + " " + left;
+		}, parseBorderEdgeOrOutlineShorthand: function parseBorderEdgeOrOutlineShorthand(token, aDecl, aAcceptPriority, aProperty) {
+			var bWidth = null;var bStyle = null;var bColor = null;while (true) {
+				if (!token.isNotNull()) break;if (token.isSymbol(";") || aAcceptPriority && token.isSymbol("!") || token.isSymbol("}")) {
+					if (token.isSymbol("}")) this.ungetToken();break;
+				} else if (!bWidth && !bStyle && !bColor && token.isIdent(this.kINHERIT)) {
+					bWidth = this.kINHERIT;bStyle = this.kINHERIT;bColor = this.kINHERIT;
+				} else if (!bWidth && (token.isDimension() || token.isIdent() && token.value in this.kBORDER_WIDTH_NAMES || token.isNumber("0"))) {
+					bWidth = token.value;
+				} else if (!bStyle && token.isIdent() && token.value in this.kBORDER_STYLE_NAMES) {
+					bStyle = token.value;
+				} else {
+					var color = aProperty == "outline" && token.isIdent("invert") ? "invert" : this.parseColor(token);if (!bColor && color) bColor = color;else return "";
+				}token = this.getToken(true, true);
+			}this.forgetState();bWidth = bWidth ? bWidth : "medium";bStyle = bStyle ? bStyle : "none";bColor = bColor ? bColor : "-moz-initial";function addPropertyToDecl(aSelf, aDecl, property, w, s, c) {
+				aDecl.push(aSelf._createJscsspDeclarationFromValue(property + "-width", w));aDecl.push(aSelf._createJscsspDeclarationFromValue(property + "-style", s));aDecl.push(aSelf._createJscsspDeclarationFromValue(property + "-color", c));
+			}if (aProperty == "border") {
+				addPropertyToDecl(this, aDecl, "border-top", bWidth, bStyle, bColor);addPropertyToDecl(this, aDecl, "border-right", bWidth, bStyle, bColor);addPropertyToDecl(this, aDecl, "border-bottom", bWidth, bStyle, bColor);addPropertyToDecl(this, aDecl, "border-left", bWidth, bStyle, bColor);
+			} else addPropertyToDecl(this, aDecl, aProperty, bWidth, bStyle, bColor);return bWidth + " " + bStyle + " " + bColor;
+		}, parseBackgroundShorthand: function parseBackgroundShorthand(token, aDecl, aAcceptPriority) {
+			var kHPos = { "left": true, "right": true };var kVPos = { "top": true, "bottom": true };var kPos = { "left": true, "right": true, "top": true, "bottom": true, "center": true };var bgColor = null;var bgRepeat = null;var bgAttachment = null;var bgImage = null;var bgPosition = null;while (true) {
+				if (!token.isNotNull()) break;if (token.isSymbol(";") || aAcceptPriority && token.isSymbol("!") || token.isSymbol("}")) {
+					if (token.isSymbol("}")) this.ungetToken();break;
+				} else if (!bgColor && !bgRepeat && !bgAttachment && !bgImage && !bgPosition && token.isIdent(this.kINHERIT)) {
+					bgColor = this.kINHERIT;bgRepeat = this.kINHERIT;bgAttachment = this.kINHERIT;bgImage = this.kINHERIT;bgPosition = this.kINHERIT;
+				} else {
+					if (!bgAttachment && (token.isIdent("scroll") || token.isIdent("fixed"))) {
+						bgAttachment = token.value;
+					} else if (!bgPosition && (token.isIdent() && token.value in kPos || token.isDimension() || token.isNumber("0") || token.isPercentage())) {
+						bgPosition = token.value;token = this.getToken(true, true);if (token.isDimension() || token.isNumber("0") || token.isPercentage()) {
+							bgPosition += " " + token.value;
+						} else if (token.isIdent() && token.value in kPos) {
+							if (bgPosition in kHPos && token.value in kHPos || bgPosition in kVPos && token.value in kVPos) return "";bgPosition += " " + token.value;
+						} else {
+							this.ungetToken();bgPosition += " center";
+						}
+					} else if (!bgRepeat && (token.isIdent("repeat") || token.isIdent("repeat-x") || token.isIdent("repeat-y") || token.isIdent("no-repeat"))) {
+						bgRepeat = token.value;
+					} else if (!bgImage && (token.isFunction("url(") || token.isIdent("none"))) {
+						bgImage = token.value;if (token.isFunction("url(")) {
+							token = this.getToken(true, true);var url = this.parseURL(token);if (url) bgImage += url;else return "";
+						}
+					} else if (!bgImage && (token.isFunction("-moz-linear-gradient(") || token.isFunction("-moz-radial-gradient(") || token.isFunction("-moz-repeating-linear-gradient(") || token.isFunction("-moz-repeating-radial-gradient("))) {
+						var gradient = CssInspector.parseGradient(this, token);if (gradient) bgImage = CssInspector.serializeGradient(gradient);else return "";
+					} else {
+						var color = this.parseColor(token);if (!bgColor && color) bgColor = color;else return "";
+					}
+				}token = this.getToken(true, true);
+			}this.forgetState();bgColor = bgColor ? bgColor : "transparent";bgImage = bgImage ? bgImage : "none";bgRepeat = bgRepeat ? bgRepeat : "repeat";bgAttachment = bgAttachment ? bgAttachment : "scroll";bgPosition = bgPosition ? bgPosition : "top left";aDecl.push(this._createJscsspDeclarationFromValue("background-color", bgColor));aDecl.push(this._createJscsspDeclarationFromValue("background-image", bgImage));aDecl.push(this._createJscsspDeclarationFromValue("background-repeat", bgRepeat));aDecl.push(this._createJscsspDeclarationFromValue("background-attachment", bgAttachment));aDecl.push(this._createJscsspDeclarationFromValue("background-position", bgPosition));return bgColor + " " + bgImage + " " + bgRepeat + " " + bgAttachment + " " + bgPosition;
+		}, parseListStyleShorthand: function parseListStyleShorthand(token, aDecl, aAcceptPriority) {
+			var kPosition = { "inside": true, "outside": true };var lType = null;var lPosition = null;var lImage = null;while (true) {
+				if (!token.isNotNull()) break;if (token.isSymbol(";") || aAcceptPriority && token.isSymbol("!") || token.isSymbol("}")) {
+					if (token.isSymbol("}")) this.ungetToken();break;
+				} else if (!lType && !lPosition && !lImage && token.isIdent(this.kINHERIT)) {
+					lType = this.kINHERIT;lPosition = this.kINHERIT;lImage = this.kINHERIT;
+				} else if (!lType && token.isIdent() && token.value in this.kLIST_STYLE_TYPE_NAMES) {
+					lType = token.value;
+				} else if (!lPosition && token.isIdent() && token.value in kPosition) {
+					lPosition = token.value;
+				} else if (!lImage && token.isFunction("url")) {
+					token = this.getToken(true, true);var urlContent = this.parseURL(token);if (urlContent) {
+						lImage = "url(" + urlContent;
+					} else return "";
+				} else if (!token.isIdent("none")) return "";token = this.getToken(true, true);
+			}this.forgetState();lType = lType ? lType : "none";lImage = lImage ? lImage : "none";lPosition = lPosition ? lPosition : "outside";aDecl.push(this._createJscsspDeclarationFromValue("list-style-type", lType));aDecl.push(this._createJscsspDeclarationFromValue("list-style-position", lPosition));aDecl.push(this._createJscsspDeclarationFromValue("list-style-image", lImage));return lType + " " + lPosition + " " + lImage;
+		}, parseFontShorthand: function parseFontShorthand(token, aDecl, aAcceptPriority) {
+			var kStyle = { "italic": true, "oblique": true };var kVariant = { "small-caps": true };var kWeight = { "bold": true, "bolder": true, "lighter": true, "100": true, "200": true, "300": true, "400": true, "500": true, "600": true, "700": true, "800": true, "900": true };var kSize = { "xx-small": true, "x-small": true, "small": true, "medium": true, "large": true, "x-large": true, "xx-large": true, "larger": true, "smaller": true };var kValues = { "caption": true, "icon": true, "menu": true, "message-box": true, "small-caption": true, "status-bar": true };var kFamily = { "serif": true, "sans-serif": true, "cursive": true, "fantasy": true, "monospace": true };var fStyle = null;var fVariant = null;var fWeight = null;var fSize = null;var fLineHeight = null;var fFamily = "";var fSystem = null;var fFamilyValues = [];var normalCount = 0;while (true) {
+				if (!token.isNotNull()) break;if (token.isSymbol(";") || aAcceptPriority && token.isSymbol("!") || token.isSymbol("}")) {
+					if (token.isSymbol("}")) this.ungetToken();break;
+				} else if (!fStyle && !fVariant && !fWeight && !fSize && !fLineHeight && !fFamily && !fSystem && token.isIdent(this.kINHERIT)) {
+					fStyle = this.kINHERIT;fVariant = this.kINHERIT;fWeight = this.kINHERIT;fSize = this.kINHERIT;fLineHeight = this.kINHERIT;fFamily = this.kINHERIT;fSystem = this.kINHERIT;
+				} else {
+					if (!fSystem && token.isIdent() && token.value in kValues) {
+						fSystem = token.value;break;
+					} else {
+						if (!fStyle && token.isIdent() && token.value in kStyle) {
+							fStyle = token.value;
+						} else if (!fVariant && token.isIdent() && token.value in kVariant) {
+							fVariant = token.value;
+						} else if (!fWeight && (token.isIdent() || token.isNumber()) && token.value in kWeight) {
+							fWeight = token.value;
+						} else if (!fSize && (token.isIdent() && token.value in kSize || token.isDimension() || token.isPercentage())) {
+							fSize = token.value;var token = this.getToken(false, false);if (token.isSymbol("/")) {
+								token = this.getToken(false, false);if (!fLineHeight && (token.isDimension() || token.isNumber() || token.isPercentage())) {
+									fLineHeight = token.value;
+								} else return "";
+							} else this.ungetToken();
+						} else if (token.isIdent("normal")) {
+							normalCount++;if (normalCount > 3) return "";
+						} else if (!fFamily && (token.isString() || token.isIdent())) {
+							var lastWasComma = false;while (true) {
+								if (!token.isNotNull()) break;else if (token.isSymbol(";") || aAcceptPriority && token.isSymbol("!") || token.isSymbol("}")) {
+									this.ungetToken();break;
+								} else if (token.isIdent() && token.value in kFamily) {
+									var value = new jscsspVariable(kJscsspPRIMITIVE_VALUE, null);value.value = token.value;fFamilyValues.push(value);fFamily += token.value;break;
+								} else if (token.isString() || token.isIdent()) {
+									var value = new jscsspVariable(kJscsspPRIMITIVE_VALUE, null);value.value = token.value;fFamilyValues.push(value);fFamily += token.value;lastWasComma = false;
+								} else if (!lastWasComma && token.isSymbol(",")) {
+									fFamily += ", ";lastWasComma = true;
+								} else return "";token = this.getToken(true, true);
+							}
+						} else {
+							return "";
+						}
+					}
+				}token = this.getToken(true, true);
+			}this.forgetState();if (fSystem) {
+				aDecl.push(this._createJscsspDeclarationFromValue("font", fSystem));return fSystem;
+			}fStyle = fStyle ? fStyle : "normal";fVariant = fVariant ? fVariant : "normal";fWeight = fWeight ? fWeight : "normal";fSize = fSize ? fSize : "medium";fLineHeight = fLineHeight ? fLineHeight : "normal";fFamily = fFamily ? fFamily : "-moz-initial";aDecl.push(this._createJscsspDeclarationFromValue("font-style", fStyle));aDecl.push(this._createJscsspDeclarationFromValue("font-variant", fVariant));aDecl.push(this._createJscsspDeclarationFromValue("font-weight", fWeight));aDecl.push(this._createJscsspDeclarationFromValue("font-size", fSize));aDecl.push(this._createJscsspDeclarationFromValue("line-height", fLineHeight));aDecl.push(this._createJscsspDeclarationFromValuesArray("font-family", fFamilyValues, fFamily));return fStyle + " " + fVariant + " " + fWeight + " " + fSize + "/" + fLineHeight + " " + fFamily;
+		}, _createJscsspDeclaration: function _createJscsspDeclaration(property, value) {
+			var decl = new jscsspDeclaration();decl.property = property;decl.value = this.trim11(value);decl.parsedCssText = property + ": " + value + ";";return decl;
+		}, _createJscsspDeclarationFromValue: function _createJscsspDeclarationFromValue(property, valueText) {
+			var decl = new jscsspDeclaration();decl.property = property;var value = new jscsspVariable(kJscsspPRIMITIVE_VALUE, null);value.value = valueText;decl.values = [value];decl.valueText = valueText;decl.parsedCssText = property + ": " + valueText + ";";return decl;
+		}, _createJscsspDeclarationFromValuesArray: function _createJscsspDeclarationFromValuesArray(property, values, valueText) {
+			var decl = new jscsspDeclaration();decl.property = property;decl.values = values;decl.valueText = valueText;decl.parsedCssText = property + ": " + valueText + ";";return decl;
+		}, parseURL: function parseURL(token) {
+			var value = "";if (token.isString()) {
+				value += token.value;token = this.getToken(true, true);
+			} else while (true) {
+				if (!token.isNotNull()) {
+					this.reportError(kURL_EOF);return "";
+				}if (token.isWhiteSpace()) {
+					nextToken = this.lookAhead(true, true);if (!nextToken.isSymbol(")")) {
+						this.reportError(kURL_WS_INSIDE);token = this.currentToken();break;
+					}
+				}if (token.isSymbol(")")) {
+					break;
+				}value += token.value;token = this.getToken(false, false);
+			}if (token.isSymbol(")")) {
+				return value + ")";
+			}return "";
+		}, parseFunctionArgument: function parseFunctionArgument(token) {
+			var value = "";if (token.isString()) {
+				value += token.value;token = this.getToken(true, true);
+			} else {
+				var parenthesis = 1;while (true) {
+					if (!token.isNotNull()) return "";if (token.isFunction() || token.isSymbol("(")) parenthesis++;if (token.isSymbol(")")) {
+						parenthesis--;if (!parenthesis) break;
+					}value += token.value;token = this.getToken(false, false);
+				}
+			}if (token.isSymbol(")")) return value + ")";return "";
+		}, parseColor: function parseColor(token) {
+			var color = "";if (token.isFunction("rgb(") || token.isFunction("rgba(")) {
+				color = token.value;var isRgba = token.isFunction("rgba(");token = this.getToken(true, true);if (!token.isNumber() && !token.isPercentage()) return "";color += token.value;token = this.getToken(true, true);if (!token.isSymbol(",")) return "";color += ", ";token = this.getToken(true, true);if (!token.isNumber() && !token.isPercentage()) return "";color += token.value;token = this.getToken(true, true);if (!token.isSymbol(",")) return "";color += ", ";token = this.getToken(true, true);if (!token.isNumber() && !token.isPercentage()) return "";color += token.value;if (isRgba) {
+					token = this.getToken(true, true);if (!token.isSymbol(",")) return "";color += ", ";token = this.getToken(true, true);if (!token.isNumber()) return "";color += token.value;
+				}token = this.getToken(true, true);if (!token.isSymbol(")")) return "";color += token.value;
+			} else if (token.isFunction("hsl(") || token.isFunction("hsla(")) {
+				color = token.value;var isHsla = token.isFunction("hsla(");token = this.getToken(true, true);if (!token.isNumber()) return "";color += token.value;token = this.getToken(true, true);if (!token.isSymbol(",")) return "";color += ", ";token = this.getToken(true, true);if (!token.isPercentage()) return "";color += token.value;token = this.getToken(true, true);if (!token.isSymbol(",")) return "";color += ", ";token = this.getToken(true, true);if (!token.isPercentage()) return "";color += token.value;if (isHsla) {
+					token = this.getToken(true, true);if (!token.isSymbol(",")) return "";color += ", ";token = this.getToken(true, true);if (!token.isNumber()) return "";color += token.value;
+				}token = this.getToken(true, true);if (!token.isSymbol(")")) return "";color += token.value;
+			} else if (token.isIdent() && token.value in this.kCOLOR_NAMES) color = token.value;else if (token.isSymbol("#")) {
+				token = this.getHexValue();if (!token.isHex()) return "";var length = token.value.length;if (length != 3 && length != 6) return "";if (token.value.match(/[a-fA-F0-9]/g).length != length) return "";color = "#" + token.value;
+			}return color;
+		}, parseDeclaration: function parseDeclaration(aToken, aDecl, aAcceptPriority, aExpandShorthands, aSheet) {
+			this.preserveState();var blocks = [];if (aToken.isIdent()) {
+				var descriptor = aToken.value.toLowerCase();var token = this.getToken(true, true);if (token.isSymbol(":")) {
+					var token = this.getToken(true, true);var value = "";var declarations = [];if (aExpandShorthands) switch (descriptor) {case "background":
+							value = this.parseBackgroundShorthand(token, declarations, aAcceptPriority);break;case "margin":case "padding":
+							value = this.parseMarginOrPaddingShorthand(token, declarations, aAcceptPriority, descriptor);break;case "border-color":
+							value = this.parseBorderColorShorthand(token, declarations, aAcceptPriority);break;case "border-style":
+							value = this.parseBorderStyleShorthand(token, declarations, aAcceptPriority);break;case "border-width":
+							value = this.parseBorderWidthShorthand(token, declarations, aAcceptPriority);break;case "border-top":case "border-right":case "border-bottom":case "border-left":case "border":case "outline":
+							value = this.parseBorderEdgeOrOutlineShorthand(token, declarations, aAcceptPriority, descriptor);break;case "cue":
+							value = this.parseCueShorthand(token, declarations, aAcceptPriority);break;case "pause":
+							value = this.parsePauseShorthand(token, declarations, aAcceptPriority);break;case "font":
+							value = this.parseFontShorthand(token, declarations, aAcceptPriority);break;case "list-style":
+							value = this.parseListStyleShorthand(token, declarations, aAcceptPriority);break;default:
+							value = this.parseDefaultPropertyValue(token, declarations, aAcceptPriority, descriptor, aSheet);break;} else value = this.parseDefaultPropertyValue(token, declarations, aAcceptPriority, descriptor, aSheet);token = this.currentToken();if (value) {
+						var priority = false;if (token.isSymbol("!")) {
+							token = this.getToken(true, true);if (token.isIdent("important")) {
+								priority = true;token = this.getToken(true, true);if (token.isSymbol(";") || token.isSymbol("}")) {
+									if (token.isSymbol("}")) this.ungetToken();
+								} else return "";
+							} else return "";
+						} else if (token.isNotNull() && !token.isSymbol(";") && !token.isSymbol("}")) return "";for (var i = 0; i < declarations.length; i++) {
+							declarations[i].priority = priority;aDecl.push(declarations[i]);
+						}return descriptor + ": " + value + ";";
+					}
+				}
+			} else if (aToken.isComment()) {
+				if (this.mPreserveComments) {
+					this.forgetState();var comment = new jscsspComment();comment.parsedCssText = aToken.value;aDecl.push(comment);
+				}return aToken.value;
+			}this.restoreState();var s = aToken.value;blocks = [];var token = this.getToken(false, false);while (token.isNotNull()) {
+				s += token.value;if ((token.isSymbol(";") || token.isSymbol("}")) && !blocks.length) {
+					if (token.isSymbol("}")) this.ungetToken();break;
+				} else if (token.isSymbol("{") || token.isSymbol("(") || token.isSymbol("[") || token.isFunction()) {
+					blocks.push(token.isFunction() ? "(" : token.value);
+				} else if (token.isSymbol("}") || token.isSymbol(")") || token.isSymbol("]")) {
+					if (blocks.length) {
+						var ontop = blocks[blocks.length - 1];if (token.isSymbol("}") && ontop == "{" || token.isSymbol(")") && ontop == "(" || token.isSymbol("]") && ontop == "[") {
+							blocks.pop();
+						}
+					}
+				}token = this.getToken(false, false);
+			}return "";
+		}, parseKeyframesRule: function parseKeyframesRule(aToken, aSheet) {
+			var currentLine = CountLF(this.mScanner.getAlreadyScanned());var s = aToken.value;var valid = false;var keyframesRule = new jscsspKeyframesRule();keyframesRule.currentLine = currentLine;this.preserveState();var token = this.getToken(true, true);var foundName = false;while (token.isNotNull()) {
+				if (token.isIdent()) {
+					foundName = true;s += " " + token.value;keyframesRule.name = token.value;token = this.getToken(true, true);if (token.isSymbol("{")) this.ungetToken();else {
+						token.type = jscsspToken.NULL_TYPE;break;
+					}
+				} else if (token.isSymbol("{")) {
+					if (!foundName) {
+						token.type = jscsspToken.NULL_TYPE;
+					}break;
+				} else {
+					token.type = jscsspToken.NULL_TYPE;break;
+				}token = this.getToken(true, true);
+			}if (token.isSymbol("{") && keyframesRule.name) {
+				s += " { ";token = this.getToken(true, false);while (token.isNotNull()) {
+					if (token.isComment() && this.mPreserveComments) {
+						s += " " + token.value;var comment = new jscsspComment();comment.parsedCssText = token.value;keyframesRule.cssRules.push(comment);
+					} else if (token.isSymbol("}")) {
+						valid = true;break;
+					} else {
+						var r = this.parseKeyframeRule(token, keyframesRule, true);if (r) s += r;
+					}token = this.getToken(true, false);
+				}
+			}if (valid) {
+				this.forgetState();keyframesRule.currentLine = currentLine;keyframesRule.parsedCssText = s;aSheet.cssRules.push(keyframesRule);return true;
+			}this.restoreState();return false;
+		}, parseKeyframeRule: function parseKeyframeRule(aToken, aOwner) {
+			var currentLine = CountLF(this.mScanner.getAlreadyScanned());this.preserveState();var token = aToken;var key = "";while (token.isNotNull()) {
+				if (token.isIdent() || token.isPercentage()) {
+					if (token.isIdent() && !token.isIdent("from") && !token.isIdent("to")) {
+						key = "";break;
+					}key += token.value;token = this.getToken(true, true);if (token.isSymbol("{")) {
+						this.ungetToken();break;
+					} else if (token.isSymbol(",")) {
+						key += ", ";
+					} else {
+						key = "";break;
+					}
+				} else {
+					key = "";break;
+				}token = this.getToken(true, true);
+			}var valid = false;var declarations = [];if (key) {
+				var s = key;token = this.getToken(true, true);if (token.isSymbol("{")) {
+					s += " { ";token = this.getToken(true, false);while (true) {
+						if (!token.isNotNull()) {
+							valid = true;break;
+						}if (token.isSymbol("}")) {
+							s += "}";valid = true;break;
+						} else {
+							var d = this.parseDeclaration(token, declarations, true, true, aOwner);s += (d && declarations.length ? " " : "") + d;
+						}token = this.getToken(true, false);
+					}
+				}
+			} else {}if (valid) {
+				var rule = new jscsspKeyframeRule();rule.currentLine = currentLine;rule.parsedCssText = s;rule.declarations = declarations;rule.keyText = key;rule.parentRule = aOwner;aOwner.cssRules.push(rule);return s;
+			}this.restoreState();s = this.currentToken().value;this.addUnknownAtRule(aOwner, s);return "";
+		}, parseMediaRule: function parseMediaRule(aToken, aSheet) {
+			var currentLine = CountLF(this.mScanner.getAlreadyScanned());var s = aToken.value;var valid = false;var mediaRule = new jscsspMediaRule();mediaRule.currentLine = currentLine;this.preserveState();var token = this.getToken(true, true);var foundMedia = false;while (token.isNotNull()) {
+				if (token.isIdent()) {
+					foundMedia = true;s += " " + token.value;mediaRule.media.push(token.value);token = this.getToken(true, true);if (token.isSymbol(",")) {
+						s += ",";
+					} else {
+						if (token.isSymbol("{")) this.ungetToken();else {
+							token.type = jscsspToken.NULL_TYPE;break;
+						}
+					}
+				} else if (token.isSymbol("{")) break;else if (foundMedia) {
+					token.type = jscsspToken.NULL_TYPE;break;
+				}token = this.getToken(true, true);
+			}if (token.isSymbol("{") && mediaRule.media.length) {
+				s += " { ";token = this.getToken(true, false);while (token.isNotNull()) {
+					if (token.isComment() && this.mPreserveComments) {
+						s += " " + token.value;var comment = new jscsspComment();comment.parsedCssText = token.value;mediaRule.cssRules.push(comment);
+					} else if (token.isSymbol("}")) {
+						valid = true;break;
+					} else {
+						var r = this.parseStyleRule(token, mediaRule, true);if (r) s += r;
+					}token = this.getToken(true, false);
+				}
+			}if (valid) {
+				this.forgetState();mediaRule.parsedCssText = s;aSheet.cssRules.push(mediaRule);return true;
+			}this.restoreState();return false;
+		}, trim11: function trim11(str) {
+			str = str.replace(/^\s+/, '');for (var i = str.length - 1; i >= 0; i--) {
+				if (/\S/.test(str.charAt(i))) {
+					str = str.substring(0, i + 1);break;
+				}
+			}return str;
+		}, parseStyleRule: function parseStyleRule(aToken, aOwner, aIsInsideMediaRule) {
+			var currentLine = CountLF(this.mScanner.getAlreadyScanned());this.preserveState();var selector = this.parseSelector(aToken, false);var valid = false;var declarations = [];if (selector) {
+				selector = this.trim11(selector.selector);var s = selector;var token = this.getToken(true, true);if (token.isSymbol("{")) {
+					s += " { ";var token = this.getToken(true, false);while (true) {
+						if (!token.isNotNull()) {
+							valid = true;break;
+						}if (token.isSymbol("}")) {
+							s += "}";valid = true;break;
+						} else {
+							var d = this.parseDeclaration(token, declarations, true, true, aOwner);s += (d && declarations.length ? " " : "") + d;
+						}token = this.getToken(true, false);
+					}
+				}
+			} else {}if (valid) {
+				var rule = new jscsspStyleRule();rule.currentLine = currentLine;rule.parsedCssText = s;rule.declarations = declarations;rule.mSelectorText = selector;if (aIsInsideMediaRule) rule.parentRule = aOwner;else rule.parentStyleSheet = aOwner;aOwner.cssRules.push(rule);return s;
+			}this.restoreState();s = this.currentToken().value;this.addUnknownAtRule(aOwner, s);return "";
+		}, parseSelector: function parseSelector(aToken, aParseSelectorOnly) {
+			var s = "";var specificity = { a: 0, b: 0, c: 0, d: 0 };var isFirstInChain = true;var token = aToken;var valid = false;var combinatorFound = false;while (true) {
+				if (!token.isNotNull()) {
+					if (aParseSelectorOnly) return { selector: s, specificity: specificity };return "";
+				}if (!aParseSelectorOnly && token.isSymbol("{")) {
+					valid = !combinatorFound;if (valid) this.ungetToken();break;
+				}if (token.isSymbol(",")) {
+					s += token.value;isFirstInChain = true;combinatorFound = false;token = this.getToken(false, true);continue;
+				} else if (!combinatorFound && (token.isWhiteSpace() || token.isSymbol(">") || token.isSymbol("+") || token.isSymbol("~"))) {
+					if (token.isWhiteSpace()) {
+						s += " ";var nextToken = this.lookAhead(true, true);if (!nextToken.isNotNull()) {
+							if (aParseSelectorOnly) return { selector: s, specificity: specificity };return "";
+						}if (nextToken.isSymbol(">") || nextToken.isSymbol("+") || nextToken.isSymbol("~")) {
+							token = this.getToken(true, true);s += token.value + " ";combinatorFound = true;
+						}
+					} else {
+						s += token.value;combinatorFound = true;
+					}isFirstInChain = true;token = this.getToken(true, true);continue;
+				} else {
+					var simpleSelector = this.parseSimpleSelector(token, isFirstInChain, true);if (!simpleSelector) break;s += simpleSelector.selector;specificity.b += simpleSelector.specificity.b;specificity.c += simpleSelector.specificity.c;specificity.d += simpleSelector.specificity.d;isFirstInChain = false;combinatorFound = false;
+				}token = this.getToken(false, true);
+			}if (valid) {
+				return { selector: s, specificity: specificity };
+			}return "";
+		}, isPseudoElement: function isPseudoElement(aIdent) {
+			switch (aIdent) {case "first-letter":case "first-line":case "before":case "after":case "marker":
+					return true;break;default:
+					return false;break;}
+		}, parseSimpleSelector: function parseSimpleSelector(token, isFirstInChain, canNegate) {
+			var s = "";var specificity = { a: 0, b: 0, c: 0, d: 0 };if (isFirstInChain && (token.isSymbol("*") || token.isSymbol("|") || token.isIdent())) {
+				if (token.isSymbol("*") || token.isIdent()) {
+					s += token.value;var isIdent = token.isIdent();token = this.getToken(false, true);if (token.isSymbol("|")) {
+						s += token.value;token = this.getToken(false, true);if (token.isIdent() || token.isSymbol("*")) {
+							s += token.value;if (token.isIdent()) specificity.d++;
+						} else return null;
+					} else {
+						this.ungetToken();if (isIdent) specificity.d++;
+					}
+				} else if (token.isSymbol("|")) {
+					s += token.value;token = this.getToken(false, true);if (token.isIdent() || token.isSymbol("*")) {
+						s += token.value;if (token.isIdent()) specificity.d++;
+					} else return null;
+				}
+			} else if (token.isSymbol(".") || token.isSymbol("#")) {
+				var isClass = token.isSymbol(".");s += token.value;token = this.getToken(false, true);if (token.isIdent()) {
+					s += token.value;if (isClass) specificity.c++;else specificity.b++;
+				} else return null;
+			} else if (token.isSymbol(":")) {
+				s += token.value;token = this.getToken(false, true);if (token.isSymbol(":")) {
+					s += token.value;token = this.getToken(false, true);
+				}if (token.isIdent()) {
+					s += token.value;if (this.isPseudoElement(token.value)) specificity.d++;else specificity.c++;
+				} else if (token.isFunction()) {
+					s += token.value;if (token.isFunction(":not(")) {
+						if (!canNegate) return null;token = this.getToken(true, true);var simpleSelector = this.parseSimpleSelector(token, isFirstInChain, false);if (!simpleSelector) return null;else {
+							s += simpleSelector.selector;token = this.getToken(true, true);if (token.isSymbol(")")) s += ")";else return null;
+						}specificity.c++;
+					} else {
+						while (true) {
+							token = this.getToken(false, true);if (token.isSymbol(")")) {
+								s += ")";break;
+							} else s += token.value;
+						}specificity.c++;
+					}
+				} else return null;
+			} else if (token.isSymbol("[")) {
+				s += "[";token = this.getToken(true, true);if (token.isIdent() || token.isSymbol("*")) {
+					s += token.value;var nextToken = this.getToken(true, true);if (token.isSymbol("|")) {
+						s += "|";token = this.getToken(true, true);if (token.isIdent()) s += token.value;else return null;
+					} else this.ungetToken();
+				} else if (token.isSymbol("|")) {
+					s += "|";token = this.getToken(true, true);if (token.isIdent()) s += token.value;else return null;
+				} else return null;token = this.getToken(true, true);if (token.isIncludes() || token.isDashmatch() || token.isBeginsmatch() || token.isEndsmatch() || token.isContainsmatch() || token.isSymbol("=")) {
+					s += token.value;token = this.getToken(true, true);if (token.isString() || token.isIdent()) {
+						s += token.value;token = this.getToken(true, true);
+					} else return null;if (token.isSymbol("]")) {
+						s += token.value;specificity.c++;
+					} else return null;
+				} else if (token.isSymbol("]")) {
+					s += token.value;specificity.c++;
+				} else return null;
+			} else if (token.isWhiteSpace()) {
+				var t = this.lookAhead(true, true);if (t.isSymbol('{')) return "";
+			}if (s) return { selector: s, specificity: specificity };return null;
+		}, preserveState: function preserveState() {
+			this.mPreservedTokens.push(this.currentToken());this.mScanner.preserveState();
+		}, restoreState: function restoreState() {
+			if (this.mPreservedTokens.length) {
+				this.mScanner.restoreState();this.mToken = this.mPreservedTokens.pop();
+			}
+		}, forgetState: function forgetState() {
+			if (this.mPreservedTokens.length) {
+				this.mScanner.forgetState();this.mPreservedTokens.pop();
+			}
+		}, parse: function parse(aString, aTryToPreserveWhitespaces, aTryToPreserveComments) {
+			if (!aString) return null;this.mPreserveWS = aTryToPreserveWhitespaces;this.mPreserveComments = aTryToPreserveComments;this.mPreservedTokens = [];this.mScanner.init(aString);var sheet = new jscsspStylesheet();var token = this.getToken(false, false);if (!token.isNotNull()) return;if (token.isAtRule("@charset")) {
+				this.parseCharsetRule(token, sheet);token = this.getToken(false, false);
+			}var foundStyleRules = false;var foundImportRules = false;var foundNameSpaceRules = false;while (true) {
+				if (!token.isNotNull()) break;if (token.isWhiteSpace()) {
+					if (aTryToPreserveWhitespaces) this.addWhitespace(sheet, token.value);
+				} else if (token.isComment()) {
+					if (this.mPreserveComments) this.addComment(sheet, token.value);
+				} else if (token.isAtRule()) {
+					if (token.isAtRule("@variables")) {
+						if (!foundImportRules && !foundStyleRules) this.parseVariablesRule(token, sheet);else {
+							this.reportError(kVARIABLES_RULE_POSITION);this.addUnknownAtRule(sheet, token.value);
+						}
+					} else if (token.isAtRule("@import")) {
+						if (!foundStyleRules && !foundNameSpaceRules) foundImportRules = this.parseImportRule(token, sheet);else {
+							this.reportError(kIMPORT_RULE_POSITION);this.addUnknownAtRule(sheet, token.value);
+						}
+					} else if (token.isAtRule("@namespace")) {
+						if (!foundStyleRules) foundNameSpaceRules = this.parseNamespaceRule(token, sheet);else {
+							this.reportError(kNAMESPACE_RULE_POSITION);this.addUnknownAtRule(sheet, token.value);
+						}
+					} else if (token.isAtRule("@font-face")) {
+						if (this.parseFontFaceRule(token, sheet)) foundStyleRules = true;else this.addUnknownAtRule(sheet, token.value);
+					} else if (token.isAtRule("@page")) {
+						if (this.parsePageRule(token, sheet)) foundStyleRules = true;else this.addUnknownAtRule(sheet, token.value);
+					} else if (token.isAtRule("@media")) {
+						if (this.parseMediaRule(token, sheet)) foundStyleRules = true;else this.addUnknownAtRule(sheet, token.value);
+					} else if (token.isAtRule("@keyframes")) {
+						if (!this.parseKeyframesRule(token, sheet)) this.addUnknownAtRule(sheet, token.value);
+					} else if (token.isAtRule("@charset")) {
+						this.reportError(kCHARSET_RULE_CHARSET_SOF);this.addUnknownAtRule(sheet, token.value);
+					} else {
+						this.reportError(kUNKNOWN_AT_RULE);this.addUnknownAtRule(sheet, token.value);
+					}
+				} else {
+					var ruleText = this.parseStyleRule(token, sheet, false);if (ruleText) foundStyleRules = true;
+				}token = this.getToken(false);
+			}return sheet;
+		} };function jscsspToken(aType, aValue, aUnit) {
+		this.type = aType;this.value = aValue;this.unit = aUnit;
+	}jscsspToken.NULL_TYPE = 0;jscsspToken.WHITESPACE_TYPE = 1;jscsspToken.STRING_TYPE = 2;jscsspToken.COMMENT_TYPE = 3;jscsspToken.NUMBER_TYPE = 4;jscsspToken.IDENT_TYPE = 5;jscsspToken.FUNCTION_TYPE = 6;jscsspToken.ATRULE_TYPE = 7;jscsspToken.INCLUDES_TYPE = 8;jscsspToken.DASHMATCH_TYPE = 9;jscsspToken.BEGINSMATCH_TYPE = 10;jscsspToken.ENDSMATCH_TYPE = 11;jscsspToken.CONTAINSMATCH_TYPE = 12;jscsspToken.SYMBOL_TYPE = 13;jscsspToken.DIMENSION_TYPE = 14;jscsspToken.PERCENTAGE_TYPE = 15;jscsspToken.HEX_TYPE = 16;jscsspToken.prototype = (_jscsspToken$prototyp = { isNotNull: function isNotNull() {
+			return this.type;
+		}, _isOfType: function _isOfType(aType, aValue) {
+			return this.type == aType && (!aValue || this.value.toLowerCase() == aValue);
+		}, isWhiteSpace: function isWhiteSpace(w) {
+			return this._isOfType(jscsspToken.WHITESPACE_TYPE, w);
+		}, isString: function isString() {
+			return this._isOfType(jscsspToken.STRING_TYPE);
+		}, isComment: function isComment() {
+			return this._isOfType(jscsspToken.COMMENT_TYPE);
+		}, isNumber: function isNumber(n) {
+			return this._isOfType(jscsspToken.NUMBER_TYPE, n);
+		}, isSymbol: function isSymbol(c) {
+			return this._isOfType(jscsspToken.SYMBOL_TYPE, c);
+		}, isIdent: function isIdent(i) {
+			return this._isOfType(jscsspToken.IDENT_TYPE, i);
+		}, isFunction: function isFunction(f) {
+			return this._isOfType(jscsspToken.FUNCTION_TYPE, f);
+		}, isAtRule: function isAtRule(a) {
+			return this._isOfType(jscsspToken.ATRULE_TYPE, a);
+		}, isIncludes: function isIncludes() {
+			return this._isOfType(jscsspToken.INCLUDES_TYPE);
+		}, isDashmatch: function isDashmatch() {
+			return this._isOfType(jscsspToken.DASHMATCH_TYPE);
+		}, isBeginsmatch: function isBeginsmatch() {
+			return this._isOfType(jscsspToken.BEGINSMATCH_TYPE);
+		}, isEndsmatch: function isEndsmatch() {
+			return this._isOfType(jscsspToken.ENDSMATCH_TYPE);
+		}, isContainsmatch: function isContainsmatch() {
+			return this._isOfType(jscsspToken.CONTAINSMATCH_TYPE);
+		} }, _defineProperty(_jscsspToken$prototyp, "isSymbol", function isSymbol(c) {
+		return this._isOfType(jscsspToken.SYMBOL_TYPE, c);
+	}), _defineProperty(_jscsspToken$prototyp, "isDimension", function isDimension() {
+		return this._isOfType(jscsspToken.DIMENSION_TYPE);
+	}), _defineProperty(_jscsspToken$prototyp, "isPercentage", function isPercentage() {
+		return this._isOfType(jscsspToken.PERCENTAGE_TYPE);
+	}), _defineProperty(_jscsspToken$prototyp, "isHex", function isHex() {
+		return this._isOfType(jscsspToken.HEX_TYPE);
+	}), _defineProperty(_jscsspToken$prototyp, "isDimensionOfUnit", function isDimensionOfUnit(aUnit) {
+		return this.isDimension() && this.unit == aUnit;
+	}), _defineProperty(_jscsspToken$prototyp, "isLength", function isLength() {
+		return this.isPercentage() || this.isDimensionOfUnit("cm") || this.isDimensionOfUnit("mm") || this.isDimensionOfUnit("in") || this.isDimensionOfUnit("pc") || this.isDimensionOfUnit("px") || this.isDimensionOfUnit("em") || this.isDimensionOfUnit("ex") || this.isDimensionOfUnit("pt");
+	}), _defineProperty(_jscsspToken$prototyp, "isAngle", function isAngle() {
+		return this.isDimensionOfUnit("deg") || this.isDimensionOfUnit("rad") || this.isDimensionOfUnit("grad");
+	}), _jscsspToken$prototyp);var kJscsspUNKNOWN_RULE = 0;var kJscsspSTYLE_RULE = 1;var kJscsspCHARSET_RULE = 2;var kJscsspIMPORT_RULE = 3;var kJscsspMEDIA_RULE = 4;var kJscsspFONT_FACE_RULE = 5;var kJscsspPAGE_RULE = 6;var kJscsspKEYFRAMES_RULE = 7;var kJscsspKEYFRAME_RULE = 8;var kJscsspNAMESPACE_RULE = 100;var kJscsspCOMMENT = 101;var kJscsspWHITE_SPACE = 102;var kJscsspVARIABLES_RULE = 200;var kJscsspSTYLE_DECLARATION = 1000;var gTABS = "";function jscsspStylesheet() {
+		this.cssRules = [];this.variables = {};
+	}jscsspStylesheet.prototype = { insertRule: function insertRule(aRule, aIndex) {
+			try {
+				this.cssRules.splice(aIndex, 1, aRule);
+			} catch (e) {}
+		}, deleteRule: function deleteRule(aIndex) {
+			try {
+				this.cssRules.splice(aIndex);
+			} catch (e) {}
+		}, cssText: function cssText() {
+			var rv = "";for (var i = 0; i < this.cssRules.length; i++) {
+				rv += this.cssRules[i].cssText() + "\n";
+			}return rv;
+		}, resolveVariables: function resolveVariables(aMedium) {
+			function ItemFoundInArray(aArray, aItem) {
+				for (var i = 0; i < aArray.length; i++) {
+					if (aItem == aArray[i]) return true;
+				}return false;
+			}for (var i = 0; i < this.cssRules.length; i++) {
+				var rule = this.cssRules[i];if (rule.type == kJscsspSTYLE_RULE || rule.type == kJscsspIMPORT_RULE) break;else if (rule.type == kJscsspVARIABLES_RULE && (!rule.media.length || ItemFoundInArray(rule.media, aMedium))) {
+					for (var j = 0; j < rule.declarations.length; j++) {
+						var valueText = "";for (var k = 0; k < rule.declarations[j].values.length; k++) {
+							valueText += (k ? " " : "") + rule.declarations[j].values[k].value;
+						}this.variables[rule.declarations[j].property] = valueText;
+					}
+				}
+			}
+		} };function jscsspCharsetRule() {
+		this.type = kJscsspCHARSET_RULE;this.encoding = null;this.parsedCssText = null;this.parentStyleSheet = null;this.parentRule = null;
+	}jscsspCharsetRule.prototype = { cssText: function cssText() {
+			return "@charset " + this.encoding + ";";
+		}, setCssText: function setCssText(val) {
+			var sheet = { cssRules: [] };var parser = new CSSParser(val);var token = parser.getToken(false, false);if (token.isAtRule("@charset")) {
+				if (parser.parseCharsetRule(token, sheet)) {
+					var newRule = sheet.cssRules[0];this.encoding = newRule.encoding;this.parsedCssText = newRule.parsedCssText;return;
+				}
+			}throw DOMException.SYNTAX_ERR;
+		} };function jscsspErrorRule(aErrorMsg) {
+		this.error = aErrorMsg ? aErrorMsg : "INVALID";this.type = kJscsspUNKNOWN_RULE;this.parsedCssText = null;this.parentStyleSheet = null;this.parentRule = null;
+	}jscsspErrorRule.prototype = { cssText: function cssText() {
+			return this.parsedCssText;
+		} };function jscsspComment() {
+		this.type = kJscsspCOMMENT;this.parsedCssText = null;this.parentStyleSheet = null;this.parentRule = null;
+	}jscsspComment.prototype = { cssText: function cssText() {
+			return this.parsedCssText;
+		}, setCssText: function setCssText(val) {
+			var parser = new CSSParser(val);var token = parser.getToken(true, false);if (token.isComment()) this.parsedCssText = token.value;else throw DOMException.SYNTAX_ERR;
+		} };function jscsspWhitespace() {
+		this.type = kJscsspWHITE_SPACE;this.parsedCssText = null;this.parentStyleSheet = null;this.parentRule = null;
+	}jscsspWhitespace.prototype = { cssText: function cssText() {
+			return this.parsedCssText;
+		} };function jscsspImportRule() {
+		this.type = kJscsspIMPORT_RULE;this.parsedCssText = null;this.href = null;this.media = [];this.parentStyleSheet = null;this.parentRule = null;
+	}jscsspImportRule.prototype = { cssText: function cssText() {
+			var mediaString = this.media.join(", ");return "@import " + this.href + (mediaString && mediaString != "all" ? mediaString + " " : "") + ";";
+		}, setCssText: function setCssText(val) {
+			var sheet = { cssRules: [] };var parser = new CSSParser(val);var token = parser.getToken(true, true);if (token.isAtRule("@import")) {
+				if (parser.parseImportRule(token, sheet)) {
+					var newRule = sheet.cssRules[0];this.href = newRule.href;this.media = newRule.media;this.parsedCssText = newRule.parsedCssText;return;
+				}
+			}throw DOMException.SYNTAX_ERR;
+		} };function jscsspNamespaceRule() {
+		this.type = kJscsspNAMESPACE_RULE;this.parsedCssText = null;this.prefix = null;this.url = null;this.parentStyleSheet = null;this.parentRule = null;
+	}jscsspNamespaceRule.prototype = { cssText: function cssText() {
+			return "@namespace " + (this.prefix ? this.prefix + " " : "") + this.url + ";";
+		}, setCssText: function setCssText(val) {
+			var sheet = { cssRules: [] };var parser = new CSSParser(val);var token = parser.getToken(true, true);if (token.isAtRule("@namespace")) {
+				if (parser.parseNamespaceRule(token, sheet)) {
+					var newRule = sheet.cssRules[0];this.url = newRule.url;this.prefix = newRule.prefix;this.parsedCssText = newRule.parsedCssText;return;
+				}
+			}throw DOMException.SYNTAX_ERR;
+		} };function jscsspDeclaration() {
+		this.type = kJscsspSTYLE_DECLARATION;this.property = null;this.values = [];this.valueText = null;this.priority = null;this.parsedCssText = null;this.parentStyleSheet = null;this.parentRule = null;
+	}jscsspDeclaration.prototype = { kCOMMA_SEPARATED: { "cursor": true, "font-family": true, "voice-family": true, "background-image": true }, kUNMODIFIED_COMMA_SEPARATED_PROPERTIES: { "text-shadow": true, "box-shadow": true, "-moz-transition": true, "-moz-transition-property": true, "-moz-transition-duration": true, "-moz-transition-timing-function": true, "-moz-transition-delay": true }, cssText: function cssText() {
+			var prefixes = CssInspector.prefixesForProperty(this.property);if (this.property in this.kUNMODIFIED_COMMA_SEPARATED_PROPERTIES) {
+				if (prefixes) {
+					var rv = "";for (var propertyIndex = 0; propertyIndex < prefixes.length; propertyIndex++) {
+						var property = prefixes[propertyIndex];rv += (propertyIndex ? gTABS : "") + property + ": ";rv += this.valueText + (this.priority ? " !important" : "") + ";";rv += prefixes.length > 1 && propertyIndex != prefixes.length - 1 ? "\n" : "";
+					}return rv;
+				}return this.property + ": " + this.valueText + (this.priority ? " !important" : "") + ";";
+			}if (prefixes) {
+				var rv = "";for (var propertyIndex = 0; propertyIndex < prefixes.length; propertyIndex++) {
+					var property = prefixes[propertyIndex];rv += (propertyIndex ? gTABS : "") + property + ": ";var separator = property in this.kCOMMA_SEPARATED ? ", " : " ";for (var i = 0; i < this.values.length; i++) {
+						if (this.values[i].cssText() != null) rv += (i ? separator : "") + this.values[i].cssText();else return null;
+					}rv += (this.priority ? " !important" : "") + ";" + (prefixes.length > 1 && propertyIndex != prefixes.length - 1 ? "\n" : "");
+				}return rv;
+			}var rv = this.property + ": ";var separator = this.property in this.kCOMMA_SEPARATED ? ", " : " ";var extras = { "webkit": false, "presto": false, "trident": false, "generic": false };for (var i = 0; i < this.values.length; i++) {
+				var v = this.values[i].cssText();if (v != null) {
+					var paren = v.indexOf("(");var kwd = v;if (paren != -1) kwd = v.substr(0, paren);if (kwd in kCSS_VENDOR_VALUES) {
+						for (var j in kCSS_VENDOR_VALUES[kwd]) {
+							extras[j] = extras[j] || kCSS_VENDOR_VALUES[kwd][j] != "";
+						}
+					}rv += (i ? separator : "") + v;
+				} else return null;
+			}rv += (this.priority ? " !important" : "") + ";";for (var j in extras) {
+				if (extras[j]) {
+					var str = "\n" + gTABS + this.property + ": ";for (var i = 0; i < this.values.length; i++) {
+						var v = this.values[i].cssText();if (v != null) {
+							var paren = v.indexOf("(");var kwd = v;if (paren != -1) kwd = v.substr(0, paren);if (kwd in kCSS_VENDOR_VALUES) {
+								functor = kCSS_VENDOR_VALUES[kwd][j];if (functor) {
+									v = typeof functor == "string" ? functor : functor(v, j);if (!v) {
+										str = null;break;
+									}
+								}
+							}str += (i ? separator : "") + v;
+						} else return null;
+					}if (str) rv += str + ";";else rv += "\n" + gTABS + "/* Impossible to translate property " + this.property + " for " + j + " */";
+				}
+			}return rv;
+		}, setCssText: function setCssText(val) {
+			var declarations = [];var parser = new CSSParser(val);var token = parser.getToken(true, true);if (parser.parseDeclaration(token, declarations, true, true, null) && declarations.length && declarations[0].type == kJscsspSTYLE_DECLARATION) {
+				var newDecl = declarations.cssRules[0];this.property = newDecl.property;this.value = newDecl.value;this.priority = newDecl.priority;this.parsedCssText = newRule.parsedCssText;return;
+			}throw DOMException.SYNTAX_ERR;
+		} };function jscsspFontFaceRule() {
+		this.type = kJscsspFONT_FACE_RULE;this.parsedCssText = null;this.descriptors = [];this.parentStyleSheet = null;this.parentRule = null;
+	}jscsspFontFaceRule.prototype = { cssText: function cssText() {
+			var rv = gTABS + "@font-face {\n";var preservedGTABS = gTABS;gTABS += "  ";for (var i = 0; i < this.descriptors.length; i++) {
+				rv += gTABS + this.descriptors[i].cssText() + "\n";
+			}gTABS = preservedGTABS;return rv + gTABS + "}";
+		}, setCssText: function setCssText(val) {
+			var sheet = { cssRules: [] };var parser = new CSSParser(val);var token = parser.getToken(true, true);if (token.isAtRule("@font-face")) {
+				if (parser.parseFontFaceRule(token, sheet)) {
+					var newRule = sheet.cssRules[0];this.descriptors = newRule.descriptors;this.parsedCssText = newRule.parsedCssText;return;
+				}
+			}throw DOMException.SYNTAX_ERR;
+		} };function jscsspKeyframesRule() {
+		this.type = kJscsspKEYFRAMES_RULE;this.parsedCssText = null;this.cssRules = [];this.name = null;this.parentStyleSheet = null;this.parentRule = null;
+	}jscsspKeyframesRule.prototype = { cssText: function cssText() {
+			var rv = gTABS + "@keyframes " + this.name + " {\n";var preservedGTABS = gTABS;gTABS += "  ";for (var i = 0; i < this.cssRules.length; i++) {
+				rv += gTABS + this.cssRules[i].cssText() + "\n";
+			}gTABS = preservedGTABS;rv += gTABS + "}\n";return rv;
+		}, setCssText: function setCssText(val) {
+			var sheet = { cssRules: [] };var parser = new CSSParser(val);var token = parser.getToken(true, true);if (token.isAtRule("@keyframes")) {
+				if (parser.parseKeyframesRule(token, sheet)) {
+					var newRule = sheet.cssRules[0];this.cssRules = newRule.cssRules;this.name = newRule.name;this.parsedCssText = newRule.parsedCssText;return;
+				}
+			}throw DOMException.SYNTAX_ERR;
+		} };function jscsspKeyframeRule() {
+		this.type = kJscsspKEYFRAME_RULE;this.parsedCssText = null;this.declarations = [];this.keyText = null;this.parentStyleSheet = null;this.parentRule = null;
+	}jscsspKeyframeRule.prototype = { cssText: function cssText() {
+			var rv = this.keyText + " {\n";var preservedGTABS = gTABS;gTABS += "  ";for (var i = 0; i < this.declarations.length; i++) {
+				var declText = this.declarations[i].cssText();if (declText) rv += gTABS + this.declarations[i].cssText() + "\n";
+			}gTABS = preservedGTABS;return rv + gTABS + "}";
+		}, setCssText: function setCssText(val) {
+			var sheet = { cssRules: [] };var parser = new CSSParser(val);var token = parser.getToken(true, true);if (!token.isNotNull()) {
+				if (parser.parseKeyframeRule(token, sheet, false)) {
+					var newRule = sheet.cssRules[0];this.keyText = newRule.keyText;this.declarations = newRule.declarations;this.parsedCssText = newRule.parsedCssText;return;
+				}
+			}throw DOMException.SYNTAX_ERR;
+		} };function jscsspMediaRule() {
+		this.type = kJscsspMEDIA_RULE;this.parsedCssText = null;this.cssRules = [];this.media = [];this.parentStyleSheet = null;this.parentRule = null;
+	}jscsspMediaRule.prototype = { cssText: function cssText() {
+			var rv = gTABS + "@media " + this.media.join(", ") + " {\n";var preservedGTABS = gTABS;gTABS += "  ";for (var i = 0; i < this.cssRules.length; i++) {
+				rv += gTABS + this.cssRules[i].cssText() + "\n";
+			}gTABS = preservedGTABS;return rv + gTABS + "}";
+		}, setCssText: function setCssText(val) {
+			var sheet = { cssRules: [] };var parser = new CSSParser(val);var token = parser.getToken(true, true);if (token.isAtRule("@media")) {
+				if (parser.parseMediaRule(token, sheet)) {
+					var newRule = sheet.cssRules[0];this.cssRules = newRule.cssRules;this.media = newRule.media;this.parsedCssText = newRule.parsedCssText;return;
+				}
+			}throw DOMException.SYNTAX_ERR;
+		} };function jscsspStyleRule() {
+		this.type = kJscsspSTYLE_RULE;this.parsedCssText = null;this.declarations = [];this.mSelectorText = null;this.parentStyleSheet = null;this.parentRule = null;
+	}jscsspStyleRule.prototype = { cssText: function cssText() {
+			var rv = this.mSelectorText + " {\n";var preservedGTABS = gTABS;gTABS += "  ";for (var i = 0; i < this.declarations.length; i++) {
+				var declText = this.declarations[i].cssText();if (declText) rv += gTABS + this.declarations[i].cssText() + "\n";
+			}gTABS = preservedGTABS;return rv + gTABS + "}";
+		}, setCssText: function setCssText(val) {
+			var sheet = { cssRules: [] };var parser = new CSSParser(val);var token = parser.getToken(true, true);if (!token.isNotNull()) {
+				if (parser.parseStyleRule(token, sheet, false)) {
+					var newRule = sheet.cssRules[0];this.mSelectorText = newRule.mSelectorText;this.declarations = newRule.declarations;this.parsedCssText = newRule.parsedCssText;return;
+				}
+			}throw DOMException.SYNTAX_ERR;
+		}, selectorText: function selectorText() {
+			return this.mSelectorText;
+		}, setSelectorText: function setSelectorText(val) {
+			var parser = new CSSParser(val);var token = parser.getToken(true, true);if (!token.isNotNull()) {
+				var s = parser.parseSelector(token, true);if (s) {
+					this.mSelectorText = s.selector;return;
+				}
+			}throw DOMException.SYNTAX_ERR;
+		} };function jscsspPageRule() {
+		this.type = kJscsspPAGE_RULE;this.parsedCssText = null;this.pageSelector = null;this.declarations = [];this.parentStyleSheet = null;this.parentRule = null;
+	}jscsspPageRule.prototype = { cssText: function cssText() {
+			var rv = gTABS + "@page " + (this.pageSelector ? this.pageSelector + " " : "") + "{\n";var preservedGTABS = gTABS;gTABS += "  ";for (var i = 0; i < this.declarations.length; i++) {
+				rv += gTABS + this.declarations[i].cssText() + "\n";
+			}gTABS = preservedGTABS;return rv + gTABS + "}";
+		}, setCssText: function setCssText(val) {
+			var sheet = { cssRules: [] };var parser = new CSSParser(val);var token = parser.getToken(true, true);if (token.isAtRule("@page")) {
+				if (parser.parsePageRule(token, sheet)) {
+					var newRule = sheet.cssRules[0];this.pageSelector = newRule.pageSelector;this.declarations = newRule.declarations;this.parsedCssText = newRule.parsedCssText;return;
+				}
+			}throw DOMException.SYNTAX_ERR;
+		} };function jscsspVariablesRule() {
+		this.type = kJscsspVARIABLES_RULE;this.parsedCssText = null;this.declarations = [];this.parentStyleSheet = null;this.parentRule = null;this.media = null;
+	}jscsspVariablesRule.prototype = { cssText: function cssText() {
+			var rv = gTABS + "@variables " + (this.media.length ? this.media.join(", ") + " " : "") + "{\n";var preservedGTABS = gTABS;gTABS += "  ";for (var i = 0; i < this.declarations.length; i++) {
+				rv += gTABS + this.declarations[i].cssText() + "\n";
+			}gTABS = preservedGTABS;return rv + gTABS + "}";
+		}, setCssText: function setCssText(val) {
+			var sheet = { cssRules: [] };var parser = new CSSParser(val);var token = parser.getToken(true, true);if (token.isAtRule("@variables")) {
+				if (parser.parseVariablesRule(token, sheet)) {
+					var newRule = sheet.cssRules[0];this.declarations = newRule.declarations;this.parsedCssText = newRule.parsedCssText;return;
+				}
+			}throw DOMException.SYNTAX_ERR;
+		} };var kJscsspINHERIT_VALUE = 0;var kJscsspPRIMITIVE_VALUE = 1;var kJscsspVARIABLE_VALUE = 4;function jscsspVariable(aType, aSheet) {
+		this.value = "";this.type = aType;this.name = null;this.parentRule = null;this.parentStyleSheet = aSheet;
+	}jscsspVariable.prototype = { cssText: function cssText() {
+			if (this.type == kJscsspVARIABLE_VALUE) return this.resolveVariable(this.name, this.parentRule, this.parentStyleSheet);else return this.value;
+		}, setCssText: function setCssText(val) {
+			if (this.type == kJscsspVARIABLE_VALUE) throw DOMException.SYNTAX_ERR;else this.value = val;
+		}, resolveVariable: function resolveVariable(aName, aRule, aSheet) {
+			if (aName.toLowerCase() in aSheet.variables) return aSheet.variables[aName.toLowerCase()];return null;
+		} };function ParseURL(buffer) {
+		var result = {};result.protocol = "";result.user = "";result.password = "";result.host = "";result.port = "";result.path = "";result.query = "";var section = "PROTOCOL";var start = 0;var wasSlash = false;while (start < buffer.length) {
+			if (section == "PROTOCOL") {
+				if (buffer.charAt(start) == ':') {
+					section = "AFTER_PROTOCOL";start++;
+				} else if (buffer.charAt(start) == '/' && result.protocol.length() == 0) {
+					section = PATH;
+				} else {
+					result.protocol += buffer.charAt(start++);
+				}
+			} else if (section == "AFTER_PROTOCOL") {
+				if (buffer.charAt(start) == '/') {
+					if (!wasSlash) {
+						wasSlash = true;
+					} else {
+						wasSlash = false;section = "USER";
+					}start++;
+				} else {
+					throw new ParseException("Protocol shell be separated with 2 slashes");
+				}
+			} else if (section == "USER") {
+				if (buffer.charAt(start) == '/') {
+					result.host = result.user;result.user = "";section = "PATH";
+				} else if (buffer.charAt(start) == '?') {
+					result.host = result.user;result.user = "";section = "QUERY";start++;
+				} else if (buffer.charAt(start) == ':') {
+					section = "PASSWORD";start++;
+				} else if (buffer.charAt(start) == '@') {
+					section = "HOST";start++;
+				} else {
+					result.user += buffer.charAt(start++);
+				}
+			} else if (section == "PASSWORD") {
+				if (buffer.charAt(start) == '/') {
+					result.host = result.user;result.port = result.password;result.user = "";result.password = "";section = "PATH";
+				} else if (buffer.charAt(start) == '?') {
+					result.host = result.user;result.port = result.password;result.user = "";result.password = "";section = "QUERY";start++;
+				} else if (buffer.charAt(start) == '@') {
+					section = "HOST";start++;
+				} else {
+					result.password += buffer.charAt(start++);
+				}
+			} else if (section == "HOST") {
+				if (buffer.charAt(start) == '/') {
+					section = "PATH";
+				} else if (buffer.charAt(start) == ':') {
+					section = "PORT";start++;
+				} else if (buffer.charAt(start) == '?') {
+					section = "QUERY";start++;
+				} else {
+					result.host += buffer.charAt(start++);
+				}
+			} else if (section == "PORT") {
+				if (buffer.charAt(start) == '/') {
+					section = "PATH";
+				} else if (buffer.charAt(start) == '?') {
+					section = "QUERY";start++;
+				} else {
+					result.port += buffer.charAt(start++);
+				}
+			} else if (section == "PATH") {
+				if (buffer.charAt(start) == '?') {
+					section = "QUERY";start++;
+				} else {
+					result.path += buffer.charAt(start++);
+				}
+			} else if (section == "QUERY") {
+				result.query += buffer.charAt(start++);
+			}
+		}if (section == "PROTOCOL") {
+			result.host = result.protocol;result.protocol = "http";
+		} else if (section == "AFTER_PROTOCOL") {
+			throw new ParseException("Invalid url");
+		} else if (section == "USER") {
+			result.host = result.user;result.user = "";
+		} else if (section == "PASSWORD") {
+			result.host = result.user;result.port = result.password;result.user = "";result.password = "";
+		}return result;
+	}function ParseException(description) {
+		this.description = description;
+	}function CountLF(s) {
+		var nCR = s.match(/\n/g);return nCR ? nCR.length + 1 : 1;
+	}function FilterLinearGradientForOutput(aValue, aEngine) {
+		if (aEngine == "generic") return aValue.substr(5);if (aEngine == "webkit") return aValue.replace(/\-moz\-/g, "-webkit-");if (aEngine != "webkit20110101") return "";var g = CssInspector.parseBackgroundImages(aValue)[0];var cancelled = false;var str = "-webkit-gradient(linear, ";var position = "position" in g.value ? g.value.position.toLowerCase() : "";var angle = "angle" in g.value ? g.value.angle.toLowerCase() : "";if (angle) {
+			var match = angle.match(/^([0-9\-\.\\+]+)([a-z]*)/);var angle = parseFloat(match[1]);var unit = match[2];switch (unit) {case "grad":
+					angle = angle * 90 / 100;break;case "rad":
+					angle = angle * 180 / Math.PI;break;default:
+					break;}while (angle < 0) {
+				angle += 360;
+			}while (angle >= 360) {
+				angle -= 360;
+			}
+		}var startpoint = [];var endpoint = [];if (position != "") {
+			if (position == "center") position = "center center";startpoint = position.split(" ");if (angle == "" && angle != 0) {
+				switch (startpoint[0]) {case "left":
+						endpoint.push("right");break;case "center":
+						endpoint.push("center");break;case "right":
+						endpoint.push("left");break;default:
+						{
+							var match = startpoint[0].match(/^([0-9\-\.\\+]+)([a-z]*)/);var v = parseFloat(match[0]);var unit = match[1];if (unit == "%") {
+								endpoint.push(100 - v + "%");
+							} else cancelled = true;
+						}break;}if (!cancelled) switch (startpoint[1]) {case "top":
+						endpoint.push("bottom");break;case "center":
+						endpoint.push("center");break;case "bottom":
+						endpoint.push("top");break;default:
+						{
+							var match = startpoint[1].match(/^([0-9\-\.\\+]+)([a-z]*)/);var v = parseFloat(match[0]);var unit = match[1];if (unit == "%") {
+								endpoint.push(100 - v + "%");
+							} else cancelled = true;
+						}break;}
+			} else {
+				switch (angle) {case 0:
+						endpoint.push("right");endpoint.push(startpoint[1]);break;case 90:
+						endpoint.push(startpoint[0]);endpoint.push("top");break;case 180:
+						endpoint.push("left");endpoint.push(startpoint[1]);break;case 270:
+						endpoint.push(startpoint[0]);endpoint.push("bottom");break;default:
+						cancelled = true;break;}
+			}
+		} else {
+			if (angle == "") angle = 270;switch (angle) {case 0:
+					startpoint = ["left", "center"];endpoint = ["right", "center"];break;case 90:
+					startpoint = ["center", "bottom"];endpoint = ["center", "top"];break;case 180:
+					startpoint = ["right", "center"];endpoint = ["left", "center"];break;case 270:
+					startpoint = ["center", "top"];endpoint = ["center", "bottom"];break;default:
+					cancelled = true;break;}
+		}if (cancelled) return "";str += startpoint.join(" ") + ", " + endpoint.join(" ");if (!g.value.stops[0].position) g.value.stops[0].position = "0%";if (!g.value.stops[g.value.stops.length - 1].position) g.value.stops[g.value.stops.length - 1].position = "100%";var current = 0;for (var i = 0; i < g.value.stops.length && !cancelled; i++) {
+			var s = g.value.stops[i];if (s.position) {
+				if (s.position.indexOf("%") == -1) {
+					cancelled = true;break;
+				}
+			} else {
+				var j = i + 1;while (j < g.value.stops.length && !g.value.stops[j].position) {
+					j++;
+				}var inc = parseFloat(g.value.stops[j].position) - current;for (var k = i; k < j; k++) {
+					g.value.stops[k].position = current + inc * (k - i + 1) / (j - i + 1) + "%";
+				}
+			}current = parseFloat(s.position);str += ", color-stop(" + parseFloat(current) / 100 + ", " + s.color + ")";
+		}if (cancelled) return "";return str + ")";
+	}function FilterRadialGradientForOutput(aValue, aEngine) {
+		if (aEngine == "generic") return aValue.substr(5);else if (aEngine == "webkit") return aValue.replace(/\-moz\-/g, "-webkit-");else if (aEngine != "webkit20110101") return "";var g = CssInspector.parseBackgroundImages(aValue)[0];var shape = "shape" in g.value ? g.value.shape : "";var size = "size" in g.value ? g.value.size : "";if (shape != "circle" || size != "farthest-corner" && size != "cover") return "";if (g.value.stops.length < 2 || !("position" in g.value.stops[0]) || !g.value.stops[g.value.stops.length - 1].position || !("position" in g.value.stops[0]) || !g.value.stops[g.value.stops.length - 1].position) return "";for (var i = 0; i < g.value.stops.length; i++) {
+			var s = g.value.stops[i];if ("position" in s && s.position && s.position.indexOf("px") == -1) return "";
+		}var str = "-webkit-gradient(radial, ";var position = "position" in g.value ? g.value.position : "center center";str += position + ", " + parseFloat(g.value.stops[0].position) + ", ";str += position + ", " + parseFloat(g.value.stops[g.value.stops.length - 1].position);var current = parseFloat(g.value.stops[0].position);for (var i = 0; i < g.value.stops.length; i++) {
+			var s = g.value.stops[i];if (!("position" in s) || !s.position) {
+				var j = i + 1;while (j < g.value.stops.length && !g.value.stops[j].position) {
+					j++;
+				}var inc = parseFloat(g.value.stops[j].position) - current;for (var k = i; k < j; k++) {
+					g.value.stops[k].position = current + inc * (k - i + 1) / (j - i + 1) + "px";
+				}
+			}current = parseFloat(s.position);var c = (current - parseFloat(g.value.stops[0].position)) / (parseFloat(g.value.stops[g.value.stops.length - 1].position) - parseFloat(g.value.stops[0].position));str += ", color-stop(" + c + ", " + s.color + ")";
+		}str += ")";return str;
+	}function FilterRepeatingGradientForOutput(aValue, aEngine) {
+		if (aEngine == "generic") return aValue.substr(5);else if (aEngine == "webkit") return aValue.replace(/\-moz\-/g, "-webkit-");return "";
+	};
 
-*/var kCHARSET_RULE_MISSING_SEMICOLON="Missing semicolon at the end of @charset rule";var kCHARSET_RULE_CHARSET_IS_STRING="The charset in the @charset rule should be a string";var kCHARSET_RULE_MISSING_WS="Missing mandatory whitespace after @charset";var kIMPORT_RULE_MISSING_URL="Missing URL in @import rule";var kURL_EOF="Unexpected end of stylesheet";var kURL_WS_INSIDE="Multiple tokens inside a url() notation";var kVARIABLES_RULE_POSITION="@variables rule invalid at this position in the stylesheet";var kIMPORT_RULE_POSITION="@import rule invalid at this position in the stylesheet";var kNAMESPACE_RULE_POSITION="@namespace rule invalid at this position in the stylesheet";var kCHARSET_RULE_CHARSET_SOF="@charset rule invalid at this position in the stylesheet";var kUNKNOWN_AT_RULE="Unknow @-rule";var kENGINES=["webkit","presto","trident","generic"];var kCSS_VENDOR_VALUES={"-moz-box":{"webkit":"-webkit-box","presto":"","trident":"","generic":"box"},"-moz-inline-box":{"webkit":"-webkit-inline-box","presto":"","trident":"","generic":"inline-box"},"-moz-initial":{"webkit":"","presto":"","trident":"","generic":"initial"},"-moz-linear-gradient":{"webkit20110101":FilterLinearGradientForOutput,"webkit":FilterLinearGradientForOutput,"presto":"","trident":"","generic":FilterLinearGradientForOutput},"-moz-radial-gradient":{"webkit20110101":FilterRadialGradientForOutput,"webkit":FilterRadialGradientForOutput,"presto":"","trident":"","generic":FilterRadialGradientForOutput},"-moz-repeating-linear-gradient":{"webkit20110101":"","webkit":FilterRepeatingGradientForOutput,"presto":"","trident":"","generic":FilterRepeatingGradientForOutput},"-moz-repeating-radial-gradient":{"webkit20110101":"","webkit":FilterRepeatingGradientForOutput,"presto":"","trident":"","generic":FilterRepeatingGradientForOutput}};var kCSS_VENDOR_PREFIXES={"lastUpdate":1304175007,"properties":[{"gecko":"","webkit":"","presto":"","trident":"-ms-accelerator","status":"P"},{"gecko":"","webkit":"","presto":"-wap-accesskey","trident":"","status":""},{"gecko":"-moz-animation","webkit":"-webkit-animation","presto":"","trident":"","status":"WD"},{"gecko":"-moz-animation-delay","webkit":"-webkit-animation-delay","presto":"","trident":"","status":"WD"},{"gecko":"-moz-animation-direction","webkit":"-webkit-animation-direction","presto":"","trident":"","status":"WD"},{"gecko":"-moz-animation-duration","webkit":"-webkit-animation-duration","presto":"","trident":"","status":"WD"},{"gecko":"-moz-animation-fill-mode","webkit":"-webkit-animation-fill-mode","presto":"","trident":"","status":"ED"},{"gecko":"-moz-animation-iteration-count","webkit":"-webkit-animation-iteration-count","presto":"","trident":"","status":"WD"},{"gecko":"-moz-animation-name","webkit":"-webkit-animation-name","presto":"","trident":"","status":"WD"},{"gecko":"-moz-animation-play-state","webkit":"-webkit-animation-play-state","presto":"","trident":"","status":"WD"},{"gecko":"-moz-animation-timing-function","webkit":"-webkit-animation-timing-function","presto":"","trident":"","status":"WD"},{"gecko":"-moz-appearance","webkit":"-webkit-appearance","presto":"","trident":"","status":"CR"},{"gecko":"","webkit":"-webkit-backface-visibility","presto":"","trident":"","status":"WD"},{"gecko":"background-clip","webkit":"-webkit-background-clip","presto":"background-clip","trident":"background-clip","status":"WD"},{"gecko":"","webkit":"-webkit-background-composite","presto":"","trident":"","status":""},{"gecko":"-moz-background-inline-policy","webkit":"","presto":"","trident":"","status":"P"},{"gecko":"background-origin","webkit":"-webkit-background-origin","presto":"background-origin","trident":"background-origin","status":"WD"},{"gecko":"","webkit":"background-position-x","presto":"","trident":"-ms-background-position-x","status":""},{"gecko":"","webkit":"background-position-y","presto":"","trident":"-ms-background-position-y","status":""},{"gecko":"background-size","webkit":"-webkit-background-size","presto":"background-size","trident":"background-size","status":"WD"},{"gecko":"","webkit":"","presto":"","trident":"-ms-behavior","status":""},{"gecko":"-moz-binding","webkit":"","presto":"","trident":"","status":"P"},{"gecko":"","webkit":"","presto":"","trident":"-ms-block-progression","status":""},{"gecko":"","webkit":"-webkit-border-after","presto":"","trident":"","status":"ED"},{"gecko":"","webkit":"-webkit-border-after-color","presto":"","trident":"","status":"ED"},{"gecko":"","webkit":"-webkit-border-after-style","presto":"","trident":"","status":"ED"},{"gecko":"","webkit":"-webkit-border-after-width","presto":"","trident":"","status":"ED"},{"gecko":"","webkit":"-webkit-border-before","presto":"","trident":"","status":"ED"},{"gecko":"","webkit":"-webkit-border-before-color","presto":"","trident":"","status":"ED"},{"gecko":"","webkit":"-webkit-border-before-style","presto":"","trident":"","status":"ED"},{"gecko":"","webkit":"-webkit-border-before-width","presto":"","trident":"","status":"ED"},{"gecko":"-moz-border-bottom-colors","webkit":"","presto":"","trident":"","status":"P"},{"gecko":"border-bottom-left-radius","webkit":"-webkit-border-bottom-left-radius","presto":"border-bottom-left-radius","trident":"border-bottom-left-radius","status":"WD"},{"gecko":"","webkit":"-webkit-border-bottom-left-radius = border-bottom-left-radius","presto":"","trident":"","status":""},{"gecko":"border-bottom-right-radius","webkit":"-webkit-border-bottom-right-radius","presto":"border-bottom-right-radius","trident":"border-bottom-right-radius","status":"WD"},{"gecko":"","webkit":"-webkit-border-bottom-right-radius = border-bottom-right-radius","presto":"","trident":"","status":""},{"gecko":"-moz-border-end","webkit":"-webkit-border-end","presto":"","trident":"","status":"ED"},{"gecko":"-moz-border-end-color","webkit":"-webkit-border-end-color","presto":"","trident":"","status":"ED"},{"gecko":"-moz-border-end-style","webkit":"-webkit-border-end-style","presto":"","trident":"","status":"ED"},{"gecko":"-moz-border-end-width","webkit":"-webkit-border-end-width","presto":"","trident":"","status":"ED"},{"gecko":"","webkit":"-webkit-border-fit","presto":"","trident":"","status":""},{"gecko":"","webkit":"-webkit-border-horizontal-spacing","presto":"","trident":"","status":""},{"gecko":"-moz-border-image","webkit":"-webkit-border-image","presto":"-o-border-image","trident":"","status":"WD"},{"gecko":"-moz-border-left-colors","webkit":"","presto":"","trident":"","status":"P"},{"gecko":"border-radius","webkit":"-webkit-border-radius","presto":"border-radius","trident":"border-radius","status":"WD"},{"gecko":"-moz-border-right-colors","webkit":"","presto":"","trident":"","status":"P"},{"gecko":"-moz-border-start","webkit":"-webkit-border-start","presto":"","trident":"","status":"ED"},{"gecko":"-moz-border-start-color","webkit":"-webkit-border-start-color","presto":"","trident":"","status":"ED"},{"gecko":"-moz-border-start-style","webkit":"-webkit-border-start-style","presto":"","trident":"","status":"ED"},{"gecko":"-moz-border-start-width","webkit":"-webkit-border-start-width","presto":"","trident":"","status":"ED"},{"gecko":"-moz-border-top-colors","webkit":"","presto":"","trident":"","status":"P"},{"gecko":"border-top-left-radius","webkit":"-webkit-border-top-left-radius","presto":"border-top-left-radius","trident":"border-top-left-radius","status":"WD"},{"gecko":"","webkit":"-webkit-border-top-left-radius = border-top-left-radius","presto":"","trident":"","status":""},{"gecko":"border-top-right-radius","webkit":"-webkit-border-top-right-radius","presto":"border-top-right-radius","trident":"border-top-right-radius","status":"WD"},{"gecko":"","webkit":"-webkit-border-top-right-radius = border-top-right-radius","presto":"","trident":"","status":""},{"gecko":"","webkit":"-webkit-border-vertical-spacing","presto":"","trident":"","status":""},{"gecko":"-moz-box-align","webkit":"-webkit-box-align","presto":"","trident":"-ms-box-align","status":"WD"},{"gecko":"-moz-box-direction","webkit":"-webkit-box-direction","presto":"","trident":"-ms-box-direction","status":"WD"},{"gecko":"-moz-box-flex","webkit":"-webkit-box-flex","presto":"","trident":"-ms-box-flex","status":"WD"},{"gecko":"","webkit":"-webkit-box-flex-group","presto":"","trident":"","status":"WD"},{"gecko":"","webkit":"","presto":"","trident":"-ms-box-line-progression","status":""},{"gecko":"","webkit":"-webkit-box-lines","presto":"","trident":"-ms-box-lines","status":"WD"},{"gecko":"-moz-box-ordinal-group","webkit":"-webkit-box-ordinal-group","presto":"","trident":"-ms-box-ordinal-group","status":"WD"},{"gecko":"-moz-box-orient","webkit":"-webkit-box-orient","presto":"","trident":"-ms-box-orient","status":"WD"},{"gecko":"-moz-box-pack","webkit":"-webkit-box-pack","presto":"","trident":"-ms-box-pack","status":"WD"},{"gecko":"","webkit":"-webkit-box-reflect","presto":"","trident":"","status":""},{"gecko":"box-shadow","webkit":"-webkit-box-shadow","presto":"box-shadow","trident":"box-shadow","status":"WD"},{"gecko":"-moz-box-sizing","webkit":"box-sizing","presto":"box-sizing","trident":"","status":"CR"},{"gecko":"","webkit":"-webkit-box-sizing = box-sizing","presto":"","trident":"","status":""},{"gecko":"","webkit":"-epub-caption-side = caption-side","presto":"","trident":"","status":""},{"gecko":"","webkit":"-webkit-color-correction","presto":"","trident":"","status":""},{"gecko":"","webkit":"-webkit-column-break-after","presto":"","trident":"","status":""},{"gecko":"","webkit":"-webkit-column-break-before","presto":"","trident":"","status":""},{"gecko":"","webkit":"-webkit-column-break-inside","presto":"","trident":"","status":""},{"gecko":"-moz-column-count","webkit":"-webkit-column-count","presto":"column-count","trident":"column-count","status":"CR"},{"gecko":"-moz-column-gap","webkit":"-webkit-column-gap","presto":"column-gap","trident":"column-gap","status":"CR"},{"gecko":"-moz-column-rule","webkit":"-webkit-column-rule","presto":"column-rule","trident":"column-rule","status":"CR"},{"gecko":"-moz-column-rule-color","webkit":"-webkit-column-rule-color","presto":"column-rule-color","trident":"column-rule-color","status":"CR"},{"gecko":"-moz-column-rule-style","webkit":"-webkit-column-rule-style","presto":"column-rule-style","trident":"column-rule-style","status":"CR"},{"gecko":"-moz-column-rule-width","webkit":"-webkit-column-rule-width","presto":"column-rule-width","trident":"column-rule-width","status":"CR"},{"gecko":"","webkit":"-webkit-column-span","presto":"column-span","trident":"column-span","status":"CR"},{"gecko":"-moz-column-width","webkit":"-webkit-column-width","presto":"column-width","trident":"column-width","status":"CR"},{"gecko":"","webkit":"-webkit-columns","presto":"columns","trident":"columns","status":"CR"},{"gecko":"","webkit":"-webkit-dashboard-region","presto":"-apple-dashboard-region","trident":"","status":""},{"gecko":"filter","webkit":"","presto":"filter","trident":"-ms-filter","status":""},{"gecko":"-moz-float-edge","webkit":"","presto":"","trident":"","status":"P"},{"gecko":"","webkit":"","presto":"-o-focus-opacity","trident":"","status":""},{"gecko":"-moz-font-feature-settings","webkit":"","presto":"","trident":"","status":""},{"gecko":"-moz-font-language-override","webkit":"","presto":"","trident":"","status":""},{"gecko":"","webkit":"-webkit-font-size-delta","presto":"","trident":"","status":""},{"gecko":"","webkit":"-webkit-font-smoothing","presto":"","trident":"","status":""},{"gecko":"-moz-force-broken-image-icon","webkit":"","presto":"","trident":"","status":""},{"gecko":"","webkit":"","presto":"","trident":"-ms-grid-column","status":"WD"},{"gecko":"","webkit":"","presto":"","trident":"-ms-grid-column-align","status":"WD"},{"gecko":"","webkit":"","presto":"","trident":"-ms-grid-column-span","status":"WD"},{"gecko":"","webkit":"","presto":"","trident":"-ms-grid-columns","status":"WD"},{"gecko":"","webkit":"","presto":"","trident":"-ms-grid-layer","status":"WD"},{"gecko":"","webkit":"","presto":"","trident":"-ms-grid-row","status":"WD"},{"gecko":"","webkit":"","presto":"","trident":"-ms-grid-row-align","status":"WD"},{"gecko":"","webkit":"","presto":"","trident":"-ms-grid-row-span","status":"WD"},{"gecko":"","webkit":"","presto":"","trident":"-ms-grid-rows","status":"WD"},{"gecko":"","webkit":"-webkit-highlight","presto":"","trident":"","status":""},{"gecko":"","webkit":"-webkit-hyphenate-character","presto":"","trident":"","status":"WD"},{"gecko":"","webkit":"-webkit-hyphenate-limit-after","presto":"","trident":"","status":""},{"gecko":"","webkit":"-webkit-hyphenate-limit-before","presto":"","trident":"","status":""},{"gecko":"","webkit":"-webkit-hyphens","presto":"","trident":"","status":"WD"},{"gecko":"","webkit":"-epub-hyphens = -webkit-hyphens","presto":"","trident":"","status":""},{"gecko":"-moz-image-region","webkit":"","presto":"","trident":"","status":"P"},{"gecko":"ime-mode","webkit":"","presto":"","trident":"-ms-ime-mode","status":""},{"gecko":"","webkit":"","presto":"-wap-input-format","trident":"","status":""},{"gecko":"","webkit":"","presto":"-wap-input-required","trident":"","status":""},{"gecko":"","webkit":"","presto":"","trident":"-ms-interpolation-mode","status":""},{"gecko":"","webkit":"","presto":"-xv-interpret-as","trident":"","status":""},{"gecko":"","webkit":"","presto":"","trident":"-ms-layout-flow","status":""},{"gecko":"","webkit":"","presto":"","trident":"-ms-layout-grid","status":""},{"gecko":"","webkit":"","presto":"","trident":"-ms-layout-grid-char","status":""},{"gecko":"","webkit":"","presto":"","trident":"-ms-layout-grid-line","status":""},{"gecko":"","webkit":"","presto":"","trident":"-ms-layout-grid-mode","status":""},{"gecko":"","webkit":"","presto":"","trident":"-ms-layout-grid-type","status":""},{"gecko":"","webkit":"-webkit-line-box-contain","presto":"","trident":"","status":""},{"gecko":"","webkit":"-webkit-line-break","presto":"","trident":"-ms-line-break","status":""},{"gecko":"","webkit":"-webkit-line-clamp","presto":"","trident":"","status":""},{"gecko":"","webkit":"","presto":"","trident":"-ms-line-grid-mode","status":""},{"gecko":"","webkit":"","presto":"-o-link","trident":"","status":""},{"gecko":"","webkit":"","presto":"-o-link-source","trident":"","status":""},{"gecko":"","webkit":"-webkit-locale","presto":"","trident":"","status":""},{"gecko":"","webkit":"-webkit-logical-height","presto":"","trident":"","status":"ED"},{"gecko":"","webkit":"-webkit-logical-width","presto":"","trident":"","status":"ED"},{"gecko":"","webkit":"-webkit-margin-after","presto":"","trident":"","status":"ED"},{"gecko":"","webkit":"-webkit-margin-after-collapse","presto":"","trident":"","status":""},{"gecko":"","webkit":"-webkit-margin-before","presto":"","trident":"","status":"ED"},{"gecko":"","webkit":"-webkit-margin-before-collapse","presto":"","trident":"","status":""},{"gecko":"","webkit":"-webkit-margin-bottom-collapse","presto":"","trident":"","status":""},{"gecko":"","webkit":"-webkit-margin-collapse","presto":"","trident":"","status":""},{"gecko":"-moz-margin-end","webkit":"-webkit-margin-end","presto":"","trident":"","status":"ED"},{"gecko":"-moz-margin-start","webkit":"-webkit-margin-start","presto":"","trident":"","status":"ED"},{"gecko":"","webkit":"-webkit-margin-top-collapse","presto":"","trident":"","status":""},{"gecko":"","webkit":"-webkit-marquee","presto":"","trident":"","status":""},{"gecko":"","webkit":"","presto":"-wap-marquee-dir","trident":"","status":""},{"gecko":"","webkit":"-webkit-marquee-direction","presto":"","trident":"","status":"WD"},{"gecko":"","webkit":"-webkit-marquee-increment","presto":"","trident":"","status":""},{"gecko":"","webkit":"","presto":"-wap-marquee-loop","trident":"","status":"WD"},{"gecko":"","webkit":"-webkit-marquee-repetition","presto":"","trident":"","status":""},{"gecko":"","webkit":"-webkit-marquee-speed","presto":"-wap-marquee-speed","trident":"","status":"WD"},{"gecko":"","webkit":"-webkit-marquee-style","presto":"-wap-marquee-style","trident":"","status":"WD"},{"gecko":"mask","webkit":"-webkit-mask","presto":"mask","trident":"","status":""},{"gecko":"","webkit":"-webkit-mask-attachment","presto":"","trident":"","status":""},{"gecko":"","webkit":"-webkit-mask-box-image","presto":"","trident":"","status":""},{"gecko":"","webkit":"-webkit-mask-clip","presto":"","trident":"","status":""},{"gecko":"","webkit":"-webkit-mask-composite","presto":"","trident":"","status":""},{"gecko":"","webkit":"-webkit-mask-image","presto":"","trident":"","status":""},{"gecko":"","webkit":"-webkit-mask-origin","presto":"","trident":"","status":""},{"gecko":"","webkit":"-webkit-mask-position","presto":"","trident":"","status":""},{"gecko":"","webkit":"-webkit-mask-position-x","presto":"","trident":"","status":""},{"gecko":"","webkit":"-webkit-mask-position-y","presto":"","trident":"","status":""},{"gecko":"","webkit":"-webkit-mask-repeat","presto":"","trident":"","status":""},{"gecko":"","webkit":"-webkit-mask-repeat-x","presto":"","trident":"","status":""},{"gecko":"","webkit":"-webkit-mask-repeat-y","presto":"","trident":"","status":""},{"gecko":"","webkit":"-webkit-mask-size","presto":"","trident":"","status":""},{"gecko":"","webkit":"-webkit-match-nearest-mail-blockquote-color","presto":"","trident":"","status":""},{"gecko":"","webkit":"-webkit-max-logical-height","presto":"","trident":"","status":""},{"gecko":"","webkit":"-webkit-max-logical-width","presto":"","trident":"","status":"ED"},{"gecko":"","webkit":"-webkit-min-logical-height","presto":"","trident":"","status":"ED"},{"gecko":"","webkit":"-webkit-min-logical-width","presto":"","trident":"","status":"ED"},{"gecko":"","webkit":"","presto":"-o-mini-fold","trident":"","status":""},{"gecko":"","webkit":"-webkit-nbsp-mode","presto":"","trident":"","status":"P"},{"gecko":"","webkit":"","presto":"-o-object-fit","trident":"","status":"ED"},{"gecko":"","webkit":"","presto":"-o-object-position","trident":"","status":"ED"},{"gecko":"opacity","webkit":"-webkit-opacity","presto":"opacity","trident":"opacity","status":"WD"},{"gecko":"","webkit":"-webkit-opacity = opacity","presto":"","trident":"","status":""},{"gecko":"-moz-outline-radius","webkit":"","presto":"","trident":"","status":"P"},{"gecko":"-moz-outline-radius-bottomleft","webkit":"","presto":"","trident":"","status":"P"},{"gecko":"-moz-outline-radius-bottomright","webkit":"","presto":"","trident":"","status":"P"},{"gecko":"-moz-outline-radius-topleft","webkit":"","presto":"","trident":"","status":"P"},{"gecko":"-moz-outline-radius-topright","webkit":"","presto":"","trident":"","status":"P"},{"gecko":"overflow-x","webkit":"overflow-x","presto":"overflow-x","trident":"-ms-overflow-x","status":"WD"},{"gecko":"overflow-y","webkit":"overflow-y","presto":"overflow-y","trident":"-ms-overflow-y","status":"WD"},{"gecko":"","webkit":"-webkit-padding-after","presto":"","trident":"","status":"ED"},{"gecko":"","webkit":"-webkit-padding-before","presto":"","trident":"","status":"ED"},{"gecko":"-moz-padding-end","webkit":"-webkit-padding-end","presto":"","trident":"","status":"ED"},{"gecko":"-moz-padding-start","webkit":"-webkit-padding-start","presto":"","trident":"","status":"ED"},{"gecko":"","webkit":"-webkit-perspective","presto":"","trident":"","status":"WD"},{"gecko":"","webkit":"-webkit-perspective-origin","presto":"","trident":"","status":"WD"},{"gecko":"","webkit":"-webkit-perspective-origin-x","presto":"","trident":"","status":""},{"gecko":"","webkit":"-webkit-perspective-origin-y","presto":"","trident":"","status":""},{"gecko":"","webkit":"","presto":"-xv-phonemes","trident":"","status":""},{"gecko":"","webkit":"-webkit-rtl-ordering","presto":"","trident":"","status":"P"},{"gecko":"-moz-script-level","webkit":"","presto":"","trident":"","status":""},{"gecko":"-moz-script-min-size","webkit":"","presto":"","trident":"","status":""},{"gecko":"-moz-script-size-multiplier","webkit":"","presto":"","trident":"","status":""},{"gecko":"","webkit":"","presto":"scrollbar-3dlight-color","trident":"-ms-scrollbar-3dlight-color","status":"P"},{"gecko":"","webkit":"","presto":"scrollbar-arrow-color","trident":"-ms-scrollbar-arrow-color","status":"P"},{"gecko":"","webkit":"","presto":"scrollbar-base-color","trident":"-ms-scrollbar-base-color","status":"P"},{"gecko":"","webkit":"","presto":"scrollbar-darkshadow-color","trident":"-ms-scrollbar-darkshadow-color","status":"P"},{"gecko":"","webkit":"","presto":"scrollbar-face-color","trident":"-ms-scrollbar-face-color","status":"P"},{"gecko":"","webkit":"","presto":"scrollbar-highlight-color","trident":"-ms-scrollbar-highlight-color","status":"P"},{"gecko":"","webkit":"","presto":"scrollbar-shadow-color","trident":"-ms-scrollbar-shadow-color","status":"P"},{"gecko":"","webkit":"","presto":"scrollbar-track-color","trident":"-ms-scrollbar-track-color","status":"P"},{"gecko":"-moz-stack-sizing","webkit":"","presto":"","trident":"","status":"P"},{"gecko":"","webkit":"-webkit-svg-shadow","presto":"","trident":"","status":""},{"gecko":"-moz-tab-size","webkit":"","presto":"-o-tab-size","trident":"","status":""},{"gecko":"","webkit":"","presto":"-o-table-baseline","trident":"","status":""},{"gecko":"","webkit":"-webkit-tap-highlight-color","presto":"","trident":"","status":"P"},{"gecko":"","webkit":"","presto":"","trident":"-ms-text-align-last","status":"WD"},{"gecko":"","webkit":"","presto":"","trident":"-ms-text-autospace","status":"WD"},{"gecko":"-moz-text-blink","webkit":"","presto":"","trident":"","status":""},{"gecko":"","webkit":"-webkit-text-combine","presto":"","trident":"","status":""},{"gecko":"","webkit":"-epub-text-combine = -webkit-text-combine","presto":"","trident":"","status":""},{"gecko":"-moz-text-decoration-color","webkit":"","presto":"","trident":"","status":""},{"gecko":"-moz-text-decoration-line","webkit":"","presto":"","trident":"","status":""},{"gecko":"-moz-text-decoration-style","webkit":"","presto":"","trident":"","status":""},{"gecko":"","webkit":"-webkit-text-decorations-in-effect","presto":"","trident":"","status":""},{"gecko":"","webkit":"-webkit-text-emphasis","presto":"","trident":"","status":""},{"gecko":"","webkit":"-epub-text-emphasis = -webkit-text-emphasis","presto":"","trident":"","status":""},{"gecko":"","webkit":"-webkit-text-emphasis-color","presto":"","trident":"","status":""},{"gecko":"","webkit":"-epub-text-emphasis-color = -webkit-text-emphasis-color","presto":"","trident":"","status":""},{"gecko":"","webkit":"-webkit-text-emphasis-position","presto":"","trident":"","status":""},{"gecko":"","webkit":"-webkit-text-emphasis-style","presto":"","trident":"","status":""},{"gecko":"","webkit":"-epub-text-emphasis-style = -webkit-text-emphasis-style","presto":"","trident":"","status":""},{"gecko":"","webkit":"-webkit-text-fill-color","presto":"","trident":"","status":"P"},{"gecko":"","webkit":"","presto":"","trident":"-ms-text-justify","status":"WD"},{"gecko":"","webkit":"","presto":"","trident":"-ms-text-kashida-space","status":"P"},{"gecko":"","webkit":"-webkit-text-orientation","presto":"","trident":"","status":""},{"gecko":"","webkit":"-epub-text-orientation = -webkit-text-orientation","presto":"","trident":"","status":""},{"gecko":"","webkit":"text-overflow","presto":"text-overflow","trident":"-ms-text-overflow","status":"WD"},{"gecko":"","webkit":"-webkit-text-security","presto":"","trident":"","status":"P"},{"gecko":"","webkit":"-webkit-text-size-adjust","presto":"","trident":"-ms-text-size-adjust","status":""},{"gecko":"","webkit":"-webkit-text-stroke","presto":"","trident":"","status":"P"},{"gecko":"","webkit":"-webkit-text-stroke-color","presto":"","trident":"","status":"P"},{"gecko":"","webkit":"-webkit-text-stroke-width","presto":"","trident":"","status":"P"},{"gecko":"","webkit":"-epub-text-transform = text-transform","presto":"","trident":"","status":""},{"gecko":"","webkit":"","presto":"","trident":"-ms-text-underline-position","status":"P"},{"gecko":"","webkit":"-webkit-touch-callout","presto":"","trident":"","status":"P"},{"gecko":"-moz-transform","webkit":"-webkit-transform","presto":"-o-transform","trident":"-ms-transform","status":"WD"},{"gecko":"-moz-transform-origin","webkit":"-webkit-transform-origin","presto":"-o-transform-origin","trident":"-ms-transform-origin","status":"WD"},{"gecko":"","webkit":"-webkit-transform-origin-x","presto":"","trident":"","status":"P"},{"gecko":"","webkit":"-webkit-transform-origin-y","presto":"","trident":"","status":"P"},{"gecko":"","webkit":"-webkit-transform-origin-z","presto":"","trident":"","status":"P"},{"gecko":"","webkit":"-webkit-transform-style","presto":"","trident":"","status":"WD"},{"gecko":"-moz-transition","webkit":"-webkit-transition","presto":"-o-transition","trident":"","status":"WD"},{"gecko":"-moz-transition-delay","webkit":"-webkit-transition-delay","presto":"-o-transition-delay","trident":"","status":"WD"},{"gecko":"-moz-transition-duration","webkit":"-webkit-transition-duration","presto":"-o-transition-duration","trident":"","status":"WD"},{"gecko":"-moz-transition-property","webkit":"-webkit-transition-property","presto":"-o-transition-property","trident":"","status":"WD"},{"gecko":"-moz-transition-timing-function","webkit":"-webkit-transition-timing-function","presto":"-o-transition-timing-function","trident":"","status":"WD"},{"gecko":"","webkit":"-webkit-user-drag","presto":"","trident":"","status":"P"},{"gecko":"-moz-user-focus","webkit":"","presto":"","trident":"","status":"P"},{"gecko":"-moz-user-input","webkit":"","presto":"","trident":"","status":"P"},{"gecko":"-moz-user-modify","webkit":"-webkit-user-modify","presto":"","trident":"","status":"P"},{"gecko":"-moz-user-select","webkit":"-webkit-user-select","presto":"","trident":"","status":"P"},{"gecko":"","webkit":"","presto":"-xv-voice-balance","trident":"","status":""},{"gecko":"","webkit":"","presto":"-xv-voice-duration","trident":"","status":""},{"gecko":"","webkit":"","presto":"-xv-voice-pitch","trident":"","status":""},{"gecko":"","webkit":"","presto":"-xv-voice-pitch-range","trident":"","status":""},{"gecko":"","webkit":"","presto":"-xv-voice-rate","trident":"","status":""},{"gecko":"","webkit":"","presto":"-xv-voice-stress","trident":"","status":""},{"gecko":"","webkit":"","presto":"-xv-voice-volume","trident":"","status":""},{"gecko":"-moz-window-shadow","webkit":"","presto":"","trident":"","status":"P"},{"gecko":"","webkit":"word-break","presto":"","trident":"-ms-word-break","status":"WD"},{"gecko":"","webkit":"-epub-word-break = word-break","presto":"","trident":"","status":""},{"gecko":"word-wrap","webkit":"word-wrap","presto":"word-wrap","trident":"-ms-word-wrap","status":"WD"},{"gecko":"","webkit":"-webkit-writing-mode","presto":"writing-mode","trident":"-ms-writing-mode","status":"ED"},{"gecko":"","webkit":"-epub-writing-mode = -webkit-writing-mode","presto":"","trident":"","status":""},{"gecko":"","webkit":"zoom","presto":"","trident":"-ms-zoom","status":""}]};var kCSS_PREFIXED_VALUE=[{"gecko":"-moz-box","webkit":"-moz-box","presto":"","trident":"","generic":"box"}];var CssInspector={mVENDOR_PREFIXES:null,kEXPORTS_FOR_GECKO:true,kEXPORTS_FOR_WEBKIT:true,kEXPORTS_FOR_PRESTO:true,kEXPORTS_FOR_TRIDENT:true,cleanPrefixes:function cleanPrefixes(){this.mVENDOR_PREFIXES=null;},prefixesForProperty:function prefixesForProperty(aProperty){if(!this.mVENDOR_PREFIXES){this.mVENDOR_PREFIXES={};for(var i=0;i<kCSS_VENDOR_PREFIXES.properties.length;i++){var p=kCSS_VENDOR_PREFIXES.properties[i];if(p.gecko&&(p.webkit||p.presto||p.trident)){var o={};if(this.kEXPORTS_FOR_GECKO)o[p.gecko]=true;if(this.kEXPORTS_FOR_WEBKIT&&p.webkit)o[p.webkit]=true;if(this.kEXPORTS_FOR_PRESTO&&p.presto)o[p.presto]=true;if(this.kEXPORTS_FOR_TRIDENT&&p.trident)o[p.trident]=true;this.mVENDOR_PREFIXES[p.gecko]=[];for(var j in o){this.mVENDOR_PREFIXES[p.gecko].push(j);}}}}if(aProperty in this.mVENDOR_PREFIXES)return this.mVENDOR_PREFIXES[aProperty].sort();return null;},parseColorStop:function parseColorStop(parser,token){var color=parser.parseColor(token);var position="";if(!color)return null;token=parser.getToken(true,true);if(token.isPercentage()||token.isDimensionOfUnit("cm")||token.isDimensionOfUnit("mm")||token.isDimensionOfUnit("in")||token.isDimensionOfUnit("pc")||token.isDimensionOfUnit("px")||token.isDimensionOfUnit("em")||token.isDimensionOfUnit("ex")||token.isDimensionOfUnit("pt")){position=token.value;token=parser.getToken(true,true);}return{color:color,position:position};},parseGradient:function parseGradient(parser,token){var isRadial=false;var gradient={isRepeating:false};if(token.isNotNull()){if(token.isFunction("-moz-linear-gradient(")||token.isFunction("-moz-radial-gradient(")||token.isFunction("-moz-repeating-linear-gradient(")||token.isFunction("-moz-repeating-radial-gradient(")){if(token.isFunction("-moz-radial-gradient(")||token.isFunction("-moz-repeating-radial-gradient(")){gradient.isRadial=true;}if(token.isFunction("-moz-repeating-linear-gradient(")||token.isFunction("-moz-repeating-radial-gradient(")){gradient.isRepeating=true;}token=parser.getToken(true,true);var haveGradientLine=false;var foundHorizPosition=false;var haveAngle=false;if(token.isAngle()){gradient.angle=token.value;haveGradientLine=true;haveAngle=true;token=parser.getToken(true,true);}if(token.isLength()||token.isIdent("top")||token.isIdent("center")||token.isIdent("bottom")||token.isIdent("left")||token.isIdent("right")){haveGradientLine=true;if(token.isLength()||token.isIdent("left")||token.isIdent("right")){foundHorizPosition=true;}gradient.position=token.value;token=parser.getToken(true,true);}if(haveGradientLine){if(!haveAngle&&token.isAngle()){gradient.angle=token.value;haveAngle=true;token=parser.getToken(true,true);}else if(token.isLength()||foundHorizPosition&&(token.isIdent("top")||token.isIdent("center")||token.isIdent("bottom"))||!foundHorizPosition&&(token.isLength()||token.isIdent("top")||token.isIdent("center")||token.isIdent("bottom")||token.isIdent("left")||token.isIdent("right"))){gradient.position="position"in gradient?gradient.position+" ":"";gradient.position+=token.value;token=parser.getToken(true,true);}if(!haveAngle&&token.isAngle()){gradient.angle=token.value;haveAngle=true;token=parser.getToken(true,true);}if(!token.isSymbol(","))return null;token=parser.getToken(true,true);}if(gradient.isRadial){if(token.isIdent("circle")||token.isIdent("ellipse")){gradient.shape=token.value;token=parser.getToken(true,true);}if(token.isIdent("closest-side")||token.isIdent("closest-corner")||token.isIdent("farthest-side")||token.isIdent("farthest-corner")||token.isIdent("contain")||token.isIdent("cover")){gradient.size=token.value;token=parser.getToken(true,true);}if(!("shape"in gradient)&&(token.isIdent("circle")||token.isIdent("ellipse"))){gradient.shape=token.value;token=parser.getToken(true,true);}if(("shape"in gradient||"size"in gradient)&&!token.isSymbol(","))return null;else if("shape"in gradient||"size"in gradient)token=parser.getToken(true,true);}var stop1=this.parseColorStop(parser,token);if(!stop1)return null;token=parser.currentToken();if(!token.isSymbol(","))return null;token=parser.getToken(true,true);var stop2=this.parseColorStop(parser,token);if(!stop2)return null;token=parser.currentToken();if(token.isSymbol(",")){token=parser.getToken(true,true);}gradient.stops=[stop1,stop2];while(!token.isSymbol(")")){var colorstop=this.parseColorStop(parser,token);if(!colorstop)return null;token=parser.currentToken();if(!token.isSymbol(")")&&!token.isSymbol(","))return null;if(token.isSymbol(","))token=parser.getToken(true,true);gradient.stops.push(colorstop);}return gradient;}}return null;},parseBoxShadows:function parseBoxShadows(aString){var parser=new CSSParser();parser._init();parser.mPreserveWS=false;parser.mPreserveComments=false;parser.mPreservedTokens=[];parser.mScanner.init(aString);var shadows=[];var token=parser.getToken(true,true);var color="",blurRadius="0px",offsetX="0px",offsetY="0px",spreadRadius="0px";var inset=false;while(token.isNotNull()){if(token.isIdent("none")){shadows.push({none:true});token=parser.getToken(true,true);}else{if(token.isIdent('inset')){inset=true;token=parser.getToken(true,true);}if(token.isPercentage()||token.isDimensionOfUnit("cm")||token.isDimensionOfUnit("mm")||token.isDimensionOfUnit("in")||token.isDimensionOfUnit("pc")||token.isDimensionOfUnit("px")||token.isDimensionOfUnit("em")||token.isDimensionOfUnit("ex")||token.isDimensionOfUnit("pt")){var offsetX=token.value;token=parser.getToken(true,true);}else return[];if(!inset&&token.isIdent('inset')){inset=true;token=parser.getToken(true,true);}if(token.isPercentage()||token.isDimensionOfUnit("cm")||token.isDimensionOfUnit("mm")||token.isDimensionOfUnit("in")||token.isDimensionOfUnit("pc")||token.isDimensionOfUnit("px")||token.isDimensionOfUnit("em")||token.isDimensionOfUnit("ex")||token.isDimensionOfUnit("pt")){var offsetX=token.value;token=parser.getToken(true,true);}else return[];if(!inset&&token.isIdent('inset')){inset=true;token=parser.getToken(true,true);}if(token.isPercentage()||token.isDimensionOfUnit("cm")||token.isDimensionOfUnit("mm")||token.isDimensionOfUnit("in")||token.isDimensionOfUnit("pc")||token.isDimensionOfUnit("px")||token.isDimensionOfUnit("em")||token.isDimensionOfUnit("ex")||token.isDimensionOfUnit("pt")){var blurRadius=token.value;token=parser.getToken(true,true);}if(!inset&&token.isIdent('inset')){inset=true;token=parser.getToken(true,true);}if(token.isPercentage()||token.isDimensionOfUnit("cm")||token.isDimensionOfUnit("mm")||token.isDimensionOfUnit("in")||token.isDimensionOfUnit("pc")||token.isDimensionOfUnit("px")||token.isDimensionOfUnit("em")||token.isDimensionOfUnit("ex")||token.isDimensionOfUnit("pt")){var spreadRadius=token.value;token=parser.getToken(true,true);}if(!inset&&token.isIdent('inset')){inset=true;token=parser.getToken(true,true);}if(token.isFunction("rgb(")||token.isFunction("rgba(")||token.isFunction("hsl(")||token.isFunction("hsla(")||token.isSymbol("#")||token.isIdent()){var color=parser.parseColor(token);token=parser.getToken(true,true);}if(!inset&&token.isIdent('inset')){inset=true;token=parser.getToken(true,true);}shadows.push({none:false,color:color,offsetX:offsetX,offsetY:offsetY,blurRadius:blurRadius,spreadRadius:spreadRadius});if(token.isSymbol(",")){inset=false;color="";blurRadius="0px";spreadRadius="0px";offsetX="0px";offsetY="0px";token=parser.getToken(true,true);}else if(!token.isNotNull())return shadows;else return[];}}return shadows;},parseTextShadows:function parseTextShadows(aString){var parser=new CSSParser();parser._init();parser.mPreserveWS=false;parser.mPreserveComments=false;parser.mPreservedTokens=[];parser.mScanner.init(aString);var shadows=[];var token=parser.getToken(true,true);var color="",blurRadius="0px",offsetX="0px",offsetY="0px";while(token.isNotNull()){if(token.isIdent("none")){shadows.push({none:true});token=parser.getToken(true,true);}else{if(token.isFunction("rgb(")||token.isFunction("rgba(")||token.isFunction("hsl(")||token.isFunction("hsla(")||token.isSymbol("#")||token.isIdent()){var color=parser.parseColor(token);token=parser.getToken(true,true);}if(token.isPercentage()||token.isDimensionOfUnit("cm")||token.isDimensionOfUnit("mm")||token.isDimensionOfUnit("in")||token.isDimensionOfUnit("pc")||token.isDimensionOfUnit("px")||token.isDimensionOfUnit("em")||token.isDimensionOfUnit("ex")||token.isDimensionOfUnit("pt")){var offsetX=token.value;token=parser.getToken(true,true);}else return[];if(token.isPercentage()||token.isDimensionOfUnit("cm")||token.isDimensionOfUnit("mm")||token.isDimensionOfUnit("in")||token.isDimensionOfUnit("pc")||token.isDimensionOfUnit("px")||token.isDimensionOfUnit("em")||token.isDimensionOfUnit("ex")||token.isDimensionOfUnit("pt")){var offsetY=token.value;token=parser.getToken(true,true);}else return[];if(token.isPercentage()||token.isDimensionOfUnit("cm")||token.isDimensionOfUnit("mm")||token.isDimensionOfUnit("in")||token.isDimensionOfUnit("pc")||token.isDimensionOfUnit("px")||token.isDimensionOfUnit("em")||token.isDimensionOfUnit("ex")||token.isDimensionOfUnit("pt")){var blurRadius=token.value;token=parser.getToken(true,true);}if(!color&&(token.isFunction("rgb(")||token.isFunction("rgba(")||token.isFunction("hsl(")||token.isFunction("hsla(")||token.isSymbol("#")||token.isIdent())){var color=parser.parseColor(token);token=parser.getToken(true,true);}shadows.push({none:false,color:color,offsetX:offsetX,offsetY:offsetY,blurRadius:blurRadius});if(token.isSymbol(",")){color="";blurRadius="0px";offsetX="0px";offsetY="0px";token=parser.getToken(true,true);}else if(!token.isNotNull())return shadows;else return[];}}return shadows;},parseBackgroundImages:function parseBackgroundImages(aString){var parser=new CSSParser();parser._init();parser.mPreserveWS=false;parser.mPreserveComments=false;parser.mPreservedTokens=[];parser.mScanner.init(aString);var backgrounds=[];var token=parser.getToken(true,true);while(token.isNotNull()){if(token.isFunction("url(")){token=parser.getToken(true,true);var urlContent=parser.parseURL(token);backgrounds.push({type:"image",value:"url("+urlContent});token=parser.getToken(true,true);}else if(token.isFunction("-moz-linear-gradient(")||token.isFunction("-moz-radial-gradient(")||token.isFunction("-moz-repeating-linear-gradient(")||token.isFunction("-moz-repeating-radial-gradient(")){var gradient=this.parseGradient(parser,token);backgrounds.push({type:gradient.isRadial?"radial-gradient":"linear-gradient",value:gradient});token=parser.getToken(true,true);}else return null;if(token.isSymbol(",")){token=parser.getToken(true,true);if(!token.isNotNull())return null;}}return backgrounds;},serializeGradient:function serializeGradient(gradient){var s=gradient.isRadial?gradient.isRepeating?"-moz-repeating-radial-gradient(":"-moz-radial-gradient(":gradient.isRepeating?"-moz-repeating-linear-gradient(":"-moz-linear-gradient(";if(gradient.angle||gradient.position)s+=(gradient.angle?gradient.angle+" ":"")+(gradient.position?gradient.position:"")+", ";if(gradient.isRadial&&(gradient.shape||gradient.size))s+=(gradient.shape?gradient.shape:"")+" "+(gradient.size?gradient.size:"")+", ";for(var i=0;i<gradient.stops.length;i++){var colorstop=gradient.stops[i];s+=colorstop.color+(colorstop.position?" "+colorstop.position:"");if(i!=gradient.stops.length-1)s+=", ";}s+=")";return s;},parseBorderImage:function parseBorderImage(aString){var parser=new CSSParser();parser._init();parser.mPreserveWS=false;parser.mPreserveComments=false;parser.mPreservedTokens=[];parser.mScanner.init(aString);var borderImage={url:"",offsets:[],widths:[],sizes:[]};var token=parser.getToken(true,true);if(token.isFunction("url(")){token=parser.getToken(true,true);var urlContent=parser.parseURL(token);if(urlContent){borderImage.url=urlContent.substr(0,urlContent.length-1).trim();if(borderImage.url[0]=='"'&&borderImage.url[borderImage.url.length-1]=='"'||borderImage.url[0]=="'"&&borderImage.url[borderImage.url.length-1]=="'")borderImage.url=borderImage.url.substr(1,borderImage.url.length-2);}else return null;}else return null;token=parser.getToken(true,true);if(token.isNumber()||token.isPercentage())borderImage.offsets.push(token.value);else return null;var i;for(i=0;i<3;i++){token=parser.getToken(true,true);if(token.isNumber()||token.isPercentage())borderImage.offsets.push(token.value);else break;}if(i==3)token=parser.getToken(true,true);if(token.isSymbol("/")){token=parser.getToken(true,true);if(token.isDimension()||token.isNumber("0")||token.isIdent()&&token.value in parser.kBORDER_WIDTH_NAMES)borderImage.widths.push(token.value);else return null;for(var i=0;i<3;i++){token=parser.getToken(true,true);if(token.isDimension()||token.isNumber("0")||token.isIdent()&&token.value in parser.kBORDER_WIDTH_NAMES)borderImage.widths.push(token.value);else break;}if(i==3)token=parser.getToken(true,true);}for(var i=0;i<2;i++){if(token.isIdent("stretch")||token.isIdent("repeat")||token.isIdent("round"))borderImage.sizes.push(token.value);else if(!token.isNotNull())return borderImage;else return null;token=parser.getToken(true,true);}if(!token.isNotNull())return borderImage;return null;},parseMediaQuery:function parseMediaQuery(aString){var kCONSTRAINTS={"width":true,"min-width":true,"max-width":true,"height":true,"min-height":true,"max-height":true,"device-width":true,"min-device-width":true,"max-device-width":true,"device-height":true,"min-device-height":true,"max-device-height":true,"orientation":true,"aspect-ratio":true,"min-aspect-ratio":true,"max-aspect-ratio":true,"device-aspect-ratio":true,"min-device-aspect-ratio":true,"max-device-aspect-ratio":true,"color":true,"min-color":true,"max-color":true,"color-index":true,"min-color-index":true,"max-color-index":true,"monochrome":true,"min-monochrome":true,"max-monochrome":true,"resolution":true,"min-resolution":true,"max-resolution":true,"scan":true,"grid":true};var parser=new CSSParser();parser._init();parser.mPreserveWS=false;parser.mPreserveComments=false;parser.mPreservedTokens=[];parser.mScanner.init(aString);var m={amplifier:"",medium:"",constraints:[]};var token=parser.getToken(true,true);if(token.isIdent("all")||token.isIdent("aural")||token.isIdent("braille")||token.isIdent("handheld")||token.isIdent("print")||token.isIdent("projection")||token.isIdent("screen")||token.isIdent("tty")||token.isIdent("tv")){m.medium=token.value;token=parser.getToken(true,true);}else if(token.isIdent("not")||token.isIdent("only")){m.amplifier=token.value;token=parser.getToken(true,true);if(token.isIdent("all")||token.isIdent("aural")||token.isIdent("braille")||token.isIdent("handheld")||token.isIdent("print")||token.isIdent("projection")||token.isIdent("screen")||token.isIdent("tty")||token.isIdent("tv")){m.medium=token.value;token=parser.getToken(true,true);}else return null;}if(m.medium){if(!token.isNotNull())return m;if(token.isIdent("and")){token=parser.getToken(true,true);}else return null;}while(token.isSymbol("(")){token=parser.getToken(true,true);if(token.isIdent()&&token.value in kCONSTRAINTS){var constraint=token.value;token=parser.getToken(true,true);if(token.isSymbol(":")){token=parser.getToken(true,true);var values=[];while(!token.isSymbol(")")){values.push(token.value);token=parser.getToken(true,true);}if(token.isSymbol(")")){m.constraints.push({constraint:constraint,value:values});token=parser.getToken(true,true);if(token.isNotNull()){if(token.isIdent("and")){token=parser.getToken(true,true);}else return null;}else return m;}else return null;}else if(token.isSymbol(")")){m.constraints.push({constraint:constraint,value:null});token=parser.getToken(true,true);if(token.isNotNull()){if(token.isIdent("and")){token=parser.getToken(true,true);}else return null;}else return m;}else return null;}else return null;}return m;}};var CSS_ESCAPE='\\';var IS_HEX_DIGIT=1;var START_IDENT=2;var IS_IDENT=4;var IS_WHITESPACE=8;var W=IS_WHITESPACE;var I=IS_IDENT;var S=START_IDENT;var SI=IS_IDENT|START_IDENT;var XI=IS_IDENT|IS_HEX_DIGIT;var XSI=IS_IDENT|START_IDENT|IS_HEX_DIGIT;function CSSScanner(aString){this.init(aString);}CSSScanner.prototype={kLexTable:[0,0,0,0,0,0,0,0,0,W,W,0,W,W,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,W,0,0,0,0,0,0,0,0,0,0,0,0,I,0,0,XI,XI,XI,XI,XI,XI,XI,XI,XI,XI,0,0,0,0,0,0,0,XSI,XSI,XSI,XSI,XSI,XSI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,0,S,0,0,SI,0,XSI,XSI,XSI,XSI,XSI,XSI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI,SI],kHexValues:{"0":0,"1":1,"2":2,"3":3,"4":4,"5":5,"6":6,"7":7,"8":8,"9":9,"a":10,"b":11,"c":12,"d":13,"e":14,"f":15},mString:"",mPos:0,mPreservedPos:[],init:function init(aString){this.mString=aString;this.mPos=0;this.mPreservedPos=[];},getCurrentPos:function getCurrentPos(){return this.mPos;},getAlreadyScanned:function getAlreadyScanned(){return this.mString.substr(0,this.mPos);},preserveState:function preserveState(){this.mPreservedPos.push(this.mPos);},restoreState:function restoreState(){if(this.mPreservedPos.length){this.mPos=this.mPreservedPos.pop();}},forgetState:function forgetState(){if(this.mPreservedPos.length){this.mPreservedPos.pop();}},read:function read(){if(this.mPos<this.mString.length)return this.mString.charAt(this.mPos++);return-1;},peek:function peek(){if(this.mPos<this.mString.length)return this.mString.charAt(this.mPos);return-1;},isHexDigit:function isHexDigit(c){var code=c.charCodeAt(0);return code<256&&(this.kLexTable[code]&IS_HEX_DIGIT)!=0;},isIdentStart:function isIdentStart(c){var code=c.charCodeAt(0);return code>=256||(this.kLexTable[code]&START_IDENT)!=0;},startsWithIdent:function startsWithIdent(aFirstChar,aSecondChar){var code=aFirstChar.charCodeAt(0);return this.isIdentStart(aFirstChar)||aFirstChar=="-"&&this.isIdentStart(aSecondChar);},isIdent:function isIdent(c){var code=c.charCodeAt(0);return code>=256||(this.kLexTable[code]&IS_IDENT)!=0;},pushback:function pushback(){this.mPos--;},nextHexValue:function nextHexValue(){var c=this.read();if(c==-1||!this.isHexDigit(c))return new jscsspToken(jscsspToken.NULL_TYPE,null);var s=c;c=this.read();while(c!=-1&&this.isHexDigit(c)){s+=c;c=this.read();}if(c!=-1)this.pushback();return new jscsspToken(jscsspToken.HEX_TYPE,s);},gatherEscape:function gatherEscape(){var c=this.peek();if(c==-1)return"";if(this.isHexDigit(c)){var code=0;for(var i=0;i<6;i++){c=this.read();if(this.isHexDigit(c))code=code*16+this.kHexValues[c.toLowerCase()];else if(!this.isHexDigit(c)&&!this.isWhiteSpace(c)){this.pushback();break;}else break;}if(i==6){c=this.peek();if(this.isWhiteSpace(c))this.read();}return String.fromCharCode(code);}c=this.read();if(c!="\n")return c;return"";},gatherIdent:function gatherIdent(c){var s="";if(c==CSS_ESCAPE)s+=this.gatherEscape();else s+=c;c=this.read();while(c!=-1&&(this.isIdent(c)||c==CSS_ESCAPE)){if(c==CSS_ESCAPE)s+=this.gatherEscape();else s+=c;c=this.read();}if(c!=-1)this.pushback();return s;},parseIdent:function parseIdent(c){var value=this.gatherIdent(c);var nextChar=this.peek();if(nextChar=="("){value+=this.read();return new jscsspToken(jscsspToken.FUNCTION_TYPE,value);}return new jscsspToken(jscsspToken.IDENT_TYPE,value);},isDigit:function isDigit(c){return c>='0'&&c<='9';},parseComment:function parseComment(c){var s=c;while((c=this.read())!=-1){s+=c;if(c=="*"){c=this.read();if(c==-1)break;if(c=="/"){s+=c;break;}this.pushback();}}return new jscsspToken(jscsspToken.COMMENT_TYPE,s);},parseNumber:function parseNumber(c){var s=c;var foundDot=false;while((c=this.read())!=-1){if(c=="."){if(foundDot)break;else{s+=c;foundDot=true;}}else if(this.isDigit(c))s+=c;else break;}if(c!=-1&&this.startsWithIdent(c,this.peek())){var unit=this.gatherIdent(c);s+=unit;return new jscsspToken(jscsspToken.DIMENSION_TYPE,s,unit);}else if(c=="%"){s+="%";return new jscsspToken(jscsspToken.PERCENTAGE_TYPE,s);}else if(c!=-1)this.pushback();return new jscsspToken(jscsspToken.NUMBER_TYPE,s);},parseString:function parseString(aStop){var s=aStop;var previousChar=aStop;var c;while((c=this.read())!=-1){if(c==aStop&&previousChar!=CSS_ESCAPE){s+=c;break;}else if(c==CSS_ESCAPE){c=this.peek();if(c==-1)break;else if(c=="\n"||c=="\r"||c=="\f"){d=c;c=this.read();if(d=="\r"){c=this.peek();if(c=="\n")c=this.read();}}else{s+=this.gatherEscape();c=this.peek();}}else if(c=="\n"||c=="\r"||c=="\f"){break;}else s+=c;previousChar=c;}return new jscsspToken(jscsspToken.STRING_TYPE,s);},isWhiteSpace:function isWhiteSpace(c){var code=c.charCodeAt(0);return code<256&&(this.kLexTable[code]&IS_WHITESPACE)!=0;},eatWhiteSpace:function eatWhiteSpace(c){var s=c;while((c=this.read())!=-1){if(!this.isWhiteSpace(c))break;s+=c;}if(c!=-1)this.pushback();return s;},parseAtKeyword:function parseAtKeyword(c){return new jscsspToken(jscsspToken.ATRULE_TYPE,this.gatherIdent(c));},nextToken:function nextToken(){var c=this.read();if(c==-1)return new jscsspToken(jscsspToken.NULL_TYPE,null);if(this.startsWithIdent(c,this.peek()))return this.parseIdent(c);if(c=='@'){var nextChar=this.read();if(nextChar!=-1){var followingChar=this.peek();this.pushback();if(this.startsWithIdent(nextChar,followingChar))return this.parseAtKeyword(c);}}if(c=="."||c=="+"||c=="-"){var nextChar=this.peek();if(this.isDigit(nextChar))return this.parseNumber(c);else if(nextChar=="."&&c!="."){firstChar=this.read();var secondChar=this.peek();this.pushback();if(this.isDigit(secondChar))return this.parseNumber(c);}}if(this.isDigit(c)){return this.parseNumber(c);}if(c=="'"||c=='"')return this.parseString(c);if(this.isWhiteSpace(c)){var s=this.eatWhiteSpace(c);return new jscsspToken(jscsspToken.WHITESPACE_TYPE,s);}if(c=="|"||c=="~"||c=="^"||c=="$"||c=="*"){var nextChar=this.read();if(nextChar=="="){switch(c){case"~":return new jscsspToken(jscsspToken.INCLUDES_TYPE,"~=");case"|":return new jscsspToken(jscsspToken.DASHMATCH_TYPE,"|=");case"^":return new jscsspToken(jscsspToken.BEGINSMATCH_TYPE,"^=");case"$":return new jscsspToken(jscsspToken.ENDSMATCH_TYPE,"$=");case"*":return new jscsspToken(jscsspToken.CONTAINSMATCH_TYPE,"*=");default:break;}}else if(nextChar!=-1)this.pushback();}if(c=="/"&&this.peek()=="*")return this.parseComment(c);return new jscsspToken(jscsspToken.SYMBOL_TYPE,c);}};function CSSParser(aString){this.mToken=null;this.mLookAhead=null;this.mScanner=new CSSScanner(aString);this.mPreserveWS=true;this.mPreserveComments=true;this.mPreservedTokens=[];this.mError=null;}CSSParser.prototype={_init:function _init(){this.mToken=null;this.mLookAhead=null;},kINHERIT:"inherit",kBORDER_WIDTH_NAMES:{"thin":true,"medium":true,"thick":true},kBORDER_STYLE_NAMES:{"none":true,"hidden":true,"dotted":true,"dashed":true,"solid":true,"double":true,"groove":true,"ridge":true,"inset":true,"outset":true},kCOLOR_NAMES:(_kCOLOR_NAMES={"transparent":true,"black":true,"silver":true,"gray":true,"white":true,"maroon":true,"red":true,"purple":true,"fuchsia":true,"green":true,"lime":true,"olive":true,"yellow":true,"navy":true,"blue":true,"teal":true,"aqua":true,"aliceblue":true,"antiquewhite":true},_defineProperty(_kCOLOR_NAMES,"aqua",true),_defineProperty(_kCOLOR_NAMES,"aquamarine",true),_defineProperty(_kCOLOR_NAMES,"azure",true),_defineProperty(_kCOLOR_NAMES,"beige",true),_defineProperty(_kCOLOR_NAMES,"bisque",true),_defineProperty(_kCOLOR_NAMES,"black",true),_defineProperty(_kCOLOR_NAMES,"blanchedalmond",true),_defineProperty(_kCOLOR_NAMES,"blue",true),_defineProperty(_kCOLOR_NAMES,"blueviolet",true),_defineProperty(_kCOLOR_NAMES,"brown",true),_defineProperty(_kCOLOR_NAMES,"burlywood",true),_defineProperty(_kCOLOR_NAMES,"cadetblue",true),_defineProperty(_kCOLOR_NAMES,"chartreuse",true),_defineProperty(_kCOLOR_NAMES,"chocolate",true),_defineProperty(_kCOLOR_NAMES,"coral",true),_defineProperty(_kCOLOR_NAMES,"cornflowerblue",true),_defineProperty(_kCOLOR_NAMES,"cornsilk",true),_defineProperty(_kCOLOR_NAMES,"crimson",true),_defineProperty(_kCOLOR_NAMES,"cyan",true),_defineProperty(_kCOLOR_NAMES,"darkblue",true),_defineProperty(_kCOLOR_NAMES,"darkcyan",true),_defineProperty(_kCOLOR_NAMES,"darkgoldenrod",true),_defineProperty(_kCOLOR_NAMES,"darkgray",true),_defineProperty(_kCOLOR_NAMES,"darkgreen",true),_defineProperty(_kCOLOR_NAMES,"darkgrey",true),_defineProperty(_kCOLOR_NAMES,"darkkhaki",true),_defineProperty(_kCOLOR_NAMES,"darkmagenta",true),_defineProperty(_kCOLOR_NAMES,"darkolivegreen",true),_defineProperty(_kCOLOR_NAMES,"darkorange",true),_defineProperty(_kCOLOR_NAMES,"darkorchid",true),_defineProperty(_kCOLOR_NAMES,"darkred",true),_defineProperty(_kCOLOR_NAMES,"darksalmon",true),_defineProperty(_kCOLOR_NAMES,"darkseagreen",true),_defineProperty(_kCOLOR_NAMES,"darkslateblue",true),_defineProperty(_kCOLOR_NAMES,"darkslategray",true),_defineProperty(_kCOLOR_NAMES,"darkslategrey",true),_defineProperty(_kCOLOR_NAMES,"darkturquoise",true),_defineProperty(_kCOLOR_NAMES,"darkviolet",true),_defineProperty(_kCOLOR_NAMES,"deeppink",true),_defineProperty(_kCOLOR_NAMES,"deepskyblue",true),_defineProperty(_kCOLOR_NAMES,"dimgray",true),_defineProperty(_kCOLOR_NAMES,"dimgrey",true),_defineProperty(_kCOLOR_NAMES,"dodgerblue",true),_defineProperty(_kCOLOR_NAMES,"firebrick",true),_defineProperty(_kCOLOR_NAMES,"floralwhite",true),_defineProperty(_kCOLOR_NAMES,"forestgreen",true),_defineProperty(_kCOLOR_NAMES,"fuchsia",true),_defineProperty(_kCOLOR_NAMES,"gainsboro",true),_defineProperty(_kCOLOR_NAMES,"ghostwhite",true),_defineProperty(_kCOLOR_NAMES,"gold",true),_defineProperty(_kCOLOR_NAMES,"goldenrod",true),_defineProperty(_kCOLOR_NAMES,"gray",true),_defineProperty(_kCOLOR_NAMES,"green",true),_defineProperty(_kCOLOR_NAMES,"greenyellow",true),_defineProperty(_kCOLOR_NAMES,"grey",true),_defineProperty(_kCOLOR_NAMES,"honeydew",true),_defineProperty(_kCOLOR_NAMES,"hotpink",true),_defineProperty(_kCOLOR_NAMES,"indianred",true),_defineProperty(_kCOLOR_NAMES,"indigo",true),_defineProperty(_kCOLOR_NAMES,"ivory",true),_defineProperty(_kCOLOR_NAMES,"khaki",true),_defineProperty(_kCOLOR_NAMES,"lavender",true),_defineProperty(_kCOLOR_NAMES,"lavenderblush",true),_defineProperty(_kCOLOR_NAMES,"lawngreen",true),_defineProperty(_kCOLOR_NAMES,"lemonchiffon",true),_defineProperty(_kCOLOR_NAMES,"lightblue",true),_defineProperty(_kCOLOR_NAMES,"lightcoral",true),_defineProperty(_kCOLOR_NAMES,"lightcyan",true),_defineProperty(_kCOLOR_NAMES,"lightgoldenrodyellow",true),_defineProperty(_kCOLOR_NAMES,"lightgray",true),_defineProperty(_kCOLOR_NAMES,"lightgreen",true),_defineProperty(_kCOLOR_NAMES,"lightgrey",true),_defineProperty(_kCOLOR_NAMES,"lightpink",true),_defineProperty(_kCOLOR_NAMES,"lightsalmon",true),_defineProperty(_kCOLOR_NAMES,"lightseagreen",true),_defineProperty(_kCOLOR_NAMES,"lightskyblue",true),_defineProperty(_kCOLOR_NAMES,"lightslategray",true),_defineProperty(_kCOLOR_NAMES,"lightslategrey",true),_defineProperty(_kCOLOR_NAMES,"lightsteelblue",true),_defineProperty(_kCOLOR_NAMES,"lightyellow",true),_defineProperty(_kCOLOR_NAMES,"lime",true),_defineProperty(_kCOLOR_NAMES,"limegreen",true),_defineProperty(_kCOLOR_NAMES,"linen",true),_defineProperty(_kCOLOR_NAMES,"magenta",true),_defineProperty(_kCOLOR_NAMES,"maroon",true),_defineProperty(_kCOLOR_NAMES,"mediumaquamarine",true),_defineProperty(_kCOLOR_NAMES,"mediumblue",true),_defineProperty(_kCOLOR_NAMES,"mediumorchid",true),_defineProperty(_kCOLOR_NAMES,"mediumpurple",true),_defineProperty(_kCOLOR_NAMES,"mediumseagreen",true),_defineProperty(_kCOLOR_NAMES,"mediumslateblue",true),_defineProperty(_kCOLOR_NAMES,"mediumspringgreen",true),_defineProperty(_kCOLOR_NAMES,"mediumturquoise",true),_defineProperty(_kCOLOR_NAMES,"mediumvioletred",true),_defineProperty(_kCOLOR_NAMES,"midnightblue",true),_defineProperty(_kCOLOR_NAMES,"mintcream",true),_defineProperty(_kCOLOR_NAMES,"mistyrose",true),_defineProperty(_kCOLOR_NAMES,"moccasin",true),_defineProperty(_kCOLOR_NAMES,"navajowhite",true),_defineProperty(_kCOLOR_NAMES,"navy",true),_defineProperty(_kCOLOR_NAMES,"oldlace",true),_defineProperty(_kCOLOR_NAMES,"olive",true),_defineProperty(_kCOLOR_NAMES,"olivedrab",true),_defineProperty(_kCOLOR_NAMES,"orange",true),_defineProperty(_kCOLOR_NAMES,"orangered",true),_defineProperty(_kCOLOR_NAMES,"orchid",true),_defineProperty(_kCOLOR_NAMES,"palegoldenrod",true),_defineProperty(_kCOLOR_NAMES,"palegreen",true),_defineProperty(_kCOLOR_NAMES,"paleturquoise",true),_defineProperty(_kCOLOR_NAMES,"palevioletred",true),_defineProperty(_kCOLOR_NAMES,"papayawhip",true),_defineProperty(_kCOLOR_NAMES,"peachpuff",true),_defineProperty(_kCOLOR_NAMES,"peru",true),_defineProperty(_kCOLOR_NAMES,"pink",true),_defineProperty(_kCOLOR_NAMES,"plum",true),_defineProperty(_kCOLOR_NAMES,"powderblue",true),_defineProperty(_kCOLOR_NAMES,"purple",true),_defineProperty(_kCOLOR_NAMES,"red",true),_defineProperty(_kCOLOR_NAMES,"rosybrown",true),_defineProperty(_kCOLOR_NAMES,"royalblue",true),_defineProperty(_kCOLOR_NAMES,"saddlebrown",true),_defineProperty(_kCOLOR_NAMES,"salmon",true),_defineProperty(_kCOLOR_NAMES,"sandybrown",true),_defineProperty(_kCOLOR_NAMES,"seagreen",true),_defineProperty(_kCOLOR_NAMES,"seashell",true),_defineProperty(_kCOLOR_NAMES,"sienna",true),_defineProperty(_kCOLOR_NAMES,"silver",true),_defineProperty(_kCOLOR_NAMES,"skyblue",true),_defineProperty(_kCOLOR_NAMES,"slateblue",true),_defineProperty(_kCOLOR_NAMES,"slategray",true),_defineProperty(_kCOLOR_NAMES,"slategrey",true),_defineProperty(_kCOLOR_NAMES,"snow",true),_defineProperty(_kCOLOR_NAMES,"springgreen",true),_defineProperty(_kCOLOR_NAMES,"steelblue",true),_defineProperty(_kCOLOR_NAMES,"tan",true),_defineProperty(_kCOLOR_NAMES,"teal",true),_defineProperty(_kCOLOR_NAMES,"thistle",true),_defineProperty(_kCOLOR_NAMES,"tomato",true),_defineProperty(_kCOLOR_NAMES,"turquoise",true),_defineProperty(_kCOLOR_NAMES,"violet",true),_defineProperty(_kCOLOR_NAMES,"wheat",true),_defineProperty(_kCOLOR_NAMES,"white",true),_defineProperty(_kCOLOR_NAMES,"whitesmoke",true),_defineProperty(_kCOLOR_NAMES,"yellow",true),_defineProperty(_kCOLOR_NAMES,"yellowgreen",true),_defineProperty(_kCOLOR_NAMES,"activeborder",true),_defineProperty(_kCOLOR_NAMES,"activecaption",true),_defineProperty(_kCOLOR_NAMES,"appworkspace",true),_defineProperty(_kCOLOR_NAMES,"background",true),_defineProperty(_kCOLOR_NAMES,"buttonface",true),_defineProperty(_kCOLOR_NAMES,"buttonhighlight",true),_defineProperty(_kCOLOR_NAMES,"buttonshadow",true),_defineProperty(_kCOLOR_NAMES,"buttontext",true),_defineProperty(_kCOLOR_NAMES,"captiontext",true),_defineProperty(_kCOLOR_NAMES,"graytext",true),_defineProperty(_kCOLOR_NAMES,"highlight",true),_defineProperty(_kCOLOR_NAMES,"highlighttext",true),_defineProperty(_kCOLOR_NAMES,"inactiveborder",true),_defineProperty(_kCOLOR_NAMES,"inactivecaption",true),_defineProperty(_kCOLOR_NAMES,"inactivecaptiontext",true),_defineProperty(_kCOLOR_NAMES,"infobackground",true),_defineProperty(_kCOLOR_NAMES,"infotext",true),_defineProperty(_kCOLOR_NAMES,"menu",true),_defineProperty(_kCOLOR_NAMES,"menutext",true),_defineProperty(_kCOLOR_NAMES,"scrollbar",true),_defineProperty(_kCOLOR_NAMES,"threeddarkshadow",true),_defineProperty(_kCOLOR_NAMES,"threedface",true),_defineProperty(_kCOLOR_NAMES,"threedhighlight",true),_defineProperty(_kCOLOR_NAMES,"threedlightshadow",true),_defineProperty(_kCOLOR_NAMES,"threedshadow",true),_defineProperty(_kCOLOR_NAMES,"window",true),_defineProperty(_kCOLOR_NAMES,"windowframe",true),_defineProperty(_kCOLOR_NAMES,"windowtext",true),_kCOLOR_NAMES),kLIST_STYLE_TYPE_NAMES:{"decimal":true,"decimal-leading-zero":true,"lower-roman":true,"upper-roman":true,"georgian":true,"armenian":true,"lower-latin":true,"lower-alpha":true,"upper-latin":true,"upper-alpha":true,"lower-greek":true,"disc":true,"circle":true,"square":true,"none":true,"box":true,"check":true,"diamond":true,"hyphen":true,"lower-armenian":true,"cjk-ideographic":true,"ethiopic-numeric":true,"hebrew":true,"japanese-formal":true,"japanese-informal":true,"simp-chinese-formal":true,"simp-chinese-informal":true,"syriac":true,"tamil":true,"trad-chinese-formal":true,"trad-chinese-informal":true,"upper-armenian":true,"arabic-indic":true,"binary":true,"bengali":true,"cambodian":true,"khmer":true,"devanagari":true,"gujarati":true,"gurmukhi":true,"kannada":true,"lower-hexadecimal":true,"lao":true,"malayalam":true,"mongolian":true,"myanmar":true,"octal":true,"oriya":true,"persian":true,"urdu":true,"telugu":true,"tibetan":true,"upper-hexadecimal":true,"afar":true,"ethiopic-halehame-aa-et":true,"ethiopic-halehame-am-et":true,"amharic-abegede":true,"ehiopic-abegede-am-et":true,"cjk-earthly-branch":true,"cjk-heavenly-stem":true,"ethiopic":true,"ethiopic-abegede":true,"ethiopic-abegede-gez":true,"hangul-consonant":true,"hangul":true,"hiragana-iroha":true,"hiragana":true,"katakana-iroha":true,"katakana":true,"lower-norwegian":true,"oromo":true,"ethiopic-halehame-om-et":true,"sidama":true,"ethiopic-halehame-sid-et":true,"somali":true,"ethiopic-halehame-so-et":true,"tigre":true,"ethiopic-halehame-tig":true,"tigrinya-er-abegede":true,"ethiopic-abegede-ti-er":true,"tigrinya-et":true,"ethiopic-halehame-ti-et":true,"upper-greek":true,"asterisks":true,"footnotes":true,"circled-decimal":true,"circled-lower-latin":true,"circled-upper-latin":true,"dotted-decimal":true,"double-circled-decimal":true,"filled-circled-decimal":true,"parenthesised-decimal":true,"parenthesised-lower-latin":true},reportError:function reportError(aMsg){this.mError=aMsg;},consumeError:function consumeError(){var e=this.mError;this.mError=null;return e;},currentToken:function currentToken(){return this.mToken;},getHexValue:function getHexValue(){this.mToken=this.mScanner.nextHexValue();return this.mToken;},getToken:function getToken(aSkipWS,aSkipComment){if(this.mLookAhead){this.mToken=this.mLookAhead;this.mLookAhead=null;return this.mToken;}this.mToken=this.mScanner.nextToken();while(this.mToken&&(aSkipWS&&this.mToken.isWhiteSpace()||aSkipComment&&this.mToken.isComment())){this.mToken=this.mScanner.nextToken();}return this.mToken;},lookAhead:function lookAhead(aSkipWS,aSkipComment){var preservedToken=this.mToken;this.mScanner.preserveState();var token=this.getToken(aSkipWS,aSkipComment);this.mScanner.restoreState();this.mToken=preservedToken;return token;},ungetToken:function ungetToken(){this.mLookAhead=this.mToken;},addUnknownAtRule:function addUnknownAtRule(aSheet,aString){var currentLine=CountLF(this.mScanner.getAlreadyScanned());var blocks=[];var token=this.getToken(false,false);while(token.isNotNull()){aString+=token.value;if(token.isSymbol(";")&&!blocks.length)break;else if(token.isSymbol("{")||token.isSymbol("(")||token.isSymbol("[")||token.type=="function"){blocks.push(token.isFunction()?"(":token.value);}else if(token.isSymbol("}")||token.isSymbol(")")||token.isSymbol("]")){if(blocks.length){var ontop=blocks[blocks.length-1];if(token.isSymbol("}")&&ontop=="{"||token.isSymbol(")")&&ontop=="("||token.isSymbol("]")&&ontop=="["){blocks.pop();if(!blocks.length&&token.isSymbol("}"))break;}}}token=this.getToken(false,false);}this.addUnknownRule(aSheet,aString,currentLine);},addUnknownRule:function addUnknownRule(aSheet,aString,aCurrentLine){var errorMsg=this.consumeError();var rule=new jscsspErrorRule(errorMsg);rule.currentLine=aCurrentLine;rule.parsedCssText=aString;rule.parentStyleSheet=aSheet;aSheet.cssRules.push(rule);},addWhitespace:function addWhitespace(aSheet,aString){var rule=new jscsspWhitespace();rule.parsedCssText=aString;rule.parentStyleSheet=aSheet;aSheet.cssRules.push(rule);},addComment:function addComment(aSheet,aString){var rule=new jscsspComment();rule.parsedCssText=aString;rule.parentStyleSheet=aSheet;aSheet.cssRules.push(rule);},parseCharsetRule:function parseCharsetRule(aToken,aSheet){var s=aToken.value;var token=this.getToken(false,false);s+=token.value;if(token.isWhiteSpace(" ")){token=this.getToken(false,false);s+=token.value;if(token.isString()){var encoding=token.value;token=this.getToken(false,false);s+=token.value;if(token.isSymbol(";")){var rule=new jscsspCharsetRule();rule.encoding=encoding;rule.parsedCssText=s;rule.parentStyleSheet=aSheet;aSheet.cssRules.push(rule);return true;}else this.reportError(kCHARSET_RULE_MISSING_SEMICOLON);}else this.reportError(kCHARSET_RULE_CHARSET_IS_STRING);}else this.reportError(kCHARSET_RULE_MISSING_WS);this.addUnknownAtRule(aSheet,s);return false;},parseImportRule:function parseImportRule(aToken,aSheet){var currentLine=CountLF(this.mScanner.getAlreadyScanned());var s=aToken.value;this.preserveState();var token=this.getToken(true,true);var media=[];var href="";if(token.isString()){href=token.value;s+=" "+href;}else if(token.isFunction("url(")){token=this.getToken(true,true);var urlContent=this.parseURL(token);if(urlContent){href="url("+urlContent;s+=" "+href;}}else this.reportError(kIMPORT_RULE_MISSING_URL);if(href){token=this.getToken(true,true);while(token.isIdent()){s+=" "+token.value;media.push(token.value);token=this.getToken(true,true);if(!token)break;if(token.isSymbol(",")){s+=",";}else if(token.isSymbol(";")){break;}else break;token=this.getToken(true,true);}if(!media.length){media.push("all");}if(token.isSymbol(";")){s+=";";this.forgetState();var rule=new jscsspImportRule();rule.currentLine=currentLine;rule.parsedCssText=s;rule.href=href;rule.media=media;rule.parentStyleSheet=aSheet;aSheet.cssRules.push(rule);return true;}}this.restoreState();this.addUnknownAtRule(aSheet,"@import");return false;},parseVariablesRule:function parseVariablesRule(token,aSheet){var currentLine=CountLF(this.mScanner.getAlreadyScanned());var s=token.value;var declarations=[];var valid=false;this.preserveState();token=this.getToken(true,true);var media=[];var foundMedia=false;while(token.isNotNull()){if(token.isIdent()){foundMedia=true;s+=" "+token.value;media.push(token.value);token=this.getToken(true,true);if(token.isSymbol(",")){s+=",";}else{if(token.isSymbol("{"))this.ungetToken();else{token.type=jscsspToken.NULL_TYPE;break;}}}else if(token.isSymbol("{"))break;else if(foundMedia){token.type=jscsspToken.NULL_TYPE;break;}token=this.getToken(true,true);}if(token.isSymbol("{")){s+=" {";token=this.getToken(true,true);while(true){if(!token.isNotNull()){valid=true;break;}if(token.isSymbol("}")){s+="}";valid=true;break;}else{var d=this.parseDeclaration(token,declarations,true,false,aSheet);s+=(d&&declarations.length?" ":"")+d;}token=this.getToken(true,false);}}if(valid){this.forgetState();var rule=new jscsspVariablesRule();rule.currentLine=currentLine;rule.parsedCssText=s;rule.declarations=declarations;rule.media=media;rule.parentStyleSheet=aSheet;aSheet.cssRules.push(rule);return true;}this.restoreState();return false;},parseNamespaceRule:function parseNamespaceRule(aToken,aSheet){var currentLine=CountLF(this.mScanner.getAlreadyScanned());var s=aToken.value;var valid=false;this.preserveState();var token=this.getToken(true,true);if(token.isNotNull()){var prefix="";var url="";if(token.isIdent()){prefix=token.value;s+=" "+prefix;token=this.getToken(true,true);}if(token){var foundURL=false;if(token.isString()){foundURL=true;url=token.value;s+=" "+url;}else if(token.isFunction("url(")){token=this.getToken(true,true);var urlContent=this.parseURL(token);if(urlContent){url+="url("+urlContent;foundURL=true;s+=" "+urlContent;}}}if(foundURL){token=this.getToken(true,true);if(token.isSymbol(";")){s+=";";this.forgetState();var rule=new jscsspNamespaceRule();rule.currentLine=currentLine;rule.parsedCssText=s;rule.prefix=prefix;rule.url=url;rule.parentStyleSheet=aSheet;aSheet.cssRules.push(rule);return true;}}}this.restoreState();this.addUnknownAtRule(aSheet,"@namespace");return false;},parseFontFaceRule:function parseFontFaceRule(aToken,aSheet){var currentLine=CountLF(this.mScanner.getAlreadyScanned());var s=aToken.value;var valid=false;var descriptors=[];this.preserveState();var token=this.getToken(true,true);if(token.isNotNull()){if(token.isSymbol("{")){s+=" "+token.value;var token=this.getToken(true,false);while(true){if(token.isSymbol("}")){s+="}";valid=true;break;}else{var d=this.parseDeclaration(token,descriptors,false,false,aSheet);s+=(d&&descriptors.length?" ":"")+d;}token=this.getToken(true,false);}}}if(valid){this.forgetState();var rule=new jscsspFontFaceRule();rule.currentLine=currentLine;rule.parsedCssText=s;rule.descriptors=descriptors;rule.parentStyleSheet=aSheet;aSheet.cssRules.push(rule);return true;}this.restoreState();return false;},parsePageRule:function parsePageRule(aToken,aSheet){var currentLine=CountLF(this.mScanner.getAlreadyScanned());var s=aToken.value;var valid=false;var declarations=[];this.preserveState();var token=this.getToken(true,true);var pageSelector="";if(token.isSymbol(":")||token.isIdent()){if(token.isSymbol(":")){pageSelector=":";token=this.getToken(false,false);}if(token.isIdent()){pageSelector+=token.value;s+=" "+pageSelector;token=this.getToken(true,true);}}if(token.isNotNull()){if(token.isSymbol("{")){s+=" "+token.value;var token=this.getToken(true,false);while(true){if(token.isSymbol("}")){s+="}";valid=true;break;}else{var d=this.parseDeclaration(token,declarations,true,true,aSheet);s+=(d&&declarations.length?" ":"")+d;}token=this.getToken(true,false);}}}if(valid){this.forgetState();var rule=new jscsspPageRule();rule.currentLine=currentLine;rule.parsedCssText=s;rule.pageSelector=pageSelector;rule.declarations=declarations;rule.parentStyleSheet=aSheet;aSheet.cssRules.push(rule);return true;}this.restoreState();return false;},parseDefaultPropertyValue:function parseDefaultPropertyValue(token,aDecl,aAcceptPriority,descriptor,aSheet){var valueText="";var blocks=[];var foundPriority=false;var values=[];while(token.isNotNull()){if((token.isSymbol(";")||token.isSymbol("}")||token.isSymbol("!"))&&!blocks.length){if(token.isSymbol("}"))this.ungetToken();break;}if(token.isIdent(this.kINHERIT)){if(values.length){return"";}else{valueText=this.kINHERIT;var value=new jscsspVariable(kJscsspINHERIT_VALUE,aSheet);values.push(value);token=this.getToken(true,true);break;}}else if(token.isSymbol("{")||token.isSymbol("(")||token.isSymbol("[")){blocks.push(token.value);}else if(token.isSymbol("}")||token.isSymbol("]")){if(blocks.length){var ontop=blocks[blocks.length-1];if(token.isSymbol("}")&&ontop=="{"||token.isSymbol(")")&&ontop=="("||token.isSymbol("]")&&ontop=="["){blocks.pop();}}}if(token.isFunction()){if(token.isFunction("var(")){token=this.getToken(true,true);if(token.isIdent()){var name=token.value;token=this.getToken(true,true);if(token.isSymbol(")")){var value=new jscsspVariable(kJscsspVARIABLE_VALUE,aSheet);valueText+="var("+name+")";value.name=name;values.push(value);}else return"";}else return"";}else{var fn=token.value;token=this.getToken(false,true);var arg=this.parseFunctionArgument(token);if(arg){valueText+=fn+arg;var value=new jscsspVariable(kJscsspPRIMITIVE_VALUE,aSheet);value.value=fn+arg;values.push(value);}else return"";}}else if(token.isSymbol("#")){var color=this.parseColor(token);if(color){valueText+=color;var value=new jscsspVariable(kJscsspPRIMITIVE_VALUE,aSheet);value.value=color;values.push(value);}else return"";}else if(!token.isWhiteSpace()&&!token.isSymbol(",")){var value=new jscsspVariable(kJscsspPRIMITIVE_VALUE,aSheet);value.value=token.value;values.push(value);valueText+=token.value;}else valueText+=token.value;token=this.getToken(false,true);}if(values.length&&valueText){this.forgetState();aDecl.push(this._createJscsspDeclarationFromValuesArray(descriptor,values,valueText));return valueText;}return"";},parseMarginOrPaddingShorthand:function parseMarginOrPaddingShorthand(token,aDecl,aAcceptPriority,aProperty){var top=null;var bottom=null;var left=null;var right=null;var values=[];while(true){if(!token.isNotNull())break;if(token.isSymbol(";")||aAcceptPriority&&token.isSymbol("!")||token.isSymbol("}")){if(token.isSymbol("}"))this.ungetToken();break;}else if(!values.length&&token.isIdent(this.kINHERIT)){values.push(token.value);token=this.getToken(true,true);break;}else if(token.isDimension()||token.isNumber("0")||token.isPercentage()||token.isIdent("auto")){values.push(token.value);}else return"";token=this.getToken(true,true);}var count=values.length;switch(count){case 1:top=values[0];bottom=top;left=top;right=top;break;case 2:top=values[0];bottom=top;left=values[1];right=left;break;case 3:top=values[0];left=values[1];right=left;bottom=values[2];break;case 4:top=values[0];right=values[1];bottom=values[2];left=values[3];break;default:return"";}this.forgetState();aDecl.push(this._createJscsspDeclarationFromValue(aProperty+"-top",top));aDecl.push(this._createJscsspDeclarationFromValue(aProperty+"-right",right));aDecl.push(this._createJscsspDeclarationFromValue(aProperty+"-bottom",bottom));aDecl.push(this._createJscsspDeclarationFromValue(aProperty+"-left",left));return top+" "+right+" "+bottom+" "+left;},parseBorderColorShorthand:function parseBorderColorShorthand(token,aDecl,aAcceptPriority){var top=null;var bottom=null;var left=null;var right=null;var values=[];while(true){if(!token.isNotNull())break;if(token.isSymbol(";")||aAcceptPriority&&token.isSymbol("!")||token.isSymbol("}")){if(token.isSymbol("}"))this.ungetToken();break;}else if(!values.length&&token.isIdent(this.kINHERIT)){values.push(token.value);token=this.getToken(true,true);break;}else{var color=this.parseColor(token);if(color)values.push(color);else return"";}token=this.getToken(true,true);}var count=values.length;switch(count){case 1:top=values[0];bottom=top;left=top;right=top;break;case 2:top=values[0];bottom=top;left=values[1];right=left;break;case 3:top=values[0];left=values[1];right=left;bottom=values[2];break;case 4:top=values[0];right=values[1];bottom=values[2];left=values[3];break;default:return"";}this.forgetState();aDecl.push(this._createJscsspDeclarationFromValue("border-top-color",top));aDecl.push(this._createJscsspDeclarationFromValue("border-right-color",right));aDecl.push(this._createJscsspDeclarationFromValue("border-bottom-color",bottom));aDecl.push(this._createJscsspDeclarationFromValue("border-left-color",left));return top+" "+right+" "+bottom+" "+left;},parseCueShorthand:function parseCueShorthand(token,declarations,aAcceptPriority){var before="";var after="";var values=[];var values=[];while(true){if(!token.isNotNull())break;if(token.isSymbol(";")||aAcceptPriority&&token.isSymbol("!")||token.isSymbol("}")){if(token.isSymbol("}"))this.ungetToken();break;}else if(!values.length&&token.isIdent(this.kINHERIT)){values.push(token.value);}else if(token.isIdent("none"))values.push(token.value);else if(token.isFunction("url(")){var token=this.getToken(true,true);var urlContent=this.parseURL(token);if(urlContent)values.push("url("+urlContent);else return"";}else return"";token=this.getToken(true,true);}var count=values.length;switch(count){case 1:before=values[0];after=before;break;case 2:before=values[0];after=values[1];break;default:return"";}this.forgetState();aDecl.push(this._createJscsspDeclarationFromValue("cue-before",before));aDecl.push(this._createJscsspDeclarationFromValue("cue-after",after));return before+" "+after;},parsePauseShorthand:function parsePauseShorthand(token,declarations,aAcceptPriority){var before="";var after="";var values=[];var values=[];while(true){if(!token.isNotNull())break;if(token.isSymbol(";")||aAcceptPriority&&token.isSymbol("!")||token.isSymbol("}")){if(token.isSymbol("}"))this.ungetToken();break;}else if(!values.length&&token.isIdent(this.kINHERIT)){values.push(token.value);}else if(token.isDimensionOfUnit("ms")||token.isDimensionOfUnit("s")||token.isPercentage()||token.isNumber("0"))values.push(token.value);else return"";token=this.getToken(true,true);}var count=values.length;switch(count){case 1:before=values[0];after=before;break;case 2:before=values[0];after=values[1];break;default:return"";}this.forgetState();aDecl.push(this._createJscsspDeclarationFromValue("pause-before",before));aDecl.push(this._createJscsspDeclarationFromValue("pause-after",after));return before+" "+after;},parseBorderWidthShorthand:function parseBorderWidthShorthand(token,aDecl,aAcceptPriority){var top=null;var bottom=null;var left=null;var right=null;var values=[];while(true){if(!token.isNotNull())break;if(token.isSymbol(";")||aAcceptPriority&&token.isSymbol("!")||token.isSymbol("}")){if(token.isSymbol("}"))this.ungetToken();break;}else if(!values.length&&token.isIdent(this.kINHERIT)){values.push(token.value);}else if(token.isDimension()||token.isNumber("0")||token.isIdent()&&token.value in this.kBORDER_WIDTH_NAMES){values.push(token.value);}else return"";token=this.getToken(true,true);}var count=values.length;switch(count){case 1:top=values[0];bottom=top;left=top;right=top;break;case 2:top=values[0];bottom=top;left=values[1];right=left;break;case 3:top=values[0];left=values[1];right=left;bottom=values[2];break;case 4:top=values[0];right=values[1];bottom=values[2];left=values[3];break;default:return"";}this.forgetState();aDecl.push(this._createJscsspDeclarationFromValue("border-top-width",top));aDecl.push(this._createJscsspDeclarationFromValue("border-right-width",right));aDecl.push(this._createJscsspDeclarationFromValue("border-bottom-width",bottom));aDecl.push(this._createJscsspDeclarationFromValue("border-left-width",left));return top+" "+right+" "+bottom+" "+left;},parseBorderStyleShorthand:function parseBorderStyleShorthand(token,aDecl,aAcceptPriority){var top=null;var bottom=null;var left=null;var right=null;var values=[];while(true){if(!token.isNotNull())break;if(token.isSymbol(";")||aAcceptPriority&&token.isSymbol("!")||token.isSymbol("}")){if(token.isSymbol("}"))this.ungetToken();break;}else if(!values.length&&token.isIdent(this.kINHERIT)){values.push(token.value);}else if(token.isIdent()&&token.value in this.kBORDER_STYLE_NAMES){values.push(token.value);}else return"";token=this.getToken(true,true);}var count=values.length;switch(count){case 1:top=values[0];bottom=top;left=top;right=top;break;case 2:top=values[0];bottom=top;left=values[1];right=left;break;case 3:top=values[0];left=values[1];right=left;bottom=values[2];break;case 4:top=values[0];right=values[1];bottom=values[2];left=values[3];break;default:return"";}this.forgetState();aDecl.push(this._createJscsspDeclarationFromValue("border-top-style",top));aDecl.push(this._createJscsspDeclarationFromValue("border-right-style",right));aDecl.push(this._createJscsspDeclarationFromValue("border-bottom-style",bottom));aDecl.push(this._createJscsspDeclarationFromValue("border-left-style",left));return top+" "+right+" "+bottom+" "+left;},parseBorderEdgeOrOutlineShorthand:function parseBorderEdgeOrOutlineShorthand(token,aDecl,aAcceptPriority,aProperty){var bWidth=null;var bStyle=null;var bColor=null;while(true){if(!token.isNotNull())break;if(token.isSymbol(";")||aAcceptPriority&&token.isSymbol("!")||token.isSymbol("}")){if(token.isSymbol("}"))this.ungetToken();break;}else if(!bWidth&&!bStyle&&!bColor&&token.isIdent(this.kINHERIT)){bWidth=this.kINHERIT;bStyle=this.kINHERIT;bColor=this.kINHERIT;}else if(!bWidth&&(token.isDimension()||token.isIdent()&&token.value in this.kBORDER_WIDTH_NAMES||token.isNumber("0"))){bWidth=token.value;}else if(!bStyle&&token.isIdent()&&token.value in this.kBORDER_STYLE_NAMES){bStyle=token.value;}else{var color=aProperty=="outline"&&token.isIdent("invert")?"invert":this.parseColor(token);if(!bColor&&color)bColor=color;else return"";}token=this.getToken(true,true);}this.forgetState();bWidth=bWidth?bWidth:"medium";bStyle=bStyle?bStyle:"none";bColor=bColor?bColor:"-moz-initial";function addPropertyToDecl(aSelf,aDecl,property,w,s,c){aDecl.push(aSelf._createJscsspDeclarationFromValue(property+"-width",w));aDecl.push(aSelf._createJscsspDeclarationFromValue(property+"-style",s));aDecl.push(aSelf._createJscsspDeclarationFromValue(property+"-color",c));}if(aProperty=="border"){addPropertyToDecl(this,aDecl,"border-top",bWidth,bStyle,bColor);addPropertyToDecl(this,aDecl,"border-right",bWidth,bStyle,bColor);addPropertyToDecl(this,aDecl,"border-bottom",bWidth,bStyle,bColor);addPropertyToDecl(this,aDecl,"border-left",bWidth,bStyle,bColor);}else addPropertyToDecl(this,aDecl,aProperty,bWidth,bStyle,bColor);return bWidth+" "+bStyle+" "+bColor;},parseBackgroundShorthand:function parseBackgroundShorthand(token,aDecl,aAcceptPriority){var kHPos={"left":true,"right":true};var kVPos={"top":true,"bottom":true};var kPos={"left":true,"right":true,"top":true,"bottom":true,"center":true};var bgColor=null;var bgRepeat=null;var bgAttachment=null;var bgImage=null;var bgPosition=null;while(true){if(!token.isNotNull())break;if(token.isSymbol(";")||aAcceptPriority&&token.isSymbol("!")||token.isSymbol("}")){if(token.isSymbol("}"))this.ungetToken();break;}else if(!bgColor&&!bgRepeat&&!bgAttachment&&!bgImage&&!bgPosition&&token.isIdent(this.kINHERIT)){bgColor=this.kINHERIT;bgRepeat=this.kINHERIT;bgAttachment=this.kINHERIT;bgImage=this.kINHERIT;bgPosition=this.kINHERIT;}else{if(!bgAttachment&&(token.isIdent("scroll")||token.isIdent("fixed"))){bgAttachment=token.value;}else if(!bgPosition&&(token.isIdent()&&token.value in kPos||token.isDimension()||token.isNumber("0")||token.isPercentage())){bgPosition=token.value;token=this.getToken(true,true);if(token.isDimension()||token.isNumber("0")||token.isPercentage()){bgPosition+=" "+token.value;}else if(token.isIdent()&&token.value in kPos){if(bgPosition in kHPos&&token.value in kHPos||bgPosition in kVPos&&token.value in kVPos)return"";bgPosition+=" "+token.value;}else{this.ungetToken();bgPosition+=" center";}}else if(!bgRepeat&&(token.isIdent("repeat")||token.isIdent("repeat-x")||token.isIdent("repeat-y")||token.isIdent("no-repeat"))){bgRepeat=token.value;}else if(!bgImage&&(token.isFunction("url(")||token.isIdent("none"))){bgImage=token.value;if(token.isFunction("url(")){token=this.getToken(true,true);var url=this.parseURL(token);if(url)bgImage+=url;else return"";}}else if(!bgImage&&(token.isFunction("-moz-linear-gradient(")||token.isFunction("-moz-radial-gradient(")||token.isFunction("-moz-repeating-linear-gradient(")||token.isFunction("-moz-repeating-radial-gradient("))){var gradient=CssInspector.parseGradient(this,token);if(gradient)bgImage=CssInspector.serializeGradient(gradient);else return"";}else{var color=this.parseColor(token);if(!bgColor&&color)bgColor=color;else return"";}}token=this.getToken(true,true);}this.forgetState();bgColor=bgColor?bgColor:"transparent";bgImage=bgImage?bgImage:"none";bgRepeat=bgRepeat?bgRepeat:"repeat";bgAttachment=bgAttachment?bgAttachment:"scroll";bgPosition=bgPosition?bgPosition:"top left";aDecl.push(this._createJscsspDeclarationFromValue("background-color",bgColor));aDecl.push(this._createJscsspDeclarationFromValue("background-image",bgImage));aDecl.push(this._createJscsspDeclarationFromValue("background-repeat",bgRepeat));aDecl.push(this._createJscsspDeclarationFromValue("background-attachment",bgAttachment));aDecl.push(this._createJscsspDeclarationFromValue("background-position",bgPosition));return bgColor+" "+bgImage+" "+bgRepeat+" "+bgAttachment+" "+bgPosition;},parseListStyleShorthand:function parseListStyleShorthand(token,aDecl,aAcceptPriority){var kPosition={"inside":true,"outside":true};var lType=null;var lPosition=null;var lImage=null;while(true){if(!token.isNotNull())break;if(token.isSymbol(";")||aAcceptPriority&&token.isSymbol("!")||token.isSymbol("}")){if(token.isSymbol("}"))this.ungetToken();break;}else if(!lType&&!lPosition&&!lImage&&token.isIdent(this.kINHERIT)){lType=this.kINHERIT;lPosition=this.kINHERIT;lImage=this.kINHERIT;}else if(!lType&&token.isIdent()&&token.value in this.kLIST_STYLE_TYPE_NAMES){lType=token.value;}else if(!lPosition&&token.isIdent()&&token.value in kPosition){lPosition=token.value;}else if(!lImage&&token.isFunction("url")){token=this.getToken(true,true);var urlContent=this.parseURL(token);if(urlContent){lImage="url("+urlContent;}else return"";}else if(!token.isIdent("none"))return"";token=this.getToken(true,true);}this.forgetState();lType=lType?lType:"none";lImage=lImage?lImage:"none";lPosition=lPosition?lPosition:"outside";aDecl.push(this._createJscsspDeclarationFromValue("list-style-type",lType));aDecl.push(this._createJscsspDeclarationFromValue("list-style-position",lPosition));aDecl.push(this._createJscsspDeclarationFromValue("list-style-image",lImage));return lType+" "+lPosition+" "+lImage;},parseFontShorthand:function parseFontShorthand(token,aDecl,aAcceptPriority){var kStyle={"italic":true,"oblique":true};var kVariant={"small-caps":true};var kWeight={"bold":true,"bolder":true,"lighter":true,"100":true,"200":true,"300":true,"400":true,"500":true,"600":true,"700":true,"800":true,"900":true};var kSize={"xx-small":true,"x-small":true,"small":true,"medium":true,"large":true,"x-large":true,"xx-large":true,"larger":true,"smaller":true};var kValues={"caption":true,"icon":true,"menu":true,"message-box":true,"small-caption":true,"status-bar":true};var kFamily={"serif":true,"sans-serif":true,"cursive":true,"fantasy":true,"monospace":true};var fStyle=null;var fVariant=null;var fWeight=null;var fSize=null;var fLineHeight=null;var fFamily="";var fSystem=null;var fFamilyValues=[];var normalCount=0;while(true){if(!token.isNotNull())break;if(token.isSymbol(";")||aAcceptPriority&&token.isSymbol("!")||token.isSymbol("}")){if(token.isSymbol("}"))this.ungetToken();break;}else if(!fStyle&&!fVariant&&!fWeight&&!fSize&&!fLineHeight&&!fFamily&&!fSystem&&token.isIdent(this.kINHERIT)){fStyle=this.kINHERIT;fVariant=this.kINHERIT;fWeight=this.kINHERIT;fSize=this.kINHERIT;fLineHeight=this.kINHERIT;fFamily=this.kINHERIT;fSystem=this.kINHERIT;}else{if(!fSystem&&token.isIdent()&&token.value in kValues){fSystem=token.value;break;}else{if(!fStyle&&token.isIdent()&&token.value in kStyle){fStyle=token.value;}else if(!fVariant&&token.isIdent()&&token.value in kVariant){fVariant=token.value;}else if(!fWeight&&(token.isIdent()||token.isNumber())&&token.value in kWeight){fWeight=token.value;}else if(!fSize&&(token.isIdent()&&token.value in kSize||token.isDimension()||token.isPercentage())){fSize=token.value;var token=this.getToken(false,false);if(token.isSymbol("/")){token=this.getToken(false,false);if(!fLineHeight&&(token.isDimension()||token.isNumber()||token.isPercentage())){fLineHeight=token.value;}else return"";}else this.ungetToken();}else if(token.isIdent("normal")){normalCount++;if(normalCount>3)return"";}else if(!fFamily&&(token.isString()||token.isIdent())){var lastWasComma=false;while(true){if(!token.isNotNull())break;else if(token.isSymbol(";")||aAcceptPriority&&token.isSymbol("!")||token.isSymbol("}")){this.ungetToken();break;}else if(token.isIdent()&&token.value in kFamily){var value=new jscsspVariable(kJscsspPRIMITIVE_VALUE,null);value.value=token.value;fFamilyValues.push(value);fFamily+=token.value;break;}else if(token.isString()||token.isIdent()){var value=new jscsspVariable(kJscsspPRIMITIVE_VALUE,null);value.value=token.value;fFamilyValues.push(value);fFamily+=token.value;lastWasComma=false;}else if(!lastWasComma&&token.isSymbol(",")){fFamily+=", ";lastWasComma=true;}else return"";token=this.getToken(true,true);}}else{return"";}}}token=this.getToken(true,true);}this.forgetState();if(fSystem){aDecl.push(this._createJscsspDeclarationFromValue("font",fSystem));return fSystem;}fStyle=fStyle?fStyle:"normal";fVariant=fVariant?fVariant:"normal";fWeight=fWeight?fWeight:"normal";fSize=fSize?fSize:"medium";fLineHeight=fLineHeight?fLineHeight:"normal";fFamily=fFamily?fFamily:"-moz-initial";aDecl.push(this._createJscsspDeclarationFromValue("font-style",fStyle));aDecl.push(this._createJscsspDeclarationFromValue("font-variant",fVariant));aDecl.push(this._createJscsspDeclarationFromValue("font-weight",fWeight));aDecl.push(this._createJscsspDeclarationFromValue("font-size",fSize));aDecl.push(this._createJscsspDeclarationFromValue("line-height",fLineHeight));aDecl.push(this._createJscsspDeclarationFromValuesArray("font-family",fFamilyValues,fFamily));return fStyle+" "+fVariant+" "+fWeight+" "+fSize+"/"+fLineHeight+" "+fFamily;},_createJscsspDeclaration:function _createJscsspDeclaration(property,value){var decl=new jscsspDeclaration();decl.property=property;decl.value=this.trim11(value);decl.parsedCssText=property+": "+value+";";return decl;},_createJscsspDeclarationFromValue:function _createJscsspDeclarationFromValue(property,valueText){var decl=new jscsspDeclaration();decl.property=property;var value=new jscsspVariable(kJscsspPRIMITIVE_VALUE,null);value.value=valueText;decl.values=[value];decl.valueText=valueText;decl.parsedCssText=property+": "+valueText+";";return decl;},_createJscsspDeclarationFromValuesArray:function _createJscsspDeclarationFromValuesArray(property,values,valueText){var decl=new jscsspDeclaration();decl.property=property;decl.values=values;decl.valueText=valueText;decl.parsedCssText=property+": "+valueText+";";return decl;},parseURL:function parseURL(token){var value="";if(token.isString()){value+=token.value;token=this.getToken(true,true);}else while(true){if(!token.isNotNull()){this.reportError(kURL_EOF);return"";}if(token.isWhiteSpace()){nextToken=this.lookAhead(true,true);if(!nextToken.isSymbol(")")){this.reportError(kURL_WS_INSIDE);token=this.currentToken();break;}}if(token.isSymbol(")")){break;}value+=token.value;token=this.getToken(false,false);}if(token.isSymbol(")")){return value+")";}return"";},parseFunctionArgument:function parseFunctionArgument(token){var value="";if(token.isString()){value+=token.value;token=this.getToken(true,true);}else{var parenthesis=1;while(true){if(!token.isNotNull())return"";if(token.isFunction()||token.isSymbol("("))parenthesis++;if(token.isSymbol(")")){parenthesis--;if(!parenthesis)break;}value+=token.value;token=this.getToken(false,false);}}if(token.isSymbol(")"))return value+")";return"";},parseColor:function parseColor(token){var color="";if(token.isFunction("rgb(")||token.isFunction("rgba(")){color=token.value;var isRgba=token.isFunction("rgba(");token=this.getToken(true,true);if(!token.isNumber()&&!token.isPercentage())return"";color+=token.value;token=this.getToken(true,true);if(!token.isSymbol(","))return"";color+=", ";token=this.getToken(true,true);if(!token.isNumber()&&!token.isPercentage())return"";color+=token.value;token=this.getToken(true,true);if(!token.isSymbol(","))return"";color+=", ";token=this.getToken(true,true);if(!token.isNumber()&&!token.isPercentage())return"";color+=token.value;if(isRgba){token=this.getToken(true,true);if(!token.isSymbol(","))return"";color+=", ";token=this.getToken(true,true);if(!token.isNumber())return"";color+=token.value;}token=this.getToken(true,true);if(!token.isSymbol(")"))return"";color+=token.value;}else if(token.isFunction("hsl(")||token.isFunction("hsla(")){color=token.value;var isHsla=token.isFunction("hsla(");token=this.getToken(true,true);if(!token.isNumber())return"";color+=token.value;token=this.getToken(true,true);if(!token.isSymbol(","))return"";color+=", ";token=this.getToken(true,true);if(!token.isPercentage())return"";color+=token.value;token=this.getToken(true,true);if(!token.isSymbol(","))return"";color+=", ";token=this.getToken(true,true);if(!token.isPercentage())return"";color+=token.value;if(isHsla){token=this.getToken(true,true);if(!token.isSymbol(","))return"";color+=", ";token=this.getToken(true,true);if(!token.isNumber())return"";color+=token.value;}token=this.getToken(true,true);if(!token.isSymbol(")"))return"";color+=token.value;}else if(token.isIdent()&&token.value in this.kCOLOR_NAMES)color=token.value;else if(token.isSymbol("#")){token=this.getHexValue();if(!token.isHex())return"";var length=token.value.length;if(length!=3&&length!=6)return"";if(token.value.match(/[a-fA-F0-9]/g).length!=length)return"";color="#"+token.value;}return color;},parseDeclaration:function parseDeclaration(aToken,aDecl,aAcceptPriority,aExpandShorthands,aSheet){this.preserveState();var blocks=[];if(aToken.isIdent()){var descriptor=aToken.value.toLowerCase();var token=this.getToken(true,true);if(token.isSymbol(":")){var token=this.getToken(true,true);var value="";var declarations=[];if(aExpandShorthands)switch(descriptor){case"background":value=this.parseBackgroundShorthand(token,declarations,aAcceptPriority);break;case"margin":case"padding":value=this.parseMarginOrPaddingShorthand(token,declarations,aAcceptPriority,descriptor);break;case"border-color":value=this.parseBorderColorShorthand(token,declarations,aAcceptPriority);break;case"border-style":value=this.parseBorderStyleShorthand(token,declarations,aAcceptPriority);break;case"border-width":value=this.parseBorderWidthShorthand(token,declarations,aAcceptPriority);break;case"border-top":case"border-right":case"border-bottom":case"border-left":case"border":case"outline":value=this.parseBorderEdgeOrOutlineShorthand(token,declarations,aAcceptPriority,descriptor);break;case"cue":value=this.parseCueShorthand(token,declarations,aAcceptPriority);break;case"pause":value=this.parsePauseShorthand(token,declarations,aAcceptPriority);break;case"font":value=this.parseFontShorthand(token,declarations,aAcceptPriority);break;case"list-style":value=this.parseListStyleShorthand(token,declarations,aAcceptPriority);break;default:value=this.parseDefaultPropertyValue(token,declarations,aAcceptPriority,descriptor,aSheet);break;}else value=this.parseDefaultPropertyValue(token,declarations,aAcceptPriority,descriptor,aSheet);token=this.currentToken();if(value){var priority=false;if(token.isSymbol("!")){token=this.getToken(true,true);if(token.isIdent("important")){priority=true;token=this.getToken(true,true);if(token.isSymbol(";")||token.isSymbol("}")){if(token.isSymbol("}"))this.ungetToken();}else return"";}else return"";}else if(token.isNotNull()&&!token.isSymbol(";")&&!token.isSymbol("}"))return"";for(var i=0;i<declarations.length;i++){declarations[i].priority=priority;aDecl.push(declarations[i]);}return descriptor+": "+value+";";}}}else if(aToken.isComment()){if(this.mPreserveComments){this.forgetState();var comment=new jscsspComment();comment.parsedCssText=aToken.value;aDecl.push(comment);}return aToken.value;}this.restoreState();var s=aToken.value;blocks=[];var token=this.getToken(false,false);while(token.isNotNull()){s+=token.value;if((token.isSymbol(";")||token.isSymbol("}"))&&!blocks.length){if(token.isSymbol("}"))this.ungetToken();break;}else if(token.isSymbol("{")||token.isSymbol("(")||token.isSymbol("[")||token.isFunction()){blocks.push(token.isFunction()?"(":token.value);}else if(token.isSymbol("}")||token.isSymbol(")")||token.isSymbol("]")){if(blocks.length){var ontop=blocks[blocks.length-1];if(token.isSymbol("}")&&ontop=="{"||token.isSymbol(")")&&ontop=="("||token.isSymbol("]")&&ontop=="["){blocks.pop();}}}token=this.getToken(false,false);}return"";},parseKeyframesRule:function parseKeyframesRule(aToken,aSheet){var currentLine=CountLF(this.mScanner.getAlreadyScanned());var s=aToken.value;var valid=false;var keyframesRule=new jscsspKeyframesRule();keyframesRule.currentLine=currentLine;this.preserveState();var token=this.getToken(true,true);var foundName=false;while(token.isNotNull()){if(token.isIdent()){foundName=true;s+=" "+token.value;keyframesRule.name=token.value;token=this.getToken(true,true);if(token.isSymbol("{"))this.ungetToken();else{token.type=jscsspToken.NULL_TYPE;break;}}else if(token.isSymbol("{")){if(!foundName){token.type=jscsspToken.NULL_TYPE;}break;}else{token.type=jscsspToken.NULL_TYPE;break;}token=this.getToken(true,true);}if(token.isSymbol("{")&&keyframesRule.name){s+=" { ";token=this.getToken(true,false);while(token.isNotNull()){if(token.isComment()&&this.mPreserveComments){s+=" "+token.value;var comment=new jscsspComment();comment.parsedCssText=token.value;keyframesRule.cssRules.push(comment);}else if(token.isSymbol("}")){valid=true;break;}else{var r=this.parseKeyframeRule(token,keyframesRule,true);if(r)s+=r;}token=this.getToken(true,false);}}if(valid){this.forgetState();keyframesRule.currentLine=currentLine;keyframesRule.parsedCssText=s;aSheet.cssRules.push(keyframesRule);return true;}this.restoreState();return false;},parseKeyframeRule:function parseKeyframeRule(aToken,aOwner){var currentLine=CountLF(this.mScanner.getAlreadyScanned());this.preserveState();var token=aToken;var key="";while(token.isNotNull()){if(token.isIdent()||token.isPercentage()){if(token.isIdent()&&!token.isIdent("from")&&!token.isIdent("to")){key="";break;}key+=token.value;token=this.getToken(true,true);if(token.isSymbol("{")){this.ungetToken();break;}else if(token.isSymbol(",")){key+=", ";}else{key="";break;}}else{key="";break;}token=this.getToken(true,true);}var valid=false;var declarations=[];if(key){var s=key;token=this.getToken(true,true);if(token.isSymbol("{")){s+=" { ";token=this.getToken(true,false);while(true){if(!token.isNotNull()){valid=true;break;}if(token.isSymbol("}")){s+="}";valid=true;break;}else{var d=this.parseDeclaration(token,declarations,true,true,aOwner);s+=(d&&declarations.length?" ":"")+d;}token=this.getToken(true,false);}}}else{}if(valid){var rule=new jscsspKeyframeRule();rule.currentLine=currentLine;rule.parsedCssText=s;rule.declarations=declarations;rule.keyText=key;rule.parentRule=aOwner;aOwner.cssRules.push(rule);return s;}this.restoreState();s=this.currentToken().value;this.addUnknownAtRule(aOwner,s);return"";},parseMediaRule:function parseMediaRule(aToken,aSheet){var currentLine=CountLF(this.mScanner.getAlreadyScanned());var s=aToken.value;var valid=false;var mediaRule=new jscsspMediaRule();mediaRule.currentLine=currentLine;this.preserveState();var token=this.getToken(true,true);var foundMedia=false;while(token.isNotNull()){if(token.isIdent()){foundMedia=true;s+=" "+token.value;mediaRule.media.push(token.value);token=this.getToken(true,true);if(token.isSymbol(",")){s+=",";}else{if(token.isSymbol("{"))this.ungetToken();else{token.type=jscsspToken.NULL_TYPE;break;}}}else if(token.isSymbol("{"))break;else if(foundMedia){token.type=jscsspToken.NULL_TYPE;break;}token=this.getToken(true,true);}if(token.isSymbol("{")&&mediaRule.media.length){s+=" { ";token=this.getToken(true,false);while(token.isNotNull()){if(token.isComment()&&this.mPreserveComments){s+=" "+token.value;var comment=new jscsspComment();comment.parsedCssText=token.value;mediaRule.cssRules.push(comment);}else if(token.isSymbol("}")){valid=true;break;}else{var r=this.parseStyleRule(token,mediaRule,true);if(r)s+=r;}token=this.getToken(true,false);}}if(valid){this.forgetState();mediaRule.parsedCssText=s;aSheet.cssRules.push(mediaRule);return true;}this.restoreState();return false;},trim11:function trim11(str){str=str.replace(/^\s+/,'');for(var i=str.length-1;i>=0;i--){if(/\S/.test(str.charAt(i))){str=str.substring(0,i+1);break;}}return str;},parseStyleRule:function parseStyleRule(aToken,aOwner,aIsInsideMediaRule){var currentLine=CountLF(this.mScanner.getAlreadyScanned());this.preserveState();var selector=this.parseSelector(aToken,false);var valid=false;var declarations=[];if(selector){selector=this.trim11(selector.selector);var s=selector;var token=this.getToken(true,true);if(token.isSymbol("{")){s+=" { ";var token=this.getToken(true,false);while(true){if(!token.isNotNull()){valid=true;break;}if(token.isSymbol("}")){s+="}";valid=true;break;}else{var d=this.parseDeclaration(token,declarations,true,true,aOwner);s+=(d&&declarations.length?" ":"")+d;}token=this.getToken(true,false);}}}else{}if(valid){var rule=new jscsspStyleRule();rule.currentLine=currentLine;rule.parsedCssText=s;rule.declarations=declarations;rule.mSelectorText=selector;if(aIsInsideMediaRule)rule.parentRule=aOwner;else rule.parentStyleSheet=aOwner;aOwner.cssRules.push(rule);return s;}this.restoreState();s=this.currentToken().value;this.addUnknownAtRule(aOwner,s);return"";},parseSelector:function parseSelector(aToken,aParseSelectorOnly){var s="";var specificity={a:0,b:0,c:0,d:0};var isFirstInChain=true;var token=aToken;var valid=false;var combinatorFound=false;while(true){if(!token.isNotNull()){if(aParseSelectorOnly)return{selector:s,specificity:specificity};return"";}if(!aParseSelectorOnly&&token.isSymbol("{")){valid=!combinatorFound;if(valid)this.ungetToken();break;}if(token.isSymbol(",")){s+=token.value;isFirstInChain=true;combinatorFound=false;token=this.getToken(false,true);continue;}else if(!combinatorFound&&(token.isWhiteSpace()||token.isSymbol(">")||token.isSymbol("+")||token.isSymbol("~"))){if(token.isWhiteSpace()){s+=" ";var nextToken=this.lookAhead(true,true);if(!nextToken.isNotNull()){if(aParseSelectorOnly)return{selector:s,specificity:specificity};return"";}if(nextToken.isSymbol(">")||nextToken.isSymbol("+")||nextToken.isSymbol("~")){token=this.getToken(true,true);s+=token.value+" ";combinatorFound=true;}}else{s+=token.value;combinatorFound=true;}isFirstInChain=true;token=this.getToken(true,true);continue;}else{var simpleSelector=this.parseSimpleSelector(token,isFirstInChain,true);if(!simpleSelector)break;s+=simpleSelector.selector;specificity.b+=simpleSelector.specificity.b;specificity.c+=simpleSelector.specificity.c;specificity.d+=simpleSelector.specificity.d;isFirstInChain=false;combinatorFound=false;}token=this.getToken(false,true);}if(valid){return{selector:s,specificity:specificity};}return"";},isPseudoElement:function isPseudoElement(aIdent){switch(aIdent){case"first-letter":case"first-line":case"before":case"after":case"marker":return true;break;default:return false;break;}},parseSimpleSelector:function parseSimpleSelector(token,isFirstInChain,canNegate){var s="";var specificity={a:0,b:0,c:0,d:0};if(isFirstInChain&&(token.isSymbol("*")||token.isSymbol("|")||token.isIdent())){if(token.isSymbol("*")||token.isIdent()){s+=token.value;var isIdent=token.isIdent();token=this.getToken(false,true);if(token.isSymbol("|")){s+=token.value;token=this.getToken(false,true);if(token.isIdent()||token.isSymbol("*")){s+=token.value;if(token.isIdent())specificity.d++;}else return null;}else{this.ungetToken();if(isIdent)specificity.d++;}}else if(token.isSymbol("|")){s+=token.value;token=this.getToken(false,true);if(token.isIdent()||token.isSymbol("*")){s+=token.value;if(token.isIdent())specificity.d++;}else return null;}}else if(token.isSymbol(".")||token.isSymbol("#")){var isClass=token.isSymbol(".");s+=token.value;token=this.getToken(false,true);if(token.isIdent()){s+=token.value;if(isClass)specificity.c++;else specificity.b++;}else return null;}else if(token.isSymbol(":")){s+=token.value;token=this.getToken(false,true);if(token.isSymbol(":")){s+=token.value;token=this.getToken(false,true);}if(token.isIdent()){s+=token.value;if(this.isPseudoElement(token.value))specificity.d++;else specificity.c++;}else if(token.isFunction()){s+=token.value;if(token.isFunction(":not(")){if(!canNegate)return null;token=this.getToken(true,true);var simpleSelector=this.parseSimpleSelector(token,isFirstInChain,false);if(!simpleSelector)return null;else{s+=simpleSelector.selector;token=this.getToken(true,true);if(token.isSymbol(")"))s+=")";else return null;}specificity.c++;}else{while(true){token=this.getToken(false,true);if(token.isSymbol(")")){s+=")";break;}else s+=token.value;}specificity.c++;}}else return null;}else if(token.isSymbol("[")){s+="[";token=this.getToken(true,true);if(token.isIdent()||token.isSymbol("*")){s+=token.value;var nextToken=this.getToken(true,true);if(token.isSymbol("|")){s+="|";token=this.getToken(true,true);if(token.isIdent())s+=token.value;else return null;}else this.ungetToken();}else if(token.isSymbol("|")){s+="|";token=this.getToken(true,true);if(token.isIdent())s+=token.value;else return null;}else return null;token=this.getToken(true,true);if(token.isIncludes()||token.isDashmatch()||token.isBeginsmatch()||token.isEndsmatch()||token.isContainsmatch()||token.isSymbol("=")){s+=token.value;token=this.getToken(true,true);if(token.isString()||token.isIdent()){s+=token.value;token=this.getToken(true,true);}else return null;if(token.isSymbol("]")){s+=token.value;specificity.c++;}else return null;}else if(token.isSymbol("]")){s+=token.value;specificity.c++;}else return null;}else if(token.isWhiteSpace()){var t=this.lookAhead(true,true);if(t.isSymbol('{'))return"";}if(s)return{selector:s,specificity:specificity};return null;},preserveState:function preserveState(){this.mPreservedTokens.push(this.currentToken());this.mScanner.preserveState();},restoreState:function restoreState(){if(this.mPreservedTokens.length){this.mScanner.restoreState();this.mToken=this.mPreservedTokens.pop();}},forgetState:function forgetState(){if(this.mPreservedTokens.length){this.mScanner.forgetState();this.mPreservedTokens.pop();}},parse:function parse(aString,aTryToPreserveWhitespaces,aTryToPreserveComments){if(!aString)return null;this.mPreserveWS=aTryToPreserveWhitespaces;this.mPreserveComments=aTryToPreserveComments;this.mPreservedTokens=[];this.mScanner.init(aString);var sheet=new jscsspStylesheet();var token=this.getToken(false,false);if(!token.isNotNull())return;if(token.isAtRule("@charset")){this.parseCharsetRule(token,sheet);token=this.getToken(false,false);}var foundStyleRules=false;var foundImportRules=false;var foundNameSpaceRules=false;while(true){if(!token.isNotNull())break;if(token.isWhiteSpace()){if(aTryToPreserveWhitespaces)this.addWhitespace(sheet,token.value);}else if(token.isComment()){if(this.mPreserveComments)this.addComment(sheet,token.value);}else if(token.isAtRule()){if(token.isAtRule("@variables")){if(!foundImportRules&&!foundStyleRules)this.parseVariablesRule(token,sheet);else{this.reportError(kVARIABLES_RULE_POSITION);this.addUnknownAtRule(sheet,token.value);}}else if(token.isAtRule("@import")){if(!foundStyleRules&&!foundNameSpaceRules)foundImportRules=this.parseImportRule(token,sheet);else{this.reportError(kIMPORT_RULE_POSITION);this.addUnknownAtRule(sheet,token.value);}}else if(token.isAtRule("@namespace")){if(!foundStyleRules)foundNameSpaceRules=this.parseNamespaceRule(token,sheet);else{this.reportError(kNAMESPACE_RULE_POSITION);this.addUnknownAtRule(sheet,token.value);}}else if(token.isAtRule("@font-face")){if(this.parseFontFaceRule(token,sheet))foundStyleRules=true;else this.addUnknownAtRule(sheet,token.value);}else if(token.isAtRule("@page")){if(this.parsePageRule(token,sheet))foundStyleRules=true;else this.addUnknownAtRule(sheet,token.value);}else if(token.isAtRule("@media")){if(this.parseMediaRule(token,sheet))foundStyleRules=true;else this.addUnknownAtRule(sheet,token.value);}else if(token.isAtRule("@keyframes")){if(!this.parseKeyframesRule(token,sheet))this.addUnknownAtRule(sheet,token.value);}else if(token.isAtRule("@charset")){this.reportError(kCHARSET_RULE_CHARSET_SOF);this.addUnknownAtRule(sheet,token.value);}else{this.reportError(kUNKNOWN_AT_RULE);this.addUnknownAtRule(sheet,token.value);}}else{var ruleText=this.parseStyleRule(token,sheet,false);if(ruleText)foundStyleRules=true;}token=this.getToken(false);}return sheet;}};function jscsspToken(aType,aValue,aUnit){this.type=aType;this.value=aValue;this.unit=aUnit;}jscsspToken.NULL_TYPE=0;jscsspToken.WHITESPACE_TYPE=1;jscsspToken.STRING_TYPE=2;jscsspToken.COMMENT_TYPE=3;jscsspToken.NUMBER_TYPE=4;jscsspToken.IDENT_TYPE=5;jscsspToken.FUNCTION_TYPE=6;jscsspToken.ATRULE_TYPE=7;jscsspToken.INCLUDES_TYPE=8;jscsspToken.DASHMATCH_TYPE=9;jscsspToken.BEGINSMATCH_TYPE=10;jscsspToken.ENDSMATCH_TYPE=11;jscsspToken.CONTAINSMATCH_TYPE=12;jscsspToken.SYMBOL_TYPE=13;jscsspToken.DIMENSION_TYPE=14;jscsspToken.PERCENTAGE_TYPE=15;jscsspToken.HEX_TYPE=16;jscsspToken.prototype=(_jscsspToken$prototyp={isNotNull:function isNotNull(){return this.type;},_isOfType:function _isOfType(aType,aValue){return this.type==aType&&(!aValue||this.value.toLowerCase()==aValue);},isWhiteSpace:function isWhiteSpace(w){return this._isOfType(jscsspToken.WHITESPACE_TYPE,w);},isString:function isString(){return this._isOfType(jscsspToken.STRING_TYPE);},isComment:function isComment(){return this._isOfType(jscsspToken.COMMENT_TYPE);},isNumber:function isNumber(n){return this._isOfType(jscsspToken.NUMBER_TYPE,n);},isSymbol:function isSymbol(c){return this._isOfType(jscsspToken.SYMBOL_TYPE,c);},isIdent:function isIdent(i){return this._isOfType(jscsspToken.IDENT_TYPE,i);},isFunction:function isFunction(f){return this._isOfType(jscsspToken.FUNCTION_TYPE,f);},isAtRule:function isAtRule(a){return this._isOfType(jscsspToken.ATRULE_TYPE,a);},isIncludes:function isIncludes(){return this._isOfType(jscsspToken.INCLUDES_TYPE);},isDashmatch:function isDashmatch(){return this._isOfType(jscsspToken.DASHMATCH_TYPE);},isBeginsmatch:function isBeginsmatch(){return this._isOfType(jscsspToken.BEGINSMATCH_TYPE);},isEndsmatch:function isEndsmatch(){return this._isOfType(jscsspToken.ENDSMATCH_TYPE);},isContainsmatch:function isContainsmatch(){return this._isOfType(jscsspToken.CONTAINSMATCH_TYPE);}},_defineProperty(_jscsspToken$prototyp,"isSymbol",function isSymbol(c){return this._isOfType(jscsspToken.SYMBOL_TYPE,c);}),_defineProperty(_jscsspToken$prototyp,"isDimension",function isDimension(){return this._isOfType(jscsspToken.DIMENSION_TYPE);}),_defineProperty(_jscsspToken$prototyp,"isPercentage",function isPercentage(){return this._isOfType(jscsspToken.PERCENTAGE_TYPE);}),_defineProperty(_jscsspToken$prototyp,"isHex",function isHex(){return this._isOfType(jscsspToken.HEX_TYPE);}),_defineProperty(_jscsspToken$prototyp,"isDimensionOfUnit",function isDimensionOfUnit(aUnit){return this.isDimension()&&this.unit==aUnit;}),_defineProperty(_jscsspToken$prototyp,"isLength",function isLength(){return this.isPercentage()||this.isDimensionOfUnit("cm")||this.isDimensionOfUnit("mm")||this.isDimensionOfUnit("in")||this.isDimensionOfUnit("pc")||this.isDimensionOfUnit("px")||this.isDimensionOfUnit("em")||this.isDimensionOfUnit("ex")||this.isDimensionOfUnit("pt");}),_defineProperty(_jscsspToken$prototyp,"isAngle",function isAngle(){return this.isDimensionOfUnit("deg")||this.isDimensionOfUnit("rad")||this.isDimensionOfUnit("grad");}),_jscsspToken$prototyp);var kJscsspUNKNOWN_RULE=0;var kJscsspSTYLE_RULE=1;var kJscsspCHARSET_RULE=2;var kJscsspIMPORT_RULE=3;var kJscsspMEDIA_RULE=4;var kJscsspFONT_FACE_RULE=5;var kJscsspPAGE_RULE=6;var kJscsspKEYFRAMES_RULE=7;var kJscsspKEYFRAME_RULE=8;var kJscsspNAMESPACE_RULE=100;var kJscsspCOMMENT=101;var kJscsspWHITE_SPACE=102;var kJscsspVARIABLES_RULE=200;var kJscsspSTYLE_DECLARATION=1000;var gTABS="";function jscsspStylesheet(){this.cssRules=[];this.variables={};}jscsspStylesheet.prototype={insertRule:function insertRule(aRule,aIndex){try{this.cssRules.splice(aIndex,1,aRule);}catch(e){}},deleteRule:function deleteRule(aIndex){try{this.cssRules.splice(aIndex);}catch(e){}},cssText:function cssText(){var rv="";for(var i=0;i<this.cssRules.length;i++){rv+=this.cssRules[i].cssText()+"\n";}return rv;},resolveVariables:function resolveVariables(aMedium){function ItemFoundInArray(aArray,aItem){for(var i=0;i<aArray.length;i++){if(aItem==aArray[i])return true;}return false;}for(var i=0;i<this.cssRules.length;i++){var rule=this.cssRules[i];if(rule.type==kJscsspSTYLE_RULE||rule.type==kJscsspIMPORT_RULE)break;else if(rule.type==kJscsspVARIABLES_RULE&&(!rule.media.length||ItemFoundInArray(rule.media,aMedium))){for(var j=0;j<rule.declarations.length;j++){var valueText="";for(var k=0;k<rule.declarations[j].values.length;k++){valueText+=(k?" ":"")+rule.declarations[j].values[k].value;}this.variables[rule.declarations[j].property]=valueText;}}}}};function jscsspCharsetRule(){this.type=kJscsspCHARSET_RULE;this.encoding=null;this.parsedCssText=null;this.parentStyleSheet=null;this.parentRule=null;}jscsspCharsetRule.prototype={cssText:function cssText(){return"@charset "+this.encoding+";";},setCssText:function setCssText(val){var sheet={cssRules:[]};var parser=new CSSParser(val);var token=parser.getToken(false,false);if(token.isAtRule("@charset")){if(parser.parseCharsetRule(token,sheet)){var newRule=sheet.cssRules[0];this.encoding=newRule.encoding;this.parsedCssText=newRule.parsedCssText;return;}}throw DOMException.SYNTAX_ERR;}};function jscsspErrorRule(aErrorMsg){this.error=aErrorMsg?aErrorMsg:"INVALID";this.type=kJscsspUNKNOWN_RULE;this.parsedCssText=null;this.parentStyleSheet=null;this.parentRule=null;}jscsspErrorRule.prototype={cssText:function cssText(){return this.parsedCssText;}};function jscsspComment(){this.type=kJscsspCOMMENT;this.parsedCssText=null;this.parentStyleSheet=null;this.parentRule=null;}jscsspComment.prototype={cssText:function cssText(){return this.parsedCssText;},setCssText:function setCssText(val){var parser=new CSSParser(val);var token=parser.getToken(true,false);if(token.isComment())this.parsedCssText=token.value;else throw DOMException.SYNTAX_ERR;}};function jscsspWhitespace(){this.type=kJscsspWHITE_SPACE;this.parsedCssText=null;this.parentStyleSheet=null;this.parentRule=null;}jscsspWhitespace.prototype={cssText:function cssText(){return this.parsedCssText;}};function jscsspImportRule(){this.type=kJscsspIMPORT_RULE;this.parsedCssText=null;this.href=null;this.media=[];this.parentStyleSheet=null;this.parentRule=null;}jscsspImportRule.prototype={cssText:function cssText(){var mediaString=this.media.join(", ");return"@import "+this.href+(mediaString&&mediaString!="all"?mediaString+" ":"")+";";},setCssText:function setCssText(val){var sheet={cssRules:[]};var parser=new CSSParser(val);var token=parser.getToken(true,true);if(token.isAtRule("@import")){if(parser.parseImportRule(token,sheet)){var newRule=sheet.cssRules[0];this.href=newRule.href;this.media=newRule.media;this.parsedCssText=newRule.parsedCssText;return;}}throw DOMException.SYNTAX_ERR;}};function jscsspNamespaceRule(){this.type=kJscsspNAMESPACE_RULE;this.parsedCssText=null;this.prefix=null;this.url=null;this.parentStyleSheet=null;this.parentRule=null;}jscsspNamespaceRule.prototype={cssText:function cssText(){return"@namespace "+(this.prefix?this.prefix+" ":"")+this.url+";";},setCssText:function setCssText(val){var sheet={cssRules:[]};var parser=new CSSParser(val);var token=parser.getToken(true,true);if(token.isAtRule("@namespace")){if(parser.parseNamespaceRule(token,sheet)){var newRule=sheet.cssRules[0];this.url=newRule.url;this.prefix=newRule.prefix;this.parsedCssText=newRule.parsedCssText;return;}}throw DOMException.SYNTAX_ERR;}};function jscsspDeclaration(){this.type=kJscsspSTYLE_DECLARATION;this.property=null;this.values=[];this.valueText=null;this.priority=null;this.parsedCssText=null;this.parentStyleSheet=null;this.parentRule=null;}jscsspDeclaration.prototype={kCOMMA_SEPARATED:{"cursor":true,"font-family":true,"voice-family":true,"background-image":true},kUNMODIFIED_COMMA_SEPARATED_PROPERTIES:{"text-shadow":true,"box-shadow":true,"-moz-transition":true,"-moz-transition-property":true,"-moz-transition-duration":true,"-moz-transition-timing-function":true,"-moz-transition-delay":true},cssText:function cssText(){var prefixes=CssInspector.prefixesForProperty(this.property);if(this.property in this.kUNMODIFIED_COMMA_SEPARATED_PROPERTIES){if(prefixes){var rv="";for(var propertyIndex=0;propertyIndex<prefixes.length;propertyIndex++){var property=prefixes[propertyIndex];rv+=(propertyIndex?gTABS:"")+property+": ";rv+=this.valueText+(this.priority?" !important":"")+";";rv+=prefixes.length>1&&propertyIndex!=prefixes.length-1?"\n":"";}return rv;}return this.property+": "+this.valueText+(this.priority?" !important":"")+";";}if(prefixes){var rv="";for(var propertyIndex=0;propertyIndex<prefixes.length;propertyIndex++){var property=prefixes[propertyIndex];rv+=(propertyIndex?gTABS:"")+property+": ";var separator=property in this.kCOMMA_SEPARATED?", ":" ";for(var i=0;i<this.values.length;i++){if(this.values[i].cssText()!=null)rv+=(i?separator:"")+this.values[i].cssText();else return null;}rv+=(this.priority?" !important":"")+";"+(prefixes.length>1&&propertyIndex!=prefixes.length-1?"\n":"");}return rv;}var rv=this.property+": ";var separator=this.property in this.kCOMMA_SEPARATED?", ":" ";var extras={"webkit":false,"presto":false,"trident":false,"generic":false};for(var i=0;i<this.values.length;i++){var v=this.values[i].cssText();if(v!=null){var paren=v.indexOf("(");var kwd=v;if(paren!=-1)kwd=v.substr(0,paren);if(kwd in kCSS_VENDOR_VALUES){for(var j in kCSS_VENDOR_VALUES[kwd]){extras[j]=extras[j]||kCSS_VENDOR_VALUES[kwd][j]!="";}}rv+=(i?separator:"")+v;}else return null;}rv+=(this.priority?" !important":"")+";";for(var j in extras){if(extras[j]){var str="\n"+gTABS+this.property+": ";for(var i=0;i<this.values.length;i++){var v=this.values[i].cssText();if(v!=null){var paren=v.indexOf("(");var kwd=v;if(paren!=-1)kwd=v.substr(0,paren);if(kwd in kCSS_VENDOR_VALUES){functor=kCSS_VENDOR_VALUES[kwd][j];if(functor){v=typeof functor=="string"?functor:functor(v,j);if(!v){str=null;break;}}}str+=(i?separator:"")+v;}else return null;}if(str)rv+=str+";";else rv+="\n"+gTABS+"/* Impossible to translate property "+this.property+" for "+j+" */";}}return rv;},setCssText:function setCssText(val){var declarations=[];var parser=new CSSParser(val);var token=parser.getToken(true,true);if(parser.parseDeclaration(token,declarations,true,true,null)&&declarations.length&&declarations[0].type==kJscsspSTYLE_DECLARATION){var newDecl=declarations.cssRules[0];this.property=newDecl.property;this.value=newDecl.value;this.priority=newDecl.priority;this.parsedCssText=newRule.parsedCssText;return;}throw DOMException.SYNTAX_ERR;}};function jscsspFontFaceRule(){this.type=kJscsspFONT_FACE_RULE;this.parsedCssText=null;this.descriptors=[];this.parentStyleSheet=null;this.parentRule=null;}jscsspFontFaceRule.prototype={cssText:function cssText(){var rv=gTABS+"@font-face {\n";var preservedGTABS=gTABS;gTABS+="  ";for(var i=0;i<this.descriptors.length;i++){rv+=gTABS+this.descriptors[i].cssText()+"\n";}gTABS=preservedGTABS;return rv+gTABS+"}";},setCssText:function setCssText(val){var sheet={cssRules:[]};var parser=new CSSParser(val);var token=parser.getToken(true,true);if(token.isAtRule("@font-face")){if(parser.parseFontFaceRule(token,sheet)){var newRule=sheet.cssRules[0];this.descriptors=newRule.descriptors;this.parsedCssText=newRule.parsedCssText;return;}}throw DOMException.SYNTAX_ERR;}};function jscsspKeyframesRule(){this.type=kJscsspKEYFRAMES_RULE;this.parsedCssText=null;this.cssRules=[];this.name=null;this.parentStyleSheet=null;this.parentRule=null;}jscsspKeyframesRule.prototype={cssText:function cssText(){var rv=gTABS+"@keyframes "+this.name+" {\n";var preservedGTABS=gTABS;gTABS+="  ";for(var i=0;i<this.cssRules.length;i++){rv+=gTABS+this.cssRules[i].cssText()+"\n";}gTABS=preservedGTABS;rv+=gTABS+"}\n";return rv;},setCssText:function setCssText(val){var sheet={cssRules:[]};var parser=new CSSParser(val);var token=parser.getToken(true,true);if(token.isAtRule("@keyframes")){if(parser.parseKeyframesRule(token,sheet)){var newRule=sheet.cssRules[0];this.cssRules=newRule.cssRules;this.name=newRule.name;this.parsedCssText=newRule.parsedCssText;return;}}throw DOMException.SYNTAX_ERR;}};function jscsspKeyframeRule(){this.type=kJscsspKEYFRAME_RULE;this.parsedCssText=null;this.declarations=[];this.keyText=null;this.parentStyleSheet=null;this.parentRule=null;}jscsspKeyframeRule.prototype={cssText:function cssText(){var rv=this.keyText+" {\n";var preservedGTABS=gTABS;gTABS+="  ";for(var i=0;i<this.declarations.length;i++){var declText=this.declarations[i].cssText();if(declText)rv+=gTABS+this.declarations[i].cssText()+"\n";}gTABS=preservedGTABS;return rv+gTABS+"}";},setCssText:function setCssText(val){var sheet={cssRules:[]};var parser=new CSSParser(val);var token=parser.getToken(true,true);if(!token.isNotNull()){if(parser.parseKeyframeRule(token,sheet,false)){var newRule=sheet.cssRules[0];this.keyText=newRule.keyText;this.declarations=newRule.declarations;this.parsedCssText=newRule.parsedCssText;return;}}throw DOMException.SYNTAX_ERR;}};function jscsspMediaRule(){this.type=kJscsspMEDIA_RULE;this.parsedCssText=null;this.cssRules=[];this.media=[];this.parentStyleSheet=null;this.parentRule=null;}jscsspMediaRule.prototype={cssText:function cssText(){var rv=gTABS+"@media "+this.media.join(", ")+" {\n";var preservedGTABS=gTABS;gTABS+="  ";for(var i=0;i<this.cssRules.length;i++){rv+=gTABS+this.cssRules[i].cssText()+"\n";}gTABS=preservedGTABS;return rv+gTABS+"}";},setCssText:function setCssText(val){var sheet={cssRules:[]};var parser=new CSSParser(val);var token=parser.getToken(true,true);if(token.isAtRule("@media")){if(parser.parseMediaRule(token,sheet)){var newRule=sheet.cssRules[0];this.cssRules=newRule.cssRules;this.media=newRule.media;this.parsedCssText=newRule.parsedCssText;return;}}throw DOMException.SYNTAX_ERR;}};function jscsspStyleRule(){this.type=kJscsspSTYLE_RULE;this.parsedCssText=null;this.declarations=[];this.mSelectorText=null;this.parentStyleSheet=null;this.parentRule=null;}jscsspStyleRule.prototype={cssText:function cssText(){var rv=this.mSelectorText+" {\n";var preservedGTABS=gTABS;gTABS+="  ";for(var i=0;i<this.declarations.length;i++){var declText=this.declarations[i].cssText();if(declText)rv+=gTABS+this.declarations[i].cssText()+"\n";}gTABS=preservedGTABS;return rv+gTABS+"}";},setCssText:function setCssText(val){var sheet={cssRules:[]};var parser=new CSSParser(val);var token=parser.getToken(true,true);if(!token.isNotNull()){if(parser.parseStyleRule(token,sheet,false)){var newRule=sheet.cssRules[0];this.mSelectorText=newRule.mSelectorText;this.declarations=newRule.declarations;this.parsedCssText=newRule.parsedCssText;return;}}throw DOMException.SYNTAX_ERR;},selectorText:function selectorText(){return this.mSelectorText;},setSelectorText:function setSelectorText(val){var parser=new CSSParser(val);var token=parser.getToken(true,true);if(!token.isNotNull()){var s=parser.parseSelector(token,true);if(s){this.mSelectorText=s.selector;return;}}throw DOMException.SYNTAX_ERR;}};function jscsspPageRule(){this.type=kJscsspPAGE_RULE;this.parsedCssText=null;this.pageSelector=null;this.declarations=[];this.parentStyleSheet=null;this.parentRule=null;}jscsspPageRule.prototype={cssText:function cssText(){var rv=gTABS+"@page "+(this.pageSelector?this.pageSelector+" ":"")+"{\n";var preservedGTABS=gTABS;gTABS+="  ";for(var i=0;i<this.declarations.length;i++){rv+=gTABS+this.declarations[i].cssText()+"\n";}gTABS=preservedGTABS;return rv+gTABS+"}";},setCssText:function setCssText(val){var sheet={cssRules:[]};var parser=new CSSParser(val);var token=parser.getToken(true,true);if(token.isAtRule("@page")){if(parser.parsePageRule(token,sheet)){var newRule=sheet.cssRules[0];this.pageSelector=newRule.pageSelector;this.declarations=newRule.declarations;this.parsedCssText=newRule.parsedCssText;return;}}throw DOMException.SYNTAX_ERR;}};function jscsspVariablesRule(){this.type=kJscsspVARIABLES_RULE;this.parsedCssText=null;this.declarations=[];this.parentStyleSheet=null;this.parentRule=null;this.media=null;}jscsspVariablesRule.prototype={cssText:function cssText(){var rv=gTABS+"@variables "+(this.media.length?this.media.join(", ")+" ":"")+"{\n";var preservedGTABS=gTABS;gTABS+="  ";for(var i=0;i<this.declarations.length;i++){rv+=gTABS+this.declarations[i].cssText()+"\n";}gTABS=preservedGTABS;return rv+gTABS+"}";},setCssText:function setCssText(val){var sheet={cssRules:[]};var parser=new CSSParser(val);var token=parser.getToken(true,true);if(token.isAtRule("@variables")){if(parser.parseVariablesRule(token,sheet)){var newRule=sheet.cssRules[0];this.declarations=newRule.declarations;this.parsedCssText=newRule.parsedCssText;return;}}throw DOMException.SYNTAX_ERR;}};var kJscsspINHERIT_VALUE=0;var kJscsspPRIMITIVE_VALUE=1;var kJscsspVARIABLE_VALUE=4;function jscsspVariable(aType,aSheet){this.value="";this.type=aType;this.name=null;this.parentRule=null;this.parentStyleSheet=aSheet;}jscsspVariable.prototype={cssText:function cssText(){if(this.type==kJscsspVARIABLE_VALUE)return this.resolveVariable(this.name,this.parentRule,this.parentStyleSheet);else return this.value;},setCssText:function setCssText(val){if(this.type==kJscsspVARIABLE_VALUE)throw DOMException.SYNTAX_ERR;else this.value=val;},resolveVariable:function resolveVariable(aName,aRule,aSheet){if(aName.toLowerCase()in aSheet.variables)return aSheet.variables[aName.toLowerCase()];return null;}};function ParseURL(buffer){var result={};result.protocol="";result.user="";result.password="";result.host="";result.port="";result.path="";result.query="";var section="PROTOCOL";var start=0;var wasSlash=false;while(start<buffer.length){if(section=="PROTOCOL"){if(buffer.charAt(start)==':'){section="AFTER_PROTOCOL";start++;}else if(buffer.charAt(start)=='/'&&result.protocol.length()==0){section=PATH;}else{result.protocol+=buffer.charAt(start++);}}else if(section=="AFTER_PROTOCOL"){if(buffer.charAt(start)=='/'){if(!wasSlash){wasSlash=true;}else{wasSlash=false;section="USER";}start++;}else{throw new ParseException("Protocol shell be separated with 2 slashes");}}else if(section=="USER"){if(buffer.charAt(start)=='/'){result.host=result.user;result.user="";section="PATH";}else if(buffer.charAt(start)=='?'){result.host=result.user;result.user="";section="QUERY";start++;}else if(buffer.charAt(start)==':'){section="PASSWORD";start++;}else if(buffer.charAt(start)=='@'){section="HOST";start++;}else{result.user+=buffer.charAt(start++);}}else if(section=="PASSWORD"){if(buffer.charAt(start)=='/'){result.host=result.user;result.port=result.password;result.user="";result.password="";section="PATH";}else if(buffer.charAt(start)=='?'){result.host=result.user;result.port=result.password;result.user="";result.password="";section="QUERY";start++;}else if(buffer.charAt(start)=='@'){section="HOST";start++;}else{result.password+=buffer.charAt(start++);}}else if(section=="HOST"){if(buffer.charAt(start)=='/'){section="PATH";}else if(buffer.charAt(start)==':'){section="PORT";start++;}else if(buffer.charAt(start)=='?'){section="QUERY";start++;}else{result.host+=buffer.charAt(start++);}}else if(section=="PORT"){if(buffer.charAt(start)=='/'){section="PATH";}else if(buffer.charAt(start)=='?'){section="QUERY";start++;}else{result.port+=buffer.charAt(start++);}}else if(section=="PATH"){if(buffer.charAt(start)=='?'){section="QUERY";start++;}else{result.path+=buffer.charAt(start++);}}else if(section=="QUERY"){result.query+=buffer.charAt(start++);}}if(section=="PROTOCOL"){result.host=result.protocol;result.protocol="http";}else if(section=="AFTER_PROTOCOL"){throw new ParseException("Invalid url");}else if(section=="USER"){result.host=result.user;result.user="";}else if(section=="PASSWORD"){result.host=result.user;result.port=result.password;result.user="";result.password="";}return result;}function ParseException(description){this.description=description;}function CountLF(s){var nCR=s.match(/\n/g);return nCR?nCR.length+1:1;}function FilterLinearGradientForOutput(aValue,aEngine){if(aEngine=="generic")return aValue.substr(5);if(aEngine=="webkit")return aValue.replace(/\-moz\-/g,"-webkit-");if(aEngine!="webkit20110101")return"";var g=CssInspector.parseBackgroundImages(aValue)[0];var cancelled=false;var str="-webkit-gradient(linear, ";var position="position"in g.value?g.value.position.toLowerCase():"";var angle="angle"in g.value?g.value.angle.toLowerCase():"";if(angle){var match=angle.match(/^([0-9\-\.\\+]+)([a-z]*)/);var angle=parseFloat(match[1]);var unit=match[2];switch(unit){case"grad":angle=angle*90/100;break;case"rad":angle=angle*180/Math.PI;break;default:break;}while(angle<0){angle+=360;}while(angle>=360){angle-=360;}}var startpoint=[];var endpoint=[];if(position!=""){if(position=="center")position="center center";startpoint=position.split(" ");if(angle==""&&angle!=0){switch(startpoint[0]){case"left":endpoint.push("right");break;case"center":endpoint.push("center");break;case"right":endpoint.push("left");break;default:{var match=startpoint[0].match(/^([0-9\-\.\\+]+)([a-z]*)/);var v=parseFloat(match[0]);var unit=match[1];if(unit=="%"){endpoint.push(100-v+"%");}else cancelled=true;}break;}if(!cancelled)switch(startpoint[1]){case"top":endpoint.push("bottom");break;case"center":endpoint.push("center");break;case"bottom":endpoint.push("top");break;default:{var match=startpoint[1].match(/^([0-9\-\.\\+]+)([a-z]*)/);var v=parseFloat(match[0]);var unit=match[1];if(unit=="%"){endpoint.push(100-v+"%");}else cancelled=true;}break;}}else{switch(angle){case 0:endpoint.push("right");endpoint.push(startpoint[1]);break;case 90:endpoint.push(startpoint[0]);endpoint.push("top");break;case 180:endpoint.push("left");endpoint.push(startpoint[1]);break;case 270:endpoint.push(startpoint[0]);endpoint.push("bottom");break;default:cancelled=true;break;}}}else{if(angle=="")angle=270;switch(angle){case 0:startpoint=["left","center"];endpoint=["right","center"];break;case 90:startpoint=["center","bottom"];endpoint=["center","top"];break;case 180:startpoint=["right","center"];endpoint=["left","center"];break;case 270:startpoint=["center","top"];endpoint=["center","bottom"];break;default:cancelled=true;break;}}if(cancelled)return"";str+=startpoint.join(" ")+", "+endpoint.join(" ");if(!g.value.stops[0].position)g.value.stops[0].position="0%";if(!g.value.stops[g.value.stops.length-1].position)g.value.stops[g.value.stops.length-1].position="100%";var current=0;for(var i=0;i<g.value.stops.length&&!cancelled;i++){var s=g.value.stops[i];if(s.position){if(s.position.indexOf("%")==-1){cancelled=true;break;}}else{var j=i+1;while(j<g.value.stops.length&&!g.value.stops[j].position){j++;}var inc=parseFloat(g.value.stops[j].position)-current;for(var k=i;k<j;k++){g.value.stops[k].position=current+inc*(k-i+1)/(j-i+1)+"%";}}current=parseFloat(s.position);str+=", color-stop("+parseFloat(current)/100+", "+s.color+")";}if(cancelled)return"";return str+")";}function FilterRadialGradientForOutput(aValue,aEngine){if(aEngine=="generic")return aValue.substr(5);else if(aEngine=="webkit")return aValue.replace(/\-moz\-/g,"-webkit-");else if(aEngine!="webkit20110101")return"";var g=CssInspector.parseBackgroundImages(aValue)[0];var shape="shape"in g.value?g.value.shape:"";var size="size"in g.value?g.value.size:"";if(shape!="circle"||size!="farthest-corner"&&size!="cover")return"";if(g.value.stops.length<2||!("position"in g.value.stops[0])||!g.value.stops[g.value.stops.length-1].position||!("position"in g.value.stops[0])||!g.value.stops[g.value.stops.length-1].position)return"";for(var i=0;i<g.value.stops.length;i++){var s=g.value.stops[i];if("position"in s&&s.position&&s.position.indexOf("px")==-1)return"";}var str="-webkit-gradient(radial, ";var position="position"in g.value?g.value.position:"center center";str+=position+", "+parseFloat(g.value.stops[0].position)+", ";str+=position+", "+parseFloat(g.value.stops[g.value.stops.length-1].position);var current=parseFloat(g.value.stops[0].position);for(var i=0;i<g.value.stops.length;i++){var s=g.value.stops[i];if(!("position"in s)||!s.position){var j=i+1;while(j<g.value.stops.length&&!g.value.stops[j].position){j++;}var inc=parseFloat(g.value.stops[j].position)-current;for(var k=i;k<j;k++){g.value.stops[k].position=current+inc*(k-i+1)/(j-i+1)+"px";}}current=parseFloat(s.position);var c=(current-parseFloat(g.value.stops[0].position))/(parseFloat(g.value.stops[g.value.stops.length-1].position)-parseFloat(g.value.stops[0].position));str+=", color-stop("+c+", "+s.color+")";}str+=")";return str;}function FilterRepeatingGradientForOutput(aValue,aEngine){if(aEngine=="generic")return aValue.substr(5);else if(aEngine=="webkit")return aValue.replace(/\-moz\-/g,"-webkit-");return"";};/*
+	/*
+ 
+ JSONP EXPORT - JSCSS PLUGIN
+ @clopez 20130612
+ 
+ JSCSSP defines the "jscsspStylesheet" as window global
+ This chunk adds a simplified method to ease export data management
+ 
+ */
 
-JSONP EXPORT - JSCSS PLUGIN
-@clopez 20130612
+	jscsspStylesheet.prototype.getJSONP = function () {
 
-JSCSSP defines the "jscsspStylesheet" as window global
-This chunk adds a simplified method to ease export data management
+		var jsonp = {};
 
-*/jscsspStylesheet.prototype.getJSONP=function(){var jsonp={};for(var i=0;i<this.cssRules.length;i++){var cssRule=this.cssRules[i];if(!jsonp[cssRule.mSelectorText])jsonp[cssRule.mSelectorText]={};for(var j=0;j<cssRule.declarations.length;j++){var declaration=cssRule.declarations[j];var value=declaration.priority?'!'+declaration.valueText:declaration.valueText;jsonp[cssRule.mSelectorText][declaration.property]=declaration.valueText;}}return jsonp;};//expose to global
-global.CSSParser=CSSParser;})(window);
+		for (var i = 0; i < this.cssRules.length; i++) {
+
+			var cssRule = this.cssRules[i];
+
+			if (!jsonp[cssRule.mSelectorText]) jsonp[cssRule.mSelectorText] = {};
+
+			for (var j = 0; j < cssRule.declarations.length; j++) {
+
+				var declaration = cssRule.declarations[j];
+
+				var value = declaration.priority ? '!' + declaration.valueText : declaration.valueText;
+
+				jsonp[cssRule.mSelectorText][declaration.property] = declaration.valueText;
+			}
+		}
+
+		return jsonp;
+	};
+
+	//expose to global
+
+	global.CSSParser = CSSParser;
+})(window);
 //# sourceMappingURL=CSSParser.js.map
 ;'use strict';
 
@@ -7408,7 +8808,7 @@ global.CSSParser=CSSParser;})(window);
                                 //reverse extracted prototypes...
                                 //so we apply from outter to the inner
                                 //so specific rules will overwrite global rules
-                                options.data = _(options.data).reverse();
+                                options.data = options.data.reverse();
 
                                 //APPLY EXTRACTED PROTOTYPES
                                 if (options.propagate) for (var x = 0; x < options.data.length; x++) {
@@ -7576,6 +8976,22 @@ global.CSSParser=CSSParser;})(window);
 //# sourceMappingURL=PrototypeParser.js.map
 ;'use strict';
 
+Sizzle.selectors.filters.regex = function (elem, i, match) {
+    var regex = new RegExp('\\s*' + match[3] + '\\w*="', 'ig');
+    var attrs = elem.attributes;
+    var str = [];
+    str.push('<' + elem.nodeName);
+    for (var i = 0; i < attrs.length; i++) {
+        str.push(attrs[i].nodeName + '="' + attrs[i].nodeValue + '"');
+    }
+    str.push('>');
+    str = str.join(' ');
+
+    return regex.test(str);
+};
+//# sourceMappingURL=Sizzle.selectors.filters.regex.js.map
+;'use strict';
+
 ////////////////////////////////
 // smx plugin
 // METADATA PARSER
@@ -7583,6 +8999,10 @@ global.CSSParser=CSSParser;})(window);
 // convert first level children nodes into meta-* attributes
 // and apply those attributes to direct parent node
 
+/**
+ * SMX Metadata class
+ * @class Metadata
+ */
 
 (function (global, Sizzle, smx) {
 
@@ -7629,7 +9049,21 @@ global.CSSParser=CSSParser;})(window);
                 // `metadata-processed` attribute is added while parsing process
                 // nodes missing the flag attr are the nodes we need to parse
                 var nodes;
-                if (!options.nodes) nodes = Sizzle('*:not(prototype):not(metadata *):not([metadata-processed]):not([type] *)', XML);else nodes = options.nodes;
+                if (!options.nodes) {
+                        /*
+                        var selector = [];
+                        selector.push('*'); //get all nodes as starting point
+                        selector.push(':not(prototype)'); //ignore prototype elements
+                        selector.push(':not(metadata *)'); //ignore contents of metadata elements
+                        selector.push(':not([metadata-processed])'); //ignore already processed nodes
+                        selector.push(':not([type] *)'); //ignore contents of nodes having type attribute
+                        */
+                        //using Sizzle.selectors.filters.regex.js
+                        var selector = ['metadata,:regex(meta-)'];
+                        nodes = Sizzle(selector.join(''), XML);
+                        //include root node itself to the list
+                        nodes.unshift(XML);
+                } else nodes = options.nodes;
 
                 //calculate percent progress
                 if (nodes.length > options.total) options.total = nodes.length;
@@ -7797,8 +9231,8 @@ global.CSSParser=CSSParser;})(window);
                 var attrs = node.attributes;
                 var data = {};
 
-                var names = _.pluck(attrs, 'name');
-                var values = _.pluck(attrs, 'value');
+                var names = _.map(attrs, 'name');
+                var values = _.map(attrs, 'value');
 
                 var len = attrs.length;
 
@@ -7836,25 +9270,24 @@ global.CSSParser=CSSParser;})(window);
 //# sourceMappingURL=MetadataParser.js.map
 ;"use strict";
 
-////////////////////////////////
-// META INTERFACE
-// 'meta' attributes namespace
+/**
+ * Extends SMXNode with utility attribute getters
+ * @module Node/Metadata
+ */
 
-
-(function (global) {
-
-            var smx = global.smx;
-
-            //smx is required!
-            if (!smx) return;
+(function (global, smx) {
 
             if (!smx.fn) smx.fn = {};
 
-            smx.fn.MetaInterface = {
+            smx.fn.MetadataInterface = {
 
                         /**
-                        *   @method meta
-                        */
+                         * Gets the metadata field value for the given associated to the node
+                         * @method meta
+                         * @param {String} key - key name of meta field
+                         * @param {String=} lang - langcode
+                         * @return {String}
+                         */
                         meta: function meta(key, lang) {
 
                                     var value;
@@ -7868,8 +9301,13 @@ global.CSSParser=CSSParser;})(window);
                         },
 
                         /**
-                        *   @method interpolate
-                        */
+                         * This method is like {@linkcode Node/Metadata~meta meta} but will return
+                         * an interpolated version of the value using the node as context
+                         * @method interpolate
+                         * @param {String} key - key name of meta field
+                         * @param {String=} lang - langcode
+                         * @return {String}
+                         */
                         interpolate: function interpolate(key, lang) {
 
                                     var str = this.meta(key, lang);
@@ -7888,7 +9326,7 @@ global.CSSParser=CSSParser;})(window);
                         }
 
             };
-})(window);
+})(window, window.smx);
 //# sourceMappingURL=MetadataInterface.js.map
 ;'use strict';
 
@@ -7897,7 +9335,8 @@ global.CSSParser=CSSParser;})(window);
     var methods = {
 
         /**
-        *   @method tags
+        * get collection of node's tags
+        * @return {Array.<String>}
         */
         tags: function tags(namespace) {
 
@@ -7919,7 +9358,8 @@ global.CSSParser=CSSParser;})(window);
         },
 
         /**
-        *   @method categories
+        * get collection of categories
+        * @return {Array.<String>}
         */
         categories: function categories(namespace) {
 
@@ -7941,7 +9381,8 @@ global.CSSParser=CSSParser;})(window);
         },
 
         /**
-        *   @method categories
+        * get collection of node's branches
+        * @return {Array.<String>}
         */
         branches: function branches() {
 
@@ -7971,94 +9412,502 @@ global.CSSParser=CSSParser;})(window);
 //# sourceMappingURL=TaxonomyInterface.js.map
 ;'use strict';
 
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 (function (global, smx) {
 
-    //declare and expose $smx namespace
-    var $smx = global['$smx'] = {};
+    /**
+     * SMX Node Class
+     */
+    var Node = function () {
 
-    ////////////////////////////////
-    // PRIVATE INDEXED NODE LIST CACHE
+        /**
+         * @param {XMLNode} xmlNode
+         */
+        function Node(xmlNode) {
+            _classCallCheck(this, Node);
 
-    $smx.cache = {};
+            /**
+             * Original XMLNode for reference
+             * @type {XMLNode}
+             * @protected
+             */
+            this[0] = xmlNode;
+        }
 
-    ////////////////////////////////
-    // SMX NODE
+        /**
+         * Direct access to XMLNode id
+         * @type {String}
+         * @readonly
+         */
 
-    var SMXNode = function SMXNode(xmlNode) {
-        _classCallCheck(this, SMXNode);
 
-        //reference to original node
-        //jquery inspired using the [0] :D
-        this[0] = xmlNode;
+        _createClass(Node, [{
+            key: 'id',
+            get: function get() {
+                return this[0].id;
+            }
 
-        this.id = this[0].getAttribute('id');
+            /**
+             * Direct access to XMLNode name
+             * @type {String}
+             * @readonly
+             */
 
-        this.uid = parseInt(_.uniqueId()).toString(36);
+        }, {
+            key: 'name',
+            get: function get() {
+                return this[0].nodeName;
+            }
 
-        this.name = this[0].nodeName;
+            /**
+             * node type with 'smx' as default, it can also be txt, md, html, ...
+             * @type {String}
+             * @readonly
+             */
+
+        }, {
+            key: 'type',
+            get: function get() {
+                return this[0].getAttribute('type') || 'smx';
+            }
+
+            /**
+             * class attribute as array of
+             * @type {String}
+             * @readonly
+             */
+
+        }, {
+            key: 'className',
+            get: function get() {
+                return this[0].getAttribute('class');
+            }
+
+            /**
+             * Uniform Resource Identifier,"url id"
+             * Calculate url hash path using cummulative ids up to root
+             * @type {String}
+             * @readonly
+             */
+
+        }, {
+            key: 'uri',
+            get: function get() {
+                var hash = this.id + '/';
+                var parent = this.parent();
+                if (parent) return parent.uri + hash;else return hash;
+            }
+
+            /**
+             * Browser url hash for this node
+             * @type {String}
+             * @readonly
+             */
+
+        }, {
+            key: 'hash',
+            get: function get() {
+                return '#!/' + this.uri;
+            }
+
+            /**
+             * Uniform Resource Locator (url path)
+             * Calculate url folder path using cummulative paths up to root
+             * @type {String}
+             * @readonly
+             */
+
+        }, {
+            key: 'url',
+            get: function get() {
+
+                var path = this.attr('path');
+
+                var parent = this.parent();
+
+                if (parent) {
+                    if (!path) return parent.url;else {
+
+                        //add trail slash
+                        var trail = path.substr(-1);
+                        if (trail != '/') path += '/';
+
+                        return parent.url + path;
+                    }
+                } else {
+
+                    if (!path) return;
+
+                    //add trail slash
+                    var _trail = path.substr(-1);
+                    if (_trail != '/') path += '/';
+
+                    return path;
+                }
+            }
+
+            /**
+             * url of xml source file of this node
+             * @type {String}
+             * @readonly
+             */
+
+        }, {
+            key: 'file',
+            get: function get() {
+
+                var url = '';
+                var file = this.attr('file');
+                var parent = this.parent();
+
+                if (!file) return parent ? parent.file : undefined;else return this.url + file;
+            }
+        }]);
+
+        return Node;
+    }();
+
+    //extend Node prototype
+
+    for (var key in smx.fn) {
+
+        //_.extend(Node.prototype,fns);
+        Object.assign(Node.prototype, smx.fn[key]);
+    }
+
+    //expose
+    smx.Node = Node;
+})(window, window.smx);
+//# sourceMappingURL=Node.js.map
+;'use strict';
+
+(function (global, _, Sizzle, smx) {
+
+    /**
+     * Extends SMXNode with utility tree methods
+     * @module Node/TreeMethods
+     */
+
+    var TreeMethods = {
+
+        // PARENT RELATED OPERATIONS
+
+        /**
+         * Gets the parent node
+         * @method parent
+         * @param {String} selector - filter selector
+         * @return {Node}
+         */
+        parent: function parent(selector) {
+
+            if (!_.isEmpty(selector)) {
+
+                var parents = this.parents();
+                var found;
+                while (parents.length > 0 && !found) {
+                    var p = parents.pop();
+                    if (p.match(selector)) found = p;
+                }
+
+                return found;
+            } else {
+                return $smx.node(this[0].parentNode);
+            }
+        },
+
+        /**
+         * Gets a list of parent nodes up to root
+         * @method parents
+         * @return {Node[]}
+         */
+        parents: function parents() {
+
+            if (!this[0].parentNode) return [];else {
+                var parent = this.parent();
+                var parents = [parent];
+                while (parent && parent.parent()) {
+                    parent = parent.parent();
+                    if (parent) parents.unshift(parent);
+                }
+                return parents;
+            }
+        },
+
+        /**
+        * get the top most parent node
+        * @method root
+        * @return {Node}
+        */
+
+        'root': function root() {
+
+            if (this.parent()) {
+
+                //get all ancestors
+                var parents = this.parents();
+
+                //return top most parent node
+                return parents[0];
+            }
+
+            return this;
+        },
+
+        // EXTRA - PARENT RELATED OPERATIONS
+
+        /**
+         * resolve wether a node is parent of another
+         * @method isParentOf
+         * @param {Node} node - reference node
+         * @return {Boolean}
+         */
+        isParentOf: function isParentOf(node) {
+
+            //validate given node (smx node required)
+            if (!node.parents) return false;
+
+            var parentsId = _.map(node.parents(), 'id');
+            if (_.includes(parentsId, this.id)) return true;else return false;
+        },
+
+        /**
+         * resolve wether a node has a parent or not
+         * @method hasParent
+         * @return {Boolean}
+         */
+        hasParent: function hasParent() {
+
+            return this[0].parentNode ? true : false;
+        },
+
+        // CHILD RELATED OPERATIONS
+
+        /**
+         * get node by identifier
+         * @method getNodeById
+         * @alias gid
+         * @return {Node}
+         */
+        getNodeById: function getNodeById(id) {
+
+            //is nodes cache array?
+            if ($smx.cache[id]) return $smx.cache[id];
+
+            //search in document
+            var node = Sizzle('#' + id, this[0]);
+            if (node.length > 0) return $smx.node(node[0]);
+
+            //not found
+            return;
+        },
+
+        gid: function gid(id) {
+            return this.getNodeById(id);
+        },
+
+        /**
+         * Checks if node matches the given selector
+         * @method match
+         * @param {String} selector - css selector to match
+         * @return {Boolean}
+         */
+        match: function match(selector) {
+            return Sizzle.matchesSelector(this[0], selector);
+        },
+
+        /**
+         * Finds all descendant nodes matching the given selector
+         * @method find
+         * @param {String} selector - search selector
+         * @return {Array.<Node>}
+         */
+        find: function find(selector) {
+
+            if (!this[0].childNodes.length) return [];
+            if (!_.isString(selector) || _.isEmpty(selector)) return [];
+
+            //var query = selector || '>';
+            var query = selector;
+
+            //get search context
+            var nodes = [];
+            try {
+                nodes = Sizzle(query, this[0]);
+            } catch (e) {}
+
+            //ensure returning unique nodes
+            if (_.isArray(nodes)) nodes = _.uniqBy(nodes, 'id');
+
+            //return smx node array
+            return $smx.node(nodes);
+        },
+
+        /**
+         * This method is {@link Node node} like {@link Node/TreeMethods~find find} but returns only the first result
+         * @method one
+         * @param {String} selector - search selector
+         * @return {Node}
+         */
+        one: function one(selector) {
+
+            if (!this[0].childNodes.length) return;
+            if (!_.isString(selector) || _.isEmpty(selector)) return;
+
+            //var query = selector || '>';
+            var query = selector;
+
+            //get search context
+            var nodes = [];
+            try {
+                nodes = Sizzle(query, this[0]);
+            } catch (e) {}
+
+            var node = nodes[0];
+
+            //return smx node
+            return $smx.node(node);
+        },
+
+        /**
+         * get child nodes
+         * @method children
+         * @return {Array.<Node>}
+         */
+        children: function children() {
+            return $smx.node(this[0].childNodes);
+        },
+
+        /**
+         * Get the first child node
+         * @method first
+         * @return {Node}
+         */
+        first: function first() {
+            return $smx.node(_.first(this[0].childNodes));
+        },
+
+        /**
+         * Gets the last child node
+         * @method last
+         * @return {Node}
+         */
+        last: function last() {
+            return $smx.node(_.last(this[0].childNodes));
+        },
+
+        // EXTRA - CHILD RELATED OPERATIONS
+
+        /**
+         * Gets child node at given index
+         * @method childAt
+         * @param {Integer} index - index position
+         * @return {Node}
+         */
+        childAt: function childAt(index) {
+            return $smx.node(this[0].childNodes[index]);
+        },
+
+        /**
+         * Checks if a node is child of another
+         * @method isChildOf
+         * @param {Node} node - reference node
+         * @return {Boolean}
+         */
+        isChildOf: function isChildOf(node) {
+
+            //validate given node (smx node required)
+            if (!node.parents) return false;
+
+            var parentsId = _.map(this.parents(), 'id');
+            if (_.includes(parentsId, node.id)) return true;else return false;
+        },
+
+        // SIBLING RELATED OPERATIONS
+
+
+        /**
+         * Gets next sibling node
+         * @method next
+         * @param {String=} selector - filter selector
+         * @return {Node}
+         */
+        next: function next(selector) {
+            var el = this[0].nextElementSibling || this[0].nextSibling;
+            return selector ? Sizzle.matchesSelector(el, selector) ? $smx.node(el) : undefined : $smx.node(el);
+        },
+
+        /**
+         * Gets previous sibling node
+         * @method previous
+         * @param {String=} selector - filter selector
+         * @return {Node}
+         */
+        previous: function previous(selector) {
+            var el = this[0].previousElementSibling || this[0].previousSibling;
+            return selector ? Sizzle.matchesSelector(el, selector) ? $smx.node(el) : undefined : $smx.node(el);
+        },
+
+        // FLAT TREE SIBLINGS
+
+        /**
+         * Gets previous node in a flat tree
+         * @method getStepBack
+         * @return {Node}
+         */
+        stepBack: function stepBack() {
+
+            //previousSibling?
+            var _prev_sibling_node = this.previous();
+            if (_prev_sibling_node) return _prev_sibling_node;
+
+            //parentNode?
+            var _parent_node = this.parent();
+            if (_parent_node) return _parent_node;
+
+            //nothing found...
+            return;
+        },
+
+        /**
+         * get next node in a flat tree
+         * @method getStepForward
+         * @return {Node}
+         */
+        stepForward: function stepForward(from_last_child) {
+
+            //in recursive calls indicate if last recursion come from lastChild of its parent
+            var _from_last_child = from_last_child ? from_last_child : false;
+
+            // 1. use children, trying to get deep inside node
+            // if (_from_last_child) means we arleady searched on childNodes and avoid it
+            // we avoid children when content is not smx
+            if (!_from_last_child && this.get('type') === 'smx' && !this.time('timed')) {
+
+                var _first_childnode = this.first();
+
+                if (_first_childnode.get('type') === 'smx') {
+                    return _first_childnode;
+                }
+            }
+
+            //2. search nextSibling:
+            var _next_sibling_node = this.next();
+            if (_next_sibling_node) return _next_sibling_node;
+
+            //3. search on parentNode
+            var _parent_node = this.parent();
+            if (_parent_node) return _parent_node.stepForward(true);
+
+            //4. nothing found: return null!!
+            return;
+        }
+
     };
 
     //extend SMXNode prototype
-
-
-    _.each(smx.fn, function (fns) {
-
-        _.extend(SMXNode.prototype, fns);
-    });
-
-    //expose
-    smx.Node = SMXNode;
-
-    ////////////////////////////////
-    // SMX NODE WRAPPER
-
-    $smx.node = function (elems) {
-
-        var _SMXNode = function _SMXNode(xmlNode) {
-
-            var id = null;
-
-            //if(!xmlNode) return;
-            //if (xmlNode.nodeName == 'undefined') return;
-            //if (typeof xmlNode.nodeType == 'undefined') return;
-            //if (xmlNode.nodeType != 1) return;
-
-            //can this try replace the 4 conditionals above? yes...
-            try {
-                id = xmlNode.getAttribute('id');
-            } catch (e) {}
-
-            //id attr is required!
-            if (!id) return;
-
-            //Does already exists a node with this id?
-            //prevent duplicated nodes and return existing one
-            if ($smx.cache[id]) return $smx.cache[id];
-
-            //create new SMXNode from given XMLNode
-            var node = new smx.Node(xmlNode);
-
-            //add it to nodes cache
-            $smx.cache[id] = node;
-
-            //return just created node
-            return node;
-        };
-
-        if (elems && (_.isArray(elems) || !_.isUndefined(elems.length)) && _.isUndefined(elems.nodeType)) {
-            var result = [];
-            for (var i = 0; i < elems.length; i++) {
-                if (elems[i]) {
-                    var node = elems[i][0] ? elems[i] : _SMXNode(elems[i]);
-                    if (node) result.push(node);
-                }
-            }
-            return result;
-        } else if (elems) {
-            if (elems[0]) return elems;else return _SMXNode(elems);
-        } else return;
-    };
-})(window, window.smx);
-//# sourceMappingURL=Node.js.map
+    _.extend(smx.Node.prototype, TreeMethods);
+})(window, window._, window.Sizzle, window.smx);
+//# sourceMappingURL=Node.TreeMethods.js.map

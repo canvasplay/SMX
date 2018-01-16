@@ -5,7 +5,8 @@
 let methods = {
 
     /**
-    *   @method tags
+    * get collection of node's tags
+    * @return {Array.<String>}
     */
     tags: function(namespace){
       
@@ -29,7 +30,8 @@ let methods = {
 
 
     /**
-    *   @method categories
+    * get collection of categories
+    * @return {Array.<String>}
     */
     categories: function(namespace){
       
@@ -54,7 +56,8 @@ let methods = {
 
 
     /**
-    *   @method categories
+    * get collection of node's branches
+    * @return {Array.<String>}
     */
     branches: function(){
       
