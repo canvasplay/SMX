@@ -146,6 +146,14 @@ h1 {
     margin: 12px 24px 20px;
 }
 
+h1.page-title{}
+h1.page-title small{
+  display: block;
+  font-size: 1.5rem;
+  text-transform: uppercase;
+  letter-spacing: initial;
+}
+
 h2,
 h3.subsection-title {
     font-size: 30px;

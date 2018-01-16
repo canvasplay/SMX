@@ -111,7 +111,7 @@ function updateItemName(item) {
         //itemName = '[' + itemName + ']';
         itemName = util.format('[%s]', itemName);
 
-    }    
+    }
 
     return itemName;
 }
@@ -269,7 +269,7 @@ function generateSourceFiles(sourceFiles, encoding) {
             logger.error('Error while generating source file %s: %s', file, e.message);
         }
 
-        generate('Source: ' + sourceFiles[file].shortened, [source], sourceOutfile,
+        generate('<small>Source: </small>' + sourceFiles[file].shortened, [source], sourceOutfile,
             false);
     });
 }
@@ -627,13 +627,13 @@ exports.publish = function(taffyData, opts, tutorials) {
         generateSourceFiles(sourceFiles, opts.encoding);
     }
 
-    if (members.globals.length) { generate('Global', [{kind: 'globalobj'}], globalUrl); }
+    if (members.globals.length) { generate('<small>Global</small>', [{kind: 'globalobj'}], globalUrl); }
 
     // index page displays information from package.json and lists files
     files = find({kind: 'file'});
     packages = find({kind: 'package'});
 
-    generate('Home',
+    generate('<small>Home</small>',
         packages.concat(
             [{
                 kind: 'mainpage',
@@ -659,27 +659,27 @@ exports.publish = function(taffyData, opts, tutorials) {
         var myNamespaces = helper.find(namespaces, {longname: longname});
 
         if (myModules.length) {
-            generate('Module: ' + myModules[0].name, myModules, helper.longnameToUrl[longname]);
+            generate('<small>Module: </small>' + myModules[0].name, myModules, helper.longnameToUrl[longname]);
         }
 
         if (myClasses.length) {
-            generate('Class: ' + myClasses[0].name, myClasses, helper.longnameToUrl[longname]);
+            generate('<small>Class: </small>' + myClasses[0].name, myClasses, helper.longnameToUrl[longname]);
         }
 
         if (myNamespaces.length) {
-            generate('Namespace: ' + myNamespaces[0].name, myNamespaces, helper.longnameToUrl[longname]);
+            generate('<small>Namespace: </small>' + myNamespaces[0].name, myNamespaces, helper.longnameToUrl[longname]);
         }
 
         if (myMixins.length) {
-            generate('Mixin: ' + myMixins[0].name, myMixins, helper.longnameToUrl[longname]);
+            generate('<small>Mixin: </small>' + myMixins[0].name, myMixins, helper.longnameToUrl[longname]);
         }
 
         if (myExternals.length) {
-            generate('External: ' + myExternals[0].name, myExternals, helper.longnameToUrl[longname]);
+            generate('<small>External: </small>' + myExternals[0].name, myExternals, helper.longnameToUrl[longname]);
         }
 
         if (myInterfaces.length) {
-            generate('Interface: ' + myInterfaces[0].name, myInterfaces, helper.longnameToUrl[longname]);
+            generate('<small>Interface: </small>' + myInterfaces[0].name, myInterfaces, helper.longnameToUrl[longname]);
         }
     });
 
