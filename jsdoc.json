@@ -24,7 +24,8 @@
         "applicationName": "jsdocs-test"
     },
     "opts": {
-        "destination": "./docs/"
+        "destination": "./docs/",
+        "template": "docs_template"
         //"template": "./node_modules/@pixi/jsdoc-template"
     }
 }
