@@ -461,7 +461,11 @@ exports.publish = function(taffyData, opts, tutorials) {
     helper.setTutorials(tutorials);
 
     data = helper.prune(data);
-    data.sort('longname, version, since');
+
+    //@canvasplay: custom for smx
+    if (opts.sort)
+        data.sort('longname, version, since');
+
     helper.addEventListeners(data);
 
     data().each(function(doclet) {

@@ -19,12 +19,13 @@
         "dictionaries": ["jsdoc","closure"]
     },
     "templates": {
-        "cleverLinks": false,
-        "monospaceLinks": false,
+        "cleverLinks": true,
+        "monospaceLinks": true,
         "applicationName": "jsdocs-test"
     },
     "opts": {
         "destination": "./docs/",
+        "sort": false,
         "template": "docs_template"
         //"template": "./node_modules/@pixi/jsdoc-template"
     }
