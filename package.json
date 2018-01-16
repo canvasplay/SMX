@@ -11,6 +11,7 @@
   },
   "bin": "./node_modules/.bin/",
   "scripts": {
+    "build": "grunt",
     "docs": "jsdoc -r -c jsdoc.json"
   },
   "devDependencies": {
