@@ -11,87 +11,66 @@ var fn = {};
 
 fn.AttributeGetters = {
 
-
     /**
-    * Get the raw value for specified attribute key in the original xml node
-    * @method raw
-    * @param {String} key - The name of the attribute
-    * @return {String} resulting value
-    */
-
-    raw:function(key){
-
-        return this[0].getAttribute(key);
-
-    },
-
-
-    /**
-    * Get the value for specified attribute key in attributes collection
+    * Get attribute value for the given key from the inner XMLNode
     * @method attr
-    * @param key {String} The name of the attribute
-    * @return {String} resulting value
+    * @param {String} name - attribute name
+    * @return {String} value
+    * @example
+    *
+    * var users = [
+    *   { 'user': 'barney',  'active': false },
+    *   { 'user': 'fred',    'active': false },
+    *   { 'user': 'pebbles', 'active': true }
+    * ];
+    *
+    * _.findIndex(users, function(o) { return o.user == 'barney'; });
+    * // => 0
+    *
+    * // The `_.matches` iteratee shorthand.
+    * _.findIndex(users, { 'user': 'fred', 'active': false });
+    * // => 1
+    *
+    * // The `_.matchesProperty` iteratee shorthand.
+    * _.findIndex(users, ['active', false]);
+    * // => 0
+    *
+    * // The `_.property` iteratee shorthand.
+    * _.findIndex(users, 'active');
+    * // => 2
     */
-    attr:function(key){
-
-        return this.raw(key);
+    attr:function(name){
+        return this[0].getAttribute(name);
     },
 
     /**
-    * Determine if node has the specified key attribute
+    * Determine if inner XMLNode has an attribute with the given name
     * @method has
-    * @param key {String} The name of the attribute
-    * @return {Bollean} resulting value
+    * @param {String} name - attribute name
+    * @return {Boolean}
     */
-    has:function(key){
-
-        //return this[0].hasAttribute(key);
+    has:function(name){
+        //return this[0].hasAttribute(name);
         //IE8 does not support XMLNode.hasAttribute, so...
-        return (this[0].getAttribute(key) !== null);
-        
+        return (this[0].getAttribute(name) !== null);
     },
 
 
     /**
-    * Get the value for specified attribute key, computed or not
-    * If there is no computed attribute with given key will use attr method
-    * @method get
-    * @param key {string} The name of the attribute
-    * @return resulting value
-    */
-    get:function(key, options){
-
-        /*
-        //key is required to be non empty string
-        if(_.isEmpty(key) || !_.isString(key)) return;
-
-        //try using defined attribute getter
-        var getter = smx.fn.ComputedAttributes[key];
-        if(_.isFunction(getter)) return getter(this,options);
-        */
-
-        //use default attr getter
-        return this.attr(key);
-
-    },
-
-
-    /**
-     * Delimiter Separated Value
+     * Get Delimiter Separated Value
      * An utility method converts given attribute value into dsv array
-    * @method dsv
-     * @param key {string} the name of the attribute
-     * @param delimiter {string} defaults to ' '
-     * @return dsv array
+     * @method dsv
+     * @param name {String} the name of the attribute
+     * @param delimiter {String=} delimiter string
+     * @return {Array.<String>}
      */
-
-    dsv: function(key, delimiter){
+    dsv: function(name, delimiter){
 
         //ignore undefined attributes
-        if(!this.has(key)) return;
+        if(!this.has(name)) return;
 
-        //get attr's value by key
-        var value = this.attr(key);
+        //get attr's value by name
+        var value = this.attr(name);
 
         //delimiter defaults to space
         var d = delimiter || ' ';
@@ -108,7 +87,7 @@ fn.AttributeGetters = {
             str = str.replace(/^\s+/, '');
             for (var i = str.length - 1; i >= 0; i--) {
                 if (/\S/.test(str.charAt(i))) {
-                    str = str.substring(0, i + 1);
+                    str = str.subString(0, i + 1);
                     break;
                 }
             }
@@ -121,19 +100,18 @@ fn.AttributeGetters = {
 
         return list;
 
-
     },
     
     /**
-     * Utility method, converts the given key attribute value into csv array
-    * @method csv
-     * @param key {string} the name of the attribute
+     * Utility method, converts the given name attribute value into csv array
+     * @method csv
+     * @param name {String} the name of the attribute
      * @return csv array
      */
 
-    csv: function(key){
+    csv: function(name){
       
-      return this.dsv(key,',');
+      return this.dsv(name,',');
       
     }
 
@@ -152,6 +130,8 @@ fn.CoreMethods = {
     /**
      * position in parent children
      * @method index
+     * @param {String=} selector - css selector filter
+     * @return {Integer}
      */
     'index': function(selector){
 
@@ -168,7 +148,9 @@ fn.CoreMethods = {
         var siblings = parent.children();
 
         //filter siblings collection with a css selector if its defined
-        if(selector) siblings = siblings.filter(function(s){ return Sizzle.matchesSelector(s[0],selector) });
+        if(selector) siblings = siblings.filter(function(s){
+            return Sizzle.matchesSelector(s[0],selector)
+        });
 
         //get position in siblings collection
         index = siblings.indexOf(this);
@@ -178,7 +160,7 @@ fn.CoreMethods = {
     },
 
     /**
-     * get string representation of a node
+     * get String representation of a node
      * @method toString
      * @return {String}
      */

@@ -115,6 +115,7 @@ hasParent: function(){
 /**
  * get node by identifier
  * @method getNodeById
+ * @alias gid
  * @return {Node}
  */
 getNodeById: function(id){
@@ -130,12 +131,6 @@ getNodeById: function(id){
     return;
 
 },
-
-/**
- * get node by identifier (alias for getNodeById)
- * @method gid
- * @return {Node}
- */
 
 gid: function(id){ return this.getNodeById(id) },
 
@@ -156,6 +151,7 @@ match: function(selector){
  * find descendant nodes by a given selector
  * @method find
  * @param {String} selector - search selector
+ * @param {Boolean=} important - search selector
  * @return {Array.<Node>}
  */
 find: function(selector){

@@ -416,7 +416,7 @@ TrackManager.prototype.raw = function(id, key){
 	if (!node) return;
 
 	//return value or undefined
-	return node.raw('track-'+ key);
+	return node.attr('track-'+ key);
 
 };
 
@@ -444,7 +444,7 @@ TrackManager.prototype.has = function(id, key){
 	if (!node) return false;
 
 	//get raw value by key
-	var value = node.raw('track-'+ key);
+	var value = node.attr('track-'+ key);
 
 	//raw will always return String or null value
 	return (_.isString(value))? true : false;
@@ -940,8 +940,8 @@ TrackManager.prototype.exports = function (options){
 
 			var key = keys[a];
 
-			var raw_value = _this.raw(item.id, key);
-			var value = _this.get(item.id, key);
+			var raw_value = _this.attr(item.id, key);
+			var value = _this.attr(item.id, key);
 
 			if (!options.onlychanged){
 

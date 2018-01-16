@@ -11,14 +11,17 @@
 class Loader {
   
   /**
-   * creates an SMXLoader
+   * creates a new Loader
    */
   constructor(){
     
     this.xhr = null;
 
   }
-  
+  /**
+   * load resource by given url
+   * @param {String}
+   */
   load(url){
 
     var onSuccess = _.bind(this.onSuccess, this);
