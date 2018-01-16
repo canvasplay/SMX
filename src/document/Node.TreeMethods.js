@@ -11,7 +11,7 @@ var TreeMethods = {
 // PARENT RELATED OPERATIONS
 
 /**
- * get parent node
+ * Gets the parent node
  * @method parent
  * @param {String} selector - filter selector
  * @return {Node}
@@ -38,9 +38,9 @@ parent: function(selector){
 },
 
 /**
- * get list of parent nodes up to root
+ * Gets a list of parent nodes up to root
  * @method parents
- * @return {Array.<Node>}
+ * @return {Node[]}
  */
 parents: function(){
 
@@ -137,7 +137,7 @@ gid: function(id){ return this.getNodeById(id) },
 
 
 /**
- * resolve wether a node matches a selector
+ * Checks if node matches the given selector
  * @method match
  * @param {String} selector - css selector to match
  * @return {Boolean}
@@ -148,10 +148,9 @@ match: function(selector){
 
 
 /**
- * find descendant nodes by a given selector
+ * Finds all descendant nodes matching the given selector
  * @method find
  * @param {String} selector - search selector
- * @param {Boolean=} important - search selector
  * @return {Array.<Node>}
  */
 find: function(selector){
@@ -176,7 +175,7 @@ find: function(selector){
 
 
 /**
- * Like find but returns only first matching node
+ * This method is {@link Node node} like {@link Node/TreeMethods~find find} but returns only the first result
  * @method one
  * @param {String} selector - search selector
  * @return {Node}
@@ -214,18 +213,17 @@ children: function(){
 
 
 /**
- * get first child
+ * Get the first child node
  * @method first
  * @return {Node}
  */
 first : function(){
     return $smx.node(_.first(this[0].childNodes));
-
 },
 
 
 /**
- * get last child
+ * Gets the last child node
  * @method last
  * @return {Node}
  */
@@ -238,7 +236,7 @@ last : function(){
 // EXTRA - CHILD RELATED OPERATIONS
 
 /**
- * get child at given index
+ * Gets child node at given index
  * @method childAt
  * @param {Integer} index - index position
  * @return {Node}
@@ -249,7 +247,7 @@ childAt : function(index){
 
 
 /**
- * reslve wether a node is child of another
+ * Checks if a node is child of another
  * @method isChildOf
  * @param {Node} node - reference node
  * @return {Boolean}
@@ -270,8 +268,9 @@ isChildOf: function(node){
 
 
 /**
- * get next sibling node
+ * Gets next sibling node
  * @method next
+ * @param {String=} selector - filter selector
  * @return {Node}
  */
 next : function(selector){
@@ -280,8 +279,9 @@ next : function(selector){
 },
 
 /**
- * get previous sibling node
+ * Gets previous sibling node
  * @method previous
+ * @param {String=} selector - filter selector
  * @return {Node}
  */
 previous : function(selector){
@@ -294,7 +294,7 @@ previous : function(selector){
 // FLAT TREE SIBLINGS
 
 /**
- * get previous node in a flat tree
+ * Gets previous node in a flat tree
  * @method getStepBack
  * @return {Node}
  */

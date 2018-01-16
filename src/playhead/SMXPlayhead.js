@@ -9,7 +9,7 @@ class Playhead{
 
   /**
    * Create a playhead
-   * @param {SMXDocument} document - The document to navigate through
+   * @param {Document} document - The document to navigate through
    */
   constructor(doc){
     
@@ -22,7 +22,7 @@ class Playhead{
 
 		/**
 		 *	The document to navigate
-		*	@type {SMXDocument}
+		*	@type {Document}
 		*/
 		this.document = doc;
 		

@@ -128,7 +128,7 @@ fn.AttributeGetters = {
 fn.CoreMethods = {
 
     /**
-     * position in parent children
+     * Gets index position in matching sibling nodes
      * @method index
      * @param {String=} selector - css selector filter
      * @return {Integer}
