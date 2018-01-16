@@ -8,10 +8,11 @@ var DEBUG = true; var LOG = function(str){ if (win.console&&win.console.log&&DEB
 /**
  * SMX Tracking class
  * @class Tracking
+ * @param {Document} document
  */
 var TrackManager = function(doc){
 
-	//document && playhead params are required
+	//document
 	if(!doc) return;
 
 	//extend with Backbone Events
@@ -315,7 +316,7 @@ TrackManager.prototype.setTrigger = function(node, trigger){
 
 				try{
 
-					var playhead = this.playhead;
+					//var playhead = this.playhead;
 					var CALLBACK = trigger.callback.name;
 
 					_.defer(function(){ eval(CALLBACK+'()') });

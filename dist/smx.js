@@ -2537,195 +2537,247 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 */
 
 (function (win, _, Backbone, smx) {
-		var SMXTimer = function () {
-				function SMXTimer() {
-						_classCallCheck(this, SMXTimer);
 
-						//inherit events behavior
-						_.extend(this, Backbone.Events);
+	/**
+  * SMX Timer Class
+  */
+	var Timer = function () {
 
-						//fps only applied when using internal timer
-						//[ 16 | 24 | 32 | 48 | 64 ... ] higher values may push performance limits (not recommended)
-						this.fps = 16;
+		/**
+   * creates a Timer
+   **/
+		function Timer() {
+			_classCallCheck(this, Timer);
 
-						//internal timer engine object
-						//usually return value of setTimeout or setInterval
-						this.engine = null;
+			//inherit events behavior
+			_.extend(this, Backbone.Events);
 
-						//external engine collection
-						this.extEngines = [];
+			//fps only applied when using internal timer
+			//[ 16 | 24 | 32 | 48 | 64 ... ] higher values may push performance limits (not recommended)
+			this.fps = 16;
 
-						//time counter
-						this.time = 0;
+			//internal timer engine object
+			//usually return value of setTimeout or setInterval
+			this.engine = null;
 
-						//aux time flag
-						this.time_flag = null;
+			//external engine collection
+			this.extEngines = [];
 
-						//bool engine paused or not
-						this.paused = true;
+			//time counter
+			this.time = 0;
 
-						//bool flag requestAnimationFrame?
-						this.rAF = false;
+			//aux time flag
+			this.time_flag = null;
 
-						//fps multiplier
-						this.factor = 1;
+			//bool engine paused or not
+			this.paused = true;
+
+			//bool flag requestAnimationFrame?
+			this.rAF = false;
+
+			//fps multiplier
+			this.factor = 1;
+		}
+
+		/**
+   * Starts the timer
+   */
+
+
+		_createClass(Timer, [{
+			key: 'start',
+			value: function start() {
+
+				//prevents duplicated runs
+				if (this.engine) this.stop();
+
+				//set time_flag
+				this.time_flag = new Date().getTime();
+
+				//activate loop
+				this.paused = false;
+
+				//set timeout
+				if (this.rAF) this.engine = global.requestAnimationFrame(_.bind(this.update, this));else this.engine = setTimeout(_.bind(this.update, this), 1000 / this.fps);
+			}
+
+			/**
+    * Plugs an external time engine
+    * @param {String} engine id
+    * @param {Function} callback - Function returning current time in ms when invoked
+    */
+
+		}, {
+			key: 'plugExtEngine',
+			value: function plugExtEngine(id, callback) {
+
+				//callback must be a function returning current time in ms
+				this.extEngines.unshift({ 'id': id, 'callback': callback });
+
+				return;
+			}
+
+			/**
+    * Unplugs an external engine
+    * @param {String} id - Identifier of the engine to be removed
+    */
+
+		}, {
+			key: 'unplugExtEngine',
+			value: function unplugExtEngine(id) {
+
+				var found_at_index = -1;
+				for (var i = 0; i < this.extEngines.length; i++) {
+					if (this.extEngines[i].id == id) {
+						this.extEngines[i] = null;
+						found_at_index = i;
+					}
+				}
+				if (found_at_index >= 0) {
+					this.extEngines.splice(found_at_index, 1);
 				}
 
-				_createClass(SMXTimer, [{
-						key: 'start',
-						value: function start() {
+				if (!this.extEngines.length && !this.paused) this.start();
 
-								//prevents duplicated runs
-								if (this.engine) this.stop();
+				return;
+			}
 
-								//set time_flag
-								this.time_flag = new Date().getTime();
+			/**
+    * Updates the timer
+    */
 
-								//activate loop
-								this.paused = false;
+		}, {
+			key: 'update',
+			value: function update(time, timerId) {
 
-								//set timeout
-								if (this.rAF) this.engine = global.requestAnimationFrame(_.bind(this.update, this));else this.engine = setTimeout(_.bind(this.update, this), 1000 / this.fps);
-						}
-				}, {
-						key: 'plugExtEngine',
-						value: function plugExtEngine(engineId, engine_callback) {
+				//using internal engine 'update' recives 0 parameters
+				//and will use new Date().getTime() to calculate time ellapsed since last update
 
-								//engine_callback must be a function returning current time in ms
-								this.extEngines.unshift({ 'id': engineId, 'callback': engine_callback });
+				//using an external engine callback must recive 2 param
+				//time: target time
+				//timerId: id of a registered external engine
+				//only registered engines via 'plugExtEngine' method take effect
+				//if timerId is not found time param will be ignored and will exit silently
 
-								return;
-						}
-				}, {
-						key: 'unplugExtEngine',
-						value: function unplugExtEngine(engineId) {
+				if (typeof time != 'undefined' && typeof timerId != 'undefined') {
 
-								var found_at_index = -1;
-								for (var i = 0; i < this.extEngines.length; i++) {
-										if (this.extEngines[i].id == engineId) {
-												this.extEngines[i] = null;
-												found_at_index = i;
-										}
-								}
-								if (found_at_index >= 0) {
-										this.extEngines.splice(found_at_index, 1);
-								}
+					//multiple external engines are not supported
+					//so, always take only the first extEngine and ignore the others
+					if (this.extEngines[0].id == timerId) {
 
-								if (!this.extEngines.length && !this.paused) this.start();
+						//update using param provided by external engine
+						this.time = time;
+						//debug.log('TIMER - timer:'+ parseInt(this.time) +' from externalEngine:'+this.extEngines[0].id);
 
-								return;
-						}
-				}, {
-						key: 'update',
-						value: function update(time, timerId) {
+						//notify update and exit
+						this.trigger('update');
+						return;
+					} else {
 
-								//using internal engine 'update' recives 0 parameters
-								//and will use new Date().getTime() to calculate time ellapsed since last update
+						//timerId not found, exit silently
+						return;
+					}
+				}
 
-								//using an external engine callback must recive 2 param
-								//time: target time
-								//timerId: id of a registered external engine
-								//only registered engines via 'plugExtEngine' method take effect
-								//if timerId is not found time param will be ignored and will exit silently
+				//calculate time ellapsed since last update
+				var time_now = new Date().getTime();
+				var time_offset = this.time_flag !== null ? time_now - this.time_flag : 0;
+				this.time_flag = time_now;
 
-								if (typeof time != 'undefined' && typeof timerId != 'undefined') {
+				//calculate real fps
+				//var fps = 1000/time_offset;
 
-										//multiple external engines are not supported
-										//so, always take only the first extEngine and ignore the others
-										if (this.extEngines[0].id == timerId) {
-
-												//update using param provided by external engine
-												this.time = time;
-												//debug.log('TIMER - timer:'+ parseInt(this.time) +' from externalEngine:'+this.extEngines[0].id);
-
-												//notify update and exit
-												this.trigger('update');
-												return;
-										} else {
-
-												//timerId not found, exit silently
-												return;
-										}
-								}
-
-								//calculate time ellapsed since last update
-								var time_now = new Date().getTime();
-								var time_offset = this.time_flag !== null ? time_now - this.time_flag : 0;
-								this.time_flag = time_now;
-
-								//calculate real fps
-								//var fps = 1000/time_offset;
-
-								//update time
-								this.time += time_offset * this.factor;
-								//debug.log('TIMER - timer:'+ parseInt(this.time) +' from internal engine');
+				//update time
+				this.time += time_offset * this.factor;
+				//debug.log('TIMER - timer:'+ parseInt(this.time) +' from internal engine');
 
 
-								//set timeout to next frame
-								if (!this.paused && !this.extEngines.length) {
-										if (this.rAF) this.engine = global.requestAnimationFrame(_.bind(this.update, this));else this.engine = setTimeout(_.bind(this.update, this), 1000 / this.fps);
-								}
+				//set timeout to next frame
+				if (!this.paused && !this.extEngines.length) {
+					if (this.rAF) this.engine = global.requestAnimationFrame(_.bind(this.update, this));else this.engine = setTimeout(_.bind(this.update, this), 1000 / this.fps);
+				}
 
-								//notify update and exit
-								this.trigger('update');
+				//notify update and exit
+				this.trigger('update');
 
-								return;
-						}
-				}, {
-						key: 'setTime',
-						value: function setTime(t) {
+				return;
+			}
 
-								this.time = t;
+			/**
+    * Sets a given time in ms
+    * @param {Number} t - time to be set
+    */
 
-								//notify update
-								this.trigger('update');
-						}
-				}, {
-						key: 'stop',
-						value: function stop() {
+		}, {
+			key: 'setTime',
+			value: function setTime(t) {
 
-								//reset timeout
-								if (this.engine) {
-										if (this.rAF) global.cancelAnimationFrame(this.engine);else clearTimeout(this.engine);
-										this.engine = null;
-								}
+				this.time = t;
 
-								//reset time_flag
-								this.time_flag = null;
+				//notify update
+				this.trigger('update');
+			}
 
-								//deactivate update loop
-								this.paused = true;
+			/**
+    * Stops the timer
+    */
 
-								return;
-						}
-				}, {
-						key: 'reset',
-						value: function reset() {
+		}, {
+			key: 'stop',
+			value: function stop() {
 
-								this.stop();
-								this.time = 0;
-						}
-				}, {
-						key: 'destroy',
-						value: function destroy() {
+				//reset timeout
+				if (this.engine) {
+					if (this.rAF) global.cancelAnimationFrame(this.engine);else clearTimeout(this.engine);
+					this.engine = null;
+				}
 
-								//kill loop process
-								this.stop();
+				//reset time_flag
+				this.time_flag = null;
 
-								//clear extEngines
-								this.extEngines = [];
+				//deactivate update loop
+				this.paused = true;
 
-								return;
-						}
-				}]);
+				return;
+			}
 
-				return SMXTimer;
-		}();
+			/**
+    * Resets the timer
+    */
 
-		//expose class in smx namespace
+		}, {
+			key: 'reset',
+			value: function reset() {
+
+				this.stop();
+				this.time = 0;
+			}
+
+			/**
+    * Destroys the timer
+    */
+
+		}, {
+			key: 'destroy',
+			value: function destroy() {
+
+				//kill loop process
+				this.stop();
+
+				//clear extEngines
+				this.extEngines = [];
+
+				return;
+			}
+		}]);
+
+		return Timer;
+	}();
+
+	//expose class in smx namespace
 
 
-		smx.time.Timer = SMXTimer;
+	smx.time.Timer = Timer;
 })(window, window._, window.Backbone, window.smx);
 //# sourceMappingURL=Timer.js.map
 ;'use strict';
@@ -3422,7 +3474,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 		/**
    * Create a playhead
-   * @param {SMXDocument} document - The document to navigate through
+   * @param {Document} document - The document to navigate through
    */
 		function Playhead(doc) {
 			_classCallCheck(this, Playhead);
@@ -3435,16 +3487,16 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 			/**
     *	The document to navigate
-   *	@type {SMXDocument}
+   *	@type {Document}
    */
 			this.document = doc;
 
 			/**
-    *	Contains all nodes in which playhead has entered
-    *	List ordered from outter to inner [root, ..., current_node]
-   *	@type {Array}
-   */
-			this.selection = [];
+    * Contains all nodes in which playhead has entered
+    * List ordered from outter to inner [root, ..., current_node]
+    * @type {Array}
+    */
+			this._selection = [];
 
 			/**
     * Currently active timeline
@@ -3482,13 +3534,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 				switch (key) {
 					case 'selected':
-						result = this.selection;
+						result = this._selection;
 						break;
 					case 'head':
-						result = this.selection[this.selection.length - 1];
+						result = this._selection[this._selection.length - 1];
 						break;
 					case 'root':
-						result = this.selection[0];
+						result = this._selection[0];
 						break;
 					case 'entered':
 						result = this._entered;
@@ -3504,15 +3556,21 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				return result;
 			}
 
-			/* PUBLIC METHODS */
+			/**
+    * Gets currently selected nodes
+    * @type {Node[]}
+    * @readonly
+    */
+
+		}, {
+			key: 'play',
+
 
 			/**
     * performs play action
     * @param {String|Node} target node
    */
 
-		}, {
-			key: 'play',
 			value: function play(id) {
 
 				var cnode = null;
@@ -3790,8 +3848,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				if (!t_node.isAccesible() && !global.app.config.FREE_ACCESS) throw new Error('NODE "' + c_node.id + '" IS NOT ACCESIBLE');
 
 				/**
-    		HERE YOU CAN PLUG ASYNC NAVIGATION CONTROLLERS... like SCORMX or VMSCO or...
-    		*/
+    	HERE YOU CAN PLUG ASYNC NAVIGATION CONTROLLERS... like SCORMX or VMSCO or...
+    	*/
 
 				try {
 
@@ -4048,11 +4106,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			value: function _enterNode(_node) {
 
 				//prevent re-enter in a node
-				var selectedIds = _.map(this.selection, 'id');
+				var selectedIds = _.map(this._selection, 'id');
 				if (_.includes(selectedIds, _node.id)) return;
 
 				//update selection array
-				this.selection.push(_node);
+				this._selection.push(_node);
 
 				//update last move registry
 				this._entered.push(_node);
@@ -4078,7 +4136,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				if (this.timeline) this._destroyTimeline();
 
 				//update blocks array
-				this.selection.pop();
+				this._selection.pop();
 
 				//update last move registry
 				this._exited.push(_node);
@@ -4275,6 +4333,35 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			value: function requestAsyncNodeAccess(node) {
 
 				return false;
+			}
+		}, {
+			key: 'path',
+			get: function get() {
+				return this._selection;
+			}
+
+			/**
+    * Gets the most outter selected node
+    * @type {Node}
+    * @readonly
+    */
+
+		}, {
+			key: 'root',
+			get: function get() {
+				return this._selection[0];
+			}
+
+			/**
+    * Gets the most inner selected node
+    * @type {Node}
+    * @readonly
+    */
+
+		}, {
+			key: 'head',
+			get: function get() {
+				return this._selection[this._selection.length - 1];
 			}
 		}]);
 
@@ -4534,9 +4621,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         fn.CoreMethods = {
 
                 /**
-                 * position in parent children
+                 * Gets index position in matching sibling nodes
                  * @method index
                  * @param {String=} selector - css selector filter
+                 * @return {Integer}
                  */
                 'index': function index(selector) {
 
@@ -5017,9 +5105,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		if (win.console && win.console.log && DEBUG) win.console.log('TRACKING: ' + str);
 	};
 
+	/**
+  * SMX Tracking class
+  * @class Tracking
+  * @param {Document} document
+  */
 	var TrackManager = function TrackManager(doc) {
 
-		//document && playhead params are required
+		//document
 		if (!doc) return;
 
 		//extend with Backbone Events
@@ -5296,7 +5389,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 					try {
 
-						var playhead = this.playhead;
+						//var playhead = this.playhead;
 						var CALLBACK = trigger.callback.name;
 
 						_.defer(function () {
@@ -5362,12 +5455,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
   *	Get raw value for specified node id and attribute key
   *	Uses SMXNode 'raw' method
   *
-  *  @method raw
   *  @param id {string} node id
   *  @param key {string} attribute key
   *  @return {string} resulting value or null
   *
- 	 */
+  */
 
 	TrackManager.prototype.raw = function (id, key) {
 
@@ -5385,15 +5477,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	};
 
 	/**
-  *	Answer this question:
-  *	Has key attribute the node with give id?
+  * Answer this question:
+  * Has key attribute the node with give id?
+  * @param {String} id  - node id
+  * @param {String} key - attribute key
+  * @return {Boolean} has or not the specified key
   *
-  *  @method has
-  *  @param id {String} node id
-  *  @param key {String} attribute key
-  *  @return {Boolean} has or not the specified key
-  *
- 	 */
+  */
 
 	TrackManager.prototype.has = function (id, key) {
 
@@ -5469,6 +5559,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		return val;
 	};
 
+	/**
+ * Updates tracking data for the given node id
+ * @param {String} id - node id
+ * @param {String=} key - tracking field key name
+ */
 	TrackManager.prototype.update = function (id, key) {
 
 		var tracks;
@@ -5503,6 +5598,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		return;
 	};
 
+	/**
+ * Propagates tracking data for the given node id
+ * @param {String} id - node id
+ * @param {String=} key - tracking field key name
+ * @param {String=} [recursive=false]
+ */
+
 	TrackManager.prototype.propagate = function (id, key, recursive) {
 
 		//get track by given id
@@ -5525,6 +5627,24 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 		return;
 	};
+
+	/**
+  * Global change event
+  * @event Tracking#change
+  * @type {object}
+  */
+
+	/**
+  * Track change event
+  * @event Tracking#change:id
+  * @type {object}
+  */
+
+	/**
+  * Track field change event
+  * @event Tracking#change:id:key
+  * @type {object}
+  */
 
 	TrackManager.prototype.onCollectionChange = function (track) {
 
@@ -5793,6 +5913,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		return str;
 	};
 
+	/**
+  * Exports tracking data
+  * @param {Object=} options
+  * @return {data}
+  */
 	TrackManager.prototype.exports = function (options) {
 
 		var defaults = {
@@ -5888,19 +6013,24 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		return myJSON;
 	};
 
-	TrackManager.prototype.imports = function (myJSON) {
+	/**
+  * Imports tracking data
+  * @param {Object|String} data
+  * @return {data}
+  */
+	TrackManager.prototype.imports = function (_data_) {
 
 		//no JSON?
-		if (!myJSON || !_.isObject(JSON)) return;
+		if (!_data_ || !_.isObject(JSON)) return;
 
 		//process input param into data object
 		var data = null;
 
 		try {
-			if (typeof myJSON == 'string' && myJSON != '') {
-				data = eval('(' + myJSON + ')');
+			if (typeof _data_ == 'string' && _data_ != '') {
+				data = eval('(' + _data_ + ')');
 			} else {
-				data = myJSON;
+				data = _data_;
 			}
 		} catch (e) {}
 
@@ -7000,13 +7130,20 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 //# sourceMappingURL=points.js.map
 ;'use strict';
 
+/**
+ * Extends SMXNode with utility attribute getters
+ * @module Node/Tracking
+ */
+
 (function (global, _, smx) {
 
       var methods = {
 
             /**
-            *   @method isAccesible
-            */
+             * Checks if the node can be accessed
+             * @method isAccesible
+             * @return {Boolean}
+             */
             isAccesible: function isAccesible() {
 
                   if (global.app.config.FREE_ACCESS) return true;
@@ -7030,8 +7167,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             },
 
             /**
-            *   @method track
-            */
+             * Gets tracking data for the given key name associated to the node
+             * @method track
+             * @param {String} key - tracking field key name
+             * @param {String=} format - desired format data
+             * @return {String|Number}
+             */
             track: function track(key, format) {
 
                   //if exists ($tracking) TrackManager use it
@@ -7054,10 +7195,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             },
 
             /**
-            *   Returns true if this node uses tracking attributes
+            *   Checks if the node has associated tracking data, can check for any tracking data or specific field
             *   @method isTracking
-            *   @param {String} (optional) key
-            *   @return {Boolean} result
+            *   @param {String=} key - tracking field key name
+            *   @return {Boolean}
             */
             isTracking: function isTracking(key) {
 
@@ -7084,8 +7225,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             },
 
             /**
-            *   @method     update
-            *   @desc       shortcut of TrackManager.update from given node
+            * Performs a Tracking.update for this node
+            * @method update
+            * @param {String=} key - tracking field key name
             */
             update: function update(key) {
 
@@ -7098,8 +7240,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             },
 
             /**
-            *   @method track
-            *   @desc       shortcut of TrackManager.propagate from given node
+            * Performs a Tracking.propagate for this node
+            * @method update
+            * @param {String=} key - tracking field key name
+            * @param {String=} [recursive=false]
             */
             propagate: function propagate(key, recursive) {
 
@@ -8855,6 +8999,10 @@ Sizzle.selectors.filters.regex = function (elem, i, match) {
 // convert first level children nodes into meta-* attributes
 // and apply those attributes to direct parent node
 
+/**
+ * SMX Metadata class
+ * @class Metadata
+ */
 
 (function (global, Sizzle, smx) {
 
@@ -9122,10 +9270,10 @@ Sizzle.selectors.filters.regex = function (elem, i, match) {
 //# sourceMappingURL=MetadataParser.js.map
 ;"use strict";
 
-////////////////////////////////
-// META INTERFACE
-// 'meta' attributes namespace
-
+/**
+ * Extends SMXNode with utility attribute getters
+ * @module Node/Metadata
+ */
 
 (function (global, smx) {
 
@@ -9134,8 +9282,12 @@ Sizzle.selectors.filters.regex = function (elem, i, match) {
             smx.fn.MetadataInterface = {
 
                         /**
-                        *   @method meta
-                        */
+                         * Gets the metadata field value for the given associated to the node
+                         * @method meta
+                         * @param {String} key - key name of meta field
+                         * @param {String=} lang - langcode
+                         * @return {String}
+                         */
                         meta: function meta(key, lang) {
 
                                     var value;
@@ -9149,8 +9301,13 @@ Sizzle.selectors.filters.regex = function (elem, i, match) {
                         },
 
                         /**
-                        *   @method interpolate
-                        */
+                         * This method is like {@linkcode Node/Metadata~meta meta} but will return
+                         * an interpolated version of the value using the node as context
+                         * @method interpolate
+                         * @param {String} key - key name of meta field
+                         * @param {String=} lang - langcode
+                         * @return {String}
+                         */
                         interpolate: function interpolate(key, lang) {
 
                                     var str = this.meta(key, lang);
@@ -9439,7 +9596,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         // PARENT RELATED OPERATIONS
 
         /**
-         * get parent node
+         * Gets the parent node
          * @method parent
          * @param {String} selector - filter selector
          * @return {Node}
@@ -9462,9 +9619,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         },
 
         /**
-         * get list of parent nodes up to root
+         * Gets a list of parent nodes up to root
          * @method parents
-         * @return {Array.<Node>}
+         * @return {Node[]}
          */
         parents: function parents() {
 
@@ -9552,7 +9709,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         },
 
         /**
-         * resolve wether a node matches a selector
+         * Checks if node matches the given selector
          * @method match
          * @param {String} selector - css selector to match
          * @return {Boolean}
@@ -9562,10 +9719,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         },
 
         /**
-         * find descendant nodes by a given selector
+         * Finds all descendant nodes matching the given selector
          * @method find
          * @param {String} selector - search selector
-         * @param {Boolean=} important - search selector
          * @return {Array.<Node>}
          */
         find: function find(selector) {
@@ -9590,7 +9746,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         },
 
         /**
-         * Like find but returns only first matching node
+         * This method is {@link Node node} like {@link Node/TreeMethods~find find} but returns only the first result
          * @method one
          * @param {String} selector - search selector
          * @return {Node}
@@ -9625,7 +9781,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         },
 
         /**
-         * get first child
+         * Get the first child node
          * @method first
          * @return {Node}
          */
@@ -9634,7 +9790,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         },
 
         /**
-         * get last child
+         * Gets the last child node
          * @method last
          * @return {Node}
          */
@@ -9645,7 +9801,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         // EXTRA - CHILD RELATED OPERATIONS
 
         /**
-         * get child at given index
+         * Gets child node at given index
          * @method childAt
          * @param {Integer} index - index position
          * @return {Node}
@@ -9655,7 +9811,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         },
 
         /**
-         * reslve wether a node is child of another
+         * Checks if a node is child of another
          * @method isChildOf
          * @param {Node} node - reference node
          * @return {Boolean}
@@ -9673,8 +9829,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 
         /**
-         * get next sibling node
+         * Gets next sibling node
          * @method next
+         * @param {String=} selector - filter selector
          * @return {Node}
          */
         next: function next(selector) {
@@ -9683,8 +9840,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         },
 
         /**
-         * get previous sibling node
+         * Gets previous sibling node
          * @method previous
+         * @param {String=} selector - filter selector
          * @return {Node}
          */
         previous: function previous(selector) {
@@ -9695,7 +9853,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         // FLAT TREE SIBLINGS
 
         /**
-         * get previous node in a flat tree
+         * Gets previous node in a flat tree
          * @method getStepBack
          * @return {Node}
          */
