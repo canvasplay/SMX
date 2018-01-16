@@ -1805,19 +1805,77 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 *
 */
 
-(function (window) {
+(function (global) {
 
-  var smx = {};
+    var smx = {};
 
-  smx.version = '0.8.14';
+    smx.version = '0.8.14';
 
-  smx.cache = {};
+    smx.cache = {};
 
-  smx.document = null;
-  smx.documents = [];
+    smx.document = null;
+    smx.documents = [];
 
-  //expose
-  window.smx = smx;
+    //declare and expose $smx namespace
+    var $smx = global['$smx'] = {};
+
+    ////////////////////////////////
+    // PRIVATE INDEXED NODE LIST CACHE
+
+    $smx.cache = {};
+
+    ////////////////////////////////
+    // SMX NODE WRAPPER
+
+    $smx.node = function (elems) {
+
+        var _Node = function _Node(xmlNode) {
+
+            var id = null;
+
+            //if(!xmlNode) return;
+            //if (xmlNode.nodeName == 'undefined') return;
+            //if (typeof xmlNode.nodeType == 'undefined') return;
+            //if (xmlNode.nodeType != 1) return;
+
+            //can this try replace the 4 conditionals above? yes...
+            try {
+                id = xmlNode.getAttribute('id');
+            } catch (e) {}
+
+            //id attr is required!
+            if (!id) return;
+
+            //Does already exists a node with this id?
+            //prevent duplicated nodes and return existing one
+            if ($smx.cache[id]) return $smx.cache[id];
+
+            //create new Node from given XMLNode
+            var node = new smx.Node(xmlNode);
+
+            //add it to nodes cache
+            $smx.cache[id] = node;
+
+            //return just created node
+            return node;
+        };
+
+        if (elems && (_.isArray(elems) || !_.isUndefined(elems.length)) && _.isUndefined(elems.nodeType)) {
+            var result = [];
+            for (var i = 0; i < elems.length; i++) {
+                if (elems[i]) {
+                    var node = elems[i][0] ? elems[i] : _Node(elems[i]);
+                    if (node) result.push(node);
+                }
+            }
+            return result;
+        } else if (elems) {
+            if (elems[0]) return elems;else return _Node(elems);
+        } else return;
+    };
+
+    //expose
+    global.smx = smx;
 })(window);
 //# sourceMappingURL=smx.js.map
 ;'use strict';
@@ -2408,13 +2466,18 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
   var Loader = function () {
 
     /**
-     * creates an SMXLoader
+     * creates a new Loader
      */
     function Loader() {
       _classCallCheck(this, Loader);
 
       this.xhr = null;
     }
+    /**
+     * load resource by given url
+     * @param {String}
+     */
+
 
     _createClass(Loader, [{
       key: 'load',
@@ -3727,8 +3790,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				if (!t_node.isAccesible() && !global.app.config.FREE_ACCESS) throw new Error('NODE "' + c_node.id + '" IS NOT ACCESIBLE');
 
 				/**
-    	HERE YOU CAN PLUG ASYNC NAVIGATION CONTROLLERS... like SCORMX or VMSCO or...
-    	*/
+    		HERE YOU CAN PLUG ASYNC NAVIGATION CONTROLLERS... like SCORMX or VMSCO or...
+    		*/
 
 				try {
 
@@ -4362,78 +4425,64 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         fn.AttributeGetters = {
 
                 /**
-                * Get the raw value for specified attribute key in the original xml node
-                * @method raw
-                * @param {String} key - The name of the attribute
-                * @return {String} resulting value
-                */
-
-                raw: function raw(key) {
-
-                        return this[0].getAttribute(key);
-                },
-
-                /**
-                * Get the value for specified attribute key in attributes collection
+                * Get attribute value for the given key from the inner XMLNode
                 * @method attr
-                * @param key {String} The name of the attribute
-                * @return {String} resulting value
+                * @param {String} name - attribute name
+                * @return {String} value
+                * @example
+                *
+                * var users = [
+                *   { 'user': 'barney',  'active': false },
+                *   { 'user': 'fred',    'active': false },
+                *   { 'user': 'pebbles', 'active': true }
+                * ];
+                *
+                * _.findIndex(users, function(o) { return o.user == 'barney'; });
+                * // => 0
+                *
+                * // The `_.matches` iteratee shorthand.
+                * _.findIndex(users, { 'user': 'fred', 'active': false });
+                * // => 1
+                *
+                * // The `_.matchesProperty` iteratee shorthand.
+                * _.findIndex(users, ['active', false]);
+                * // => 0
+                *
+                * // The `_.property` iteratee shorthand.
+                * _.findIndex(users, 'active');
+                * // => 2
                 */
-                attr: function attr(key) {
-
-                        return this.raw(key);
+                attr: function attr(name) {
+                        return this[0].getAttribute(name);
                 },
 
                 /**
-                * Determine if node has the specified key attribute
+                * Determine if inner XMLNode has an attribute with the given name
                 * @method has
-                * @param key {String} The name of the attribute
-                * @return {Bollean} resulting value
+                * @param {String} name - attribute name
+                * @return {Boolean}
                 */
-                has: function has(key) {
-
-                        //return this[0].hasAttribute(key);
+                has: function has(name) {
+                        //return this[0].hasAttribute(name);
                         //IE8 does not support XMLNode.hasAttribute, so...
-                        return this[0].getAttribute(key) !== null;
+                        return this[0].getAttribute(name) !== null;
                 },
 
                 /**
-                * Get the value for specified attribute key, computed or not
-                * If there is no computed attribute with given key will use attr method
-                * @method get
-                * @param key {string} The name of the attribute
-                * @return resulting value
-                */
-                get: function get(key, options) {
-
-                        /*
-                        //key is required to be non empty string
-                        if(_.isEmpty(key) || !_.isString(key)) return;
-                          //try using defined attribute getter
-                        var getter = smx.fn.ComputedAttributes[key];
-                        if(_.isFunction(getter)) return getter(this,options);
-                        */
-
-                        //use default attr getter
-                        return this.attr(key);
-                },
-
-                /**
-                 * Delimiter Separated Value
+                 * Get Delimiter Separated Value
                  * An utility method converts given attribute value into dsv array
-                * @method dsv
-                 * @param key {string} the name of the attribute
-                 * @param delimiter {string} defaults to ' '
-                 * @return dsv array
+                 * @method dsv
+                 * @param name {String} the name of the attribute
+                 * @param delimiter {String=} delimiter string
+                 * @return {Array.<String>}
                  */
-
-                dsv: function dsv(key, delimiter) {
+                dsv: function dsv(name, delimiter) {
 
                         //ignore undefined attributes
-                        if (!this.has(key)) return;
+                        if (!this.has(name)) return;
 
-                        //get attr's value by key
-                        var value = this.attr(key);
+                        //get attr's value by name
+                        var value = this.attr(name);
 
                         //delimiter defaults to space
                         var d = delimiter || ' ';
@@ -4450,7 +4499,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                                 str = str.replace(/^\s+/, '');
                                 for (var i = str.length - 1; i >= 0; i--) {
                                         if (/\S/.test(str.charAt(i))) {
-                                                str = str.substring(0, i + 1);
+                                                str = str.subString(0, i + 1);
                                                 break;
                                         }
                                 }
@@ -4464,15 +4513,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                 },
 
                 /**
-                 * Utility method, converts the given key attribute value into csv array
-                * @method csv
-                 * @param key {string} the name of the attribute
+                 * Utility method, converts the given name attribute value into csv array
+                 * @method csv
+                 * @param name {String} the name of the attribute
                  * @return csv array
                  */
 
-                csv: function csv(key) {
+                csv: function csv(name) {
 
-                        return this.dsv(key, ',');
+                        return this.dsv(name, ',');
                 }
 
         };
@@ -4487,6 +4536,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                 /**
                  * position in parent children
                  * @method index
+                 * @param {String=} selector - css selector filter
                  */
                 'index': function index(selector) {
 
@@ -4514,7 +4564,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                 },
 
                 /**
-                 * get string representation of a node
+                 * get String representation of a node
                  * @method toString
                  * @return {String}
                  */
@@ -4839,7 +4889,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                                                                 }
 
                                                                 //get it from attribute
-                                                                start = parseInt(node.raw('start'));
+                                                                start = parseInt(node.attr('start'));
                                                                 if (_.isNaN(start) || start < 0) start = 0;
 
                                                                 //set local value
@@ -5331,7 +5381,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		if (!node) return;
 
 		//return value or undefined
-		return node.raw('track-' + key);
+		return node.attr('track-' + key);
 	};
 
 	/**
@@ -5357,7 +5407,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		if (!node) return false;
 
 		//get raw value by key
-		var value = node.raw('track-' + key);
+		var value = node.attr('track-' + key);
 
 		//raw will always return String or null value
 		return _.isString(value) ? true : false;
@@ -5783,8 +5833,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 				var key = keys[a];
 
-				var raw_value = _this.raw(item.id, key);
-				var value = _this.get(item.id, key);
+				var raw_value = _this.attr(item.id, key);
+				var value = _this.attr(item.id, key);
 
 				if (!options.onlychanged) {
 
@@ -9211,18 +9261,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 (function (global, smx) {
 
-    //declare and expose $smx namespace
-    var $smx = global['$smx'] = {};
-
-    ////////////////////////////////
-    // PRIVATE INDEXED NODE LIST CACHE
-
-    $smx.cache = {};
-
     /**
      * SMX Node Class
      */
-
     var Node = function () {
 
         /**
@@ -9232,9 +9273,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             _classCallCheck(this, Node);
 
             /**
-             * original XML node for reference
-             * jquery inspired using the[0]: D
+             * Original XMLNode for reference
              * @type {XMLNode}
+             * @protected
              */
             this[0] = xmlNode;
         }
@@ -9242,6 +9283,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         /**
          * Direct access to XMLNode id
          * @type {String}
+         * @readonly
          */
 
 
@@ -9254,6 +9296,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             /**
              * Direct access to XMLNode name
              * @type {String}
+             * @readonly
              */
 
         }, {
@@ -9265,6 +9308,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             /**
              * node type with 'smx' as default, it can also be txt, md, html, ...
              * @type {String}
+             * @readonly
              */
 
         }, {
@@ -9276,6 +9320,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             /**
              * class attribute as array of
              * @type {String}
+             * @readonly
              */
 
         }, {
@@ -9288,6 +9333,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
              * Uniform Resource Identifier,"url id"
              * Calculate url hash path using cummulative ids up to root
              * @type {String}
+             * @readonly
              */
 
         }, {
@@ -9301,6 +9347,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             /**
              * Browser url hash for this node
              * @type {String}
+             * @readonly
              */
 
         }, {
@@ -9310,9 +9357,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             }
 
             /**
-             *  Uniform Resource Locator (url path)
-             *  Calculate url folder path using cummulative paths up to root
-             *  @type {String}
+             * Uniform Resource Locator (url path)
+             * Calculate url folder path using cummulative paths up to root
+             * @type {String}
+             * @readonly
              */
 
         }, {
@@ -9345,8 +9393,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             }
 
             /**
-             *  url of xml source file of this node
-             *  @type {String}
+             * url of xml source file of this node
+             * @type {String}
+             * @readonly
              */
 
         }, {
@@ -9374,56 +9423,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
     //expose
     smx.Node = Node;
-
-    ////////////////////////////////
-    // SMX NODE WRAPPER
-
-    $smx.node = function (elems) {
-
-        var _Node = function _Node(xmlNode) {
-
-            var id = null;
-
-            //if(!xmlNode) return;
-            //if (xmlNode.nodeName == 'undefined') return;
-            //if (typeof xmlNode.nodeType == 'undefined') return;
-            //if (xmlNode.nodeType != 1) return;
-
-            //can this try replace the 4 conditionals above? yes...
-            try {
-                id = xmlNode.getAttribute('id');
-            } catch (e) {}
-
-            //id attr is required!
-            if (!id) return;
-
-            //Does already exists a node with this id?
-            //prevent duplicated nodes and return existing one
-            if ($smx.cache[id]) return $smx.cache[id];
-
-            //create new Node from given XMLNode
-            var node = new smx.Node(xmlNode);
-
-            //add it to nodes cache
-            $smx.cache[id] = node;
-
-            //return just created node
-            return node;
-        };
-
-        if (elems && (_.isArray(elems) || !_.isUndefined(elems.length)) && _.isUndefined(elems.nodeType)) {
-            var result = [];
-            for (var i = 0; i < elems.length; i++) {
-                if (elems[i]) {
-                    var node = elems[i][0] ? elems[i] : _Node(elems[i]);
-                    if (node) result.push(node);
-                }
-            }
-            return result;
-        } else if (elems) {
-            if (elems[0]) return elems;else return _Node(elems);
-        } else return;
-    };
 })(window, window.smx);
 //# sourceMappingURL=Node.js.map
 ;'use strict';
@@ -9532,6 +9531,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         /**
          * get node by identifier
          * @method getNodeById
+         * @alias gid
          * @return {Node}
          */
         getNodeById: function getNodeById(id) {
@@ -9546,12 +9546,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             //not found
             return;
         },
-
-        /**
-         * get node by identifier (alias for getNodeById)
-         * @method gid
-         * @return {Node}
-         */
 
         gid: function gid(id) {
             return this.getNodeById(id);
@@ -9571,6 +9565,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
          * find descendant nodes by a given selector
          * @method find
          * @param {String} selector - search selector
+         * @param {Boolean=} important - search selector
          * @return {Array.<Node>}
          */
         find: function find(selector) {
