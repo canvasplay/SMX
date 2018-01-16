@@ -101,10 +101,17 @@ function updateItemName(item) {
         itemName = '&hellip;' + itemName;
     }
 
+    /* @canvasplay: custom for smx
     if (attributes && attributes.length) {
         itemName = util.format( '%s<span class="signature-attributes">%s</span>', itemName,
             attributes.join(', ') );
     }
+    */
+    if (attributes && attributes.length && attributes[0] === 'opt') {
+        //itemName = '[' + itemName + ']';
+        itemName = util.format('[%s]', itemName);
+
+    }    
 
     return itemName;
 }
