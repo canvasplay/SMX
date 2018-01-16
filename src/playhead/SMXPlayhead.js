@@ -97,7 +97,7 @@ class Playhead{
 
 
     /**
-     * Gets currently selected nodes
+     * Gets currently selected nodes ordered from outter to inner
      * @type {Node[]}
      * @readonly
      */
