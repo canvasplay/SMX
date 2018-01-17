@@ -2,6 +2,7 @@
 
 /**
  * SMX Node Class
+ * @memberof smx
  */
 class Node {
 
@@ -53,6 +54,17 @@ class Node {
         return this[0].getAttribute('class');
     }
 
+
+    /**
+     * Browser url hash for this node
+     * @type {String}
+     * @readonly
+     */
+    get hash() {
+        return '#!/' + this.uri;
+    }
+
+
     /**
      * Uniform Resource Identifier,"url id"
      * Calculate url hash path using cummulative ids up to root
@@ -68,15 +80,6 @@ class Node {
 
 
     /**
-     * Browser url hash for this node
-     * @type {String}
-     * @readonly
-     */
-    get hash() {
-        return '#!/' + this.uri;
-    }
-
-    /**
      * Uniform Resource Locator (url path)
      * Calculate url folder path using cummulative paths up to root
      * @type {String}
@@ -85,8 +88,11 @@ class Node {
 
     get url() {
 
-        let path = this.attr('path');
 
+        //'one / two // three ///'.replace(/\/\/+/g, '/')
+
+
+        let path = this.attr('path');
         let parent = this.parent();
 
         if (parent) {
@@ -116,36 +122,38 @@ class Node {
     }
 
     /**
-     * url of xml source file of this node
+     * Gets the node's source file url
      * @type {String}
      * @readonly
      */
 
     get file() {
 
-        let url = '';
+        var result = '';
         let file = this.attr('file');
         let parent = this.parent();
 
         if (!file)
-            return (parent) ? parent.file : undefined;
-
+            result = (parent) ? parent.file : undefined;
         else
-            return this.url + file;
+            result = this.url + file;
+
+        if (result) result = result.replace(/\/\/+/g, '/');
+
+        return result;
 
     }
 
-
+    /** @lends smx.fn.Core.text */
 
 }
 
+
+
 //extend Node prototype
 
-for (var key in smx.fn) {
-
-    //_.extend(Node.prototype,fns);
+for (var key in smx.fn){
     Object.assign(Node.prototype, smx.fn[key]);
-
 }
 
 //expose

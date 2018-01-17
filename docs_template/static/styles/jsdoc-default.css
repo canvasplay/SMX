@@ -403,8 +403,13 @@ pre.prettyprint {
     position: relative;
 }
 
+
 .permalink {
     text-decoration: none;
+}
+
+.permalink i{
+    vertical-align: middle;
 }
 
 h4.name .permalink {
@@ -419,6 +424,8 @@ h4.name .permalink {
 h4.name:hover .permalink {
     visibility: visible;
 }
+
+
 
 .details {
     font-size: .9em;

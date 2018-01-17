@@ -53,10 +53,6 @@ module.exports = function(grunt) {
                     'dist/finder/SMXFinder.js',
 
 
-                    'dist/document/fn.js',
-                    'dist/document/TimeAttrController.js',
-                    'dist/document/UIAttrController.js',
-
 
                     //PLUGINS
 
@@ -84,9 +80,16 @@ module.exports = function(grunt) {
                     'dist/plugins/taxonomy/TaxonomyInterface.js',
 
 
+                    'dist/document/fn.js',
+                    'dist/document/fn.Core.js',
+                    'dist/document/fn.AttributeGetters.js',
+                    'dist/document/fn.TreeNode.js',
+                    'dist/document/smx.TimeAttrController.js',
+                    'dist/document/smx.UIAttrController.js',
+
                     'dist/document/Node.js',
-                    //'dist/document/Node.ComputedProperties.js',
-                    'dist/document/Node.TreeMethods.js'
+                    'dist/document/Document.js'
+
 
 
                 ],

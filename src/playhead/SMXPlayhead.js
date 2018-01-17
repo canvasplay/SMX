@@ -2,8 +2,8 @@
 
 
 /**
-*	SMX Playhead class
-*
+* SMX Playhead class
+* @memberof smx
 */
 class Playhead{
 

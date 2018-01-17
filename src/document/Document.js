@@ -3,7 +3,8 @@
 
     /**
      * SMX Document Class
-     * @extends Node
+     * @extends smx.Node
+     * @memberof smx
      */
     class Document extends smx.Node {
 

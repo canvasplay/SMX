@@ -12,11 +12,12 @@
   "bin": "./node_modules/.bin/",
   "scripts": {
     "build": "grunt",
-    "docs": "jsdoc -r -c jsdoc.json"
+    "docs": "del-cli docs/ && jsdoc -r -c jsdoc.json"
   },
   "devDependencies": {
     "@pixi/jsdoc-template": "^2.3.0",
     "babel-preset-env": "^1.6.1",
+    "del-cli": "^1.1.0",
     "grunt": "^1.0.1",
     "grunt-babel": "^6.0.0",
     "grunt-bump": "^0.8.0",

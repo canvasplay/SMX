@@ -1,6 +1,5 @@
 /**
 *	SMX Synchronized Multimedia XML
-*
 *	@namespace smx
 *
 */

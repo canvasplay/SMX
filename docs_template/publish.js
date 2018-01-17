@@ -321,10 +321,28 @@ function buildMemberNav(items, itemHeading, itemsSeen, linktoFn) {
     if (items.length) {
         var itemsNav = '';
 
+        /*
+        //sort by name
+        items = items.sort(function (a, b) {
+            return (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0);
+        });
+        */
+
+        //sort by longname
+        items = items.sort(function (a, b) {
+            return (a.longname > b.longname) ? 1 : ((b.longname > a.longname) ? -1 : 0);
+        });
+
         items.forEach(function(item) {
             var displayName;
 
-            if ( !hasOwnProp.call(item, 'longname') ) {
+            // @canvasplay: custom for smx
+            // display longname text for namespace links
+            if(item.kind === 'namespace'){
+                //linktoFn(longname, linkText, cssClass, fragmentId)
+                itemsNav += '<li>' + linktoFn(item.longname, item.longname) + '</li>';
+            }
+            else if ( !hasOwnProp.call(item, 'longname') ) {
                 itemsNav += '<li>' + linktoFn('', item.name) + '</li>';
             }
             else if ( !hasOwnProp.call(itemsSeen, item.longname) ) {
@@ -375,12 +393,12 @@ function buildNav(members) {
     var seen = {};
     var seenTutorials = {};
 
-    nav += buildMemberNav(members.modules, 'Modules', {}, linkto);
-    nav += buildMemberNav(members.externals, 'Externals', seen, linktoExternal);
     nav += buildMemberNav(members.namespaces, 'Namespaces', seen, linkto);
     nav += buildMemberNav(members.classes, 'Classes', seen, linkto);
+    nav += buildMemberNav(members.modules, 'Modules', {}, linkto);
+    nav += buildMemberNav(members.externals, 'Externals', seen, linktoExternal);
     nav += buildMemberNav(members.interfaces, 'Interfaces', seen, linkto);
-    nav += buildMemberNav(members.events, 'Events', seen, linkto);
+    //nav += buildMemberNav(members.events, 'Events', seen, linkto);
     nav += buildMemberNav(members.mixins, 'Mixins', seen, linkto);
     nav += buildMemberNav(members.tutorials, 'Tutorials', seenTutorials, linktoTutorial);
 
