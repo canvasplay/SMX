@@ -1,8 +1,15 @@
 (function(global, _, smx){
   
+/**
+ * SMX Finder Class
+ * @memberof smx
+ */
+ 
+class Finder{
   
-class SMXFinder{
-  
+  /**
+   * @param {Document} document - The document in which to search
+   */
   constructor(doc){
     
     //SMXDocument to find in
@@ -34,7 +41,12 @@ class SMXFinder{
     
   }
   
-  
+	/**
+	 * Performs a search
+	 * @param {String} query string
+	 * @param {Object=} options
+	 * @return {Object[]}
+	 */
   find(str, opts){
 
     let results = [];
@@ -124,7 +136,7 @@ class SMXFinder{
 
 
 //expose
-smx.Finder = SMXFinder;
+smx.Finder = Finder;
 
 
 })(window, window._, window.smx);

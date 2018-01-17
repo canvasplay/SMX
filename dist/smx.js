@@ -2518,8 +2518,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 (function (smx) {
 
-	//expose
-	smx.time = {};
+  /**
+   * Placeholder namespace to contain Node extensions
+   * @namespace time
+   * @memberof smx
+   */
+
+  //expose
+  smx.time = {};
 })(window.smx);
 //# sourceMappingURL=time.js.map
 ;'use strict';
@@ -2528,17 +2534,11 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-/**
-* Timer Controller
-*
-* @class Timer
-* @constructor
-*/
-
 (function (win, _, Backbone, smx) {
 
 	/**
   * SMX Timer Class
+  * @memberof smx.time
   */
 	var Timer = function () {
 
@@ -2789,6 +2789,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 			/**
     * SMX Timeline Class
+    * @memberof smx.time
     */
 			var Timeline = function () {
 
@@ -3493,7 +3494,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			/**
     * Contains all nodes in which playhead has entered
     * List ordered from outter to inner [root, ..., current_node]
-    * @type {Array}
+    * @type {Array.<Node>}
+    * @protected
     */
 			this._selection = [];
 
@@ -3522,6 +3524,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
    * Property getter
    * @param {String} key - property key name
    * @return {Node} property value
+  * @summary Composes a list of functions.
   */
 
 
@@ -3847,8 +3850,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				if (!t_node.isAccesible() && !global.app.config.FREE_ACCESS) throw new Error('NODE "' + c_node.id + '" IS NOT ACCESIBLE');
 
 				/**
-    		HERE YOU CAN PLUG ASYNC NAVIGATION CONTROLLERS... like SCORMX or VMSCO or...
-    		*/
+    	HERE YOU CAN PLUG ASYNC NAVIGATION CONTROLLERS... like SCORMX or VMSCO or...
+    	*/
 
 				try {
 
@@ -4380,9 +4383,15 @@ var _createClass = function () { function defineProperties(target, props) { for 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 (function (global, _, smx) {
-  var SMXFinder = function () {
-    function SMXFinder(doc) {
-      _classCallCheck(this, SMXFinder);
+
+  /**
+   * SMX Finder Class
+   * @memberof smx
+   */
+
+  var Finder = function () {
+    function Finder(doc) {
+      _classCallCheck(this, Finder);
 
       //SMXDocument to find in
       this.document = doc;
@@ -4411,7 +4420,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
       };
     }
 
-    _createClass(SMXFinder, [{
+    /**
+     * Performs a search
+     * @param {String} query string
+     * @param {Object=} options
+     * @return {Object[]}
+     */
+
+
+    _createClass(Finder, [{
       key: 'find',
       value: function find(str, opts) {
 
@@ -4487,15 +4504,35 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
       }
     }]);
 
-    return SMXFinder;
+    return Finder;
   }();
 
   //expose
 
 
-  smx.Finder = SMXFinder;
+  smx.Finder = Finder;
 })(window, window._, window.smx);
 //# sourceMappingURL=SMXFinder.js.map
+;"use strict";
+
+(function (win, smx) {
+
+  /**
+   * Tracking namespace
+   * @namespace tracking
+   * @memberof smx
+   */
+
+  smx.tracking = {};
+
+  /**
+   * Tracking Attributes namespace
+   * @namespace attributes
+   * @memberof smx.tracking
+   */
+  smx.tracking.attributes = {};
+})(window, window.smx);
+//# sourceMappingURL=tracking.js.map
 ;'use strict';
 
 (function (win, smx) {
@@ -4506,8 +4543,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 	};
 
 	/**
-  * SMX Tracking class
-  * @class Tracking
+  * SMX TrackManager class
+  * @class TrackManager
+  * @memberof smx.tracking
   * @param {Document} document
   */
 	var TrackManager = function TrackManager(doc) {
@@ -5485,12 +5523,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 		this.update();
 	};
-
-	//create tracking module namespace
-	smx.tracking = {};
-
-	//create tracking attribute controllers namespace
-	smx.tracking.attributes = {};
 
 	//expose
 	smx.tracking.TrackManager = TrackManager;
@@ -8900,257 +8932,257 @@ Sizzle.selectors.filters.regex = function (elem, i, match) {
 
 (function (global, _, Sizzle, smx) {
 
+    /**
+     * Extends SMXNode with core methods
+     * @namespace Core
+     * @memberof smx.fn
+     */
+
+    var Core = {
+
         /**
-         * Extends SMXNode with core methods
-         * @namespace Core
-         * @memberof smx.fn
+         * Gets index position in matching sibling nodes
+         * @method index
+         * @memberof smx.fn.Core
+         * @param {String=} selector - css selector filter
+         * @return {Integer}
          */
+        'index': function index(selector) {
 
-        var Core = {
+            //0 by default
+            var index = 0;
 
-                /**
-                 * Gets index position in matching sibling nodes
-                 * @method index
-                 * @memberof smx.fn.Core
-                 * @param {String=} selector - css selector filter
-                 * @return {Integer}
-                 */
-                'index': function index(selector) {
+            //get parent node
+            var parent = this.parent();
 
-                        //0 by default
-                        var index = 0;
+            //no parent? its kind of root so it has no sibling nodes
+            if (!parent) return index;
 
-                        //get parent node
-                        var parent = this.parent();
+            //get sibling nodes
+            var siblings = parent.children();
 
-                        //no parent? its kind of root so it has no sibling nodes
-                        if (!parent) return index;
+            //filter siblings collection with a css selector if its defined
+            if (selector) siblings = siblings.filter(function (s) {
+                return Sizzle.matchesSelector(s[0], selector);
+            });
 
-                        //get sibling nodes
-                        var siblings = parent.children();
+            //get position in siblings collection
+            index = siblings.indexOf(this);
 
-                        //filter siblings collection with a css selector if its defined
-                        if (selector) siblings = siblings.filter(function (s) {
-                                return Sizzle.matchesSelector(s[0], selector);
-                        });
+            return index;
+        },
 
-                        //get position in siblings collection
-                        index = siblings.indexOf(this);
+        /**
+         * get String representation of a node
+         * @method toString
+         * @memberof smx.fn.Core
+         * @return {String}
+         */
+        toString: function toString() {
 
-                        return index;
-                },
+            //this looks better in console
+            return this.name + '#' + this.id;
+        },
 
-                /**
-                 * get String representation of a node
-                 * @method toString
-                 * @memberof smx.fn.Core
-                 * @return {String}
-                 */
-                toString: function toString() {
+        /**
+         * get node's text contents
+         * @method text
+         * @memberof smx.fn.Core
+         * @return {String}
+         */
+        text: function text() {
+            return this[0].text || this[0].textContent || '';
+        },
 
-                        //this looks better in console
-                        return this.name + '#' + this.id;
-                },
+        /**
+         * get node's html content
+         * @method getInnerHTML
+         * @memberof smx.fn.Core
+         * @return {String}
+         */
+        getInnerHTML: function getInnerHTML() {
 
-                /**
-                 * get node's text contents
-                 * @method text
-                 * @memberof smx.fn.Core
-                 * @return {String}
-                 */
-                text: function text() {
-                        return this[0].text || this[0].textContent || '';
-                },
+            var childs = this[0].childNodes;
 
-                /**
-                 * get node's html content
-                 * @method getInnerHTML
-                 * @memberof smx.fn.Core
-                 * @return {String}
-                 */
-                getInnerHTML: function getInnerHTML() {
+            var str = '';
 
-                        var childs = this[0].childNodes;
+            if (childs.length) {
+                _.each(childs, function (item, index) {
+                    str += item.xml || new XMLSerializer().serializeToString(item);
+                });
+            }
 
-                        var str = '';
+            return str;
+        },
 
-                        if (childs.length) {
-                                _.each(childs, function (item, index) {
-                                        str += item.xml || new XMLSerializer().serializeToString(item);
-                                });
-                        }
+        /**
+         * get JSON representation of a node
+         * @method toJSON
+         * @memberof smx.fn.Core
+         * @return {Object}
+         */
+        toJSON: function toJSON() {
 
-                        return str;
-                },
+            var attrs = this[0].attributes;
 
-                /**
-                 * get JSON representation of a node
-                 * @method toJSON
-                 * @memberof smx.fn.Core
-                 * @return {Object}
-                 */
-                toJSON: function toJSON() {
+            var json = {};
 
-                        var attrs = this[0].attributes;
+            json.id = this.id;
 
-                        var json = {};
+            json.name = this.name;
 
-                        json.id = this.id;
+            json.url = this.get('url');
+            json.uri = this.get('uri');
 
-                        json.name = this.name;
+            //export meta
+            json.meta = {};
+            json.track = {};
+            for (var i = 0; i < attrs.length; i++) {
 
-                        json.url = this.get('url');
-                        json.uri = this.get('uri');
+                var attr_name = attrs[i].name + '';
+                var attr_value = attrs[i].name + '';
 
-                        //export meta
-                        json.meta = {};
-                        json.track = {};
-                        for (var i = 0; i < attrs.length; i++) {
-
-                                var attr_name = attrs[i].name + '';
-                                var attr_value = attrs[i].name + '';
-
-                                if (attr_name.indexOf("meta-") === 0) {
-                                        attr_name = attr_name.substr(5);
-                                        json.meta[attr_name] = attrs[i].value;
-                                } else if (attr_name.indexOf("track-") === 0) {
-                                        attr_name = attr_name.substr(6);
-                                        json.track[attr_name] = attrs[i].value;
-                                }
-                        }
-
-                        //export children
-
-                        var childs = this.children();
-
-                        if (childs.length > 0) {
-
-                                json.children = [];
-
-                                for (var c = 0; c < childs.length; c++) {
-
-                                        json.children.push(childs[c].toJSON());
-                                }
-                        }
-
-                        return json;
+                if (attr_name.indexOf("meta-") === 0) {
+                    attr_name = attr_name.substr(5);
+                    json.meta[attr_name] = attrs[i].value;
+                } else if (attr_name.indexOf("track-") === 0) {
+                    attr_name = attr_name.substr(6);
+                    json.track[attr_name] = attrs[i].value;
                 }
+            }
 
-        };
+            //export children
 
-        //extends smx fn methods
-        smx.fn = !smx.fn ? { Core: Core } : Object.assign(smx.fn, { Core: Core });
+            var childs = this.children();
+
+            if (childs.length > 0) {
+
+                json.children = [];
+
+                for (var c = 0; c < childs.length; c++) {
+
+                    json.children.push(childs[c].toJSON());
+                }
+            }
+
+            return json;
+        }
+
+    };
+
+    //extends smx fn methods
+    smx.fn = !smx.fn ? { Core: Core } : Object.assign(smx.fn, { Core: Core });
 })(window, window._, window.Sizzle, window.smx);
 //# sourceMappingURL=fn.Core.js.map
 ;'use strict';
 
-(function (global, _, Sizzle, smx) {
+(function (global, Sizzle, smx) {
+
+    /**
+     * Extends SMXNode with utility attribute getters
+     * @namespace AttributeGetters
+     * @memberof smx.fn
+     */
+
+    var AttributeGetters = {
 
         /**
-         * Extends SMXNode with utility attribute getters
-         * @namespace AttributeGetters
-         * @memberof smx.fn
+        * Gets the value for the given name attribute
+        * @method attr
+        * @memberof smx.fn.AttributeGetters
+        * @param {String} name - attribute name
+        * @return {String} value
+        * @example
+        *
+        * var users = [
+        *   { 'user': 'barney',  'active': false },
+        *   { 'user': 'fred',    'active': false },
+        *   { 'user': 'pebbles', 'active': true }
+        * ];
+        *
+        * _.findIndex(users, function(o) { return o.user == 'barney'; });
+        * // => 0
+        *
+        * // The `_.matches` iteratee shorthand.
+        * _.findIndex(users, { 'user': 'fred', 'active': false });
+        * // => 1
+        *
+        * // The `_.matchesProperty` iteratee shorthand.
+        * _.findIndex(users, ['active', false]);
+        * // => 0
+        *
+        * // The `_.property` iteratee shorthand.
+        * _.findIndex(users, 'active');
+        * // => 2
+        */
+        attr: function attr(name) {
+            return this[0].getAttribute(name);
+        },
+
+        /**
+        * Checks if node has or not an attribute with the given name
+        * @method has
+        * @memberof smx.fn.AttributeGetters
+        * @param {String} name - attribute name
+        * @return {Boolean}
+        */
+        has: function has(name) {
+            //return this[0].hasAttribute(name);
+            //IE8 does not support XMLNode.hasAttribute, so...
+            return this[0].getAttribute(name) !== null;
+        },
+
+        /**
+         * Gets Delimiter Separated Value
+         * An utility method converts given attribute value into dsv array
+         * @method dsv
+         * @memberof smx.fn.AttributeGetters
+         * @param name {String} the name of the attribute
+         * @param delimiter {String=} delimiter string
+         * @return {Array.<String>}
          */
+        dsv: function dsv(name, delimiter) {
 
-        var AttributeGetters = {
+            //ignore undefined attributes
+            if (!this.has(name)) return;
 
-                /**
-                * Gets the value for the given name attribute
-                * @method attr
-                * @memberof smx.fn.AttributeGetters
-                * @param {String} name - attribute name
-                * @return {String} value
-                * @example
-                *
-                * var users = [
-                *   { 'user': 'barney',  'active': false },
-                *   { 'user': 'fred',    'active': false },
-                *   { 'user': 'pebbles', 'active': true }
-                * ];
-                *
-                * _.findIndex(users, function(o) { return o.user == 'barney'; });
-                * // => 0
-                *
-                * // The `_.matches` iteratee shorthand.
-                * _.findIndex(users, { 'user': 'fred', 'active': false });
-                * // => 1
-                *
-                * // The `_.matchesProperty` iteratee shorthand.
-                * _.findIndex(users, ['active', false]);
-                * // => 0
-                *
-                * // The `_.property` iteratee shorthand.
-                * _.findIndex(users, 'active');
-                * // => 2
-                */
-                attr: function attr(name) {
-                        return this[0].getAttribute(name);
-                },
+            //get attr's value by name
+            var value = this.attr(name);
 
-                /**
-                * Checks if node has an attribute with the given name
-                * @method has
-                * @memberof smx.fn.AttributeGetters
-                * @param {String} name - attribute name
-                * @return {Boolean}
-                */
-                has: function has(name) {
-                        //return this[0].hasAttribute(name);
-                        //IE8 does not support XMLNode.hasAttribute, so...
-                        return this[0].getAttribute(name) !== null;
-                },
+            //resolve delimiter, defaults to space
+            var d = delimiter || ' ';
 
-                /**
-                 * Gets Delimiter Separated Value
-                 * An utility method converts given attribute value into dsv array
-                 * @method dsv
-                 * @memberof smx.fn.AttributeGetters
-                 * @param name {String} the name of the attribute
-                 * @param delimiter {String=} [delimiter=" "] string
-                 * @return {Array.<String>}
-                 */
-                dsv: function dsv(name, delimiter) {
+            //if attribute exists value must be String
+            if (typeof value != 'string') return [];
 
-                        //ignore undefined attributes
-                        if (!this.has(name)) return;
+            //split value by delimiter
+            var list = value.split(delimiter);
 
-                        //get attr's value by name
-                        var value = this.attr(name);
+            //trim spaces nicely handling multiple spaced values
+            list = list.map(function (str) {
 
-                        //resolve delimiter, defaults to space
-                        var d = delimiter || ' ';
+                //convert multiple spaces, tabs, newlines, etc, to single spaces 
+                str = str.replace(/^\s+/, '');
 
-                        //if attribute exists value must be String
-                        if (typeof value != 'string') return [];
+                //trim leading and trailing whitespaces
+                str = str.replace(/(^\s+|\s+$)/g, '');
 
-                        //split value by delimiter
-                        var list = value.split(delimiter);
+                return str;
+            });
 
-                        //trim spaces nicely handling multiple spaced values
-                        list = list.map(function (str) {
+            //remove empty like values
+            list = list.filter(function (str) {
+                return value !== '' && value !== ' ';
+            });
 
-                                //convert multiple spaces, tabs, newlines, etc, to single spaces 
-                                str = str.replace(/^\s+/, '');
+            return list;
+        }
 
-                                //trim leading and trailing whitespaces
-                                str = str.replace(/(^\s+|\s+$)/g, '');
+    };
 
-                                return str;
-                        });
-
-                        //remove empty like values
-                        list = list.filter(function (str) {
-                                return value !== '' && value !== ' ';
-                        });
-
-                        return list;
-                }
-
-        };
-
-        //extend smx fn methods
-        smx.fn = !smx.fn ? { AttributeGetters: AttributeGetters } : Object.assign(smx.fn, { AttributeGetters: AttributeGetters });
-})(window, window._, window.Sizzle, window.smx);
+    //extend smx fn methods
+    smx.fn = !smx.fn ? { AttributeGetters: AttributeGetters } : Object.assign(smx.fn, { AttributeGetters: AttributeGetters });
+})(window, window.Sizzle, window.smx);
 //# sourceMappingURL=fn.AttributeGetters.js.map
 ;'use strict';
 
@@ -9486,248 +9518,248 @@ Sizzle.selectors.filters.regex = function (elem, i, match) {
 
 (function (smx) {
 
-                /**
-                 *  TIME ATTR CONTROLLER
-                 *  Plugin Controller for attributes namespace with 'ui'
-                 *  @module TimeAttrController
-                 */
+    /**
+     *  TIME ATTR CONTROLLER
+     *  Plugin Controller for attributes namespace with 'ui'
+     *  @module TimeAttrController
+     */
 
-                var TimeAttrController = {
+    var TimeAttrController = {
 
-                                'getters': {
+        'getters': {
 
-                                                'timeline': function timeline(node) {
-                                                                return node.attr('timeline') === 'true';
-                                                },
+            'timeline': function timeline(node) {
+                return node.attr('timeline') === 'true';
+            },
 
-                                                'timed': function timed(node) {
+            'timed': function timed(node) {
 
-                                                                var is_in_timeline = false;
-                                                                var is_timeline = this.timeline(node);
+                var is_in_timeline = false;
+                var is_timeline = this.timeline(node);
 
-                                                                if (is_timeline) return false;else {
-                                                                                var parent = node.parent();
-                                                                                while (parent && !this.timeline(parent)) {
-                                                                                                parent = parent.parent();
-                                                                                }
+                if (is_timeline) return false;else {
+                    var parent = node.parent();
+                    while (parent && !this.timeline(parent)) {
+                        parent = parent.parent();
+                    }
 
-                                                                                if (!parent) return false;else if (this.timeline(parent)) return true;else return false;
-                                                                }
-                                                },
+                    if (!parent) return false;else if (this.timeline(parent)) return true;else return false;
+                }
+            },
 
-                                                'timing': function timing(node) {
-                                                                return node.attr('timing') === 'absolute' ? 'absolute' : 'relative';
-                                                },
+            'timing': function timing(node) {
+                return node.attr('timing') === 'absolute' ? 'absolute' : 'relative';
+            },
 
-                                                'duration': function duration(node, force_sync) {
+            'duration': function duration(node, force_sync) {
 
-                                                                //use local value if already exists...
-                                                                if (!force_sync && _.isNumber(node.duration)) return node.duration;
+                //use local value if already exists...
+                if (!force_sync && _.isNumber(node.duration)) return node.duration;
 
-                                                                //has duration attribute?
-                                                                var duration = parseInt(node.attr('duration'));
-                                                                if (_.isNaN(duration) || duration < 0) duration = NaN;
+                //has duration attribute?
+                var duration = parseInt(node.attr('duration'));
+                if (_.isNaN(duration) || duration < 0) duration = NaN;
 
-                                                                //sync start for
-                                                                var start = this.start(node);
+                //sync start for
+                var start = this.start(node);
 
-                                                                //try child summatory
-                                                                if (_.isNaN(duration)) {
-                                                                                var childs = node.children();
-                                                                                childs = childs.reverse();
-                                                                                if (childs.length > 0) {
-                                                                                                // childs will define duration using
-                                                                                                // the child with the highest offset+duration value
-                                                                                                var max = 0;
-                                                                                                for (var n = 0; n < childs.length; n++) {
-                                                                                                                var child = childs[n];
-                                                                                                                var sum = this.offset(child) + this.duration(child, force_sync);
-                                                                                                                if (sum > max) max = sum;
-                                                                                                }
-                                                                                                duration = max;
-                                                                                } else if (!node.next() && !node.previous()) {
-                                                                                                duration = 0;
-                                                                                }
-                                                                }
+                //try child summatory
+                if (_.isNaN(duration)) {
+                    var childs = node.children();
+                    childs = childs.reverse();
+                    if (childs.length > 0) {
+                        // childs will define duration using
+                        // the child with the highest offset+duration value
+                        var max = 0;
+                        for (var n = 0; n < childs.length; n++) {
+                            var child = childs[n];
+                            var sum = this.offset(child) + this.duration(child, force_sync);
+                            if (sum > max) max = sum;
+                        }
+                        duration = max;
+                    } else if (!node.next() && !node.previous()) {
+                        duration = 0;
+                    }
+                }
 
-                                                                //check next sibling dependencies
-                                                                if (_.isNaN(duration) && this.timed(node)) {
+                //check next sibling dependencies
+                if (_.isNaN(duration) && this.timed(node)) {
 
-                                                                                //get parent
-                                                                                var parent = node.parent();
+                    //get parent
+                    var parent = node.parent();
 
-                                                                                if (parent && _.isNumber(parent.duration)) {
+                    if (parent && _.isNumber(parent.duration)) {
 
-                                                                                                //get next sibling with absolute timing
-                                                                                                var next = node.next();
-                                                                                                var target = null;
-                                                                                                while (next && !target) {
-                                                                                                                if (this.timing(next) == 'absolute') target = next;else next = next.next();
-                                                                                                }
+                        //get next sibling with absolute timing
+                        var next = node.next();
+                        var target = null;
+                        while (next && !target) {
+                            if (this.timing(next) == 'absolute') target = next;else next = next.next();
+                        }
 
-                                                                                                if (target) {
-                                                                                                                if (_.isNumber(target.start) && _.isNumber(node.start)) {
-                                                                                                                                duration = parseInt(this.offset(next) - node.start);
-                                                                                                                                if (_.isNaN(duration) || duration < 0) duration = NaN;
-                                                                                                                }
-                                                                                                } else {
-                                                                                                                duration = parseInt(this.duration(parent) - node.start);
-                                                                                                                if (_.isNaN(duration) || duration < 0) duration = NaN;
-                                                                                                }
-                                                                                } else {
-                                                                                                duration = NaN;
-                                                                                }
-                                                                }
+                        if (target) {
+                            if (_.isNumber(target.start) && _.isNumber(node.start)) {
+                                duration = parseInt(this.offset(next) - node.start);
+                                if (_.isNaN(duration) || duration < 0) duration = NaN;
+                            }
+                        } else {
+                            duration = parseInt(this.duration(parent) - node.start);
+                            if (_.isNaN(duration) || duration < 0) duration = NaN;
+                        }
+                    } else {
+                        duration = NaN;
+                    }
+                }
 
-                                                                if (_.isNaN(duration) && !this.timed(node)) {
-                                                                                duration = 0;
-                                                                }
+                if (_.isNaN(duration) && !this.timed(node)) {
+                    duration = 0;
+                }
 
-                                                                //could not determine duration? set to 0
-                                                                if (_.isNaN(duration)) {
-                                                                                duration = 0;
-                                                                } else {
-                                                                                //create sync flag attribute
-                                                                                node[0].setAttribute('is-sync', 'true');
-                                                                }
+                //could not determine duration? set to 0
+                if (_.isNaN(duration)) {
+                    duration = 0;
+                } else {
+                    //create sync flag attribute
+                    node[0].setAttribute('is-sync', 'true');
+                }
 
-                                                                //set local value
-                                                                node.duration = duration;
+                //set local value
+                node.duration = duration;
 
-                                                                //return local value
-                                                                return node.duration;
-                                                },
+                //return local value
+                return node.duration;
+            },
 
-                                                'start': function start(node, force_sync) {
+            'start': function start(node, force_sync) {
 
-                                                                var start;
+                var start;
 
-                                                                //bool flag use or not local value if exists
-                                                                if (!force_sync) {
+                //bool flag use or not local value if exists
+                if (!force_sync) {
 
-                                                                                //has local value?
-                                                                                start = node.attr('start');
-                                                                                if (_.isNumber(start)) return start;
-                                                                }
+                    //has local value?
+                    start = node.attr('start');
+                    if (_.isNumber(start)) return start;
+                }
 
-                                                                //get it from attribute
-                                                                start = parseInt(node.attr('start'));
-                                                                if (_.isNaN(start) || start < 0) start = 0;
+                //get it from attribute
+                start = parseInt(node.attr('start'));
+                if (_.isNaN(start) || start < 0) start = 0;
 
-                                                                //set local value
-                                                                node.start = start;
+                //set local value
+                node.start = start;
 
-                                                                //return local value
-                                                                return start;
-                                                },
+                //return local value
+                return start;
+            },
 
-                                                'offset': function offset(node, from) {
+            'offset': function offset(node, from) {
 
-                                                                var offset = 0;
-                                                                var timing = this.timing(node);
+                var offset = 0;
+                var timing = this.timing(node);
 
-                                                                var start = this.start(node);
+                var start = this.start(node);
 
-                                                                if (timing == 'absolute') {
-                                                                                //absolute timing
-                                                                                //depends on parent node
+                if (timing == 'absolute') {
+                    //absolute timing
+                    //depends on parent node
 
-                                                                                offset = start;
-                                                                } else {
-                                                                                //relative timing
-                                                                                //depends on previous sibling node
+                    offset = start;
+                } else {
+                    //relative timing
+                    //depends on previous sibling node
 
-                                                                                var prev = node.previous();
+                    var prev = node.previous();
 
-                                                                                if (prev) offset = this.offset(prev) + this.duration(prev) + start;else offset = start;
-                                                                }
+                    if (prev) offset = this.offset(prev) + this.duration(prev) + start;else offset = start;
+                }
 
-                                                                if (!from) return offset;
+                if (!from) return offset;
 
-                                                                if (!from.isParentOf(node)) offset = -1;else {
+                if (!from.isParentOf(node)) offset = -1;else {
 
-                                                                                var parent = node.parent();
-                                                                                if (!parent) offset = -1;
-                                                                                /////????????????????????????
-                                                                                else if (parent != from) offset = this.offset(parent, from) + offset;
-                                                                }
+                    var parent = node.parent();
+                    if (!parent) offset = -1;
+                    /////????????????????????????
+                    else if (parent != from) offset = this.offset(parent, from) + offset;
+                }
 
-                                                                return offset;
-                                                },
+                return offset;
+            },
 
-                                                'end': function end(node) {
-                                                                return this.start(node) + this.duration(node);
-                                                }
+            'end': function end(node) {
+                return this.start(node) + this.duration(node);
+            }
 
-                                },
+        },
 
-                                'get': function get(node, key) {
+        'get': function get(node, key) {
 
-                                                if (_.isFunction(this.getters[key])) {
-                                                                return this.getters[key](node);
-                                                } else return;
-                                }
+            if (_.isFunction(this.getters[key])) {
+                return this.getters[key](node);
+            } else return;
+        }
 
-                };
+    };
 
-                //expose into global smx namespace
-                smx.TimeAttrController = TimeAttrController;
+    //expose into global smx namespace
+    smx.TimeAttrController = TimeAttrController;
 })(window.smx);
 //# sourceMappingURL=smx.TimeAttrController.js.map
 ;'use strict';
 
 (function (smx) {
 
-            /**
-             *  UI ATTR CONTROLLER
-             *  Plugin Controller for attributes namespaced with 'ui-'
-             *  @module UIAttrController
-             */
+    /**
+     *  UI ATTR CONTROLLER
+     *  Plugin Controller for attributes namespaced with 'ui-'
+     *  @module UIAttrController
+     */
 
-            var UIAttrController = {
+    var UIAttrController = {
 
-                        'MEDIA_TYPES': ['screen', 'print', 'tv'],
+        'MEDIA_TYPES': ['screen', 'print', 'tv'],
 
-                        'get': function get(node, key, media_type) {
+        'get': function get(node, key, media_type) {
 
-                                    //resolve 'media' value
-                                    media_type = this.normalizeMediaType(media_type);
+            //resolve 'media' value
+            media_type = this.normalizeMediaType(media_type);
 
-                                    //get 'ui-type-key' attr
-                                    var asset = node.attr('ui-' + media_type + '-' + key);
+            //get 'ui-type-key' attr
+            var asset = node.attr('ui-' + media_type + '-' + key);
 
-                                    //no typed key? use generic 'ui-key'
-                                    if (_.isEmpty(asset)) asset = node.attr('ui-' + key);
+            //no typed key? use generic 'ui-key'
+            if (_.isEmpty(asset)) asset = node.attr('ui-' + key);
 
-                                    //resolve asset url
-                                    if (!_.isEmpty(asset)) return this.resolveURL(node, asset);
+            //resolve asset url
+            if (!_.isEmpty(asset)) return this.resolveURL(node, asset);
 
-                                    return;
-                        },
+            return;
+        },
 
-                        'normalizeMediaType': function normalizeMediaType(type) {
+        'normalizeMediaType': function normalizeMediaType(type) {
 
-                                    if (_.isEmpty(type)) return this.MEDIA_TYPES[0];
+            if (_.isEmpty(type)) return this.MEDIA_TYPES[0];
 
-                                    if (_.includes(this.MEDIA_TYPES, type)) return type;else return this.MEDIA_TYPES[0];
-                        },
+            if (_.includes(this.MEDIA_TYPES, type)) return type;else return this.MEDIA_TYPES[0];
+        },
 
-                        'resolveURL': function resolveURL(node, asset) {
+        'resolveURL': function resolveURL(node, asset) {
 
-                                    //starts with '$/' means package root
-                                    if (asset.substr(0, 2) == '$/') asset = node.root().get('url') + asset.substr(2);
-                                    //starts with './' means app root
-                                    else if (asset.substr(0, 2) == './') asset = asset.substr(2);
-                                                //else is relative to node
-                                                else asset = node.get('url') + asset;
+            //starts with '$/' means package root
+            if (asset.substr(0, 2) == '$/') asset = node.root().get('url') + asset.substr(2);
+            //starts with './' means app root
+            else if (asset.substr(0, 2) == './') asset = asset.substr(2);
+                //else is relative to node
+                else asset = node.get('url') + asset;
 
-                                    return asset;
-                        }
+            return asset;
+        }
 
-            };
+    };
 
-            //expose into global smx namespace
-            smx.UIAttrController = UIAttrController;
+    //expose into global smx namespace
+    smx.UIAttrController = UIAttrController;
 })(window.smx);
 //# sourceMappingURL=smx.UIAttrController.js.map
 ;'use strict';

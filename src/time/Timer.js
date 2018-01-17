@@ -1,15 +1,8 @@
-/**
-* Timer Controller
-*
-* @class Timer
-* @constructor
-*/
-
 (function(win, _, Backbone, smx){
-
 
 /**
  * SMX Timer Class
+ * @memberof smx.time
  */
 class Timer{
 

@@ -1,1 +1,1 @@
-# SMX - Super Mutable XML
+# Super Mutable XML

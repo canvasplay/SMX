@@ -57,6 +57,7 @@ module.exports = function(grunt) {
                     //PLUGINS
 
                     //Tracking
+                    'dist/tracking/tracking.js',
                     'dist/tracking/TrackManager.js',
                     'dist/tracking/attributes/progress.js',
                     'dist/tracking/attributes/score.js',

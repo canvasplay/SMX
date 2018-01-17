@@ -21,12 +21,12 @@
     "templates": {
         "cleverLinks": true,
         "monospaceLinks": true,
-        "applicationName": "jsdocs-test"
+        "applicationName": "smx"
     },
     "opts": {
         "destination": "./docs/",
         "sort": false,
+        "mainpagetitle": "smx",
         "template": "docs_template"
-        //"template": "./node_modules/@pixi/jsdoc-template"
     }
 }

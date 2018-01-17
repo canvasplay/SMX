@@ -389,7 +389,7 @@ function linktoExternal(longName, name) {
  */
 function buildNav(members) {
     var globalNav;
-    var nav = '<h2><a href="index.html">Home</a></h2>';
+    var nav = '<h2><a href="index.html">smx</a></h2>';
     var seen = {};
     var seenTutorials = {};
 
@@ -651,7 +651,7 @@ exports.publish = function(taffyData, opts, tutorials) {
     files = find({kind: 'file'});
     packages = find({kind: 'package'});
 
-    generate('<small>Home</small>',
+    generate((opts.mainpagetitle) ? opts.mainpagetitle : 'Home',
         packages.concat(
             [{
                 kind: 'mainpage',

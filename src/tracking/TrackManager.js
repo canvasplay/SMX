@@ -6,8 +6,9 @@ var DEBUG = true; var LOG = function(str){ if (win.console&&win.console.log&&DEB
 
 
 /**
- * SMX Tracking class
- * @class Tracking
+ * SMX TrackManager class
+ * @class TrackManager
+ * @memberof smx.tracking
  * @param {Document} document
  */
 var TrackManager = function(doc){
@@ -1139,15 +1140,6 @@ TrackManager.prototype.imports = function(_data_){
 	this.update();
 
 };
-
-
-
-
-//create tracking module namespace
-smx.tracking = {};
-
-//create tracking attribute controllers namespace
-smx.tracking.attributes = {};
 
 
 //expose

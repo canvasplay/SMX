@@ -30,7 +30,8 @@ class Playhead{
 		/**
 		 * Contains all nodes in which playhead has entered
 		 * List ordered from outter to inner [root, ..., current_node]
-		 * @type {Array}
+		 * @type {Array.<Node>}
+		 * @protected
 		 */
 		this._selection = [];
 
@@ -65,6 +66,7 @@ class Playhead{
 	 * Property getter
 	 * @param {String} key - property key name
 	 * @return {Node} property value
+* @summary Composes a list of functions.
 	*/
 	get(key){
 	  

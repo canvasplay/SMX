@@ -1,9 +1,8 @@
-
 (function(smx){
-
 
 /**
  * SMX Timeline Class
+ * @memberof smx.time
  */
 class Timeline{
   

@@ -82,6 +82,18 @@
     <?js } ?>
 
     <?js
+        var namespaces = self.find({kind: 'namespace', memberof: doc.longname});
+        if (!isGlobalPage && namespaces && namespaces.length) {
+    ?>
+        <h3 class="subsection-title">Namespaces</h3>
+
+        <dl><?js namespaces.forEach(function(n) { ?>
+            <dt><?js= self.linkto(n.longname, n.name) ?></dt>
+            <dd><?js if (n.summary) { ?><?js= n.summary ?><?js } ?></dd>
+        <?js }); ?></dl>
+    <?js } ?>
+
+    <?js
         var classes = self.find({kind: 'class', memberof: doc.longname});
         if (!isGlobalPage && classes && classes.length) {
     ?>
@@ -117,17 +129,6 @@
         <?js }); ?></dl>
     <?js } ?>
 
-    <?js
-        var namespaces = self.find({kind: 'namespace', memberof: doc.longname});
-        if (!isGlobalPage && namespaces && namespaces.length) {
-    ?>
-        <h3 class="subsection-title">Namespaces</h3>
-
-        <dl><?js namespaces.forEach(function(n) { ?>
-            <dt><?js= self.linkto(n.longname, n.name) ?></dt>
-            <dd><?js if (n.summary) { ?><?js= n.summary ?><?js } ?></dd>
-        <?js }); ?></dl>
-    <?js } ?>
 
     <?js
         var members = self.find({kind: 'member', memberof: isGlobalPage ? {isUndefined: true} : doc.longname});

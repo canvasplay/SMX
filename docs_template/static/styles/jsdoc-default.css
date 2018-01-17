@@ -32,12 +32,15 @@ body {
 a,
 a:visited,
 a:active {
-    color: #0095dd;
+    color: #9C27B0;
     text-decoration: none;
+    padding: 0 0.25em
 }
 
 a:hover {
-    text-decoration: underline;
+    /*text-decoration: underline;*/
+    color: #FFF !important;
+    background: #9C27B0;
 }
 
 header {
@@ -63,10 +66,7 @@ samp {
     margin: 0;
 }
 
-#main {
-    float: left;
-    width: 70%;
-}
+#main {position: relative;padding-left: 22em;}
 
 article dl {
     margin-bottom: 40px;
@@ -90,12 +90,18 @@ article img {
 
 nav {
     display: block;
-    float: left;
-    margin-top: 28px;
-    width: 30%;
+    width: 20em;
     box-sizing: border-box;
-    border-left: 1px solid #ccc;
-    padding-left: 16px;
+    border-right: 1px solid #ccc;
+    padding: 1em 2em;
+    position: fixed;
+    background: white;
+    box-shadow: 0 0 1em rgba(0,0,0,0.15);
+    top: 0;
+    left: 0;
+    bottom: 0;
+    overflow: auto;
+    z-index: 1;
 }
 
 nav ul {
@@ -125,10 +131,11 @@ nav li {
 
 footer {
     display: block;
-    padding: 6px;
-    margin-top: 12px;
+    padding: 1em 1em .5em;
+    margin: 3em -1em 0;
     font-style: italic;
     font-size: 90%;
+    border-top: 1px solid #CCC;
 }
 
 h1,

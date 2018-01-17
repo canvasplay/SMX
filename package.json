@@ -15,7 +15,6 @@
     "docs": "del-cli docs/ && jsdoc -r -c jsdoc.json"
   },
   "devDependencies": {
-    "@pixi/jsdoc-template": "^2.3.0",
     "babel-preset-env": "^1.6.1",
     "del-cli": "^1.1.0",
     "grunt": "^1.0.1",
