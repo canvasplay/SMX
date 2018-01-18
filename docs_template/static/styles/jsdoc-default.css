@@ -40,9 +40,8 @@ a:hover {
     text-decoration: underline;
 }
 
-header {
-    display: block;
-    padding: 0px 4px;
+.hidden{
+  display: none;
 }
 
 tt,

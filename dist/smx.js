@@ -1898,7 +1898,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     *	Native Intger.toString only handles up base 36
     *
     *  base36 [0-9]+[a-z]
-     *  base62 [0-9]+[a-z]+[A-Z] but requires BigInt.js!
+       *  base62 [0-9]+[a-z]+[A-Z] but requires BigInt.js!
     *
     */
 
@@ -3448,6 +3448,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 									value: function _debug(msg) {
 												if (this.debug) debug.log(msg);
 									}
+
+									/**
+          * @event play
+          * @memberof smx.time.Timeline
+          * @return {TimelineEvent}
+          */
+
 						}]);
 
 						return Timeline;
@@ -3486,16 +3493,17 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			_.extend(this, Backbone.Events);
 
 			/**
-    *	The document to navigate
-   *	@type {Document}
-   */
-			this.document = doc;
+    * The document to navigate through
+    * @type {Document}
+    * @private
+    */
+			this._document = doc;
 
 			/**
     * Contains all nodes in which playhead has entered
     * List ordered from outter to inner [root, ..., current_node]
     * @type {Array.<Node>}
-    * @protected
+    * @private
     */
 			this._selection = [];
 
@@ -3507,72 +3515,68 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 			/**
     * List of nodes entered in last movement
-    * @protected
     * @type {Array.<Node>}
+    * @private
     */
 			this._entered = [];
 
 			/**
     * List of nodes exited in last movement
-    * @protected
     * @type {Array.<Node>}
+    * @private
     */
 			this._exited = [];
 		}
 
 		/**
-   * Property getter
-   * @param {String} key - property key name
-   * @return {Node} property value
-  * @summary Composes a list of functions.
-  */
+   * Gets the associated document
+   * @type {Document}
+   * @readonly
+   */
 
 
 		_createClass(Playhead, [{
 			key: 'get',
-			value: function get(key) {
 
-				var result = void 0;
+
+			/**
+    * Property getter
+    * @param {String} key - property key name
+    * @return {Node} property value
+    * @summary Composes a list of functions.
+    */
+			value: function get(key) {
 
 				switch (key) {
 					case 'selected':
-						result = this._selection;
+						return this._selection;
 						break;
 					case 'head':
-						result = this._selection[this._selection.length - 1];
+						return this._selection[this._selection.length - 1];
 						break;
 					case 'root':
-						result = this._selection[0];
+						return this._selection[0];
 						break;
 					case 'entered':
-						result = this._entered;
+						return this._entered;
 						break;
 					case 'exited':
-						result = this._exited;
+						return this._exited;
 						break;
 					default:
+						return;
 						break;
 
 				}
-
-				return result;
 			}
 
 			/**
-    * Gets currently selected nodes ordered from outter to inner
-    * @type {Node[]}
-    * @readonly
+    * Performs play action
+    * @param {String} id node identifier
     */
 
 		}, {
 			key: 'play',
-
-
-			/**
-    * performs play action
-    * @param {String|Node} target node
-   */
-
 			value: function play(id) {
 
 				var cnode = null;
@@ -3644,7 +3648,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				//check for accesibility
 				if (!tnode.isAccesible()) return;
 
-				//go to previous node using known swap type and passing recived params
+				//go to next node using known swap type and passing recived params
 				return this.go(tnode, { 'swap_type': 'next' });
 			}
 
@@ -3812,7 +3816,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					var keywords = ['play', 'pause', 'toggle', 'next', 'previous', 'inside', 'outside', 'root'];
 
 					//is known keyword?
-					if (_.includes(keywords, keyword)) {
+					if (keywords.indexOf(keyword)) {
 
 						//get go method by keyword
 						var method = this[keyword];
@@ -3898,7 +3902,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					}
 				}
 
-				//Do all necesary 'enter' and 'exit' calls for node navigation
+				//Do all required 'enter' and 'exit' calls for node navigation
 				switch (options.swap_type) {
 
 					case 'outside':
@@ -4153,6 +4157,88 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 
 			/**
+    * The playhead event object definition
+    * @typedef {Object} PlayheadEvent
+    * @memberof smx
+    * @property {Node} target
+    * @property {Node[]} path
+    * @property {Node[]} entered
+    * @property {Node[]} exited
+    * @property {Number} timeStamp
+    */
+
+			/**
+    * Fired when entering to any node
+    * @event enter
+    * @memberof smx.Playhead
+    * @return {PlayheadEvent}
+    */
+
+			/**
+    * Fired just after `enter` but for a specific node
+    * @event enter:id
+    * @memberof smx.Playhead
+    * @return {smx.PlayheadEvent}
+    */
+
+			/**
+    * Fired when exiting from any node
+    * @event exit
+    * @memberof smx.Playhead
+    * @return {PlayheadEvent}
+    */
+
+			/**
+    * Fired just after `exit` but for a specific node
+    * @event exit:id
+    * @memberof smx.Playhead
+    * @return {PlayheadEvent}
+    */
+
+			/**
+    * Fired every time a head change occurs and stays on any node
+    * @event stay
+    * @memberof smx.Playhead
+    * @return {PlayheadEvent}
+    */
+
+			/**
+    * Fired just after `stay` but for a specific node
+    * @event stay:id
+    * @memberof smx.Playhead
+    * @return {PlayheadEvent}
+    */
+
+			/**
+    * Fired every time a node stops being the head
+    * @event leave
+    * @memberof smx.Playhead
+    * @return {PlayheadEvent}
+    */
+
+			/**
+    * Fired just after `leave` but for a specific node
+    * @event leave:id
+    * @memberof smx.Playhead
+    * @return {PlayheadEvent}
+    */
+
+			/**
+    * Fired every time the playhead finishes all operations and goes idle
+    * @event ready
+    * @memberof smx.Playhead
+    * @return {PlayheadEvent}
+    */
+
+			/**
+    * Fired when playhed goes to sync mode
+    * @event sync
+    * @memberof smx.Playhead
+    * @return {PlayheadEvent}
+    * @property {boolean} isPacked - Indicates whether the snowball is tightly packed.
+    */
+
+			/**
     * @protected
     */
 
@@ -4203,7 +4289,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     */
 
 			/**
-    * @protected
+    * Binds listeners to timeline events to propagate them up as playhead events prefixed with `timeline:`
+    * @private
     */
 
 		}, {
@@ -4225,7 +4312,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 
 			/**
-    * @protected
+    * Unbinds all timeline event listeners
+    * @private
     */
 
 		}, {
@@ -4247,7 +4335,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 
 			/**
-    * @protected
+    * @event timeline:play
+    * @memberof smx.Playhead
+    * @borrows smx.time.Timeline:event:play as smx.Playhead:event:play
     */
 
 		}, {
@@ -4257,7 +4347,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 
 			/**
-    * @protected
+    * @event timeline:pause
+    * @memberof smx.Playhead
+    * @return {PlayheadEvent}
     */
 
 		}, {
@@ -4267,7 +4359,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 
 			/**
-    * @protected
+    * @event timeline:update
+    * @memberof smx.Playhead
+    * @return {PlayheadEvent}
     */
 
 		}, {
@@ -4277,7 +4371,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 
 			/**
-    * @protected
+    * @event timeline:seek
+    * @memberof smx.Playhead
+    * @return {PlayheadEvent}
     */
 
 		}, {
@@ -4287,7 +4383,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 
 			/**
-    * @protected
+    * @event timeline:finish
+    * @memberof smx.Playhead
+    * @return {PlayheadEvent}
     */
 
 		}, {
@@ -4297,7 +4395,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 
 			/**
-    * @protected
+    * @event timeline:reset
+    * @memberof smx.Playhead
+    * @return {PlayheadEvent}
     */
 
 		}, {
@@ -4307,7 +4407,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 
 			/**
-    * @protected
+    * @event timeline:enter
+    * @memberof smx.Playhead
+    * @return {PlayheadEvent}
     */
 
 		}, {
@@ -4317,7 +4419,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			}
 
 			/**
-    * @protected
+    * @event timeline:exit
+    * @memberof smx.Playhead
+    * @return {PlayheadEvent}
     */
 
 		}, {
@@ -4337,33 +4441,22 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				return false;
 			}
 		}, {
+			key: 'document',
+			get: function get() {
+				return this._document;
+			}
+
+			/**
+    * Contains all nodes in which playhead has entered
+    * List ordered from outter to inner [root, ..., current_node]
+    * @type {Array.<Node>}
+    * @readonly
+    */
+
+		}, {
 			key: 'path',
 			get: function get() {
 				return this._selection;
-			}
-
-			/**
-    * Gets the most outter selected node
-    * @type {Node}
-    * @readonly
-    */
-
-		}, {
-			key: 'root',
-			get: function get() {
-				return this._selection[0];
-			}
-
-			/**
-    * Gets the most inner selected node
-    * @type {Node}
-    * @readonly
-    */
-
-		}, {
-			key: 'head',
-			get: function get() {
-				return this._selection[this._selection.length - 1];
 			}
 		}]);
 
@@ -4390,6 +4483,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
    */
 
   var Finder = function () {
+
+    /**
+     * @param {Document} document - The document in which to search
+     */
     function Finder(doc) {
       _classCallCheck(this, Finder);
 
@@ -5066,24 +5163,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		return;
 	};
 
-	/**
-  * Global change event
-  * @event Tracking#change
-  * @type {object}
-  */
-
-	/**
-  * Track change event
-  * @event Tracking#change:id
-  * @type {object}
-  */
-
-	/**
-  * Track field change event
-  * @event Tracking#change:id:key
-  * @type {object}
-  */
-
 	TrackManager.prototype.onCollectionChange = function (track) {
 
 		if (track.changed) {
@@ -5523,6 +5602,27 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 		this.update();
 	};
+
+	/**
+  * Global change event
+  * @event change
+  * @memberof smx.tracking.TrackManager
+  * @type {object}
+  */
+
+	/**
+  * Track change event
+  * @event change:id
+  * @memberof smx.tracking.TrackManager
+  * @type {object}
+  */
+
+	/**
+  * Track field change event
+  * @event change:id:key
+  * @memberof smx.tracking.TrackManager
+  * @type {object}
+  */
 
 	//expose
 	smx.tracking.TrackManager = TrackManager;

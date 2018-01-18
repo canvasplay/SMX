@@ -63,7 +63,7 @@ class Playhead{
 	/**
 	 * Gets the associated document
 	 * @type {Document}
-	 * @protected
+	 * @readonly
 	 */
 	get document(){
 		return this._document;
@@ -74,10 +74,28 @@ class Playhead{
 	 * Contains all nodes in which playhead has entered
 	 * List ordered from outter to inner [root, ..., current_node]
 	 * @type {Array.<Node>}
-	 * @protected
+	 * @readonly
 	 */
-	get selection() {
+	get path() {
 		return this._selection;
+	}
+
+	/**
+	 * Gets the last node in the path which is the head
+	 * @type {Node}
+	 * @readonly
+	 */
+	get head(){
+		return this._selection[this._selection.length - 1];
+	}
+
+	/**
+	 * Gets the first node in the path which is the root
+	 * @type {Node}
+	 * @readonly
+	 */
+	get root(){
+		return this._selection[0];
 	}
 
 
@@ -256,7 +274,7 @@ class Playhead{
 	/**
 	 * navigates up root
 	 */
-	root(){
+	reset(){
 		
 		//get root node
 		var root_node = this.get('root');
@@ -633,7 +651,10 @@ class Playhead{
 
 
 	/**
-	 * @protected
+	 * Performs a head transition from current to target node
+	 * @private
+	 * @param {Node} current - current node
+	 * @param {Node} target - target node
 	 */
 	_goIterative(c_node,t_node){
 	
@@ -672,7 +693,10 @@ class Playhead{
 	}
 
 	/**
-	 * @protected
+	 * Performs a head transition from parent to child node
+	 * @private
+	 * @param {Node} parent - parent node
+	 * @param {Node} child - child node
 	 */
 	_enterStraight(parent_node,child_node){
 	
@@ -705,7 +729,9 @@ class Playhead{
 	}
 		
 	/**
-	 * @protected
+	 * Enters in given node
+	 * @private
+	 * @param {Node} node
 	 */
 	_enterNode(_node){
 
@@ -729,7 +755,9 @@ class Playhead{
 	}
 
 	/**
-	 * @protected
+	 * Exits from given node
+	 * @private
+	 * @param {Node} node
 	 */
 	_exitNode(_node){
 
@@ -778,7 +806,7 @@ class Playhead{
 	 * Fired just after `enter` but for a specific node
 	 * @event enter:id
 	 * @memberof smx.Playhead
-	 * @return {PlayheadEvent}
+	 * @return {smx.PlayheadEvent}
 	 */
 
 	/**

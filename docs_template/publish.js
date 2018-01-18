@@ -210,6 +210,15 @@ function addAttribs(f) {
     f.attribs = util.format('<span class="type-signature">%s</span>', attribsString);
 }
 
+function addAttribsClass(f) {
+  var str = '';
+  var attribs = helper.getAttribs(f);
+  for (var i = 0, len = attribs.length; i < len; i++){
+    str+=' --is-'+attribs[i];
+  }
+  f.attribsClass = str;
+}
+
 function shortenPaths(files, commonPrefix) {
     Object.keys(files).forEach(function(file) {
         files[file].shortened = files[file].resolved.replace(commonPrefix, '')
@@ -607,6 +616,7 @@ exports.publish = function(taffyData, opts, tutorials) {
                 addSignatureParams(doclet);
             addSignatureReturns(doclet);
             addAttribs(doclet);
+            addAttribsClass(doclet);
         }
     });
 
@@ -617,11 +627,13 @@ exports.publish = function(taffyData, opts, tutorials) {
         if (doclet.kind === 'member') {
             addSignatureTypes(doclet);
             addAttribs(doclet);
+            addAttribsClass(doclet);
         }
 
         if (doclet.kind === 'constant') {
             addSignatureTypes(doclet);
             addAttribs(doclet);
+            addAttribsClass(doclet);
             doclet.kind = 'member';
         }
     });
