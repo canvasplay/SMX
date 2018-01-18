@@ -589,27 +589,6 @@ TrackManager.prototype.propagate = function(id, key, recursive){
 	return;
 
 };
-
-
-
-/**
- * Global change event
- * @event Tracking#change
- * @type {object}
- */
-
-/**
- * Track change event
- * @event Tracking#change:id
- * @type {object}
- */
-
-/**
- * Track field change event
- * @event Tracking#change:id:key
- * @type {object}
- */
-
      
 TrackManager.prototype.onCollectionChange = function(track){
 
@@ -1142,6 +1121,30 @@ TrackManager.prototype.imports = function(_data_){
 };
 
 
+
+
+/**
+ * Global change event
+ * @event change
+ * @memberof smx.tracking.TrackManager
+ * @type {object}
+ */
+
+/**
+ * Track change event
+ * @event change:id
+ * @memberof smx.tracking.TrackManager
+ * @type {object}
+ */
+
+/**
+ * Track field change event
+ * @event change:id:key
+ * @memberof smx.tracking.TrackManager
+ * @type {object}
+ */
+
+ 
 //expose
 smx.tracking.TrackManager = TrackManager;
 

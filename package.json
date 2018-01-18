@@ -12,7 +12,7 @@
   "bin": "./node_modules/.bin/",
   "scripts": {
     "build": "grunt",
-    "docs": "del-cli docs/ && jsdoc -r -c jsdoc.json"
+    "docs": "del-cli docs/ && jsdoc -r -p -c jsdoc.json"
   },
   "devDependencies": {
     "babel-preset-env": "^1.6.1",

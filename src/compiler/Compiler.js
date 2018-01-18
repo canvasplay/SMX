@@ -15,7 +15,7 @@
 	 *	Native Intger.toString only handles up base 36
 	 *
 	 *  base36 [0-9]+[a-z]
-   *  base62 [0-9]+[a-z]+[A-Z] but requires BigInt.js!
+     *  base62 [0-9]+[a-z]+[A-Z] but requires BigInt.js!
 	 *
 	 */
 

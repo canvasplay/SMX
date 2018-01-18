@@ -7,11 +7,11 @@
 */
 class Playhead{
 
-  /**
-   * Create a playhead
-   * @param {Document} document - The document to navigate through
-   */
-  constructor(doc){
+	/**
+	 * Create a playhead
+	 * @param {Document} document - The document to navigate through
+	 */
+	constructor(doc){
     
 		//document argument is required!
 		if(!doc) return;
@@ -21,17 +21,18 @@ class Playhead{
 
 
 		/**
-		 *	The document to navigate
-		*	@type {Document}
-		*/
-		this.document = doc;
+		 * The document to navigate through
+		 * @type {Document}
+		 * @private
+		 */
+		this._document = doc;
 		
 
 		/**
 		 * Contains all nodes in which playhead has entered
 		 * List ordered from outter to inner [root, ..., current_node]
 		 * @type {Array.<Node>}
-		 * @protected
+		 * @private
 		 */
 		this._selection = [];
 
@@ -44,94 +45,78 @@ class Playhead{
 
 		/**
 		 * List of nodes entered in last movement
-		 * @protected
 		 * @type {Array.<Node>}
+		 * @private
 		 */
 		this._entered = [];
 
 		/**
 		 * List of nodes exited in last movement
-		 * @protected
 		 * @type {Array.<Node>}
+		 * @private
 		 */
 		this._exited = [];
 	
-	
-  }
+	}
 
 
+	/**
+	 * Gets the associated document
+	 * @type {Document}
+	 * @protected
+	 */
+	get document(){
+		return this._document;
+	}
+
+
+	/**
+	 * Contains all nodes in which playhead has entered
+	 * List ordered from outter to inner [root, ..., current_node]
+	 * @type {Array.<Node>}
+	 * @protected
+	 */
+	get selection() {
+		return this._selection;
+	}
 
 
 	/**
 	 * Property getter
 	 * @param {String} key - property key name
 	 * @return {Node} property value
-* @summary Composes a list of functions.
-	*/
-	get(key){
-	  
-	  let result;
-	  
-		switch(key){
+	 * @summary Composes a list of functions.
+	 */
+	get(key) {
+
+		switch (key) {
 			case 'selected':
-				result = this._selection;
-			break;
+				return this._selection;
+				break;
 			case 'head':
-				result = this._selection[this._selection.length-1];
-			break;
+				return this._selection[this._selection.length - 1];
+				break;
 			case 'root':
-				result = this._selection[0];
-			break;
+				return this._selection[0];
+				break;
 			case 'entered':
-				result = this._entered;
-			break;
+				return this._entered;
+				break;
 			case 'exited':
-				result = this._exited;
-			break;
+				return this._exited;
+				break;
 			default:
-			break;
+				return;
+				break;
 
 		}
-		
-		return result;
-		
+
 	}
 
-
-    /**
-     * Gets currently selected nodes ordered from outter to inner
-     * @type {Node[]}
-     * @readonly
-     */
-    get path() {
-        return this._selection;
-    }
-
-    /**
-     * Gets the most outter selected node
-     * @type {Node}
-     * @readonly
-     */
-    get root() {
-        return this._selection[0];
-    }
-
-
-    /**
-     * Gets the most inner selected node
-     * @type {Node}
-     * @readonly
-     */
-    get head() {
-        return this._selection[this._selection.length-1];
-    }
-
-
 	/**
-	 * performs play action
-	 * @param {String|Node} target node
-	*/
-
+	 * Performs play action
+	 * @param {String} id node identifier
+	 */
 	play(id){
 
 		var cnode = null;
@@ -197,7 +182,7 @@ class Playhead{
 		//check for accesibility
 		if(!tnode.isAccesible()) return;
 
-		//go to previous node using known swap type and passing recived params
+		//go to next node using known swap type and passing recived params
 		return this.go(tnode,{'swap_type':'next'});
 		
 	}
@@ -367,7 +352,7 @@ class Playhead{
 			];
 
 			//is known keyword?
-			if (_.includes(keywords,keyword)){
+			if(keywords.indexOf(keyword)){
 				
 				//get go method by keyword
 				var method = this[keyword];
@@ -486,7 +471,7 @@ class Playhead{
 		}
 		
 		
-		//Do all necesary 'enter' and 'exit' calls for node navigation
+		//Do all required 'enter' and 'exit' calls for node navigation
 		switch(options.swap_type){
 		
 			case 'outside':
@@ -770,6 +755,93 @@ class Playhead{
 
 
 	/**
+	 * The playhead event object definition
+	 * @typedef {Object} PlayheadEvent
+	 * @memberof smx
+	 * @property {Node} target
+	 * @property {Node[]} path
+	 * @property {Node[]} entered
+	 * @property {Node[]} exited
+	 * @property {Number} timeStamp
+	 */
+
+
+
+	/**
+	 * Fired when entering to any node
+	 * @event enter
+	 * @memberof smx.Playhead
+	 * @return {PlayheadEvent}
+	 */
+
+	/**
+	 * Fired just after `enter` but for a specific node
+	 * @event enter:id
+	 * @memberof smx.Playhead
+	 * @return {PlayheadEvent}
+	 */
+
+	/**
+	 * Fired when exiting from any node
+	 * @event exit
+	 * @memberof smx.Playhead
+	 * @return {PlayheadEvent}
+	 */
+
+	/**
+	 * Fired just after `exit` but for a specific node
+	 * @event exit:id
+	 * @memberof smx.Playhead
+	 * @return {PlayheadEvent}
+	 */
+
+	/**
+	 * Fired every time a head change occurs and stays on any node
+	 * @event stay
+	 * @memberof smx.Playhead
+	 * @return {PlayheadEvent}
+	 */
+
+	/**
+	 * Fired just after `stay` but for a specific node
+	 * @event stay:id
+	 * @memberof smx.Playhead
+	 * @return {PlayheadEvent}
+	 */
+
+	/**
+	 * Fired every time a node stops being the head
+	 * @event leave
+	 * @memberof smx.Playhead
+	 * @return {PlayheadEvent}
+	 */
+
+	/**
+	 * Fired just after `leave` but for a specific node
+	 * @event leave:id
+	 * @memberof smx.Playhead
+	 * @return {PlayheadEvent}
+	 */
+
+	/**
+	 * Fired every time the playhead finishes all operations and goes idle
+	 * @event ready
+	 * @memberof smx.Playhead
+	 * @return {PlayheadEvent}
+	 */
+
+	/**
+	 * Fired when playhed goes to sync mode
+	 * @event sync
+	 * @memberof smx.Playhead
+	 * @return {PlayheadEvent}
+	 * @property {boolean} isPacked - Indicates whether the snowball is tightly packed.
+	 */
+
+
+ 
+
+	/**
 	 * @protected
 	 */
 	_createTimeline(){
@@ -818,7 +890,8 @@ class Playhead{
 	 */
 
 	/**
-	 * @protected
+	 * Binds listeners to timeline events to propagate them up as playhead events prefixed with `timeline:`
+	 * @private
 	 */
 	_bindTimelineListeners(){
 	
@@ -837,7 +910,8 @@ class Playhead{
 	}
 
 	/**
-	 * @protected
+	 * Unbinds all timeline event listeners
+	 * @private
 	 */
 	_unbindTimelineListeners(){
 	
@@ -856,56 +930,72 @@ class Playhead{
 	}
 
 	/**
-	 * @protected
+	 * @event timeline:play
+	 * @memberof smx.Playhead
+	 * @borrows smx.time.Timeline:event:play as smx.Playhead:event:play
 	 */
 	_onTimelinePlay(event){
 		this.trigger('timeline:play', event); return;
 	}
 
 	/**
-	 * @protected
+	 * @event timeline:pause
+	 * @memberof smx.Playhead
+	 * @return {PlayheadEvent}
 	 */
 	_onTimelinePause(event){
 		this.trigger('timeline:pause', event); return;
 	}
 
 	/**
-	 * @protected
+	 * @event timeline:update
+	 * @memberof smx.Playhead
+	 * @return {PlayheadEvent}
 	 */
 	_onTimelineUpdate(event){
 		this.trigger('timeline:update', event);	return;
 	}
 
 	/**
-	 * @protected
+	 * @event timeline:seek
+	 * @memberof smx.Playhead
+	 * @return {PlayheadEvent}
 	 */
 	_onTimelineSeek(event){
 		this.trigger('timeline:seek', event); return;
 	}
 
 	/**
-	 * @protected
+	 * @event timeline:finish
+	 * @memberof smx.Playhead
+	 * @return {PlayheadEvent}
 	 */
 	_onTimelineFinish(event){
 		this.trigger('timeline:finish', event); return;
 	}
 
 	/**
-	 * @protected
+	 * @event timeline:reset
+	 * @memberof smx.Playhead
+	 * @return {PlayheadEvent}
 	 */
 	_onTimelineReset(event){
 		this.trigger('timeline:reset', event); return;
 	}
 
 	/**
-	 * @protected
+	 * @event timeline:enter
+	 * @memberof smx.Playhead
+	 * @return {PlayheadEvent}
 	 */
 	_onTimelineEnter(event){
 		this.trigger('timeline:enter', event); return;
 	}
 
 	/**
-	 * @protected
+	 * @event timeline:exit
+	 * @memberof smx.Playhead
+	 * @return {PlayheadEvent}
 	 */
 	_onTimelineExit(event){
 		this.trigger('timeline:exit', event); return;
@@ -920,7 +1010,6 @@ class Playhead{
   	return false;
   
   }
-
 
 }
 

@@ -12,7 +12,7 @@ class Timeline{
    * @param {Node} node node to be used as timeline base
    * @return {Timeline}
    */
-  constructor(node){
+	constructor(node){
 
 		if(!node) return;
 
@@ -91,7 +91,7 @@ class Timeline{
 		
 		this.initialize();
 
-  }
+	}
   
 	initialize(){
 
@@ -731,6 +731,13 @@ class Timeline{
 			if (this.debug) debug.log(msg);
 		}
 
+
+
+	/**
+	 * @event play
+	 * @memberof smx.time.Timeline
+	 * @return {TimelineEvent}
+	 */
 
 
 	}

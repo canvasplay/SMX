@@ -32,15 +32,12 @@ body {
 a,
 a:visited,
 a:active {
-    color: #9C27B0;
+    color: #03A9F4;
     text-decoration: none;
-    padding: 0 0.25em
 }
 
 a:hover {
-    /*text-decoration: underline;*/
-    color: #FFF !important;
-    background: #9C27B0;
+    text-decoration: underline;
 }
 
 header {
@@ -66,7 +63,16 @@ samp {
     margin: 0;
 }
 
-#main {position: relative;padding-left: 22em;}
+#main {
+    position: relative;
+    position: fixed;
+    top: 0;
+    left: 20em;
+    bottom: 0;
+    right: 0;
+    overflow: auto;
+    z-index: 0;
+}
 
 article dl {
     margin-bottom: 40px;
@@ -75,7 +81,6 @@ article dl {
 article img {
     max-width: 100%;
 }
-
 
 .variation {
     display: none;
@@ -96,7 +101,7 @@ nav {
     padding: 1em 2em;
     position: fixed;
     background: white;
-    box-shadow: 0 0 1em rgba(0,0,0,0.15);
+    box-shadow: 0 0 1em rgba(0, 0, 0, 0.15);
     top: 0;
     left: 0;
     bottom: 0;
@@ -153,15 +158,16 @@ h1 {
     margin: 12px 24px 20px;
 }
 
-h1.page-title{
+h1.page-title {
     line-height: 1.2;
-    margin: 3rem 2rem 1rem;
+    margin: 3rem 3rem 1rem;
 }
-h1.page-title small{
-  display: block;
-  font-size: 1.5rem;
-  text-transform: uppercase;
-  letter-spacing: initial;
+
+h1.page-title small {
+    display: block;
+    font-size: 1.5rem;
+    text-transform: uppercase;
+    letter-spacing: initial;
 }
 
 h2,
@@ -185,7 +191,7 @@ h4 {
     color: #4d4e53;
 }
 
-h5{
+h5 {
     font-size: 120%;
     font-weight: bold;
     letter-spacing: -0.01em;
@@ -410,29 +416,39 @@ pre.prettyprint {
     position: relative;
 }
 
+h3.subsection-title {
+    margin: 1em -999em;
+    padding: 0em 999em;
+}
+
+h3.subsection-title span,
+h4.name span {
+    display: inline-block;
+    vertical-align: middle;
+}
 
 .permalink {
     text-decoration: none;
-}
-
-.permalink i{
-    vertical-align: middle;
-}
-
-h4.name .permalink {
     display: inline-block;
     line-height: 1;
     vertical-align: middle;
-    visibility: hidden;
-    margin: 0 -.2em;
+    margin: 0 -.2rem 0 -1rem;
     position: relative;
 }
 
+.permalink i {
+    vertical-align: middle;
+}
+
+h3.subsection-title .permalink,
+h4.name .permalink {
+    visibility: hidden;
+}
+
+h3.subsection-title:hover .permalink,
 h4.name:hover .permalink {
     visibility: visible;
 }
-
-
 
 .details {
     font-size: .9em;

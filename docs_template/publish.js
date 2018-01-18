@@ -72,6 +72,9 @@ function needsSignature(doclet) {
         doclet.meta.code.type && doclet.meta.code.type.match(/[Ff]unction/)) {
         needsSig = true;
     }
+    else if(doclet.kind === 'event'){
+        needsSig = true;
+    }
 
     return needsSig;
 }
@@ -186,7 +189,7 @@ function addSignatureReturns(f) {
         returnTypes = addNonParamAttributes(source);
     }
     if (returnTypes.length) {
-        returnTypesString = util.format( ' &rarr; %s{%s}', attribsString, returnTypes.join('|') );
+        returnTypesString = util.format( '&nbsp;&rarr;&nbsp;%s{%s}', attribsString, returnTypes.join('|') );
     }
 
     f.signature = '<span class="signature">' + (f.signature || '') + '</span>' +
@@ -600,7 +603,8 @@ exports.publish = function(taffyData, opts, tutorials) {
         }
 
         if ( needsSignature(doclet) ) {
-            addSignatureParams(doclet);
+            if(doclet.kind !== 'event')
+                addSignatureParams(doclet);
             addSignatureReturns(doclet);
             addAttribs(doclet);
         }
