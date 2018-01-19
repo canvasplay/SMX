@@ -111,7 +111,7 @@ TrackManager.prototype.initializeDocument = function(_callback){
 
 
 	//set collection changes observer
-	this.collection.on('change', this.onCollectionChange, this);
+	this.collection.on('change', this._onCollectionChange, this);
 
 	//set playhead observers
 	this.playhead.on('enter', this.onNodeEnter, this);
@@ -589,8 +589,18 @@ TrackManager.prototype.propagate = function(id, key, recursive){
 	return;
 
 };
-     
-TrackManager.prototype.onCollectionChange = function(track){
+
+/**
+ * Generic handler for track collection changes
+ * @name _onCollectionChange
+ * @memberof smx.tracking.TrackManager
+ * @param {Track} track 
+ * @listens collection!change
+ * @fires change
+ * @fires change:id
+ * @fires change:id:key
+ */
+TrackManager.prototype._onCollectionChange = function(track){
 
 	
 	if(track.changed){
@@ -1124,24 +1134,24 @@ TrackManager.prototype.imports = function(_data_){
 
 
 /**
- * Global change event
+ * Fired when any track changes any of its fields
  * @event change
  * @memberof smx.tracking.TrackManager
- * @type {object}
+ * @return {object}
  */
 
 /**
- * Track change event
+ * Fired when the id track changes any of its fields
  * @event change:id
  * @memberof smx.tracking.TrackManager
- * @type {object}
+ * @return {object}
  */
 
 /**
- * Track field change event
+ * Fired when the id track changes the key field
  * @event change:id:key
  * @memberof smx.tracking.TrackManager
- * @type {object}
+ * @return {object}
  */
 
  

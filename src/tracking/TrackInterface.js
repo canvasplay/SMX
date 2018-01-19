@@ -122,7 +122,7 @@ let methods = {
 
   /**
   * Performs a Tracking.propagate for this node
-  * @method update
+  * @method propagate
   * @param {String=} key - tracking field key name
   * @param {String=} [recursive=false]
   */

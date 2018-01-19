@@ -806,7 +806,7 @@ class Playhead{
 	 * Fired just after `enter` but for a specific node
 	 * @event enter:id
 	 * @memberof smx.Playhead
-	 * @return {smx.PlayheadEvent}
+	 * @return {PlayheadEvent}
 	 */
 
 	/**
@@ -863,14 +863,22 @@ class Playhead{
 	 * @event sync
 	 * @memberof smx.Playhead
 	 * @return {PlayheadEvent}
-	 * @property {boolean} isPacked - Indicates whether the snowball is tightly packed.
 	 */
 
 
  
 
+
+
 	/**
-	 * @protected
+	 *	TIMELINE HANDLING
+	 *	These methods just propagate the timeline events as nested playhead events
+	 *	Useful for listening to timeline events even when timeline does not exists
+	 *	Also useful for having a centralized playhead activity
+	 */
+
+	/**
+	 * @private
 	 */
 	_createTimeline(){
 	
@@ -891,7 +899,7 @@ class Playhead{
 
 
 	/**
-	 * @protected
+	 * @private
 	 */
 	_destroyTimeline(){
 		
@@ -908,17 +916,11 @@ class Playhead{
 	}
 
 
-
-	
 	/**
-	 *	TIMELINE EVENT HANDLERS
-	 *	These methods just propagate the timeline events as nested playhead events
-	 *	Useful for listening to timeline events even when timeline does not exists
-	 *	Also useful for having a centralized playhead activity
-	 */
-
-	/**
-	 * Binds listeners to timeline events to propagate them up as playhead events prefixed with `timeline:`
+	 * Binds listeners to timeline events to propagate them up as playhead 
+	 * events prefixed with `timeline:`, useful for listening to timeline 
+	 * events even when timeline does not exists. Also useful for having a 
+	 * centralized playhead activity.
 	 * @private
 	 */
 	_bindTimelineListeners(){
@@ -960,7 +962,6 @@ class Playhead{
 	/**
 	 * @event timeline:play
 	 * @memberof smx.Playhead
-	 * @borrows smx.time.Timeline:event:play as smx.Playhead:event:play
 	 */
 	_onTimelinePlay(event){
 		this.trigger('timeline:play', event); return;

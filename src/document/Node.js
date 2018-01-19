@@ -3,6 +3,7 @@
 /**
  * SMX Node Class
  * @memberof smx
+ * @mixes smx.fn.Core
  */
 class Node {
 
@@ -13,13 +14,13 @@ class Node {
         /**
          * Original XMLNode for reference
          * @type {XMLNode}
-         * @protected
+         * @readonly
          */
         this[0] = xmlNode;
     }
 
     /**
-     * Direct access to XMLNode id
+     * Direct access to XMLNode.id
      * @type {String}
      * @readonly
      */
@@ -37,7 +38,8 @@ class Node {
     }
 
     /**
-     * node type with 'smx' as default, it can also be txt, md, html, ...
+     * Gets node name based on inner XMLNode.nodeName, 
+     * default is `smx`, posible values are `txt`, `md`, `html`, ...
      * @type {String}
      * @readonly
      */
@@ -46,7 +48,7 @@ class Node {
     }
 
     /**
-     * class attribute as array of
+     * Gets node className based on inner XMLNode class attribute
      * @type {String}
      * @readonly
      */
@@ -56,7 +58,7 @@ class Node {
 
 
     /**
-     * Browser url hash for this node
+     * Gets browser url hash
      * @type {String}
      * @readonly
      */
@@ -66,8 +68,8 @@ class Node {
 
 
     /**
-     * Uniform Resource Identifier,"url id"
-     * Calculate url hash path using cummulative ids up to root
+     * Gets Uniform Resource Identifier.
+     * Concatenation of id values from parent nodes up to root
      * @type {String}
      * @readonly
      */
@@ -80,55 +82,41 @@ class Node {
 
 
     /**
-     * Uniform Resource Locator (url path)
-     * Calculate url folder path using cummulative paths up to root
+     * Gets Uniform Resource Locator
+     * Concatenation of path values from parent nodes up to root
      * @type {String}
      * @readonly
      */
-
     get url() {
-
-
         //'one / two // three ///'.replace(/\/\/+/g, '/')
-
-
         let path = this.attr('path');
         let parent = this.parent();
-
         if (parent) {
             if (!path)
                 return parent.url;
             else {
-
                 //add trail slash
                 let trail = path.substr(-1);
                 if (trail != '/') path += '/';
-
                 return parent.url + path;
             }
-
         } else {
-
             if (!path) return;
-
             //add trail slash
             let trail = path.substr(-1);
             if (trail != '/') path += '/';
-
             return path;
-
         }
-
     }
 
+
     /**
-     * Gets the node's source file url
+     * Gets source file url for this node
      * @type {String}
      * @readonly
      */
-
-    get file() {
-
+    get src() {
+        
         var result = '';
         let file = this.attr('file');
         let parent = this.parent();
@@ -143,8 +131,6 @@ class Node {
         return result;
 
     }
-
-    /** @lends smx.fn.Core.text */
 
 }
 

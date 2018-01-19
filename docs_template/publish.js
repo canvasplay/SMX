@@ -210,13 +210,27 @@ function addAttribs(f) {
     f.attribs = util.format('<span class="type-signature">%s</span>', attribsString);
 }
 
-function addAttribsClass(f) {
-  var str = '';
-  var attribs = helper.getAttribs(f);
-  for (var i = 0, len = attribs.length; i < len; i++){
-    str+=' --is-'+attribs[i];
-  }
-  f.attribsClass = str;
+function addClassName(f) {
+    
+    var str = '';
+
+    //adds attribute based classes
+    var attribs = helper.getAttribs(f);
+    for (var i = 0, len = attribs.length; i < len; i++)
+        str+=' --is-'+attribs[i];
+
+    //inherited?
+    if (f.inherited) str+= ' --is-inherited';
+
+    //mixed?
+    if (f.mixed) str += ' --is-mixed';
+
+    
+    //add className property to doclet
+    f.className = str;
+
+    console.log(f);
+    console.log('-----------------------');
 }
 
 function shortenPaths(files, commonPrefix) {
@@ -499,6 +513,9 @@ exports.publish = function(taffyData, opts, tutorials) {
     helper.addEventListeners(data);
 
     data().each(function(doclet) {
+
+        addClassName(doclet);
+
         var sourcePath;
 
         doclet.attribs = '';
@@ -616,7 +633,7 @@ exports.publish = function(taffyData, opts, tutorials) {
                 addSignatureParams(doclet);
             addSignatureReturns(doclet);
             addAttribs(doclet);
-            addAttribsClass(doclet);
+            //addClassName(doclet);
         }
     });
 
@@ -627,13 +644,13 @@ exports.publish = function(taffyData, opts, tutorials) {
         if (doclet.kind === 'member') {
             addSignatureTypes(doclet);
             addAttribs(doclet);
-            addAttribsClass(doclet);
+            //addClassName(doclet);
         }
 
         if (doclet.kind === 'constant') {
             addSignatureTypes(doclet);
             addAttribs(doclet);
-            addAttribsClass(doclet);
+            //addClassName(doclet);
             doclet.kind = 'member';
         }
     });
