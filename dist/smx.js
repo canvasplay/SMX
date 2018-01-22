@@ -1800,60 +1800,64 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 (function (global) {
 
-            /**
-            *	Global namespace to hold all framework classes and modules.
-            *	@namespace smx
-            */
-            var smx = {};
+  /**
+   * Global namespace to hold all framework classes and modules.
+   * @namespace smx
+   */
+  var smx = {};
+
+  /**
+   * Gets current framework version
+   * @memberof smx
+   * @type {String}
+   */
+  smx.version = '0.8.14';
+
+  /**
+   * This namescape is a placeholder for custom attribute parsers.
+   * Attribute parsers are used during XML transpilation to process original
+   * nodes attributes in different ways.
+   * @namespace AttributeParsers
+   * @memberof smx
+   */
+  smx.AttributeParsers = {};
+
+  /**
+   * This namescape is a placeholder for custom node parsers.
+   * Tag parsers are used during XML transpilation to transform original nodes
+   * in different ways.
+   * @namespace NodeParsers
+   * @memberof smx
+   */
+  smx.NodeParsers = {};
+
+  //expose globals
+  global.smx = smx;
+})(window);
+//# sourceMappingURL=smx.js.map
+;'use strict';
+
+(function (global) {
 
             /**
-             * Gets current framework version
-             * @memberof smx
-             * @type {String}
+             * Global runtime namespace.
+             * @namespace $smx
              */
-            smx.version = '0.8.14';
-
-            /**
-             * This namescape is a placeholder for custom attribute parsers.
-             * Attribute parsers are used during XML transpilation to process original
-             * nodes attributes in different ways.
-             * @namespace AttributeParsers
-             * @memberof smx
-             */
-            smx.AttributeParsers = {};
-
-            /**
-             * This namescape is a placeholder for custom node parsers.
-             * Tag parsers are used during XML transpilation to transform original nodes
-             * in different ways.
-             * @namespace NodeParsers
-             * @memberof smx
-             */
-            smx.NodeParsers = {};
-
-            var $smx = global['$smx'] = function () {
+            var $smx = function $smx() {
                         return __node_wrapper.apply($smx, arguments);
             };
 
             /**
-             * Global runtime namespace.
-             * @name $smx
-             * @type {Object}
-             */
-
-            /**
              * Runtime nodes cache. Contains an id key map of all processed nodes for
              * easy acccess.
-             * @global
              * @memberof $smx
              * @type {Object}
-             * @name cache
              */
             $smx.cache = {};
 
             /**
              * Global node wrapper.
-             * @method $smx
+             * @param {String=} selector
              * @return {Node|Nodes[]}
              */
             var __node_wrapper = function __node_wrapper(elems) {
@@ -1903,11 +1907,10 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                         } else return;
             };
 
-            //expose globals
-            global.smx = smx;
+            //expose global
             global.$smx = $smx;
 })(window);
-//# sourceMappingURL=smx.js.map
+//# sourceMappingURL=$smx.js.map
 ;'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -2258,7 +2261,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 									var XML = this.XML;
 
 									//extract last child XMLnode in resultant XMLDocument and ignore the document...
-									//using lastChild prevents getting unwanted xml node...
+									//using lastChild prevents getting unwanted xml nodes...
 									//IE8 p.e. returns "ProcessingInstruction" for firstChild
 									XML = XML.removeChild(XML.lastChild);
 
