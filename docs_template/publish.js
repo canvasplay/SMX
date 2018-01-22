@@ -229,8 +229,8 @@ function addClassName(f) {
     //add className property to doclet
     f.className = str;
 
-    console.log(f);
-    console.log('-----------------------');
+    //console.log(f);
+    //console.log('-----------------------');
 }
 
 function shortenPaths(files, commonPrefix) {
@@ -678,7 +678,7 @@ exports.publish = function(taffyData, opts, tutorials) {
         generateSourceFiles(sourceFiles, opts.encoding);
     }
 
-    if (members.globals.length) { generate('<small>Global</small>', [{kind: 'globalobj'}], globalUrl); }
+    if (members.globals.length) { generate('Global', [{kind: 'globalobj'}], globalUrl); }
 
     // index page displays information from package.json and lists files
     files = find({kind: 'file'});

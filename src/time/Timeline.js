@@ -5,7 +5,9 @@
  * @memberof smx.time
  */
 class Timeline{
-  
+
+
+
   
   /**
    * creates a new Timeline
@@ -21,24 +23,17 @@ class Timeline{
 
 
 		/**
-		
-		Node from which the timeline is created
-		@property node {Node}
-
-		*/
+		 * Node from which the timeline is created
+		 * @type {Node}
+		 */
 
 		//define node ref
 		this.node = node;
 
 		/**
-		
-		Current time
-		@property time {Number}
-		@default 0
-
-		*/
-
-		//current time
+		 * Current time
+		 * @default 0
+		 */
 		this.time = 0;
 
 		//time cache
@@ -47,20 +42,13 @@ class Timeline{
 		//timeline duration
 		this.duration = 0;
 		
-
 		//limit max update events per second
 		this.fps = 2;
 
-		//TIMER ENGINES
-
 		/**
-		
-		Timer engine used for time tic tacking
-		@property timer {Object}
-
-		*/
-
-		//used for playing
+		 * Timer engine used for time tic tacking
+		 * @type {smx.time.Timer}
+     */
 		this.timer = null;
 
 		//used for scrolling
@@ -201,13 +189,20 @@ class Timeline{
 			}
 
 
-			this.optimizeKeyFrames();
+			this._optimizeKeyFrames();
 
 			return;
 				
 		}
 
-		addKeyFrame(t,id,action){
+		/**
+		 * Adds a new keyframe
+		 * @param {Integer} t - time position for the keyframe
+		 * @param {String} id - keyframe identifier
+		 * @param {String} action - action to be permformed
+		 * @private
+		 */
+		_addKeyFrame(t,id,action){
 
 			//if keyframe[t] does not exist create keyframe array
 			if (!this.keyFrames[t+'']) this.keyFrames[t+''] = [];
@@ -220,11 +215,16 @@ class Timeline{
 		}
 
 
-		//keyframes are stored in a plain object not in an array
-		//object properties are the keys time in seconds
-		//so properties may be unordered {5:x,2:y,12:z}
-		//the optimization consists in ordering keyframes object
-		optimizeKeyFrames(){
+    /**
+     * Optimizes existing keyframes map
+     * @private
+     * @summary
+		 * keyframes are stored in a plain object not in an array
+		 * object properties are the keys time in seconds
+		 * so properties may be unordered {5:x,2:y,12:z}
+		 * the optimization consists in ordering keyframes object
+		 */
+		_optimizeKeyFrames(){
 
 			//sort keyframes
 			var sorted_keyframes = {};
@@ -243,10 +243,10 @@ class Timeline{
 
 
 		/**
-	     * Method: Update timeline
-	     * @param {Number} (optional) update timeline at given time
-	     * @return {Boolean} success or not
-	     */
+	   * Updates timeline time
+	   * @param {Number=} time - update timeline at given time
+	   * @return {Boolean} success or not
+	   */
 		update(time){
 			
 			//check for "is_ready" flag
@@ -383,7 +383,10 @@ class Timeline{
 			
 		}
 
-
+    /**
+     * Checks if the given node or node identifier is currently active in the timeline
+     * @param {String|Node} node
+     */
 		isActive(node_or_id){
 
 			var node = node_or_id;
@@ -395,7 +398,10 @@ class Timeline{
 			if(this.activeNodes.indexOf(node)>=0) return true;
 
 		}
-
+		
+    /**
+     * @private
+     */
 	  _enterNode(node){
 
 			//check node
@@ -423,6 +429,9 @@ class Timeline{
 
 		}
 
+    /**
+     * @private
+     */
 		_exitNode(node){
 
 			//check node
@@ -455,9 +464,9 @@ class Timeline{
 
 
 		/**
-	     * Play timeline
-	     * @return {Boolean} success or not
-	     */
+     * Plays the timeline
+     * @fires play
+     */
 		play(silent){
 
 			//if is scrolling stop scroll
@@ -485,9 +494,18 @@ class Timeline{
 
 			return;
 		}
+		
+  	/**
+  	 * Fired every time the timeline performs the `play` action
+  	 * @event play
+  	 * @memberof smx.time.Timeline
+  	 * @return {TimelineEvent}
+  	 */
 
 
-
+    /**
+     * Replays the timeline, performs `seekTo' to 0 and `play`
+     */
 		replay(){
 
 			//if is scrolling stop scroll
@@ -504,9 +522,9 @@ class Timeline{
 
 
 		/**
-	     * Pause timeline
-	     * @return {Boolean} success or not
-	     */
+     * Pauses the timeline
+     * @fires pause
+     */
 		pause(silent){
 			
 			//if is scrolling stop scroll
@@ -532,10 +550,17 @@ class Timeline{
 
 		}
 		
+  	/**
+  	 * Fired every time the timeline performs the `pause` action
+  	 * @event pause
+  	 * @memberof smx.time.Timeline
+  	 * @return {TimelineEvent}
+  	 */
+		
 		/**
-	     * Toggle play/pause timeline
-	     * @return {Boolean} success or not
-	     */
+     * Toggles the timeline, will perform `play` or `pause` depending on
+     * current timeline status
+     */
 		toggle(){
 		
 			//if (!this.is_scrolling && !this.is_playing) this.play();
@@ -546,7 +571,10 @@ class Timeline{
 		
 		}
 		
-
+    /**
+     * Finishes the timeline
+     * @fires finish
+     */
 		finish(){
 		
 			//update 'is_playing' flag
@@ -568,8 +596,19 @@ class Timeline{
 			return;
 			
 		}
+		
+	  /**
+  	 * Fired every time the timeline performs the `finish` action
+  	 * @event finish
+  	 * @memberof smx.time.Timeline
+  	 * @return {TimelineEvent}
+  	 */
 
 
+    /**
+     * Resets the timeline to 0
+     * @fires reset
+     */
 		reset(){
 		
 			//update 'is_playing' flag
@@ -588,8 +627,19 @@ class Timeline{
 			
 		}
 		
+  	/**
+  	 * Fired every time the timeline performs the `reset` action
+  	 * @event reset
+  	 * @memberof smx.time.Timeline
+  	 * @return {TimelineEvent}
+  	 */
+		
 
-
+    /**
+     * Seeks current time to the new given time
+     * @param {Number} t - target time
+     * @fires seek
+     */
 		seekTo(t){
 
 			//check for "is_ready" flag
@@ -608,6 +658,13 @@ class Timeline{
 			return;
 		
 		}
+		
+  	/**
+  	 * Fired every time the timeline performs the `seekTo` action
+  	 * @event seek
+  	 * @memberof smx.time.Timeline
+  	 * @return {TimelineEvent}
+  	 */
 		
 		/*
 		this.scroll = function(factor){
@@ -712,7 +769,10 @@ class Timeline{
 
 
 
-
+    /**
+     * destroys the timeline
+     * @fires destroy
+     */
 		destroy(){
 
 			//destroy timer
@@ -726,18 +786,17 @@ class Timeline{
 
 		}
 
+  	/**
+  	 * Fired when the timeline is destroyed
+  	 * @event destroy
+  	 * @memberof smx.time.Timeline
+  	 * @return {TimelineEvent}
+  	 */
+
 
 		_debug(msg){
 			if (this.debug) debug.log(msg);
 		}
-
-
-
-	/**
-	 * @event play
-	 * @memberof smx.time.Timeline
-	 * @return {TimelineEvent}
-	 */
 
 
 	}

@@ -58,54 +58,51 @@ TrackManager.prototype.setReady = function(){
 
 TrackManager.prototype.initializeDocument = function(_callback){
 
-	//get the nodes that will have a track
-	//actually all document nodes could contain tracks
-	//ignore content in XML and HTML typed nodes
-
-	var nodes = this.document.find('*:not([type="xml"] *):not([type="html"] *)');
+	//Creates a track for all nodes in document with track attributes.
+	//Any node could have a track except non smx nodes, so ignore any node
+	//with `type` attribute defined different from smx
+    var selector = '*:not([type!="smx"] *):not([type] *)';
+    
+    //get all smx nodes
+	var nodes = this.document.find(selector);
 	
 	//add document node itself to list
 	nodes.unshift(this.document);
 
+    //exclude nodes without any track-* attribute
+    nodes = _.without(nodes, function(n){ return n.isTracking() });
+    
 	// create a track for each node
 	for (var n=0; n<nodes.length; n++){
 
 		var node = nodes[n];
 
-		var is_tracking = node.isTracking();
+		var attrs = node[0].attributes;
 
-		if (is_tracking){
+		//create empty object for tracking attributes
+		var track_attrs = {};
 
-			var attrs = node[0].attributes;
+		//add node id
+		track_attrs.id = node.id;
 
-			//create empty object for tracking attributes
-			var track_attrs = {};
-
-			//add node id
-			track_attrs.id = node.id;
-
-			//add all attributes which names start with 'track-'
-			for(var i = 0; i < attrs.length; i++) {
-				var attr_name = attrs[i].name;
-				var attr_value = attrs[i].value;
-				if(attr_name.indexOf("track-") == 0){
-					attr_name = attr_name.substr(6);
-					track_attrs[attr_name] = attr_value;
-				}
-					
+		//add all attributes which names start with 'track-'
+		for(var i = 0; i < attrs.length; i++) {
+			var attr_name = attrs[i].name;
+			var attr_value = attrs[i].value;
+			if(attr_name.indexOf("track-") === 0){
+				attr_name = attr_name.substr(6);
+				track_attrs[attr_name] = attr_value;
 			}
-
-			if (node.parent()) track_attrs.parent = node.parent().id;
-
-			//create a new Track with catched attributes
-			var track = new Backbone.Model(track_attrs);
-
-			//add just created to track to collection
-			this.collection.add(track);
-
-
+				
 		}
 
+		if (node.parent()) track_attrs.parent = node.parent().id;
+
+		//create a new Track with catched attributes
+		var track = new Backbone.Model(track_attrs);
+
+		//add just created to track to collection
+		this.collection.add(track);
 
 	}
 
@@ -593,6 +590,7 @@ TrackManager.prototype.propagate = function(id, key, recursive){
 /**
  * Generic handler for track collection changes
  * @name _onCollectionChange
+ * @private
  * @memberof smx.tracking.TrackManager
  * @param {Track} track 
  * @listens collection!change

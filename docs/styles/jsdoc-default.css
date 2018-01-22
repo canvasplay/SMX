@@ -51,6 +51,12 @@ samp {
     font-family: Consolas, Monaco, 'Andale Mono', monospace;
 }
 
+p code{
+    color: #E91E63;
+    background: #fdebf1;
+    padding: 0 .2em;
+}
+
 .class-description {
     font-size: 130%;
     line-height: 140%;

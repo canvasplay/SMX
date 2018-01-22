@@ -9,95 +9,96 @@
 let Core = {
 
     /**
-     * Gets index position in matching sibling nodes
-     * @method getIndex
+     * Gets the index position in parent's children. If node has no parent, 
+     * will return 0. When using the optional parameter `selector`, the 
+     * resultant index is calculated based only in the sibling nodes matching 
+     * the given selector, if node does not match the selector itself will 
+     * return -1.
+     * 
      * @memberof smx.fn.Core
-     * @param {String=} selector - css selector filter
+     * @param {String=} selector - filter selector
      * @return {Integer}
      */
     getIndex: function(selector){
-
+        
         //0 by default
         var index = 0;
-
+        
         //get parent node
-        var parent = this.parent();
-
+        let parent = this.parent();
+        
         //no parent? its kind of root so it has no sibling nodes
         if(!parent) return index;
-
+        
         //get sibling nodes
         var siblings = parent.children();
-
+        
         //filter siblings collection with a css selector if its defined
         if(selector) siblings = siblings.filter(function(s){
             return Sizzle.matchesSelector(s[0],selector)
         });
-
+        
         //get position in siblings collection
         index = siblings.indexOf(this);
-
+        
         return index;
-
+        
     },
 
-
-
     /**
-     * get node's text contents
-     * @method getText
+     * Gets the text content.
+     * 
      * @memberof smx.fn.Core
      * @return {String}
      */
     getText: function(){
+        
         return this[0].text || this[0].textContent || '';
+        
     },
     
     /**
-     * get node's html content
-     * @method getHTML
+     * Gets the html content.
+     * 
      * @memberof smx.fn.Core
      * @return {String}
      */
     getHTML: function(){
-
-        var childs = this[0].childNodes;
-
+        
+        //get raw children XMLNodes
+        let children = this[0].childNodes;
+        
+        //defaults to empty string
         var str = '';
-
-        if (childs.length){
-            _.each(childs,function(item,index){
-                str+= item.xml || (new XMLSerializer()).serializeToString(item);
-            });
-        }
-
+        
+        for(var i=0, len=children.length; i<len; i++)
+            str+= children[i].xml || (new XMLSerializer()).serializeToString(children[i]);
+            
         return str;
-
+        
     },
 
     /**
-     * get String representation of a node
-     * @method toString
+     * Gets the string representation.
+     * 
      * @memberof smx.fn.Core
      * @return {String}
      */
-    toString: function () {
-        return `
-            <${this.name} id="${this.id}">
-        `.trim();
+    toString: function (){
+        
+        return `<${this.name} id="${this.id}">`.trim();
+        
     },
 
     /**
-     * get JSON representation of a node
+     * Gets the JSON representation
      * @method toJSON
      * @memberof smx.fn.Core
      * @return {Object}
      */
     toJSON: function(){
-        return {}; //not implemented :(
+        return {}; //not implemented...
     }
-
-
 
 };
 

@@ -732,6 +732,7 @@ class Playhead{
 	 * Enters in given node
 	 * @private
 	 * @param {Node} node
+	 * @fires enter
 	 */
 	_enterNode(_node){
 
@@ -779,21 +780,6 @@ class Playhead{
 		return;
 
 	}
-
-
-
-	/**
-	 * The playhead event object definition
-	 * @typedef {Object} PlayheadEvent
-	 * @memberof smx
-	 * @property {Node} target
-	 * @property {Node[]} path
-	 * @property {Node[]} entered
-	 * @property {Node[]} exited
-	 * @property {Number} timeStamp
-	 */
-
-
 
 	/**
 	 * Fired when entering to any node
@@ -917,9 +903,9 @@ class Playhead{
 
 
 	/**
-	 * Binds listeners to timeline events to propagate them up as playhead 
-	 * events prefixed with `timeline:`, useful for listening to timeline 
-	 * events even when timeline does not exists. Also useful for having a 
+	 * Binds listeners to timeline events to propagate them up as playhead
+	 * events prefixed with `timeline:`, useful for listening to timeline
+	 * events even when timeline does not exists. Also useful for having a
 	 * centralized playhead activity.
 	 * @private
 	 */

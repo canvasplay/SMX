@@ -2,53 +2,61 @@
 
 /**
  * Extends SMXNode with utility attribute getters
- * @namespace AttributeGetters
+ * @mixin AttributeGetters
  * @memberof smx.fn
  */
 
 let AttributeGetters = {
 
     /**
-    * Gets the value for the given name attribute
-    * @method attr
-    * @memberof smx.fn.AttributeGetters
-    * @param {String} name - attribute name
-    * @return {String} value
-    * @example
-    *
-    * var users = [
-    *   { 'user': 'barney',  'active': false },
-    *   { 'user': 'fred',    'active': false },
-    *   { 'user': 'pebbles', 'active': true }
-    * ];
-    *
-    * _.findIndex(users, function(o) { return o.user == 'barney'; });
-    * // => 0
-    *
-    * // The `_.matches` iteratee shorthand.
-    * _.findIndex(users, { 'user': 'fred', 'active': false });
-    * // => 1
-    *
-    * // The `_.matchesProperty` iteratee shorthand.
-    * _.findIndex(users, ['active', false]);
-    * // => 0
-    *
-    * // The `_.property` iteratee shorthand.
-    * _.findIndex(users, 'active');
-    * // => 2
-    */
+     * Gets the value for the given attribute name.
+     * 
+     * @memberof smx.fn.AttributeGetters
+     * @param {String} name - attribute name
+     * @return {String} value
+     * @example
+     * <movie tags="sci-fi, horror, adventures" />
+     * @example
+     * $movie.attr('tags')
+     * // => "sci-fi, horror, adventures"
+     */
     attr:function(name){
+        
         return this[0].getAttribute(name);
+        
     },
 
     /**
-    * Checks if node has or not an attribute with the given name
-    * @method has
-    * @memberof smx.fn.AttributeGetters
-    * @param {String} name - attribute name
-    * @return {Boolean}
-    */
-    has:function(name){
+     * This method is like `attr` but will use an attribute parser if there is 
+     * one predefined for the given attribute name.
+     * 
+     * @memberof smx.fn.AttributeGetters
+     * @param {String} name - attribute name
+     * @param {Object=} opt - options to pass into attribute parser
+     * @return {String} value
+     */
+    get: function(name, opt){
+        
+        //get an existing attribute parser for the given name
+        var parser = smx.AttributeParsers[name];
+        
+        //no parser? return the raw attribute
+        if(!parser) return this.attr(name);
+        
+        //else use the parser with the given options
+        else return parser(name, opt);
+        
+    },
+
+
+    /**
+     * Checks if node has or not an attribute with the given name
+     * @method has
+     * @memberof smx.fn.AttributeGetters
+     * @param {String} name - attribute name
+     * @return {Boolean}
+     */
+    has: function(name){
         //return this[0].hasAttribute(name);
         //IE8 does not support XMLNode.hasAttribute, so...
         return (this[0].getAttribute(name) !== null);
@@ -63,6 +71,11 @@ let AttributeGetters = {
      * @param name {String} the name of the attribute
      * @param delimiter {String=} delimiter string
      * @return {Array.<String>}
+     * @example
+     * <movie tags="sci-fi, horror, adventures">
+     * @example
+     * $movie.dsv('tags',',')
+     * // => ["sci-fi", "horror", "adventures"]
      */
     dsv: function(name, delimiter){
 
@@ -84,7 +97,7 @@ let AttributeGetters = {
         //trim spaces nicely handling multiple spaced values
         list = list.map(function(str){
 
-            //convert multiple spaces, tabs, newlines, etc, to single spaces 
+            //convert multiple spaces, tabs, newlines, etc, to single spaces
             str = str.replace(/^\s+/, '');
 
             //trim leading and trailing whitespaces

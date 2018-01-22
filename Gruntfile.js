@@ -39,16 +39,18 @@ module.exports = function(grunt) {
                     'dist/document/Sizzle.js',
 
                     'dist/smx.js',
+                    'dist/$smx.js',
 
-                    'dist/compiler/Compiler.js',
                     'dist/compiler/Loader.js',
+                    'dist/compiler/Compiler.js',
 
                     'dist/time/time.js',
                     'dist/time/Timer.js',
                     'dist/time/Timeline.js',
-                    'dist/playhead/SMXPlayhead.js',
-
-
+                    'dist/time/TimelineEvent.js',
+                    
+                    'dist/playhead/Playhead.js',
+                    
 
                     'dist/finder/SMXFinder.js',
 
@@ -81,10 +83,12 @@ module.exports = function(grunt) {
                     'dist/plugins/taxonomy/TaxonomyInterface.js',
 
 
+                    //Core
                     'dist/document/fn.js',
-                    'dist/document/fn.Core.js',
-                    'dist/document/fn.AttributeGetters.js',
-                    'dist/document/fn.TreeNode.js',
+                    'dist/document/Node.Core.js',
+                    'dist/document/Node.AttributeGetters.js',
+                    'dist/document/Node.TreeNode.js',
+                    
                     'dist/document/smx.TimeAttrController.js',
                     'dist/document/smx.UIAttrController.js',
 
