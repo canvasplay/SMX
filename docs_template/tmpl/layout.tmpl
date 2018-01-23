@@ -18,6 +18,7 @@
   src="https://code.jquery.com/jquery-3.2.1.min.js"
   integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
   crossorigin="anonymous"></script>
+  <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, target-densitydpi=device-dpi" />
 </head>
 
 <body>
@@ -36,6 +37,13 @@
 
     <?js= content ?>
 </div>
+
+<div class="nav__overlay" onclick="$('body').removeClass('nav-visible');">
+</div>
+
+<a class="nav__toggle" href="javascript:$('body').toggleClass('nav-visible');">
+  <i class="material-icons">menu</i>
+</a>
 
 <script> prettyPrint(); </script>
 <script src="scripts/linenumber.js"> </script>
