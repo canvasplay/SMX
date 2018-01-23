@@ -41,6 +41,9 @@ module.exports = function(grunt) {
                     'dist/smx.js',
                     'dist/$smx.js',
 
+                    'dist/IdAttributeParser.js',
+                    'dist/TimeAttributeParser.js',
+                    
                     'dist/compiler/Loader.js',
                     'dist/compiler/Compiler.js',
 
@@ -114,7 +117,9 @@ module.exports = function(grunt) {
         },
 
         //clean all subfolders in dist/
-        clean: ['dist/*/']
+        clean: {
+          all: ['dist/**/*', '!dist/smx.js','!dist/smx.min.js','!dist/smx.js.map']
+        }
 
 
     });
