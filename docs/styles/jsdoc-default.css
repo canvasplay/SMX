@@ -40,8 +40,8 @@ a:hover {
     text-decoration: underline;
 }
 
-.hidden{
-  display: none;
+.hidden {
+    display: none;
 }
 
 tt,
@@ -51,7 +51,7 @@ samp {
     font-family: Consolas, Monaco, 'Andale Mono', monospace;
 }
 
-p code{
+p code {
     color: #E91E63;
     background: #fdebf1;
     padding: 0 .2em;
@@ -68,15 +68,100 @@ p code{
     margin: 0;
 }
 
+
+/* RESPONSIVE LAYOUT */
+
+nav {
+    display: block;
+    width: 20em;
+    box-sizing: border-box;
+    position: fixed;
+    top: 0;
+    left: -20em;
+    bottom: 0;
+    overflow: auto;
+    z-index: 1;
+    transform: translateX(0em);
+    -webkit-transition: transform .4s ease-out;
+    -moz-transition: transform .4s ease-out;
+    transition: transform .35s ease-out;
+}
+
 #main {
     position: relative;
     position: fixed;
     top: 0;
-    left: 20em;
+    left: 0;
     bottom: 0;
     right: 0;
     overflow: auto;
     z-index: 0;
+}
+
+.nav__overlay{
+    display: block;
+    position: fixed;
+    top: 0; left: 0; bottom: 0; right: 100%;
+    background: rgba(0,0,0,.35);
+    opacity: 0;
+    -webkit-transition: opacity .35s ease-out;
+    -moz-transition: opacity .35s ease-out;
+    transition: opacity .35s ease-out;
+}
+
+
+.nav__toggle{
+    display: block;
+    position: absolute;
+    bottom: 2em;
+    right: 2.5em;
+    z-index: 3;
+    background: #fff;
+    border-radius: 50%;
+    box-shadow: 0 0 1em rgba(0, 0, 0, 0.15);
+    border: 1px solid #ccc;
+    width: 3em;
+    height: 3em;
+    line-height: 3em;
+    text-align: center;
+}
+
+    .nav__toggle > i{
+        display: inline-block;
+        vertical-align: middle;
+    }
+
+
+    .nav-visible .nav__overlay {
+        right: 0;
+        opacity: 1;
+    }
+
+    .nav-visible nav {
+        transform: translateX(20em);
+    }
+
+@media (min-width: 768px) {
+
+    nav {
+        left: 0em;
+    }
+    .nav-visible nav {
+        transform: translateX(0em);
+    }
+
+    #main {
+        left: 20em;
+    }
+
+    .nav__toggle {
+        display: none;
+    }
+    .nav-visible .nav__overlay {
+        right: 100%;
+        opacity: 0;
+    }
+
 }
 
 article dl {
@@ -99,25 +184,14 @@ article img {
 }
 
 nav {
-    display: block;
-    width: 20em;
-    box-sizing: border-box;
     border-right: 1px solid #ccc;
     padding: 1em 2em;
-    position: fixed;
     background: white;
     box-shadow: 0 0 1em rgba(0, 0, 0, 0.15);
-    top: 0;
-    left: 0;
-    bottom: 0;
-    overflow: auto;
-    z-index: 1;
 }
 
 nav ul {
-    font-family: 'Lucida Grande', 'Lucida Sans Unicode', arial, sans-serif;
-    font-size: 100%;
-    line-height: 17px;
+    line-height: 1;
     padding: 0;
     margin: 0;
     list-style-type: none;
