@@ -38,7 +38,7 @@ class Node {
     }
 
     /**
-     * Gets node name based on inner XMLNode.nodeName, 
+     * Gets node name based on inner XMLNode.nodeName,
      * default is `smx`, posible values are `txt`, `md`, `html`, ...
      * @type {String}
      * @readonly
@@ -135,6 +135,7 @@ class Node {
 }
 
 
+//Object.defineProperty(Node.prototype, 'duration', { get: function() { return this.time('duration'); } });
 
 //extend Node prototype
 

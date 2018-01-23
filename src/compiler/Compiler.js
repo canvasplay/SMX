@@ -6,25 +6,6 @@
 	const LOG = function(o){if(DEBUG)log(o)};
 
 
-	/**
-	 *	util method
-	 *	GET_UNIQUE_ID
-	 *	returns unique base36 ids strings [0-9]+[a-z]
-	 *
-	 *	based on _.uniqueId(), incremental starting at 0
-	 *	Native Intger.toString only handles up base 36
-	 *
-	 *  base36 [0-9]+[a-z]
-     *  base62 [0-9]+[a-z]+[A-Z] but requires BigInt.js!
-	 *
-	 */
-
-	const GET_UNIQUE_ID = function(){ return parseInt(_.uniqueId()).toString(36) };
-	//const GET_UNIQUE_ID = ()=>{ return bigInt2str(str2bigInt(_.uniqueId()+"",10,0,0),62) };
-
-
-
-
   function copyAttributes(srcNode, targetNode){
     
     var ignore_attributes = ['src','path','file'];
@@ -313,25 +294,16 @@
 			//also extract file and path attributes
 			$(XML).attr('path', $(this.XML).attr('path'));
 			$(XML).attr('file', $(this.XML).attr('file'));
-
-			try{
-
-				//XML = this.cleanUp(XML);
-				XML = this.normalizeIdAttributes(XML);
-				XML = this.normalizeTimeAttributes(XML);
-				//XML = this.compressXML(XML);
-
-			}
-			catch(e){
-				LOG('ERROR! factorizeXML failed!')
-			}
-
-			/*
-			try{ this.compressXML() }
-			catch(e){
-				LOG('ERROR! compressXML failed!')
-			}
-			*/
+			
+			
+      //ATTRIBUTE PARSING
+      
+      //get defined parsers from smx ns
+      var parsers = smx.AttributeParsers;
+      
+      //do parsing one by one
+      for(var i=0, len=parsers.length; i<len; i++ )
+        XML = parsers[i].parse(XML);
 
 
 
@@ -345,127 +317,6 @@
 
 		};
 		
-
-
-
-
-
-		this.normalizeIdAttributes = function(xml){
-
-
-			//ids control
-			//ensure all nodes have a valid and unique id attribute
-
-			//get all nodes missing [id] attribute, but...
-			//excluding contents of any node defining [type]
-			//excluding <metadata> nodes and its contents
-			//excluding <prototype> nodes and its contents
-			var $req_id_nodes = $(xml).find(':not([id]):not(metadata):not(metadata *):not(prototype):not(prototype *):not([type] *)').get();
-			var $having_id_nodes = $(xml).find('[id]:not(metadata):not(metadata *):not(prototype):not(prototype *):not([type] *)').get();
-			
-			//include root xml node itself in the list
-			if(!$(xml).attr('id'))
-			  $req_id_nodes.unshift(xml);
-			else
-			  $having_id_nodes.unshift(xml);
-			
-
-			var in_use_ids = [];
-
-			//get already in use id values
-			for(var i=0; i< $having_id_nodes.length;i++){
-
-				var node = $having_id_nodes[i];
-
-				in_use_ids.push($(node).attr('id'));
-
-			}
-
-
-			//assign unique id to requiring ones
-			for(var i=0; i< $req_id_nodes.length;i++){
-
-				var node = $req_id_nodes[i];
-
-				in_use_ids.push($(node).attr('id'));
-
-				var new_id = GET_UNIQUE_ID();
-
-				while(_.includes(in_use_ids,new_id)){
- 					new_id = GET_UNIQUE_ID();
-				}
-
-				$(node).attr('id',new_id);
-
-			}
-
-			LOG('RESOLVE IDs ('+ $req_id_nodes.length +' nodes)')
-
-
-			return xml;
-
-		};
-
-
-		this.normalizeTimeAttributes = function(XML){
-
-			//normalize all attributes refering time values
-			var parseTime = function(value, default_value){
-
-				if ( !value || !_.isString(value) || value == 'auto' || value<0 )
-					return default_value;
-
-				var important = false;
-				if(value.indexOf('!')==0){
-					important = true;
-					value = value.substr(1);
-				}
-
-				if (value.indexOf(':')>=0){
-
-					var sum = 0;
-					var factor = 1;
-					var values=(value).split(':');
-					values.reverse();
-					for (var i = 0; i<values.length; i++){
-						sum += parseFloat(values[i])*factor;
-						factor = factor*60;
-					}
-
-					if (important) 	return '!'+sum;
-					else 			return sum;
-				}
-
-				if (important) 	return '!'+parseFloat(value);
-				else 			return parseFloat(value);
-
-			};
-
-			//get timed nodes
-			var timed_nodes = $(XML).find('[duration],[start],[offset]');
-
-
-			for(var i=0; i< timed_nodes.length;i++){
-
-				var $node = $(timed_nodes[i]);
-
-				var duration = $node.attr('duration');
-				var start = $node.attr('start');
-				var offset = $node.attr('offset');
-
-				if (duration) $node.attr('duration',parseTime(duration,'auto'));
-				if (start) $node.attr('start',parseTime(start,'auto'));
-				if (offset) $node.attr('offset',parseTime(offset,0));
-
-			}
-
-			LOG('RESOLVE TIMEs ('+ timed_nodes.length +' nodes)')
-
-			return XML;
-
-		};
-
-
 
 		this.compressXML = function(XML){
 

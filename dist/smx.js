@@ -1820,7 +1820,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
    * @namespace AttributeParsers
    * @memberof smx
    */
-  smx.AttributeParsers = {};
+  smx.AttributeParsers = [];
 
   /**
    * This namescape is a placeholder for custom node parsers.
@@ -1829,7 +1829,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
    * @namespace NodeParsers
    * @memberof smx
    */
-  smx.NodeParsers = {};
+  smx.NodeParsers = [];
 
   //expose globals
   global.smx = smx;
@@ -1839,78 +1839,291 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 (function (global) {
 
-            /**
-             * Global runtime namespace.
-             * @namespace $smx
-             */
-            var $smx = function $smx() {
-                        return __node_wrapper.apply($smx, arguments);
-            };
+          /**
+           * Global runtime object
+           * @namespace $smx
+           */
+          var $smx = function $smx() {
+                    return __node_wrapper.apply($smx, arguments);
+          };
 
-            /**
-             * Runtime nodes cache. Contains an id key map of all processed nodes for
-             * easy acccess.
-             * @memberof $smx
-             * @type {Object}
-             */
-            $smx.cache = {};
+          /**
+           * Contains an id key map of all processed nodes for easy acccess.
+           * @memberof $smx
+           * @type {Object}
+           */
+          $smx.cache = {};
 
-            /**
-             * Global node wrapper.
-             * @param {String=} selector
-             * @return {Node|Nodes[]}
-             */
-            var __node_wrapper = function __node_wrapper(elems) {
+          /**
+           * Runtime Document instance
+           * @memberof $smx
+           * @type {smx.Document}
+           */
+          $smx.document = null;
 
-                        var create_node = function create_node(xmlNode) {
+          /**
+           * Global node wrapper.
+           * @param {String=} selector
+           * @return {Node|Nodes[]}
+           */
+          var __node_wrapper = function __node_wrapper(elems) {
 
-                                    var id = null;
+                    var create_node = function create_node(xmlNode) {
 
-                                    //if(!xmlNode) return;
-                                    //if (xmlNode.nodeName == 'undefined') return;
-                                    //if (typeof xmlNode.nodeType == 'undefined') return;
-                                    //if (xmlNode.nodeType != 1) return;
+                              var id = null;
 
-                                    //can this try replace the 4 conditionals above? yes...
-                                    try {
-                                                id = xmlNode.getAttribute('id');
-                                    } catch (e) {}
+                              //if(!xmlNode) return;
+                              //if (xmlNode.nodeName == 'undefined') return;
+                              //if (typeof xmlNode.nodeType == 'undefined') return;
+                              //if (xmlNode.nodeType != 1) return;
 
-                                    //id attr is required!
-                                    if (!id) return;
+                              //can this try replace the 4 conditionals above? yes...
+                              try {
+                                        id = xmlNode.getAttribute('id');
+                              } catch (e) {}
 
-                                    //Does already exists a node with this id?
-                                    //prevent duplicated nodes and return existing one
-                                    if ($smx.cache[id]) return $smx.cache[id];
+                              //id attr is required!
+                              if (!id) return;
 
-                                    //create new Node from given XMLNode
-                                    var node = new smx.Node(xmlNode);
+                              //Does already exists a node with this id?
+                              //prevent duplicated nodes and return existing one
+                              if ($smx.cache[id]) return $smx.cache[id];
 
-                                    //add it to nodes cache
-                                    $smx.cache[id] = node;
+                              //create new Node from given XMLNode
+                              var node = new smx.Node(xmlNode);
 
-                                    //return just created node
-                                    return node;
-                        };
+                              //add it to nodes cache
+                              $smx.cache[id] = node;
 
-                        if (elems && (_.isArray(elems) || !_.isUndefined(elems.length)) && _.isUndefined(elems.nodeType)) {
-                                    var result = [];
-                                    for (var i = 0; i < elems.length; i++) {
-                                                if (elems[i]) {
-                                                            var node = elems[i][0] ? elems[i] : create_node(elems[i]);
-                                                            if (node) result.push(node);
-                                                }
-                                    }
-                                    return result;
-                        } else if (elems) {
-                                    if (elems[0]) return elems;else return create_node(elems);
-                        } else return;
-            };
+                              //return just created node
+                              return node;
+                    };
 
-            //expose global
-            global.$smx = $smx;
+                    if (elems && (_.isArray(elems) || !_.isUndefined(elems.length)) && _.isUndefined(elems.nodeType)) {
+                              var result = [];
+                              for (var i = 0; i < elems.length; i++) {
+                                        if (elems[i]) {
+                                                  var node = elems[i][0] ? elems[i] : create_node(elems[i]);
+                                                  if (node) result.push(node);
+                                        }
+                              }
+                              return result;
+                    } else if (elems) {
+                              if (elems[0]) return elems;else return create_node(elems);
+                    } else return;
+          };
+
+          //expose global
+          global.$smx = $smx;
 })(window);
 //# sourceMappingURL=$smx.js.map
+;'use strict';
+
+(function (global, smx, Sizzle, LOG) {
+
+  /**
+   *	util method
+   *	GET_UNIQUE_ID
+   *	returns unique base36 ids strings [0-9]+[a-z]
+   *
+   *	based on _.uniqueId(), incremental starting at 0
+   *	Native Intger.toString only handles up base 36
+   *
+   *  base36 [0-9]+[a-z]
+   *  base62 [0-9]+[a-z]+[A-Z] but requires BigInt.js!
+   *
+   */
+
+  var GET_UNIQUE_ID = function GET_UNIQUE_ID() {
+    return parseInt(_.uniqueId()).toString(36);
+  };
+  //const GET_UNIQUE_ID = ()=>{ return bigInt2str(str2bigInt(_.uniqueId()+"",10,0,0),62) };
+
+
+  var IdAttributeParser = {
+
+    /**
+     * Parser name
+     * @type {String}
+     * @protected
+     */
+    name: 'Id',
+
+    /**
+     * Selector used to find nodes having matching attributes to be parsed
+     * @type {String}
+     * @protected
+     */
+    selector: ':not([id])',
+
+    /**
+     * Parser function
+     * @static
+     * @param {XMLNode} xml
+     * @return {XMLNode}
+     */
+    parse: function parse(xml) {
+
+      //get ids already in use inside xml
+      var nodes_with_id_attr = Sizzle('[id]');
+      var ids_in_use = nodes_with_id_attr.map(function (n) {
+        return n.id;
+      });
+
+      //get nodes matching the parser selector
+      var nodes = Sizzle(this.selector, xml);
+
+      //includes xml root itself to the list
+      if (Sizzle.matchesSelector(xml, this.selector)) nodes.unshift(xml);else ids_in_use.push(xml.getAttribute('id'));
+
+      //iterate over all matching nodes
+      for (var i = 0, len = nodes.length; i < len; i++) {
+
+        //get node
+        var node = nodes[i];
+
+        //generate an unique id for the node
+        var id = GET_UNIQUE_ID();
+        while (ids_in_use.indexOf(id) > 0) {
+          id = GET_UNIQUE_ID();
+        } //add new id to list
+        ids_in_use.push(id);
+
+        //set node id
+        node.setAttribute('id', id);
+      }
+
+      LOG('ATTRIBUTE PARSER: ID (' + nodes.length + ' nodes)');
+
+      return xml;
+    }
+
+  };
+
+  //expose to smx namespace
+  smx.AttributeParsers.push(IdAttributeParser);
+})(window, window.smx, window.Sizzle, window.log);
+//# sourceMappingURL=IdAttributeParser.js.map
+;'use strict';
+
+(function (global, smx, Sizzle, LOG) {
+
+  /**
+   * @mixin TimeAttributeParser
+   */
+
+  var TimeAttributeParser = {
+
+    /**
+     * Parser name
+     *
+     * @memberof TimeAttributeParser
+     * @type {String}
+     * @protected
+     */
+    name: 'Time',
+
+    /**
+     * Selector used to find nodes having matching attributes to be parsed
+     *
+     * @memberof TimeAttributeParser
+     * @type {String}
+     * @protected
+     */
+    selector: '[duration],[start],[offset]',
+
+    /**
+     * Parser function
+     *
+     * @memberof TimeAttributeParser
+     * @static
+     * @param {XMLNode} xml
+     * @return {XMLNode}
+     */
+    parse: function parse(xml) {
+
+      //internal counter
+      var attributeCounter = 0;
+
+      //get nodes matching the parser selector
+      var nodes = Sizzle(this.selector, xml);
+
+      //includes xml root itself to the list
+      if (Sizzle.matchesSelector(xml, this.selector)) nodes.unshift(xml);
+
+      //iterate over all matching nodes
+      for (var i = 0, len = nodes.length; i < len; i++) {
+
+        //get node
+        var node = nodes[i];
+
+        //duration attr
+        var duration = node.getAttribute('duration');
+        if (duration) {
+          node.setAttribute('duration', this.parseAttributeValue(duration, 'auto'));
+          attributeCounter++;
+        }
+
+        //start attr
+        var start = node.getAttribute('start');
+        if (start) {
+          node.setAttribute('start', this.parseAttributeValue(start, 'auto'));
+          attributeCounter++;
+        }
+
+        //offset attr
+        var offset = node.getAttribute('offset');
+        if (offset) {
+          node.setAttribute('offset', this.parseAttributeValue(offset, 0));
+          attributeCounter++;
+        }
+      }
+
+      LOG('ATTRIBUTE PARSER: TIME (' + attributeCounter + ' attributes in ' + nodes.length + ' nodes)');
+
+      return xml;
+    },
+
+    /**
+     * Parses a time attribute value
+     *
+     * @memberof TimeAttributeParser
+     * @static
+     * @param {String} value
+     * @param {String} default value
+     * @return {String}
+     */
+    parseAttributeValue: function parseAttributeValue(value, _default) {
+
+      if (!value || typeof value !== 'string' || value === 'auto' || value < 0) return _default;
+
+      var important = false;
+      if (value.indexOf('!') === 0) {
+        important = true;
+        value = value.substr(1);
+      }
+
+      if (value.indexOf(':') >= 0) {
+
+        var sum = 0,
+            factor = 1,
+            values = value.split(':');
+        values.reverse();
+        for (var i = 0; i < values.length; i++) {
+          sum += parseFloat(values[i]) * factor;
+          factor = factor * 60;
+        }
+
+        if (important) return '!' + sum;else return sum;
+      }
+
+      if (important) return '!' + parseFloat(value);else return parseFloat(value);
+    }
+
+    //expose to smx namespace
+  };smx.AttributeParsers.push(TimeAttributeParser);
+})(window, window.smx, window.Sizzle, window.log);
+//# sourceMappingURL=TimeAttributeParser.js.map
 ;'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -1992,25 +2205,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 			var LOG = function LOG(o) {
 						if (DEBUG) log(o);
 			};
-
-			/**
-    *	util method
-    *	GET_UNIQUE_ID
-    *	returns unique base36 ids strings [0-9]+[a-z]
-    *
-    *	based on _.uniqueId(), incremental starting at 0
-    *	Native Intger.toString only handles up base 36
-    *
-    *  base36 [0-9]+[a-z]
-       *  base62 [0-9]+[a-z]+[A-Z] but requires BigInt.js!
-    *
-    */
-
-			var GET_UNIQUE_ID = function GET_UNIQUE_ID() {
-						return parseInt(_.uniqueId()).toString(36);
-			};
-			//const GET_UNIQUE_ID = ()=>{ return bigInt2str(str2bigInt(_.uniqueId()+"",10,0,0),62) };
-
 
 			function copyAttributes(srcNode, targetNode) {
 
@@ -2269,126 +2463,20 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 									$(XML).attr('path', $(this.XML).attr('path'));
 									$(XML).attr('file', $(this.XML).attr('file'));
 
-									try {
+									//ATTRIBUTE PARSING
 
-												//XML = this.cleanUp(XML);
-												XML = this.normalizeIdAttributes(XML);
-												XML = this.normalizeTimeAttributes(XML);
-												//XML = this.compressXML(XML);
-									} catch (e) {
-												LOG('ERROR! factorizeXML failed!');
-									}
+									//get defined parsers from smx ns
+									var parsers = smx.AttributeParsers;
 
-									/*
-         try{ this.compressXML() }
-         catch(e){
-         	LOG('ERROR! compressXML failed!')
-         }
-         */
-
-									this.XML = XML;
+									//do parsing one by one
+									for (var i = 0, len = parsers.length; i < len; i++) {
+												XML = parsers[i].parse(XML);
+									}this.XML = XML;
 									this.TEXT = this.XML2str(this.XML);
 
 									this.trigger('complete', XML);
 
 									return;
-						};
-
-						this.normalizeIdAttributes = function (xml) {
-
-									//ids control
-									//ensure all nodes have a valid and unique id attribute
-
-									//get all nodes missing [id] attribute, but...
-									//excluding contents of any node defining [type]
-									//excluding <metadata> nodes and its contents
-									//excluding <prototype> nodes and its contents
-									var $req_id_nodes = $(xml).find(':not([id]):not(metadata):not(metadata *):not(prototype):not(prototype *):not([type] *)').get();
-									var $having_id_nodes = $(xml).find('[id]:not(metadata):not(metadata *):not(prototype):not(prototype *):not([type] *)').get();
-
-									//include root xml node itself in the list
-									if (!$(xml).attr('id')) $req_id_nodes.unshift(xml);else $having_id_nodes.unshift(xml);
-
-									var in_use_ids = [];
-
-									//get already in use id values
-									for (var i = 0; i < $having_id_nodes.length; i++) {
-
-												var node = $having_id_nodes[i];
-
-												in_use_ids.push($(node).attr('id'));
-									}
-
-									//assign unique id to requiring ones
-									for (var i = 0; i < $req_id_nodes.length; i++) {
-
-												var node = $req_id_nodes[i];
-
-												in_use_ids.push($(node).attr('id'));
-
-												var new_id = GET_UNIQUE_ID();
-
-												while (_.includes(in_use_ids, new_id)) {
-															new_id = GET_UNIQUE_ID();
-												}
-
-												$(node).attr('id', new_id);
-									}
-
-									LOG('RESOLVE IDs (' + $req_id_nodes.length + ' nodes)');
-
-									return xml;
-						};
-
-						this.normalizeTimeAttributes = function (XML) {
-
-									//normalize all attributes refering time values
-									var parseTime = function parseTime(value, default_value) {
-
-												if (!value || !_.isString(value) || value == 'auto' || value < 0) return default_value;
-
-												var important = false;
-												if (value.indexOf('!') == 0) {
-															important = true;
-															value = value.substr(1);
-												}
-
-												if (value.indexOf(':') >= 0) {
-
-															var sum = 0;
-															var factor = 1;
-															var values = value.split(':');
-															values.reverse();
-															for (var i = 0; i < values.length; i++) {
-																		sum += parseFloat(values[i]) * factor;
-																		factor = factor * 60;
-															}
-
-															if (important) return '!' + sum;else return sum;
-												}
-
-												if (important) return '!' + parseFloat(value);else return parseFloat(value);
-									};
-
-									//get timed nodes
-									var timed_nodes = $(XML).find('[duration],[start],[offset]');
-
-									for (var i = 0; i < timed_nodes.length; i++) {
-
-												var $node = $(timed_nodes[i]);
-
-												var duration = $node.attr('duration');
-												var start = $node.attr('start');
-												var offset = $node.attr('offset');
-
-												if (duration) $node.attr('duration', parseTime(duration, 'auto'));
-												if (start) $node.attr('start', parseTime(start, 'auto'));
-												if (offset) $node.attr('offset', parseTime(offset, 0));
-									}
-
-									LOG('RESOLVE TIMEs (' + timed_nodes.length + ' nodes)');
-
-									return XML;
 						};
 
 						this.compressXML = function (XML) {
@@ -3677,7 +3765,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     * @type {Array.<Node>}
     * @private
     */
-			this._selection = [];
+			this._path = [];
 
 			/**
     * Currently active timeline
@@ -3721,13 +3809,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 				switch (key) {
 					case 'selected':
-						return this._selection;
+						return this._path;
 						break;
 					case 'head':
-						return this._selection[this._selection.length - 1];
+						return this._path[this._path.length - 1];
 						break;
 					case 'root':
-						return this._selection[0];
+						return this._path[0];
 						break;
 					case 'entered':
 						return this._entered;
@@ -4293,11 +4381,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			value: function _enterNode(_node) {
 
 				//prevent re-enter in a node
-				var selectedIds = _.map(this._selection, 'id');
+				var selectedIds = _.map(this._path, 'id');
 				if (_.includes(selectedIds, _node.id)) return;
 
 				//update selection array
-				this._selection.push(_node);
+				this._path.push(_node);
 
 				//update last move registry
 				this._entered.push(_node);
@@ -4325,7 +4413,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				if (this.timeline) this._destroyTimeline();
 
 				//update blocks array
-				this._selection.pop();
+				this._path.pop();
 
 				//update last move registry
 				this._exited.push(_node);
@@ -4629,7 +4717,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}, {
 			key: 'path',
 			get: function get() {
-				return this._selection;
+				return this._path;
 			}
 
 			/**
@@ -4641,7 +4729,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}, {
 			key: 'head',
 			get: function get() {
-				return this._selection[this._selection.length - 1];
+				return this._path[this._path.length - 1];
 			}
 
 			/**
@@ -4653,7 +4741,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}, {
 			key: 'root',
 			get: function get() {
-				return this._selection[0];
+				return this._path[0];
 			}
 		}]);
 
@@ -8971,7 +9059,6 @@ Sizzle.selectors.filters.regex = function (elem, i, match) {
 
                 //get data from node attributes
                 var attrs = node.attributes;
-                var data = {};
 
                 var names = _.map(attrs, 'name');
                 var values = _.map(attrs, 'value');
@@ -9359,7 +9446,7 @@ Sizzle.selectors.filters.regex = function (elem, i, match) {
 
         /**
          * Gets the value for the given attribute name.
-         * 
+         *
          * @memberof smx.fn.AttributeGetters
          * @param {String} name - attribute name
          * @return {String} value
@@ -9375,9 +9462,9 @@ Sizzle.selectors.filters.regex = function (elem, i, match) {
         },
 
         /**
-         * This method is like `attr` but will use an attribute parser if there is 
+         * This method is like `attr` but will use an attribute parser if there is
          * one predefined for the given attribute name.
-         * 
+         *
          * @memberof smx.fn.AttributeGetters
          * @param {String} name - attribute name
          * @param {Object=} opt - options to pass into attribute parser
@@ -10116,7 +10203,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             }
 
             /**
-             * Gets node name based on inner XMLNode.nodeName, 
+             * Gets node name based on inner XMLNode.nodeName,
              * default is `smx`, posible values are `txt`, `md`, `html`, ...
              * @type {String}
              * @readonly
@@ -10220,6 +10307,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
         return Node;
     }();
+
+    //Object.defineProperty(Node.prototype, 'duration', { get: function() { return this.time('duration'); } });
 
     //extend Node prototype
 

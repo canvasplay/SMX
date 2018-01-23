@@ -34,7 +34,7 @@ class Playhead{
 		 * @type {Array.<Node>}
 		 * @private
 		 */
-		this._selection = [];
+		this._path = [];
 
 
 		/**
@@ -77,7 +77,7 @@ class Playhead{
 	 * @readonly
 	 */
 	get path() {
-		return this._selection;
+		return this._path;
 	}
 
 	/**
@@ -86,7 +86,7 @@ class Playhead{
 	 * @readonly
 	 */
 	get head(){
-		return this._selection[this._selection.length - 1];
+		return this._path[this._path.length - 1];
 	}
 
 	/**
@@ -95,7 +95,7 @@ class Playhead{
 	 * @readonly
 	 */
 	get root(){
-		return this._selection[0];
+		return this._path[0];
 	}
 
 
@@ -109,13 +109,13 @@ class Playhead{
 
 		switch (key) {
 			case 'selected':
-				return this._selection;
+				return this._path;
 				break;
 			case 'head':
-				return this._selection[this._selection.length - 1];
+				return this._path[this._path.length - 1];
 				break;
 			case 'root':
-				return this._selection[0];
+				return this._path[0];
 				break;
 			case 'entered':
 				return this._entered;
@@ -737,11 +737,11 @@ class Playhead{
 	_enterNode(_node){
 
 		//prevent re-enter in a node
-		var selectedIds = _.map(this._selection,'id');
+		var selectedIds = _.map(this._path,'id');
 		if(_.includes(selectedIds,_node.id)) return;
 
 		//update selection array
-		this._selection.push(_node);
+		this._path.push(_node);
 
 		//update last move registry
 		this._entered.push(_node);
@@ -766,7 +766,7 @@ class Playhead{
 		if(this.timeline) this._destroyTimeline();
 
 		//update blocks array
-		this._selection.pop();
+		this._path.pop();
 
 		//update last move registry
 		this._exited.push(_node);

@@ -256,7 +256,6 @@
 
         //get data from node attributes
         var attrs = node.attributes;
-        var data = {};
 
         var names = _.map(attrs,'name');
         var values = _.map(attrs,'value');

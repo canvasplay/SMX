@@ -10,7 +10,7 @@ let AttributeGetters = {
 
     /**
      * Gets the value for the given attribute name.
-     * 
+     *
      * @memberof smx.fn.AttributeGetters
      * @param {String} name - attribute name
      * @return {String} value
@@ -27,9 +27,9 @@ let AttributeGetters = {
     },
 
     /**
-     * This method is like `attr` but will use an attribute parser if there is 
+     * This method is like `attr` but will use an attribute parser if there is
      * one predefined for the given attribute name.
-     * 
+     *
      * @memberof smx.fn.AttributeGetters
      * @param {String} name - attribute name
      * @param {Object=} opt - options to pass into attribute parser

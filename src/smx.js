@@ -22,7 +22,7 @@
    * @namespace AttributeParsers
    * @memberof smx
    */
-  smx.AttributeParsers = {};
+  smx.AttributeParsers = [];
 
 
   /**
@@ -32,7 +32,7 @@
    * @namespace NodeParsers
    * @memberof smx
    */
-  smx.NodeParsers = {};
+  smx.NodeParsers = [];
   
   
   
