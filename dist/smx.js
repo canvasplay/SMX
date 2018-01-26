@@ -1839,82 +1839,92 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 (function (global) {
 
-          /**
-           * Global runtime object
-           * @namespace $smx
-           */
-          var $smx = function $smx() {
-                    return __node_wrapper.apply($smx, arguments);
-          };
+  /**
+   * Global runtime object
+   * @namespace $smx
+   */
+  var $smx = function $smx() {
+    return __node_wrapper.apply($smx, arguments);
+  };
 
-          /**
-           * Contains an id key map of all processed nodes for easy acccess.
-           * @memberof $smx
-           * @type {Object}
-           */
-          $smx.cache = {};
+  /**
+   * Contains an id key map of all processed nodes for easy acccess.
+   * @memberof $smx
+   * @type {Object}
+   */
+  $smx.cache = {};
 
-          /**
-           * Runtime Document instance
-           * @memberof $smx
-           * @type {smx.Document}
-           */
-          $smx.document = null;
+  /**
+   * Runtime Document instance
+   * @memberof $smx
+   * @type {smx.Document}
+   */
+  $smx.document = null;
 
-          /**
-           * Global node wrapper.
-           * @param {String=} selector
-           * @return {Node|Nodes[]}
-           */
-          var __node_wrapper = function __node_wrapper(elems) {
+  /**
+   * Global node wrapper.
+   * @param {String=} selector
+   * @return {String|Node|Nodes[]}
+   */
+  var __node_wrapper = function __node_wrapper(s) {
 
-                    var create_node = function create_node(xmlNode) {
+    //no arguments? do nothing...
+    if (!s) return;
 
-                              var id = null;
+    /*
+    
+      HOW TO INITIALIZE $smx.document???
+      
+      //require document instance
+      if($smx.document) return;
+      
+      //if string should be a selector
+      if(typeof s === 'string')
+        return $smx.document.find(s);
+        
+    */
 
-                              //if(!xmlNode) return;
-                              //if (xmlNode.nodeName == 'undefined') return;
-                              //if (typeof xmlNode.nodeType == 'undefined') return;
-                              //if (xmlNode.nodeType != 1) return;
+    var create_node = function create_node(xmlNode) {
 
-                              //can this try replace the 4 conditionals above? yes...
-                              try {
-                                        id = xmlNode.getAttribute('id');
-                              } catch (e) {}
+      var id;
 
-                              //id attr is required!
-                              if (!id) return;
+      try {
+        id = xmlNode.getAttribute('id');
+      } catch (e) {}
 
-                              //Does already exists a node with this id?
-                              //prevent duplicated nodes and return existing one
-                              if ($smx.cache[id]) return $smx.cache[id];
+      //id attr is required!
+      if (!id) return;
 
-                              //create new Node from given XMLNode
-                              var node = new smx.Node(xmlNode);
+      //Does already exists a node with this id?
+      //prevent duplicated nodes and return existing one
+      if ($smx.cache[id]) return $smx.cache[id];
 
-                              //add it to nodes cache
-                              $smx.cache[id] = node;
+      //create new Node from given XMLNode
+      var node = new smx.Node(xmlNode);
 
-                              //return just created node
-                              return node;
-                    };
+      //add it to nodes cache
+      $smx.cache[id] = node;
 
-                    if (elems && (_.isArray(elems) || !_.isUndefined(elems.length)) && _.isUndefined(elems.nodeType)) {
-                              var result = [];
-                              for (var i = 0; i < elems.length; i++) {
-                                        if (elems[i]) {
-                                                  var node = elems[i][0] ? elems[i] : create_node(elems[i]);
-                                                  if (node) result.push(node);
-                                        }
-                              }
-                              return result;
-                    } else if (elems) {
-                              if (elems[0]) return elems;else return create_node(elems);
-                    } else return;
-          };
+      //return just created node
+      return node;
+    };
 
-          //expose global
-          global.$smx = $smx;
+    var isArray = s.constructor.name === 'Array';
+    var isNodeList = s.constructor.name === 'NodeList';
+    if (isArray || isNodeList) {
+      //NodeList does not allow .map
+      //force array so we can do the mapping
+      s = Array.prototype.slice.call(s);
+      return s.map(function (n) {
+        return create_node(n);
+      });
+    } else {
+      return create_node(s);
+    }
+  };
+
+  //expose global
+  global.$smx = $smx;
 })(window);
 //# sourceMappingURL=$smx.js.map
 ;'use strict';
@@ -9084,7 +9094,7 @@ Sizzle.selectors.filters.regex = function (elem, i, match) {
                         }
                 }
 
-                //add "metadata-processed" flag attr
+                //flag node with "metadata-processed" attr
                 node.setAttribute('metadata-processed', 'true');
 
                 return {
@@ -9112,7 +9122,7 @@ Sizzle.selectors.filters.regex = function (elem, i, match) {
 
                         /**
                          * Gets the metadata field value for the given associated to the node
-                         * 
+                         *
                          * @method meta
                          * @param {String} key - key name of meta field
                          * @param {String=} lang - langcode
@@ -9131,9 +9141,9 @@ Sizzle.selectors.filters.regex = function (elem, i, match) {
                         },
 
                         /**
-                         * This method is like `meta` but will return an interpolated version 
+                         * This method is like `meta` but will return an interpolated version
                          * using the node as interpolation context object.
-                         * 
+                         *
                          * @method interpolate
                          * @param {String} key - key name of meta field
                          * @param {String=} lang - langcode

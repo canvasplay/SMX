@@ -283,7 +283,7 @@
         }
 
 
-        //add "metadata-processed" flag attr
+        //flag node with "metadata-processed" attr
         node.setAttribute('metadata-processed','true');
 
 

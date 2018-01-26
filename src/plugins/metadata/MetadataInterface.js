@@ -10,11 +10,10 @@
     
 
     smx.fn.MetadataInterface = {
-        
                     
         /**
          * Gets the metadata field value for the given associated to the node
-         * 
+         *
          * @method meta
          * @param {String} key - key name of meta field
          * @param {String=} lang - langcode
@@ -37,9 +36,9 @@
 
 
         /**
-         * This method is like `meta` but will return an interpolated version 
+         * This method is like `meta` but will return an interpolated version
          * using the node as interpolation context object.
-         * 
+         *
          * @method interpolate
          * @param {String} key - key name of meta field
          * @param {String=} lang - langcode

@@ -29,22 +29,30 @@
  /**
   * Global node wrapper.
   * @param {String=} selector
-  * @return {Node|Nodes[]}
+  * @return {String|Node|Nodes[]}
   */
-  var __node_wrapper = function (elems) {
+  var __node_wrapper = function(s){
 
-
-
+      //no arguments? do nothing...
+      if(!s) return;
+      
+      /*
+      
+        HOW TO INITIALIZE $smx.document???
+        
+        //require document instance
+        if($smx.document) return;
+        
+        //if string should be a selector
+        if(typeof s === 'string')
+          return $smx.document.find(s);
+          
+      */
+      
       var create_node = function (xmlNode) {
 
-          var id = null;
+          var id;
 
-          //if(!xmlNode) return;
-          //if (xmlNode.nodeName == 'undefined') return;
-          //if (typeof xmlNode.nodeType == 'undefined') return;
-          //if (xmlNode.nodeType != 1) return;
-
-          //can this try replace the 4 conditionals above? yes...
           try {
               id = xmlNode.getAttribute('id')
           } catch (e) {}
@@ -68,21 +76,19 @@
       };
 
 
-
-
-      if (elems && (_.isArray(elems) || !_.isUndefined(elems.length)) && _.isUndefined(elems.nodeType)) {
-          var result = [];
-          for (var i = 0; i < elems.length; i++) {
-              if (elems[i]) {
-                  var node = (elems[i][0]) ? elems[i] : create_node(elems[i]);
-                  if (node) result.push(node);
-              }
-          }
-          return result;
-      } else if (elems) {
-          if (elems[0]) return elems;
-          else return create_node(elems);
-      } else return;
+      var isArray = (s.constructor.name === 'Array');
+      var isNodeList = (s.constructor.name === 'NodeList');
+      if(isArray || isNodeList){
+        //NodeList does not allow .map
+        //force array so we can do the mapping
+        s = Array.prototype.slice.call(s);
+        return s.map(function(n){
+          return create_node(n);
+        });
+      }
+      else{
+        return create_node(s);
+      }
 
   };
 
