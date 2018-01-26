@@ -83,11 +83,11 @@
         //force array so we can do the mapping
         s = Array.prototype.slice.call(s);
         return s.map(function(n){
-          return create_node(n);
+          return (n[0])? n : create_node(n);
         });
       }
       else{
-        return create_node(s);
+        return (s[0])? s : create_node(s);
       }
 
   };
