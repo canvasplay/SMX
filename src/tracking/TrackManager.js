@@ -96,7 +96,7 @@ TrackManager.prototype.initializeDocument = function(_callback){
 				
 		}
 
-		if (node.parent()) track_attrs.parent = node.parent().id;
+		if (node.parent) track_attrs.parent = node.parent.id;
 
 		//create a new Track with catched attributes
 		var track = new Backbone.Model(track_attrs);
@@ -592,7 +592,7 @@ TrackManager.prototype.propagate = function(id, key, recursive){
  * @name _onCollectionChange
  * @private
  * @memberof smx.tracking.TrackManager
- * @param {Track} track 
+ * @param {Track} track
  * @listens collection!change
  * @fires change
  * @fires change:id

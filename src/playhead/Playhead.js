@@ -30,7 +30,7 @@ class Playhead{
 
 		/**
 		 * Contains all nodes in which playhead has entered
-		 * List ordered from outter to inner [root, ..., current_node]
+		 * List ordered from outter to inner [root, ..., currentnode]
 		 * @type {Array.<Node>}
 		 * @private
 		 */
@@ -72,7 +72,7 @@ class Playhead{
 
 	/**
 	 * Contains all nodes in which playhead has entered
-	 * List ordered from outter to inner [root, ..., current_node]
+	 * List ordered from outter to inner [root, ..., currentnode]
 	 * @type {Array.<Node>}
 	 * @readonly
 	 */
@@ -155,7 +155,7 @@ class Playhead{
 
 		//if has childs get firstchild
 		//else get next node in the global timeline
-		var first = cnode.first(); if(first) cnode = first;
+		var first = cnode.first; if(first) cnode = first;
 
 		if (!cnode.isAccesible()) return;
 
@@ -195,7 +195,7 @@ class Playhead{
 		var cnode = this.get('head'); if(!cnode) return;
 
 		//get next node
-		var tnode = cnode.next(); if (!tnode) return;
+		var tnode = cnode.next; if (!tnode) return;
 		
 		//check for accesibility
 		if(!tnode.isAccesible()) return;
@@ -214,7 +214,7 @@ class Playhead{
 		var cnode = this.get('head'); if(!cnode) return;
 
 		//get previous node
-		var tnode = cnode.previous(); if (!tnode) return;
+		var tnode = cnode.previous; if (!tnode) return;
 
 		//check for accesibility
 		if (!tnode.isAccesible()) return;
@@ -236,7 +236,7 @@ class Playhead{
 		if (cnode.timeline) return;
 		
 		//get children nodes
-		let children = cnode.children();
+		let children = cnode.children;
 
 		//no children?
 		if (!children.length) return;
@@ -261,10 +261,10 @@ class Playhead{
 		var cnode = this.get('head'); if(!cnode) return;
 
 		//has parent node?
-		if(!cnode.hasParent()) return;
+		if(!cnode.parent) return;
 
 		//get parent node
-		var tnode = cnode.parent();
+		var tnode = cnode.parent;
 
 		//go to child node using known swap type and passing recived params
 		return this.go(tnode,{ 'swap_type':'outside' });
@@ -277,19 +277,19 @@ class Playhead{
 	reset(){
 		
 		//get root node
-		var root_node = this.get('root');
+		var rootnode = this.get('root');
 
 		//root node is required!
-		if(!root_node) return;
+		if(!rootnode) return;
 
 		//go to root node
-		return this.go(root_node);
+		return this.go(rootnode);
 		
 	}
 	
 
 	/**
-	 * Go to next node in flat tree mode
+	 * Goes to next node in flat tree mode
 	 */
 	forward(){
 		
@@ -303,25 +303,25 @@ class Playhead{
 
 		if(!cnode.time('timeline') && !cnode.time('timed')){
 		  
-			children = cnode.children();
+			children = cnode.children;
 			
 			if(!children.length)
-				tnode = cnode.next();
+				tnode = cnode.next;
 			else
-				tnode = cnode.first();
+				tnode = cnode.first;
 			
 		}
 		else{
-			tnode = cnode.next();
+			tnode = cnode.next;
 		}
 
 
 		if(!tnode){
 
-			var parent = cnode.parent();
+			var parent = cnode.parent;
 			while(parent && !tnode){
-				tnode = parent.next();
-				parent = parent.parent();
+				tnode = parent.next;
+				parent = parent.parent;
 			}
 
 		}
@@ -333,14 +333,22 @@ class Playhead{
 	}
 
 	/**
-	 * Go to previous node in flat tree mode
+	 * Goes to previous node in flat tree mode
 	 */
-	rewind(){
+	backward(){
 		
-		let cnode = this.get('head'); if(!cnode) return;
-		let tnode = cnode.stepBack(); if (!tnode) return;
+		var tnode;
 		
-		if (!tnode.isAccesible()) return;
+		if(!this.head) return;
+		
+		if(this.head.previous){
+		  tnode = this.head.previous;
+		}
+    else if(this.head.parent){
+     tnode = this.head.parent
+    }
+    
+    if(!tnode || !tnode.isAccesible()) return;
 		return this.go(tnode);
 
 	}
@@ -392,27 +400,27 @@ class Playhead{
 
 
 		//normalize given ref, maybe be string or SMXNnode
-		var t_node = (_.isString(ref))? this.document.getNodeById(ref) : ref;
+		var tnode = (_.isString(ref))? this.document.getNodeById(ref) : ref;
 
 		// GET CURRENT NODE
-		var c_node = this.get('head');
+		var cnode = this.get('head');
 			
 		//NODE NOT FOUND
-		if (!t_node)
+		if (!tnode)
 		  throw new Error('NODE WAS NOT FOUND');
 		
 		//TARGET NODE == CURRENT NODE ?
-		//if (c_node) if (c_node.id == t_node.id) throw new Error('201');
-		if (c_node == t_node) return c_node;
+		//if (cnode) if (cnode.id == tnode.id) throw new Error('201');
+		if (cnode == tnode) return cnode;
 
 		//IS TARGET NODE INSIDE TIMELINE?
 		//playhead cannot access nodes inside a timeline
-		if (t_node.time('timed'))
-			throw new Error('NODE "'+ t_node.id +'" IS NOT VISITABLE');
+		if (tnode.time('timed'))
+			throw new Error('NODE "'+ tnode.id +'" IS NOT VISITABLE');
 
 		//IS TARGET NODE ACCESIBLE ?
-		if (!t_node.isAccesible() && !global.app.config.FREE_ACCESS)
-			throw new Error('NODE "'+ c_node.id +'" IS NOT ACCESIBLE');
+		if (!tnode.isAccesible() && !global.app.config.FREE_ACCESS)
+			throw new Error('NODE "'+ cnode.id +'" IS NOT ACCESIBLE');
 
 		
 		
@@ -425,7 +433,7 @@ class Playhead{
 
 		try{
 	
-			var async = this.requestAsyncNodeAccess(t_node);
+			var async = this.requestAsyncNodeAccess(tnode);
 
 			if(async){
 
@@ -457,8 +465,8 @@ class Playhead{
 
 
 		//if 'autoplay' behavior is enabled call
-		if (t_node.autoplay===true && t_node.children().length>0){
-			return this.go(t_node.cnode.getFirstChild(),options);
+		if (tnode.autoplay===true && tnode.children.length>0){
+			return this.go(tnode.cnode.getFirstChild(),options);
 		}
 
 
@@ -471,20 +479,14 @@ class Playhead{
 		//if swap_type parameter was not defined tries to autodetect direct values
 		if (!options.swap_type){
 		
-			if (!c_node) 						options.swap_type = 'from_root';
-			else if(c_node.isParentOf(t_node))	options.swap_type = 'child';
-			else if(t_node.isParentOf(c_node))	options.swap_type = 'parent';
-			else{
-
-				if(c_node.hasParent()){
-					var current_parent_node = c_node.parent();
-					var target_parent_node = t_node.parent();
-					if (current_parent_node.id == target_parent_node.id){
-						options.swap_type = 'sibling';
-					}
-				}
-				
-			}
+			if (!cnode)
+			  options.swap_type = 'from_root';
+			else if(cnode.isParentOf(tnode))
+			  options.swap_type = 'child';
+			else if(tnode.isParentOf(cnode))
+			  options.swap_type = 'parent';
+			else if(cnode.parent && tnode.parent && cnode.parent.id === tnode.parent.id)
+				options.swap_type = 'sibling';
 		
 		}
 		
@@ -494,53 +496,53 @@ class Playhead{
 		
 			case 'outside':
 				//exit from current
-				this._exitNode(c_node);
-				//we are already inside t_node because t_node is first parent of c_node
+				this._exitNode(cnode);
+				//we are already inside tnode because tnode is first parent of cnode
 				//but re-enter for trigger 'enter' event
-				this._enterNode(t_node);
+				this._enterNode(tnode);
 			break;
 			case 'inside':
 				//enter in child node
-				this._enterNode(t_node);
+				this._enterNode(tnode);
 			break;
 			case 'next':
 			case 'previous':
 			case 'sibling':
 				//exit from current
-				this._exitNode(c_node);
+				this._exitNode(cnode);
 				//enter in sibling node
-				this._enterNode(t_node);
+				this._enterNode(tnode);
 			break;
 			case 'from_root':
-				//enter all nodes from root to t_node
-				this._enterStraight(null,t_node);
+				//enter all nodes from root to tnode
+				this._enterStraight(null,tnode);
 			break;
 			case 'child':
-				//enter all nodes c_node to t_node
-				this._enterStraight(c_node,t_node);
+				//enter all nodes cnode to tnode
+				this._enterStraight(cnode,tnode);
 			break;
 			case 'parent':
 			
-				//navigates parents from c_node until reach t_node
-				let ref_node = c_node;
-				let t_node_found = false;
-				while (ref_node.hasParent() && !t_node_found){
+				//navigates parents from cnode until reach tnode
+				let ref_node = cnode;
+				let tnode_found = false;
+				while (ref_node.parent && !tnode_found){
 					//exit from ref_node
 					this._exitNode(ref_node);
 					//update ref_node
-					ref_node = ref_node.parent();
-					//t_node found?
-					if (ref_node.id == t_node.id) t_node_found = true;
+					ref_node = ref_node.parent;
+					//tnode found?
+					if (ref_node.id == tnode.id) tnode_found = true;
 				}
 				
-				//we are already inside t_node because t_node is parent of c_node
+				//we are already inside tnode because tnode is parent of cnode
 				//but re-enter for trigger 'enter' event
-				this._enterNode(t_node);
+				this._enterNode(tnode);
 				
 			break;
 			default:
 				//iterative method
-				this._goIterative(c_node,t_node);
+				this._goIterative(cnode,tnode);
 			break;
 		}
 		
@@ -549,17 +551,17 @@ class Playhead{
 		//TIMELINE?
 
 		//create timeline, will only be created if its possible and if its needed
-		if(t_node.time('timeline')) this._createTimeline();
+		if(tnode.time('timeline')) this._createTimeline();
 
 
 		//FIRE EVENTS
 
 		//FIRE 'LEAVE' EVENT
-		if (c_node){
+		if (cnode){
 			//fire generic 'leave' event in resulting current node
-			this.trigger('leave',c_node);
+			this.trigger('leave',cnode);
 			//fire specific node 'leave' event
-			this.trigger('leave:'+c_node.id,c_node);
+			this.trigger('leave:'+cnode.id,cnode);
 		}
 
 
@@ -567,21 +569,21 @@ class Playhead{
 		/* NOSTOP ATTRIBUTE WARNING VERY EXPERIMENTAL CODE BELOW */
 
 		// node having the 'nostop' attribute prevents the playhead to stop on it
-		var nostop = t_node.has('nostop');
+		var nostop = tnode.has('nostop');
 
-		if (nostop && t_node.id != this.get('root').id){
+		if (nostop && tnode.id != this.get('root').id){
 
 			var entered = this.get('entered');
 			var exited = this.get('exited');
 
 			if (entered.length>0){
-				if( entered[entered.length-1].id == t_node.id){
+				if( entered[entered.length-1].id == tnode.id){
 
-					if (t_node.children().length>0){
+					if (tnode.children.length>0){
 						return this.inside();
 					}
 					else{
-						if(t_node.hasParent()){
+						if(tnode.parent){
 							return this.outside();
 						}
 						else{
@@ -597,8 +599,8 @@ class Playhead{
 			}
 			else if (exited.length>0){
 
-				if( exited[0].isChildOf(t_node) ){
-					if(t_node.hasParent()){
+				if( exited[0].isChildOf(tnode) ){
+					if(tnode.parent){
 						return this.outside();
 					}
 					else{
@@ -622,13 +624,13 @@ class Playhead{
 
 			//FIRE 'STAY' EVENT
 			//fire generic 'stay' event in resulting current node
-			this.trigger('stay',t_node);
+			this.trigger('stay',tnode);
 			//fire specific node 'stay' event
-			this.trigger('stay:'+t_node.id,t_node);
+			this.trigger('stay:'+tnode.id,tnode);
 
 			//FIRE 'READY' EVENT
 			//notify node navigation completed
-			this.trigger('ready',t_node);
+			this.trigger('ready',tnode);
 
 
 
@@ -656,35 +658,35 @@ class Playhead{
 	 * @param {Node} current - current node
 	 * @param {Node} target - target node
 	 */
-	_goIterative(c_node,t_node){
+	_goIterative(cnode,tnode){
 	
-		//ok! we are going to navigates from c_node(current node) to t_node(target node). Lets go!
+		//ok! we are going to navigates from cnode(current node) to tnode(target node). Lets go!
 		
 		//navigates from root
-		if(!c_node)
-			this._enterStraight(null,t_node);
+		if(!cnode)
+			this._enterStraight(null,tnode);
 	
 		else{
 		//navigates from current node
 		
 			//looks parents for a common parent between current and target node
-			let ref_node = c_node;
+			let ref_node = cnode;
 			let common_parent = null;
-			while (ref_node && ref_node.hasParent() && !common_parent){
+			while (ref_node && ref_node.parent && !common_parent){
 
 				//exit nodes at same that searches
 				this._exitNode(ref_node);
 
-				ref_node = ref_node.parent();
-				if (ref_node.isParentOf(t_node)) common_parent = ref_node;
+				ref_node = ref_node.parent;
+				if (ref_node.isParentOf(tnode)) common_parent = ref_node;
 			}
 			
 			//was common parent found?
 			if (common_parent){
-				this._enterStraight(common_parent,t_node);
+				this._enterStraight(common_parent,tnode);
 			}
 			else{
-				this._enterStraight(null, t_node);
+				this._enterStraight(null, tnode);
 			}
 
 		}
@@ -698,24 +700,24 @@ class Playhead{
 	 * @param {Node} parent - parent node
 	 * @param {Node} child - child node
 	 */
-	_enterStraight(parent_node,child_node){
+	_enterStraight(parentnode,child_node){
 	
-		//Performs iterative 'enter' method on child nodes from parent_node to a known child_node
+		//Performs iterative 'enter' method on child nodes from parentnode to a known child_node
 
-		//check if child_node is not child of parent_node
-		if( parent_node && !parent_node.isParentOf(child_node) ) return;
+		//check if child_node is not child of parentnode
+		if( parentnode && !parentnode.isParentOf(child_node) ) return;
 		
 		//creates a parent nodes array from child node
 		var child_node_parents = [];
 		
-		//looks parents and fills the array until reach known parent_node
+		//looks parents and fills the array until reach known parentnode
 		var ref_node = child_node;
-		var parent_node_reached = false;
-		while (ref_node && ref_node.hasParent() && !parent_node_reached){
-			ref_node = ref_node.parent();
-			if(parent_node) if(ref_node.id == parent_node.id) parent_node_reached = true;
+		var parentnode_reached = false;
+		while (ref_node && ref_node.parent && !parentnode_reached){
+			ref_node = ref_node.parent;
+			if(parentnode) if(ref_node.id == parentnode.id) parentnode_reached = true;
 
-			if(ref_node && !parent_node_reached) child_node_parents.unshift(ref_node);
+			if(ref_node && !parentnode_reached) child_node_parents.unshift(ref_node);
 		}
 		
 		//call 'enter' method in each parent node

@@ -18,36 +18,40 @@
   
   
   /**
-   * Runtime Document instance
+   * Currently active document.
    * @memberof $smx
    * @type {smx.Document}
    */
   $smx.document = null;
   
+  /**
+   * Array of loaded documents.
+   * @memberof $smx
+   * @type {smx.Document[]}
+   */
+  $smx.documents = [];
+  
 
 
  /**
   * Global node wrapper.
-  * @param {String=} selector
-  * @return {String|Node|Nodes[]}
+  * @param {String|Node|Nodes[]} s - selector, node or node collection
+  * @return {Node|Nodes[]}
   */
   var __node_wrapper = function(s){
 
       //no arguments? do nothing...
       if(!s) return;
       
-      /*
-      
-        HOW TO INITIALIZE $smx.document???
         
-        //require document instance
-        if($smx.document) return;
+      //string? should be a selector search
+      if(typeof s === 'string'){
         
-        //if string should be a selector
-        if(typeof s === 'string')
-          return $smx.document.find(s);
-          
-      */
+        //require an active document instance
+        if(!$smx.document) return [];
+        
+        return $smx.document.find(s);
+      }
       
       var create_node = function (xmlNode) {
 
@@ -81,8 +85,8 @@
       if(isArray || isNodeList){
         //NodeList does not allow .map
         //force array so we can do the mapping
-        s = Array.prototype.slice.call(s);
-        return s.map(function(n){
+        //s = Array.prototype.slice.call(s);
+        return [].map.call(s,function(n){
           return (n[0])? n : create_node(n);
         });
       }
@@ -91,8 +95,6 @@
       }
 
   };
-
-
 
 	//expose global
 	global.$smx = $smx;

@@ -30,37 +30,39 @@
   }
 
   function resolvePathFileAttributes(node, url){
-
-	  //get src string from node attribute or given url
-	  let src = (url)? url : node.getAttribute('src');
-	  
-	  //declare resultant attribute values
+    
+    //get src string from node attribute or given url
+    let src = (url)? url : node.getAttribute('src');
+    
+    //declare resultant attribute values
 		var path, file;
 		
 		//no src string? just ignore..
 		if(!src) return node;
-
+    
 		//split by slashes and also
 		//clean empty or empty src parts
-		src = _.compact(src.split('/'));
+		//src = _.compact(src.split('/'));
+		src = src.split('/');
 		
 		//if multipart, last is file
 		if(src.length>0) file = src.pop();
-
+    
     //join path parts
 		path = src.join('/')+'/';
-
+    
 		//set inlcuded node core attributes
-		//if(path) node.setAttribute('path', path);
-		//if(file) node.setAttribute('file', file);
-		if(path) $(node).attr('path', path);
-		if(file) $(node).attr('file', file);
+		if(path) node.setAttribute('path', path);
+		if(file) node.setAttribute('file', file);
 		
 		return node;
 
   }
   
   
+  function mergeNode(){
+    
+  }
 
 /**
  * SMX Compiler Class
@@ -75,8 +77,6 @@
 
 		//define default options
 		this.defaults = {
-			"path" : "",
-			"directoryIndex" : "index.xml",
 			"lang":"es-ES"
 		};
 
@@ -92,12 +92,8 @@
 		// xhr controller for file requests
 		this.xhr = null;
 
-		this.loadDocument = function(path){
+		this.loadDocument = function(url){
 
-			//set path
-			this.options.path = (path)? path : '';
-
-			var url = (this.options.path!=='')? this.options.path + this.options.directoryIndex : ''+this.options.directoryIndex;
 			this.loadFile( url , 'smx');
 
 
@@ -130,24 +126,27 @@
 		};
 
 		this.onLoadFileSuccess = function(xml, status, xhr){
-
-
+      
+      
 			LOG( '> '+this.xhr._url+'" '+this.xhr.status +' '+ this.xhr.statusText);
-
+      
 			//detect if already exist xml root node
 			var is_root = (!this.XML)? true : false;
-
+      
 			if (is_root){
-
-        xml = resolvePathFileAttributes(xml, xhr._url);
-
-				//set xml root node
-				this.XML = $(xml)[0];
+        
+				//set xml root document
+				this.XML = xml;
 				
-
+        //extract last child XMLnode in resultant XMLDocument and ignore the document...
+        //using lastChild prevents getting unwanted xml nodes...
+        //IE8 p.e. returns "ProcessingInstruction" for firstChild
+        var node = xml.lastChild;
+				resolvePathFileAttributes(node, xhr._url);
+        
 			}
 			else{
-
+        
 				//if is not root -> is an include
 				//replaces 1st <include> found with just loaded xml
 
@@ -155,6 +154,7 @@
 
 				//get <include> node
 				var old_node = includes[0];
+
 
 				//get just loaded node
 				//ensure we are getting nodeType=1 (XMLElement)
@@ -179,6 +179,10 @@
 					//new_node.innerHTML = '<![CDATA[ '+xml+' ]]>';
 					//new_node.innerHTML = ''+xml+'';
 					new_node.appendChild(cdata);
+					
+					//set type attribute based on just loaded file extension
+					var ext = old_node.getAttribute('src').split('.').pop();
+					new_node.setAttribute('type',ext);
 
 				}
 
@@ -192,7 +196,8 @@
 				//create clone of new node due wired ipad IOS4 jquery error
 				//WRONG_DOCUMENT_ERR node was used in a different document...
 				//$(old_node).replaceWith(new_node));
-				$(old_node).replaceWith($(new_node).clone());
+				//$(old_node).replaceWith($(new_node).clone());
+				old_node.outterHTML = this.xml2str(new_node);
 
 			}
 
@@ -257,8 +262,7 @@
 						ref = parent;
 					}
 
-					//if (inc_path && inc_path!= '') this.loadFile(this.options.path + inc_path, inc_type);
-					if (inc_path && inc_path!= '') this.loadFile(inc_path, inc_type);
+					if (inc_path && inc_path !== '') this.loadFile(inc_path, inc_type);
 
 					return;
 
@@ -317,108 +321,26 @@
 
 		};
 		
-
-		this.compressXML = function(XML){
-
-
-			//get serialized xml code
-			var code = this.XML2str(XML);
-
-
-			//remove multiple whitespaces
-			var min = code.replace(/\s+/gm," ");
-
-
-
-			//remove newline / carriage return
-			min = min.replace(/\n/g, "");
-
-			/*
-
-				//this will broke html content spaces content...
-
-				//remove whitespace (space and tabs) before tags
-				min = min.replace(/[\t ]+\</gm, "<");
-
-				//remove whitespace between tags
-				min = min.replace(/\>[\t ]+\</gm, "><");
-
-				//remove whitespace after tags
-				min = min.replace(/\>[\t ]+$/gm, ">");
-
-			*/
-
-			//remove XML comments
-			min = min.replace(/<!--(.*?)-->/gm, "");
-
-
-			//convert back to xml
-			var xml = str2XML(min);
-
-			var removeBlankTextChildNodes = function(node){
-
-				var childs = node.childNodes;
-				var to_remove = [];
-
-				for(var i=0; i< childs.length;i++){
-
-					var child = childs[i];
-
-					var is_cdata = (child.nodeType==4);
-					var is_text = (child.nodeType==3);
-					var is_node = (child.nodeType==1);
-					var name = child.nodeName;
-
-					if(is_text){
-						to_remove.push(child);
-					}
-					else if(is_node && name!='metadata'){
-
-						var type = child.getAttribute('type');
-
-						if( !type || type =='smx'){
-							var _childs = removeBlankTextChildNodes(child);
-						}
-
-					}
-
-				}
-
-				for(var i=0; i< to_remove.length;i++){
-
-					var child = to_remove[i];
-					var parent = child.parentNode;
-					parent.removeChild(child);
-
-				}
-
-			}
-
-			removeBlankTextChildNodes(xml);
-
-			//update compiler xml result
-			return xml;
-
+		this.xml2str = function(xmlNode){
+      
+      try {
+        // Gecko- and Webkit-based browsers (Firefox, Chrome), Opera.
+        return (new XMLSerializer()).serializeToString(xmlNode);
+      }
+      catch (e) {
+        try {
+          // Internet Explorer.
+          return xmlNode.xml;
+        }
+        catch (e) {
+          //Other browsers without XML Serializer
+          alert('Xmlserializer not supported');
+        }
+      }
+      
+      return '';
 		};
-
-
-		this.XML2str = function(XML){
-
-			var str = '';
-
-			if (win.ActiveXObject){
-
-				if (XML.xml) 	str = XML.xml;
-				else 			str = (new XMLSerializer()).serializeToString(XML);
-
-			}
-			else{
-				str = (new XMLSerializer()).serializeToString(XML);
-			}
-
-			return str;
-
-		};
+		
 
 		this.str2XML = function(str){
 
@@ -439,6 +361,54 @@
 
       return XML;
 		};
+		
+
+    /**
+     * Merges given node into
+     */
+		this.mergeIntoDocument = function(doc, srcNode, targetNode){
+
+  		//get just loaded node
+  		//ensure we are getting nodeType=1 (XMLElement)
+  		//and avoid other nodetypes like comments, text nodes, ...
+  		var new_node;
+  		if(xml.childNodes){
+  			for(var i=0; i< xml.childNodes.length; i++){
+  				if (xml.childNodes[i].nodeType==1)
+  					new_node = xml.childNodes[i];
+  			}
+  		}
+  
+  		//prepare and merge the new XMLNode
+  		if (!new_node){
+  		  
+  			var node_name = $(old_node).attr('name') || 'node';
+  			new_node = this.XML.createElement(node_name);
+  
+  			var cdata = this.XML.createCDATASection(xml);
+  
+  			//console.log(xml.toString());
+  			//new_node.innerHTML = '<![CDATA[ '+xml+' ]]>';
+  			//new_node.innerHTML = ''+xml+'';
+  			new_node.appendChild(cdata);
+  
+  		}
+  
+  		//resolve 'path' and 'file' attributes from 'src'
+  		resolvePathFileAttributes(new_node, old_node.getAttribute('src'));
+  
+  		//copy old node attributes into new node
+  		copyAttributes(old_node, new_node);
+  
+  		//replace old node with new node
+  		//create clone of new node due wired ipad IOS4 jquery error
+  		//WRONG_DOCUMENT_ERR node was used in a different document...
+  		//$(old_node).replaceWith(new_node));
+  		//$(old_node).replaceWith($(new_node).clone());
+  		$(old_node).replaceWith($(new_node).clone());
+
+		  
+		}
 
 
 

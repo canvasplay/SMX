@@ -9,12 +9,12 @@
 let Core = {
 
     /**
-     * Gets the index position in parent's children. If node has no parent, 
-     * will return 0. When using the optional parameter `selector`, the 
-     * resultant index is calculated based only in the sibling nodes matching 
-     * the given selector, if node does not match the selector itself will 
+     * Gets the index position in parent's children. If node has no parent,
+     * will return 0. When using the optional parameter `selector`, the
+     * resultant index is calculated based only in the sibling nodes matching
+     * the given selector, if node does not match the selector itself will
      * return -1.
-     * 
+     *
      * @memberof smx.fn.Core
      * @param {String=} selector - filter selector
      * @return {Integer}
@@ -23,15 +23,12 @@ let Core = {
         
         //0 by default
         var index = 0;
-        
-        //get parent node
-        let parent = this.parent();
-        
+
         //no parent? its kind of root so it has no sibling nodes
-        if(!parent) return index;
+        if(!this.parent) return index;
         
         //get sibling nodes
-        var siblings = parent.children();
+        var siblings = this.parent.children;
         
         //filter siblings collection with a css selector if its defined
         if(selector) siblings = siblings.filter(function(s){
@@ -47,7 +44,7 @@ let Core = {
 
     /**
      * Gets the text content.
-     * 
+     *
      * @memberof smx.fn.Core
      * @return {String}
      */
@@ -59,7 +56,7 @@ let Core = {
     
     /**
      * Gets the html content.
-     * 
+     *
      * @memberof smx.fn.Core
      * @return {String}
      */
@@ -80,7 +77,7 @@ let Core = {
 
     /**
      * Gets the string representation.
-     * 
+     *
      * @memberof smx.fn.Core
      * @return {String}
      */
@@ -91,7 +88,7 @@ let Core = {
     },
 
     /**
-     * Gets the JSON representation
+     * Gets the JSON representation. NOT IMPLEMENTED
      * @method toJSON
      * @memberof smx.fn.Core
      * @return {Object}

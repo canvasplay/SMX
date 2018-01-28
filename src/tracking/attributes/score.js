@@ -182,7 +182,7 @@ var ScoreAttributeController = {
 				var node = collection.document.getNodeById(model.id);
 
 				//get node children
-				var childs = node.children();
+				var childs = node.children;
 
 				//has childs?
 				if (_.isEmpty(childs)){
@@ -255,10 +255,10 @@ var ScoreAttributeController = {
 		var node = collection.document.getNodeById(model.id);
 
 		//if ref node has no parent exit silently
-		if(!node.hasParent()) return;
+		if(!node.parent) return;
 
 		//get ref node parent
-		var parent = node.parent();
+		var parent = node.parent;
 
 		//call collection.update for this attribute on parent model
 		collection.update(parent.id, this.name);

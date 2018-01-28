@@ -62,8 +62,8 @@
           selector.push(':not([metadata-processed])'); //ignore already processed nodes
           selector.push(':not([type] *)'); //ignore contents of nodes having type attribute
           */
-          //using Sizzle.selectors.filters.regex.js
-          var selector = ['metadata,:regex(meta-)'];
+          //using Sizzle.selectors.filters.meta.js
+          var selector = ['metadata,:meta'];
           nodes = Sizzle(selector.join(''), XML);
           //include root node itself to the list
           nodes.unshift(XML);

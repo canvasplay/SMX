@@ -1,5 +1,6 @@
-Sizzle.selectors.filters.regex = function(elem, i, match){
-    var regex = new RegExp('\\s*'+match[3]+'\\w*="', 'ig');
+Sizzle.selectors.filters.track = function(elem, i, match){
+    var preffix = 'track-';
+    var regex = new RegExp('\\s*'+preffix+'\\w*="', 'ig');
     var attrs = elem.attributes;
     var str = [];
     str.push('<'+elem.nodeName);
