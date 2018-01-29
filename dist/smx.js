@@ -2448,6 +2448,14 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 				return node;
 		}
 
+		function createDataNode(xmlDocument, nodeName, data, type) {
+				var node = xmlDocument.createElement(nodeName);
+				var cdata = xmlDocument.createCDATASection(data);
+				node.appendChild(cdata);
+				node.setAttribute('type', type || 'cdata');
+				return node;
+		}
+
 		function mergeNode() {}
 
 		/**
@@ -2543,22 +2551,20 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 										}
 								}
 
-								//prepare and merge the new XMLNode
+								//not xml? create a new xml node to wrap the loaded data
 								if (!new_node) {
 
-										var node_name = $(old_node).attr('name') || 'node';
-										new_node = this.XML.createElement(node_name);
+										//create new data node based on just loaded file
+										var nodeName = $(old_node).attr('name') || 'node';
 
-										var cdata = this.XML.createCDATASection(xml);
+										//get just loaded data
+										var data = xml;
 
-										//console.log(xml.toString());
-										//new_node.innerHTML = '<![CDATA[ '+xml+' ]]>';
-										//new_node.innerHTML = ''+xml+'';
-										new_node.appendChild(cdata);
+										//autodetect data type based on just loaded file extension
+										var type = old_node.getAttribute('src').split('.').pop();
 
-										//set type attribute based on just loaded file extension
-										var ext = old_node.getAttribute('src').split('.').pop();
-										new_node.setAttribute('type', ext);
+										//create new data node
+										new_node = createDataNode(this.XML, nodeName, data, type);
 								}
 
 								//resolve 'path' and 'file' attributes from 'src'
