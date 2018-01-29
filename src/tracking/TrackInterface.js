@@ -29,7 +29,7 @@ let methods = {
 
       //still accesible... check ancestors!
       if(is_accesible){
-          var parent = this.parent();
+          var parent = this.parent;
           if(parent) is_accesible = parent.isAccesible();
       }
 

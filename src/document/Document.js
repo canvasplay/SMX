@@ -18,13 +18,13 @@
              * playhead controller
              * @type {Playhead}
              */
-            this.playhead = new smx.Playhead(this);
+            //this.playhead = new smx.Playhead(this);
             
             /**
              * tracking controller
              * @type {Tracking}
              */
-            this.tracking = new smx.Tracking(this);
+            //this.tracking = new smx.Tracking(this);
             
         }
         

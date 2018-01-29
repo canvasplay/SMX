@@ -18,33 +18,45 @@
   
   
   /**
-   * Runtime Document instance
+   * Currently active document.
    * @memberof $smx
    * @type {smx.Document}
    */
   $smx.document = null;
   
+  /**
+   * Array of loaded documents.
+   * @memberof $smx
+   * @type {smx.Document[]}
+   */
+  $smx.documents = [];
+  
 
 
  /**
   * Global node wrapper.
-  * @param {String=} selector
+  * @param {String|Node|Nodes[]} s - selector, node or node collection
   * @return {Node|Nodes[]}
   */
-  var __node_wrapper = function (elems) {
+  var __node_wrapper = function(s){
 
-
-
+      //no arguments? do nothing...
+      if(!s) return;
+      
+        
+      //string? should be a selector search
+      if(typeof s === 'string'){
+        
+        //require an active document instance
+        if(!$smx.document) return [];
+        
+        return $smx.document.find(s);
+      }
+      
       var create_node = function (xmlNode) {
 
-          var id = null;
+          var id;
 
-          //if(!xmlNode) return;
-          //if (xmlNode.nodeName == 'undefined') return;
-          //if (typeof xmlNode.nodeType == 'undefined') return;
-          //if (xmlNode.nodeType != 1) return;
-
-          //can this try replace the 4 conditionals above? yes...
           try {
               id = xmlNode.getAttribute('id')
           } catch (e) {}
@@ -68,25 +80,21 @@
       };
 
 
-
-
-      if (elems && (_.isArray(elems) || !_.isUndefined(elems.length)) && _.isUndefined(elems.nodeType)) {
-          var result = [];
-          for (var i = 0; i < elems.length; i++) {
-              if (elems[i]) {
-                  var node = (elems[i][0]) ? elems[i] : create_node(elems[i]);
-                  if (node) result.push(node);
-              }
-          }
-          return result;
-      } else if (elems) {
-          if (elems[0]) return elems;
-          else return create_node(elems);
-      } else return;
+      var isArray = (s.constructor.name === 'Array');
+      var isNodeList = (s.constructor.name === 'NodeList');
+      if(isArray || isNodeList){
+        //NodeList does not allow .map
+        //force array so we can do the mapping
+        //s = Array.prototype.slice.call(s);
+        return [].map.call(s,function(n){
+          return (n[0])? n : create_node(n);
+        });
+      }
+      else{
+        return (s[0])? s : create_node(s);
+      }
 
   };
-
-
 
 	//expose global
 	global.$smx = $smx;

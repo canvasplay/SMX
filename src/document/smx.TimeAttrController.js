@@ -26,9 +26,9 @@
 
                 if(is_timeline) return false;
                 else{
-                    var parent = node.parent();
+                    var parent = node.parent;
                     while(parent && !this.timeline(parent)){
-                        parent = parent.parent();
+                        parent = parent.parent;
                     }
 
                     if(!parent) return false;
@@ -56,7 +56,7 @@
 
                 //try child summatory
                 if (_.isNaN(duration)){
-                    var childs = node.children();
+                    var childs = node.children;
                     childs = childs.reverse();
                     if(childs.length>0){
                         // childs will define duration using
@@ -69,7 +69,7 @@
                         }
                         duration = max;
                     }
-                    else if(!node.next() && !node.previous()){
+                    else if(!node.next && !node.previous){
                         duration = 0;
                     }
                 }
@@ -79,16 +79,16 @@
                 if (_.isNaN(duration) && this.timed(node)){
 
                     //get parent
-                    var parent = node.parent();
+                    var parent = node.parent;
 
                     if(parent && _.isNumber(parent.duration)){
 
                         //get next sibling with absolute timing
-                        var next = node.next();
+                        var next = node.next;
                         var target = null;
                         while(next && !target){
                             if(this.timing(next) == 'absolute') target = next;
-                            else                                next = next.next();
+                            else                                next = next.next;
                         }
 
                         if(target){
@@ -172,7 +172,7 @@
                 //relative timing
                 //depends on previous sibling node
 
-                    var prev = node.previous();
+                    var prev = node.previous;
 
                     if(prev)    offset = this.offset(prev) + this.duration(prev) + start;
                     else        offset = start;
@@ -184,7 +184,7 @@
                 if(!from.isParentOf(node)) offset = -1;
                 else{
 
-                    var parent = node.parent();
+                    var parent = node.parent;
                     if(!parent) offset = -1;
                     /////????????????????????????
                     else if(parent!=from) offset = this.offset(parent,from) + offset;

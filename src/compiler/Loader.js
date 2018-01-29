@@ -1,9 +1,5 @@
-(function(global,_,$,smx,log){
+(function(global,_,$,smx,LOG){
 
-
-	//private aux debug system
-	const DEBUG = true;
-	const LOG = function(o){if(DEBUG)log('> '+o)};
 
 /**
  * SMX Loader Class
@@ -27,7 +23,12 @@ class Loader {
     var onSuccess = _.bind(this.onSuccess, this);
     var onError = _.bind(this.onError, this);
     
-    this.xhr = (global.ActiveXObject)? new global.ActiveXObject("MSXML2.XMLHTTP.3.0") : new global.XMLHttpRequest();
+    this.xhr;
+    if(global.ActiveXObject)
+      this.xhr = new global.ActiveXObject("MSXML2.XMLHTTP.3.0")
+    else
+      this.xhr = new global.XMLHttpRequest();
+      
     this.xhr.open('GET', url);
     this.xhr.onload = function(evt) {
         if (evt.target.status === 200)
@@ -44,6 +45,8 @@ class Loader {
   onSuccess(xhr){
     LOG( xhr.responseURL+' '+xhr.status +' ('+ xhr.statusText+')');
     LOG( xhr.responseText);
+    var ext = xhr.responseURL.split('.').pop();
+    console.log(ext);
   }
 
   onError(xhr){

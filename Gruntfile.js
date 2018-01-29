@@ -40,6 +40,7 @@ module.exports = function(grunt) {
 
                     'dist/smx.js',
                     'dist/$smx.js',
+                    'dist/$smx.load.js',
 
                     'dist/IdAttributeParser.js',
                     'dist/TimeAttributeParser.js',
@@ -70,6 +71,7 @@ module.exports = function(grunt) {
                     'dist/tracking/attributes/access.js',
                     'dist/tracking/attributes/points.js',
                     'dist/tracking/TrackInterface.js',
+                    'dist/tracking/Sizzle.selectors.filters.track.js',
                     
 
                     //Prototype
@@ -77,9 +79,9 @@ module.exports = function(grunt) {
                     'dist/plugins/prototype/PrototypeParser.js',
                     
                     //Metadata
-                    'dist/plugins/metadata/Sizzle.selectors.filters.regex.js',
                     'dist/plugins/metadata/MetadataParser.js',
                     'dist/plugins/metadata/MetadataInterface.js',
+                    'dist/plugins/metadata/Sizzle.selectors.filters.meta.js',
 
                     //Taxonomy
                     //'dist/taxonomy/TaxonomyParser.js',

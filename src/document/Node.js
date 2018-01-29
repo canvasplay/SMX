@@ -69,44 +69,41 @@ class Node {
 
     /**
      * Gets Uniform Resource Identifier.
-     * Concatenation of id values from parent nodes up to root
+     * Concatenation of id values from parent nodes up to document root
      * @type {String}
      * @readonly
      */
     get uri() {
         let hash = this.id + '/';
-        let parent = this.parent();
-        if (parent) return parent.uri + hash;
+        if (this.parent) return this.parent.uri + hash;
         else return hash;
     }
 
 
     /**
      * Gets Uniform Resource Locator
-     * Concatenation of path values from parent nodes up to root
+     * Concatenation of path values from parent nodes up to document root
      * @type {String}
      * @readonly
      */
     get url() {
-        //'one / two // three ///'.replace(/\/\/+/g, '/')
-        let path = this.attr('path');
-        let parent = this.parent();
-        if (parent) {
-            if (!path)
-                return parent.url;
-            else {
-                //add trail slash
-                let trail = path.substr(-1);
-                if (trail != '/') path += '/';
-                return parent.url + path;
-            }
-        } else {
-            if (!path) return;
-            //add trail slash
-            let trail = path.substr(-1);
-            if (trail != '/') path += '/';
-            return path;
+      let path = this.attr('path');
+      if (this.parent) {
+        if (!path)
+          return this.parent.url;
+        else {
+          //add trail slash
+          let trail = path.substr(-1);
+          if (trail != '/') path += '/';
+          return this.parent.url + path;
         }
+      } else {
+        if (!path) return;
+        //add trail slash
+        let trail = path.substr(-1);
+        if (trail != '/') path += '/';
+        return path;
+      }
     }
 
 
@@ -119,10 +116,9 @@ class Node {
         
         var result = '';
         let file = this.attr('file');
-        let parent = this.parent();
 
         if (!file)
-            result = (parent) ? parent.file : undefined;
+            result = (this.parent) ? this.parent.file : undefined;
         else
             result = this.url + file;
 
@@ -130,6 +126,98 @@ class Node {
 
         return result;
 
+    }
+    
+    
+    /**
+     * Direct access to XMLNode.ownerDocument
+     * @type {XMLDocument}
+     * @readonly
+     */
+    get document() {
+      return this[0].ownerDocument;
+    }
+    
+    /**
+     * Gets parent node
+     * @type {SMXNode}
+     * @readonly
+     */
+    get parent() {
+      return $smx(this[0].parentNode);
+    }
+
+    /**
+     * Gets ancestors nodes
+     * @type {SMXNode[]}
+     * @readonly
+     */
+    get ancestors() {
+      var a = [];
+      var p = this;
+      while(p.parent){
+        p = p.parent;
+        a.push(p);
+      }
+      return a;
+    }
+    
+    
+    /**
+     * Gets root node
+     * @type {SMXNode}
+     * @readonly
+     */
+    get root() {
+      return this.ancestors[0];
+    }
+
+    /**
+     * Gets children nodes
+     * @type {SMXNode[]}
+     * @readonly
+     */
+    get children() {
+      //non smx nodes should have no children
+      if(this.type!=='smx') return [];
+      return $smx(this[0].childNodes);
+    }
+
+    /**
+     * Gets first child node
+     * @type {SMXNode}
+     * @readonly
+     */
+    get first() {
+      return this.children.shift();
+    }
+
+    /**
+     * Gets last child node
+     * @type {SMXNode}
+     * @readonly
+     */
+    get last() {
+      return this.children.pop();
+    }
+
+    
+    /**
+     * Gets previous sibling node
+     * @type {SMXNode}
+     * @readonly
+     */
+    get previous(){
+      return $smx(this[0].previousElementSibling || this[0].previousSibling);
+    }
+    
+    /**
+     * Gets next sibling node
+     * @type {SMXNode}
+     * @readonly
+     */
+    get next(){
+      return $smx(this[0].nextElementSibling || this[0].nextSibling);
     }
 
 }
