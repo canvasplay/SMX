@@ -138,10 +138,11 @@
 				//set xml root document
 				this.XML = xml;
 				
-        //extract last child XMLnode in resultant XMLDocument and ignore the document...
-        //using lastChild prevents getting unwanted xml nodes...
-        //IE8 p.e. returns "ProcessingInstruction" for firstChild
-        var node = xml.lastChild;
+				//extract desired root XMLnode in resultant XMLDocument and ignore the document...
+				//IE8 p.e. returns "ProcessingInstruction" for firstChild
+				//using lastChild prevents getting unwanted xml nodes...
+				var node = xml.lastChild;
+
 				resolvePathFileAttributes(node, xhr._url);
         
 			}
@@ -193,11 +194,8 @@
 				copyAttributes(old_node, new_node);
 
 				//replace old node with new node
-				//create clone of new node due wired ipad IOS4 jquery error
 				//WRONG_DOCUMENT_ERR node was used in a different document...
-				//$(old_node).replaceWith(new_node));
-				//$(old_node).replaceWith($(new_node).clone());
-				old_node.outterHTML = this.xml2str(new_node);
+				old_node.parentNode.replaceChild(new_node.cloneNode(true), old_node);
 
 			}
 
@@ -321,7 +319,7 @@
 
 		};
 		
-		this.xml2str = function(xmlNode){
+		this.XML2str = function (xmlNode) {
       
       try {
         // Gecko- and Webkit-based browsers (Firefox, Chrome), Opera.
@@ -362,55 +360,6 @@
       return XML;
 		};
 		
-
-    /**
-     * Merges given node into
-     */
-		this.mergeIntoDocument = function(doc, srcNode, targetNode){
-
-  		//get just loaded node
-  		//ensure we are getting nodeType=1 (XMLElement)
-  		//and avoid other nodetypes like comments, text nodes, ...
-  		var new_node;
-  		if(xml.childNodes){
-  			for(var i=0; i< xml.childNodes.length; i++){
-  				if (xml.childNodes[i].nodeType==1)
-  					new_node = xml.childNodes[i];
-  			}
-  		}
-  
-  		//prepare and merge the new XMLNode
-  		if (!new_node){
-  		  
-  			var node_name = $(old_node).attr('name') || 'node';
-  			new_node = this.XML.createElement(node_name);
-  
-  			var cdata = this.XML.createCDATASection(xml);
-  
-  			//console.log(xml.toString());
-  			//new_node.innerHTML = '<![CDATA[ '+xml+' ]]>';
-  			//new_node.innerHTML = ''+xml+'';
-  			new_node.appendChild(cdata);
-  
-  		}
-  
-  		//resolve 'path' and 'file' attributes from 'src'
-  		resolvePathFileAttributes(new_node, old_node.getAttribute('src'));
-  
-  		//copy old node attributes into new node
-  		copyAttributes(old_node, new_node);
-  
-  		//replace old node with new node
-  		//create clone of new node due wired ipad IOS4 jquery error
-  		//WRONG_DOCUMENT_ERR node was used in a different document...
-  		//$(old_node).replaceWith(new_node));
-  		//$(old_node).replaceWith($(new_node).clone());
-  		$(old_node).replaceWith($(new_node).clone());
-
-		  
-		}
-
-
 
 		return this;
 

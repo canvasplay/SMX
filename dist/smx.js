@@ -1934,183 +1934,183 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 (function (global, Sizzle, smx, $smx, LOG) {
 
-	/**
-  * Loads a new smx document.
-  * @memberof $smx
-  * @param {String} url
-  * @param {$smx~onLoadSuccess} onSuccess
-  * @param {$smx~onLoadError} onError
-  * @async
-  */
-	$smx.load = function (data, success, error) {
+		/**
+   * Loads a new smx document.
+   * @memberof $smx
+   * @param {String} url
+   * @param {$smx~onLoadSuccess} onSuccess
+   * @param {$smx~onLoadError} onError
+   * @async
+   */
+		$smx.load = function (data, success, error) {
 
-		if (!data) return;
+				if (!data) return;
 
-		//conditional loading should check for multiple data source types
-		//from url file as xml or json file... from xmlNode... from json object...
-		//for now just proceed assuming an url for an xml file
-		SUCCESS_CALLBACK = success;
-		ERROR_CALLBACK = error;
+				//conditional loading should check for multiple data source types
+				//from url file as xml or json file... from xmlNode... from json object...
+				//for now just proceed assuming an url for an xml file
+				SUCCESS_CALLBACK = success;
+				ERROR_CALLBACK = error;
 
-		if (typeof data === 'string') LOAD_SMX_DOCUMENT(data);else LOAD_SMX_DOCUMENT_FROM_JSON(data);
-	};
+				if (typeof data === 'string') LOAD_SMX_DOCUMENT(data);else LOAD_SMX_DOCUMENT_FROM_JSON(data);
+		};
 
-	/**
-  * This callback is displayed as part of the Requester class.
-  * @callback $smx~onLoadSuccess
-  * @param {Document} document - Just loaded document
-  */
-	var SUCCESS_CALLBACK = function SUCCESS_CALLBACK(document) {};
+		/**
+   * This callback is displayed as part of the Requester class.
+   * @callback $smx~onLoadSuccess
+   * @param {Document} document - Just loaded document
+   */
+		var SUCCESS_CALLBACK = function SUCCESS_CALLBACK(document) {};
 
-	/**
-  * This callback is displayed as part of the Requester class.
-  * @callback $smx~onLoadError
-  * @param {Object} error - Error object
-  */
-	var ERROR_CALLBACK = function ERROR_CALLBACK(e) {};
+		/**
+   * This callback is displayed as part of the Requester class.
+   * @callback $smx~onLoadError
+   * @param {Object} error - Error object
+   */
+		var ERROR_CALLBACK = function ERROR_CALLBACK(e) {};
 
-	/////////////////////////////////////////////////////////////////////////////////////
-	// LOADING AND COMPILE SMX DOCUMENT
+		/////////////////////////////////////////////////////////////////////////////////////
+		// LOADING AND COMPILE SMX DOCUMENT
 
-	var SMX_COMPILER = null;
+		var SMX_COMPILER = null;
 
-	var LOAD_SMX_DOCUMENT = function LOAD_SMX_DOCUMENT(url) {
+		var LOAD_SMX_DOCUMENT = function LOAD_SMX_DOCUMENT(url) {
 
-		//INSTANCE SMX COMPILER
-		SMX_COMPILER = new smx.Compiler();
+				//INSTANCE SMX COMPILER
+				SMX_COMPILER = new smx.Compiler();
 
-		//SMX_COMPILER.on('complete', LOAD_SMX_COMPLETE);
-		SMX_COMPILER.on('complete', PARSE_METADATA);
-		SMX_COMPILER.on('error', LOAD_SMX_ERROR);
+				//SMX_COMPILER.on('complete', LOAD_SMX_COMPLETE);
+				SMX_COMPILER.on('complete', PARSE_METADATA);
+				SMX_COMPILER.on('error', LOAD_SMX_ERROR);
 
-		//global
-		//global['$compiler'] = SMX_COMPILER;
+				//global
+				//global['$compiler'] = SMX_COMPILER;
 
-		//var data_path = app.config.DATA_PATH || '';
-		//if(app.config.PACKAGE) data_path = app.config.PACKAGE+'/'+ data_path;
+				//var data_path = app.config.DATA_PATH || '';
+				//if(app.config.PACKAGE) data_path = app.config.PACKAGE+'/'+ data_path;
 
-		SMX_COMPILER.loadDocument(url);
+				SMX_COMPILER.loadDocument(url);
 
-		return;
-	};
+				return;
+		};
 
-	var LOAD_SMX_DOCUMENT_FROM_JSON = function LOAD_SMX_DOCUMENT_FROM_JSON(data) {
+		var LOAD_SMX_DOCUMENT_FROM_JSON = function LOAD_SMX_DOCUMENT_FROM_JSON(data) {
 
-		var x2js = new X2JS();
+				var x2js = new X2JS();
 
-		var XML = x2js.json2xml(data);
+				var XML = x2js.json2xml(data);
 
-		XML = XML.removeChild(XML.lastChild);
+				XML = XML.removeChild(XML.lastChild);
 
-		PARSE_METADATA(XML);
-	};
+				PARSE_METADATA(XML);
+		};
 
-	var PARSE_METADATA = function PARSE_METADATA(xml) {
+		var PARSE_METADATA = function PARSE_METADATA(xml) {
 
-		smx.meta.parseXML(xml, {
+				smx.meta.parseXML(xml, {
 
-			callback: function callback(XML, data) {
+						callback: function callback(XML, data) {
 
-				global['$meta'] = data;
+								global['$meta'] = data;
 
-				PARSE_PROTOTYPES(XML);
-			}
+								PARSE_PROTOTYPES(XML);
+						}
 
-		});
+				});
 
-		return;
-	};
+				return;
+		};
 
-	var PARSE_PROTOTYPES = function PARSE_PROTOTYPES(xml) {
+		var PARSE_PROTOTYPES = function PARSE_PROTOTYPES(xml) {
 
-		smx.proto.parseXML(xml, {
+				smx.proto.parseXML(xml, {
 
-			propagate: true,
+						propagate: true,
 
-			callback: function callback(XML, data) {
+						callback: function callback(XML, data) {
 
-				//console.log(data);
+								//console.log(data);
 
-				CLEAN_TEXT_NODES(XML);
-			}
+								CLEAN_TEXT_NODES(XML);
+						}
 
-		});
-	};
+				});
+		};
 
-	var CLEAN_TEXT_NODES = function CLEAN_TEXT_NODES(xml) {
+		var CLEAN_TEXT_NODES = function CLEAN_TEXT_NODES(xml) {
 
-		var count = 0;
+				var count = 0;
 
-		function clean(node) {
+				function clean(node) {
 
-			for (var n = 0; n < node.childNodes.length; n++) {
+						for (var n = 0; n < node.childNodes.length; n++) {
 
-				var child = node.childNodes[n];
+								var child = node.childNodes[n];
 
-				//	1	ELEMENT_NODE
-				//	2	ATTRIBUTE_NODE
-				//	3	TEXT_NODE
-				//	4	CDATA_SECTION_NODE
-				//	5	ENTITY_REFERENCE_NODE
-				//	6	ENTITY_NODE
-				//	7	PROCESSING_INSTRUCTION_NODE
-				//	8	COMMENT_NODE
-				//	9	DOCUMENT_NODE
-				//	10	DOCUMENT_TYPE_NODE
-				//	11	DOCUMENT_FRAGMENT_NODE
-				//	12	NOTATION_NODE
+								//	1	ELEMENT_NODE
+								//	2	ATTRIBUTE_NODE
+								//	3	TEXT_NODE
+								//	4	CDATA_SECTION_NODE
+								//	5	ENTITY_REFERENCE_NODE
+								//	6	ENTITY_NODE
+								//	7	PROCESSING_INSTRUCTION_NODE
+								//	8	COMMENT_NODE
+								//	9	DOCUMENT_NODE
+								//	10	DOCUMENT_TYPE_NODE
+								//	11	DOCUMENT_FRAGMENT_NODE
+								//	12	NOTATION_NODE
 
-				var isElementNode = function isElementNode(n) {
-					return n.nodeType === 1;
-				};
-				var isCommentNode = function isCommentNode(n) {
-					return n.nodeType === 8;
-				};
-				var isEmptyTextNode = function isEmptyTextNode(n) {
-					return n.nodeType === 3 && !/\S/.test(n.nodeValue);
-				};
+								var isElementNode = function isElementNode(n) {
+										return n.nodeType === 1;
+								};
+								var isCommentNode = function isCommentNode(n) {
+										return n.nodeType === 8;
+								};
+								var isEmptyTextNode = function isEmptyTextNode(n) {
+										return n.nodeType === 3 && !/\S/.test(n.nodeValue);
+								};
 
-				if (isCommentNode(child) || isEmptyTextNode(child)) {
-					node.removeChild(child);
-					count++;
-					n--;
-				} else if (isElementNode(child)) {
-					clean(child);
+								if (isCommentNode(child) || isEmptyTextNode(child)) {
+										node.removeChild(child);
+										count++;
+										n--;
+								} else if (isElementNode(child)) {
+										clean(child);
+								}
+						}
 				}
-			}
-		}
 
-		clean(xml);
+				clean(xml);
 
-		LOG('CLEANING XML: ' + count + ' nodes removed');
+				LOG('CLEANING XML: ' + count + ' nodes removed');
 
-		LOAD_SMX_COMPLETE(xml);
-	};
+				LOAD_SMX_COMPLETE(xml);
+		};
 
-	var LOAD_SMX_COMPLETE = function LOAD_SMX_COMPLETE(xml) {
+		var LOAD_SMX_COMPLETE = function LOAD_SMX_COMPLETE(xml) {
 
-		LOG('smx load complete!');
+				LOG('smx load complete!');
 
-		var d = new smx.Document(xml);
+				var d = new smx.Document(xml);
 
-		$smx.cache[d.id] = d;
-		$smx.documents.push(d);
+				$smx.cache[d.id] = d;
+				$smx.documents.push(d);
 
-		if (!$smx.document) $smx.document = d;
+				if (!$smx.document) $smx.document = d;
 
-		SUCCESS_CALLBACK(d);
+				SUCCESS_CALLBACK(d);
 
-		return;
-	};
+				return;
+		};
 
-	var LOAD_SMX_ERROR = function LOAD_SMX_ERROR(e) {
+		var LOAD_SMX_ERROR = function LOAD_SMX_ERROR(e) {
 
-		LOG('smx load error: ' + e);
+				LOG('smx load error: ' + e);
 
-		ERROR_CALLBACK(e);
+				ERROR_CALLBACK(e);
 
-		return;
-	};
+				return;
+		};
 })(window, window.Sizzle, window.smx, window.$smx, window.log);
 //# sourceMappingURL=$smx.load.js.map
 ;'use strict';
@@ -2518,10 +2518,11 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 								//set xml root document
 								this.XML = xml;
 
-								//extract last child XMLnode in resultant XMLDocument and ignore the document...
-								//using lastChild prevents getting unwanted xml nodes...
+								//extract desired root XMLnode in resultant XMLDocument and ignore the document...
 								//IE8 p.e. returns "ProcessingInstruction" for firstChild
+								//using lastChild prevents getting unwanted xml nodes...
 								var node = xml.lastChild;
+
 								resolvePathFileAttributes(node, xhr._url);
 						} else {
 
@@ -2568,11 +2569,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 								copyAttributes(old_node, new_node);
 
 								//replace old node with new node
-								//create clone of new node due wired ipad IOS4 jquery error
 								//WRONG_DOCUMENT_ERR node was used in a different document...
-								//$(old_node).replaceWith(new_node));
-								//$(old_node).replaceWith($(new_node).clone());
-								old_node.outterHTML = this.xml2str(new_node);
+								old_node.parentNode.replaceChild(new_node.cloneNode(true), old_node);
 						}
 
 						//check for <include>?
@@ -2675,7 +2673,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 						return;
 				};
 
-				this.xml2str = function (xmlNode) {
+				this.XML2str = function (xmlNode) {
 
 						try {
 								// Gecko- and Webkit-based browsers (Firefox, Chrome), Opera.
@@ -2709,49 +2707,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 						}
 
 						return XML;
-				};
-
-				/**
-     * Merges given node into
-     */
-				this.mergeIntoDocument = function (doc, srcNode, targetNode) {
-
-						//get just loaded node
-						//ensure we are getting nodeType=1 (XMLElement)
-						//and avoid other nodetypes like comments, text nodes, ...
-						var new_node;
-						if (xml.childNodes) {
-								for (var i = 0; i < xml.childNodes.length; i++) {
-										if (xml.childNodes[i].nodeType == 1) new_node = xml.childNodes[i];
-								}
-						}
-
-						//prepare and merge the new XMLNode
-						if (!new_node) {
-
-								var node_name = $(old_node).attr('name') || 'node';
-								new_node = this.XML.createElement(node_name);
-
-								var cdata = this.XML.createCDATASection(xml);
-
-								//console.log(xml.toString());
-								//new_node.innerHTML = '<![CDATA[ '+xml+' ]]>';
-								//new_node.innerHTML = ''+xml+'';
-								new_node.appendChild(cdata);
-						}
-
-						//resolve 'path' and 'file' attributes from 'src'
-						resolvePathFileAttributes(new_node, old_node.getAttribute('src'));
-
-						//copy old node attributes into new node
-						copyAttributes(old_node, new_node);
-
-						//replace old node with new node
-						//create clone of new node due wired ipad IOS4 jquery error
-						//WRONG_DOCUMENT_ERR node was used in a different document...
-						//$(old_node).replaceWith(new_node));
-						//$(old_node).replaceWith($(new_node).clone());
-						$(old_node).replaceWith($(new_node).clone());
 				};
 
 				return this;
@@ -4297,8 +4252,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				if (!tnode.isAccesible() && !global.app.config.FREE_ACCESS) throw new Error('NODE "' + cnode.id + '" IS NOT ACCESIBLE');
 
 				/**
-    	HERE YOU CAN PLUG ASYNC NAVIGATION CONTROLLERS... like SCORMX or VMSCO or...
-    	*/
+    		HERE YOU CAN PLUG ASYNC NAVIGATION CONTROLLERS... like SCORMX or VMSCO or...
+    		*/
 
 				try {
 
@@ -9745,535 +9700,535 @@ Sizzle.selectors.filters.meta = function (elem, i, match) {
 
 (function (global, _, Sizzle, smx) {
 
-  /**
-   * Extends SMXNode with utility tree node methods
-   * @mixin TreeNode
-   * @memberof smx.fn
-   */
-
-  var TreeNode = {
-
-    // PARENT RELATED OPERATIONS
-
     /**
-     * Gets a list of parent nodes up to root
-     * @method parents
-     * @memberof smx.fn.TreeNode
-     * @return {SMXNode[]}
+     * Extends SMXNode with utility tree node methods
+     * @mixin TreeNode
+     * @memberof smx.fn
      */
-    getAncestors: function getAncestors(selector) {
 
-      if (!selector) return this.ancestors;
-      if (!this[0].parentNode) return [];else {
-        var parent = this.parent();
-        var parents = [parent];
-        while (parent && parent.parent()) {
-          parent = parent.parent();
-          if (parent) parents.unshift(parent);
-        }
-        return $smx(parents);
-      }
-    },
+    var TreeNode = {
 
-    // EXTRA - PARENT RELATED OPERATIONS
+        // PARENT RELATED OPERATIONS
 
-    /**
-     * Checks if node is a parent of another
-     * @method isParentOf
-     * @memberof smx.fn.TreeNode
-     * @param {SMXNode} node - reference node
-     * @return {Boolean}
-     */
-    isParentOf: function isParentOf(node) {
+        /**
+         * Gets a list of parent nodes up to root
+         * @method parents
+         * @memberof smx.fn.TreeNode
+         * @return {SMXNode[]}
+         */
+        getAncestors: function getAncestors(selector) {
 
-      //validate given node (smx node required)
-      if (!node.parents) return false;
-
-      var parentsId = _.map(node.parents(), 'id');
-      if (_.includes(parentsId, this.id)) return true;else return false;
-    },
-
-    // CHILD RELATED OPERATIONS
-
-    /**
-     * get node by identifier
-     * @method getNodeById
-     * @memberof smx.fn.TreeNode
-     * @alias gid
-     * @return {SMXNode}
-     */
-    getNodeById: function getNodeById(id) {
-
-      //is nodes cache array?
-      if ($smx.cache[id]) return $smx.cache[id];
-
-      //search in document
-      var node = Sizzle('#' + id, this[0]);
-      if (node.length > 0) return $smx(node[0]);
-
-      //not found
-      return;
-    },
-
-    gid: function gid(id) {
-      return this.getNodeById(id);
-    },
-
-    /**
-     * Checks if node matches the given selector
-     * @method match
-     * @memberof smx.fn.TreeNode
-     * @param {String} selector - css selector to match
-     * @return {Boolean}
-     */
-    isMatch: function isMatch(selector) {
-
-      return Sizzle.matchesSelector(this[0], selector);
-    },
-
-    /**
-     * Finds all descendant nodes matching the given selector
-     * @method find
-     * @memberof smx.fn.TreeNode
-     * @param {String} selector - search selector
-     * @return {Array.<Node>}
-     */
-    find: function find(selector) {
-
-      if (!this.children.length) return [];
-      if (!selector) return [];
-      var nodes = Sizzle(selector, this[0]);
-      if (nodes.length) nodes = _.uniqBy(nodes, 'id');
-      return $smx(nodes);
-    },
-
-    /**
-     * This method is `find` but returns only the first result
-     * @method one
-     * @memberof smx.fn.TreeNode
-     * @param {String} selector - search selector
-     * @return {SMXNode}
-     */
-    one: function one(selector) {
-
-      return this.find(selector)[0];
-    },
-
-    /**
-     * get child nodes
-     * @method getChildren
-     * @memberof smx.fn.TreeNode
-     * @param {String=} selector
-     * @return {Array.<Node>}
-     */
-    getChildren: function getChildren(selector) {
-
-      if (!selector) return this.children;
-
-      return this.children.map(function (n) {
-        return Sizzle.matchesSelector(n, selector);
-      });
-    },
-
-    /**
-     * Get the first child node
-     * @method getFirst
-     * @memberof smx.fn.TreeNode
-     * @param {String=} selector
-     * @return {SMXNode}
-     */
-    getFirst: function getFirst(selector) {
-
-      if (!selector) return this.first;
-
-      var children = this.children;
-      var i = 0,
-          len = children.length,
-          result;
-      while (i < len && !result) {
-        if (Sizzle.matchesSelector(children[i], selector)) result = children[i];
-        i++;
-      }
-    },
-
-    /**
-     * Gets the last child node
-     * @method getLast
-     * @memberof smx.fn.TreeNode
-     * @param {String=} selector
-     * @return {SMXNode}
-     */
-    getLast: function getLast(selector) {
-
-      if (!selector) return this.last;
-
-      var children = this.children.reverse();
-      var i = 0,
-          len = children.length,
-          result;
-      while (i < len && !result) {
-        if (Sizzle.matchesSelector(children[i], selector)) result = children[i];
-        i++;
-      }
-    },
-
-    // EXTRA - CHILD RELATED OPERATIONS
-
-    /**
-     * Gets child node at given index
-     * @method getChildAt
-     * @memberof smx.fn.TreeNode
-     * @param {Integer} index - index position
-     * @return {SMXNode}
-     */
-    getChildAt: function getChildAt(index) {
-
-      return this.children[index];
-    },
-
-    /**
-     * Checks if a node is child of another
-     * @method isDescendantOf
-     * @memberof smx.fn.TreeNode
-     * @param {SMXNode} node - reference node
-     * @return {Boolean}
-     */
-    isDescendantOf: function isDescendantOf(node) {
-
-      //validate given node (smx node required)
-      if (!node.parent) return false;
-
-      var parentsId = _.map(this.ancestors, 'id');
-      if (_.includes(parentsId, node.id)) return true;else return false;
-    },
-
-    // SIBLING RELATED OPERATIONS
-
-
-    /**
-     * Gets next sibling node
-     * @method next
-     * @memberof smx.fn.TreeNode
-     * @param {String=} selector - filter selector
-     * @return {SMXNode}
-     */
-    getNext: function getNext(selector) {
-      var el = this[0].nextElementSibling || this[0].nextSibling;
-      return selector ? Sizzle.matchesSelector(el, selector) ? $smx(el) : undefined : $smx(el);
-    },
-
-    /**
-     * Gets previous sibling node
-     * @method previous
-     * @memberof smx.fn.TreeNode
-     * @param {String=} selector - filter selector
-     * @return {SMXNode}
-     */
-    getPrevious: function getPrevious(selector) {
-      var el = this[0].previousElementSibling || this[0].previousSibling;
-      return selector ? Sizzle.matchesSelector(el, selector) ? $smx(el) : undefined : $smx(el);
-    }
-
-    // FLAT TREE SIBLINGS
-
-    /**
-     * Gets previous node in a flat tree
-     * @method getStepBack
-     * @memberof smx.fn.TreeNode
-     * @return {SMXNode}
-     
-    stepBack: function(){
-         //previousSibling?
-        var _prev_sibling_node = this.previous();
-        if(_prev_sibling_node) return $smx(_prev_sibling_node);
-         //parentNode?
-        var _parent_node = this.parent();
-        if(_parent_node) return $smx(_parent_node);
-         //nothing found...
-        return;
-     },
-    */
-
-    /**
-     * get next node in a flat tree
-     * @method getStepForward
-     * @memberof smx.fn.TreeNode
-     * @return {SMXNode}
-    
-    stepForward: function(from_last_child){
-         //in recursive calls indicate if last recursion come from lastChild of its parent
-        var _from_last_child = (from_last_child)? from_last_child : false;
-         // 1. use children, trying to get deep inside node
-        // if (_from_last_child) means we arleady searched on childNodes and avoid it
-        // we avoid children when content is not smx
-        if (!_from_last_child && this.get('type')==='smx' && !this.time('timed')){
-             var _first_childnode = this.first();
-             if (_first_childnode.get('type')==='smx' ){
-                return $smx(_first_childnode);
+            if (!selector) return this.ancestors;
+            if (!this[0].parentNode) return [];else {
+                var parent = this.parent();
+                var parents = [parent];
+                while (parent && parent.parent()) {
+                    parent = parent.parent();
+                    if (parent) parents.unshift(parent);
+                }
+                return $smx(parents);
             }
-        }
-         //2. search nextSibling:
-        var _next_sibling_node = this.next();
-        if(_next_sibling_node) return $smx(_next_sibling_node);
-         //3. search on parentNode
-        var _parent_node = this.parent();
-        if(_parent_node) return $smx(_parent_node.stepForward(true));
-         //4. nothing found: return null!!
-        return;
-     }
-    */
-  };
+        },
 
-  //extends smx fn methods
-  smx.fn = !smx.fn ? { TreeNode: TreeNode } : Object.assign(smx.fn, { TreeNode: TreeNode });
+        // EXTRA - PARENT RELATED OPERATIONS
+
+        /**
+         * Checks if node is a parent of another
+         * @method isParentOf
+         * @memberof smx.fn.TreeNode
+         * @param {SMXNode} node - reference node
+         * @return {Boolean}
+         */
+        isParentOf: function isParentOf(node) {
+
+            //validate given node (smx node required)
+            if (!node.parents) return false;
+
+            var parentsId = _.map(node.parents(), 'id');
+            if (_.includes(parentsId, this.id)) return true;else return false;
+        },
+
+        // CHILD RELATED OPERATIONS
+
+        /**
+         * get node by identifier
+         * @method getNodeById
+         * @memberof smx.fn.TreeNode
+         * @alias gid
+         * @return {SMXNode}
+         */
+        getNodeById: function getNodeById(id) {
+
+            //is nodes cache array?
+            if ($smx.cache[id]) return $smx.cache[id];
+
+            //search in document
+            var node = Sizzle('#' + id, this[0]);
+            if (node.length > 0) return $smx(node[0]);
+
+            //not found
+            return;
+        },
+
+        gid: function gid(id) {
+            return this.getNodeById(id);
+        },
+
+        /**
+         * Checks if node matches the given selector
+         * @method isMatch
+         * @memberof smx.fn.TreeNode
+         * @param {String} selector - css selector to match
+         * @return {Boolean}
+         */
+        isMatch: function isMatch(selector) {
+
+            return Sizzle.matchesSelector(this[0], selector);
+        },
+
+        /**
+         * Finds all descendant nodes matching the given selector
+         * @method find
+         * @memberof smx.fn.TreeNode
+         * @param {String} selector - search selector
+         * @return {Array.<Node>}
+         */
+        find: function find(selector) {
+
+            if (!this.children.length) return [];
+            if (!selector) return [];
+            var nodes = Sizzle(selector, this[0]);
+            if (nodes.length) nodes = _.uniqBy(nodes, 'id');
+            return $smx(nodes);
+        },
+
+        /**
+         * This method is `find` but returns only the first result
+         * @method one
+         * @memberof smx.fn.TreeNode
+         * @param {String} selector - search selector
+         * @return {SMXNode}
+         */
+        one: function one(selector) {
+
+            return this.find(selector)[0];
+        },
+
+        /**
+         * get child nodes
+         * @method getChildren
+         * @memberof smx.fn.TreeNode
+         * @param {String=} selector
+         * @return {Array.<Node>}
+         */
+        getChildren: function getChildren(selector) {
+
+            if (!selector) return this.children;
+
+            return this.children.map(function (n) {
+                return Sizzle.matchesSelector(n, selector);
+            });
+        },
+
+        /**
+         * Get the first child node
+         * @method getFirst
+         * @memberof smx.fn.TreeNode
+         * @param {String=} selector
+         * @return {SMXNode}
+         */
+        getFirst: function getFirst(selector) {
+
+            if (!selector) return this.first;
+
+            var children = this.children;
+            var i = 0,
+                len = children.length,
+                result;
+            while (i < len && !result) {
+                if (Sizzle.matchesSelector(children[i], selector)) result = children[i];
+                i++;
+            }
+        },
+
+        /**
+         * Gets the last child node
+         * @method getLast
+         * @memberof smx.fn.TreeNode
+         * @param {String=} selector
+         * @return {SMXNode}
+         */
+        getLast: function getLast(selector) {
+
+            if (!selector) return this.last;
+
+            var children = this.children.reverse();
+            var i = 0,
+                len = children.length,
+                result;
+            while (i < len && !result) {
+                if (Sizzle.matchesSelector(children[i], selector)) result = children[i];
+                i++;
+            }
+        },
+
+        // EXTRA - CHILD RELATED OPERATIONS
+
+        /**
+         * Gets child node at given index
+         * @method getChildAt
+         * @memberof smx.fn.TreeNode
+         * @param {Integer} index - index position
+         * @return {SMXNode}
+         */
+        getChildAt: function getChildAt(index) {
+
+            return this.children[index];
+        },
+
+        /**
+         * Checks if a node is child of another
+         * @method isDescendantOf
+         * @memberof smx.fn.TreeNode
+         * @param {SMXNode} node - reference node
+         * @return {Boolean}
+         */
+        isDescendantOf: function isDescendantOf(node) {
+
+            //validate given node (smx node required)
+            if (!node.parent) return false;
+
+            var parentsId = _.map(this.ancestors, 'id');
+            if (_.includes(parentsId, node.id)) return true;else return false;
+        },
+
+        // SIBLING RELATED OPERATIONS
+
+
+        /**
+         * Gets next sibling node
+         * @method next
+         * @memberof smx.fn.TreeNode
+         * @param {String=} selector - filter selector
+         * @return {SMXNode}
+         */
+        getNext: function getNext(selector) {
+            var el = this[0].nextElementSibling || this[0].nextSibling;
+            return selector ? Sizzle.matchesSelector(el, selector) ? $smx(el) : undefined : $smx(el);
+        },
+
+        /**
+         * Gets previous sibling node
+         * @method previous
+         * @memberof smx.fn.TreeNode
+         * @param {String=} selector - filter selector
+         * @return {SMXNode}
+         */
+        getPrevious: function getPrevious(selector) {
+            var el = this[0].previousElementSibling || this[0].previousSibling;
+            return selector ? Sizzle.matchesSelector(el, selector) ? $smx(el) : undefined : $smx(el);
+        }
+
+        // FLAT TREE SIBLINGS
+
+        /**
+         * Gets previous node in a flat tree
+         * @method getStepBack
+         * @memberof smx.fn.TreeNode
+         * @return {SMXNode}
+         
+        stepBack: function(){
+              //previousSibling?
+            var _prev_sibling_node = this.previous();
+            if(_prev_sibling_node) return $smx(_prev_sibling_node);
+              //parentNode?
+            var _parent_node = this.parent();
+            if(_parent_node) return $smx(_parent_node);
+              //nothing found...
+            return;
+          },
+        */
+
+        /**
+         * get next node in a flat tree
+         * @method getStepForward
+         * @memberof smx.fn.TreeNode
+         * @return {SMXNode}
+        
+        stepForward: function(from_last_child){
+              //in recursive calls indicate if last recursion come from lastChild of its parent
+            var _from_last_child = (from_last_child)? from_last_child : false;
+              // 1. use children, trying to get deep inside node
+            // if (_from_last_child) means we arleady searched on childNodes and avoid it
+            // we avoid children when content is not smx
+            if (!_from_last_child && this.get('type')==='smx' && !this.time('timed')){
+                  var _first_childnode = this.first();
+                  if (_first_childnode.get('type')==='smx' ){
+                    return $smx(_first_childnode);
+                }
+            }
+              //2. search nextSibling:
+            var _next_sibling_node = this.next();
+            if(_next_sibling_node) return $smx(_next_sibling_node);
+              //3. search on parentNode
+            var _parent_node = this.parent();
+            if(_parent_node) return $smx(_parent_node.stepForward(true));
+              //4. nothing found: return null!!
+            return;
+          }
+        */
+    };
+
+    //extends smx fn methods
+    smx.fn = !smx.fn ? { TreeNode: TreeNode } : Object.assign(smx.fn, { TreeNode: TreeNode });
 })(window, window._, window.Sizzle, window.smx);
 //# sourceMappingURL=Node.TreeNode.js.map
 ;'use strict';
 
 (function (smx) {
 
-    /**
-     *  TIME ATTR CONTROLLER
-     *  Plugin Controller for attributes namespace with 'ui'
-     *  @module TimeAttrController
-     */
+                /**
+                 *  TIME ATTR CONTROLLER
+                 *  Plugin Controller for attributes namespace with 'ui'
+                 *  @module TimeAttrController
+                 */
 
-    var TimeAttrController = {
+                var TimeAttrController = {
 
-        'getters': {
+                                'getters': {
 
-            'timeline': function timeline(node) {
-                return node.attr('timeline') === 'true';
-            },
+                                                'timeline': function timeline(node) {
+                                                                return node.attr('timeline') === 'true';
+                                                },
 
-            'timed': function timed(node) {
+                                                'timed': function timed(node) {
 
-                var is_in_timeline = false;
-                var is_timeline = this.timeline(node);
+                                                                var is_in_timeline = false;
+                                                                var is_timeline = this.timeline(node);
 
-                if (is_timeline) return false;else {
-                    var parent = node.parent;
-                    while (parent && !this.timeline(parent)) {
-                        parent = parent.parent;
-                    }
+                                                                if (is_timeline) return false;else {
+                                                                                var parent = node.parent;
+                                                                                while (parent && !this.timeline(parent)) {
+                                                                                                parent = parent.parent;
+                                                                                }
 
-                    if (!parent) return false;else if (this.timeline(parent)) return true;else return false;
-                }
-            },
+                                                                                if (!parent) return false;else if (this.timeline(parent)) return true;else return false;
+                                                                }
+                                                },
 
-            'timing': function timing(node) {
-                return node.attr('timing') === 'absolute' ? 'absolute' : 'relative';
-            },
+                                                'timing': function timing(node) {
+                                                                return node.attr('timing') === 'absolute' ? 'absolute' : 'relative';
+                                                },
 
-            'duration': function duration(node, force_sync) {
+                                                'duration': function duration(node, force_sync) {
 
-                //use local value if already exists...
-                if (!force_sync && _.isNumber(node.duration)) return node.duration;
+                                                                //use local value if already exists...
+                                                                if (!force_sync && _.isNumber(node.duration)) return node.duration;
 
-                //has duration attribute?
-                var duration = parseInt(node.attr('duration'));
-                if (_.isNaN(duration) || duration < 0) duration = NaN;
+                                                                //has duration attribute?
+                                                                var duration = parseInt(node.attr('duration'));
+                                                                if (_.isNaN(duration) || duration < 0) duration = NaN;
 
-                //sync start for
-                var start = this.start(node);
+                                                                //sync start for
+                                                                var start = this.start(node);
 
-                //try child summatory
-                if (_.isNaN(duration)) {
-                    var childs = node.children;
-                    childs = childs.reverse();
-                    if (childs.length > 0) {
-                        // childs will define duration using
-                        // the child with the highest offset+duration value
-                        var max = 0;
-                        for (var n = 0; n < childs.length; n++) {
-                            var child = childs[n];
-                            var sum = this.offset(child) + this.duration(child, force_sync);
-                            if (sum > max) max = sum;
-                        }
-                        duration = max;
-                    } else if (!node.next && !node.previous) {
-                        duration = 0;
-                    }
-                }
+                                                                //try child summatory
+                                                                if (_.isNaN(duration)) {
+                                                                                var childs = node.children;
+                                                                                childs = childs.reverse();
+                                                                                if (childs.length > 0) {
+                                                                                                // childs will define duration using
+                                                                                                // the child with the highest offset+duration value
+                                                                                                var max = 0;
+                                                                                                for (var n = 0; n < childs.length; n++) {
+                                                                                                                var child = childs[n];
+                                                                                                                var sum = this.offset(child) + this.duration(child, force_sync);
+                                                                                                                if (sum > max) max = sum;
+                                                                                                }
+                                                                                                duration = max;
+                                                                                } else if (!node.next && !node.previous) {
+                                                                                                duration = 0;
+                                                                                }
+                                                                }
 
-                //check next sibling dependencies
-                if (_.isNaN(duration) && this.timed(node)) {
+                                                                //check next sibling dependencies
+                                                                if (_.isNaN(duration) && this.timed(node)) {
 
-                    //get parent
-                    var parent = node.parent;
+                                                                                //get parent
+                                                                                var parent = node.parent;
 
-                    if (parent && _.isNumber(parent.duration)) {
+                                                                                if (parent && _.isNumber(parent.duration)) {
 
-                        //get next sibling with absolute timing
-                        var next = node.next;
-                        var target = null;
-                        while (next && !target) {
-                            if (this.timing(next) == 'absolute') target = next;else next = next.next;
-                        }
+                                                                                                //get next sibling with absolute timing
+                                                                                                var next = node.next;
+                                                                                                var target = null;
+                                                                                                while (next && !target) {
+                                                                                                                if (this.timing(next) == 'absolute') target = next;else next = next.next;
+                                                                                                }
 
-                        if (target) {
-                            if (_.isNumber(target.start) && _.isNumber(node.start)) {
-                                duration = parseInt(this.offset(next) - node.start);
-                                if (_.isNaN(duration) || duration < 0) duration = NaN;
-                            }
-                        } else {
-                            duration = parseInt(this.duration(parent) - node.start);
-                            if (_.isNaN(duration) || duration < 0) duration = NaN;
-                        }
-                    } else {
-                        duration = NaN;
-                    }
-                }
+                                                                                                if (target) {
+                                                                                                                if (_.isNumber(target.start) && _.isNumber(node.start)) {
+                                                                                                                                duration = parseInt(this.offset(next) - node.start);
+                                                                                                                                if (_.isNaN(duration) || duration < 0) duration = NaN;
+                                                                                                                }
+                                                                                                } else {
+                                                                                                                duration = parseInt(this.duration(parent) - node.start);
+                                                                                                                if (_.isNaN(duration) || duration < 0) duration = NaN;
+                                                                                                }
+                                                                                } else {
+                                                                                                duration = NaN;
+                                                                                }
+                                                                }
 
-                if (_.isNaN(duration) && !this.timed(node)) {
-                    duration = 0;
-                }
+                                                                if (_.isNaN(duration) && !this.timed(node)) {
+                                                                                duration = 0;
+                                                                }
 
-                //could not determine duration? set to 0
-                if (_.isNaN(duration)) {
-                    duration = 0;
-                } else {
-                    //create sync flag attribute
-                    node[0].setAttribute('is-sync', 'true');
-                }
+                                                                //could not determine duration? set to 0
+                                                                if (_.isNaN(duration)) {
+                                                                                duration = 0;
+                                                                } else {
+                                                                                //create sync flag attribute
+                                                                                node[0].setAttribute('is-sync', 'true');
+                                                                }
 
-                //set local value
-                node.duration = duration;
+                                                                //set local value
+                                                                node.duration = duration;
 
-                //return local value
-                return node.duration;
-            },
+                                                                //return local value
+                                                                return node.duration;
+                                                },
 
-            'start': function start(node, force_sync) {
+                                                'start': function start(node, force_sync) {
 
-                var start;
+                                                                var start;
 
-                //bool flag use or not local value if exists
-                if (!force_sync) {
+                                                                //bool flag use or not local value if exists
+                                                                if (!force_sync) {
 
-                    //has local value?
-                    start = node.attr('start');
-                    if (_.isNumber(start)) return start;
-                }
+                                                                                //has local value?
+                                                                                start = node.attr('start');
+                                                                                if (_.isNumber(start)) return start;
+                                                                }
 
-                //get it from attribute
-                start = parseInt(node.attr('start'));
-                if (_.isNaN(start) || start < 0) start = 0;
+                                                                //get it from attribute
+                                                                start = parseInt(node.attr('start'));
+                                                                if (_.isNaN(start) || start < 0) start = 0;
 
-                //set local value
-                node.start = start;
+                                                                //set local value
+                                                                node.start = start;
 
-                //return local value
-                return start;
-            },
+                                                                //return local value
+                                                                return start;
+                                                },
 
-            'offset': function offset(node, from) {
+                                                'offset': function offset(node, from) {
 
-                var offset = 0;
-                var timing = this.timing(node);
+                                                                var offset = 0;
+                                                                var timing = this.timing(node);
 
-                var start = this.start(node);
+                                                                var start = this.start(node);
 
-                if (timing == 'absolute') {
-                    //absolute timing
-                    //depends on parent node
+                                                                if (timing == 'absolute') {
+                                                                                //absolute timing
+                                                                                //depends on parent node
 
-                    offset = start;
-                } else {
-                    //relative timing
-                    //depends on previous sibling node
+                                                                                offset = start;
+                                                                } else {
+                                                                                //relative timing
+                                                                                //depends on previous sibling node
 
-                    var prev = node.previous;
+                                                                                var prev = node.previous;
 
-                    if (prev) offset = this.offset(prev) + this.duration(prev) + start;else offset = start;
-                }
+                                                                                if (prev) offset = this.offset(prev) + this.duration(prev) + start;else offset = start;
+                                                                }
 
-                if (!from) return offset;
+                                                                if (!from) return offset;
 
-                if (!from.isParentOf(node)) offset = -1;else {
+                                                                if (!from.isParentOf(node)) offset = -1;else {
 
-                    var parent = node.parent;
-                    if (!parent) offset = -1;
-                    /////????????????????????????
-                    else if (parent != from) offset = this.offset(parent, from) + offset;
-                }
+                                                                                var parent = node.parent;
+                                                                                if (!parent) offset = -1;
+                                                                                /////????????????????????????
+                                                                                else if (parent != from) offset = this.offset(parent, from) + offset;
+                                                                }
 
-                return offset;
-            },
+                                                                return offset;
+                                                },
 
-            'end': function end(node) {
-                return this.start(node) + this.duration(node);
-            }
+                                                'end': function end(node) {
+                                                                return this.start(node) + this.duration(node);
+                                                }
 
-        },
+                                },
 
-        'get': function get(node, key) {
+                                'get': function get(node, key) {
 
-            if (_.isFunction(this.getters[key])) {
-                return this.getters[key](node);
-            } else return;
-        }
+                                                if (_.isFunction(this.getters[key])) {
+                                                                return this.getters[key](node);
+                                                } else return;
+                                }
 
-    };
+                };
 
-    //expose into global smx namespace
-    smx.TimeAttrController = TimeAttrController;
+                //expose into global smx namespace
+                smx.TimeAttrController = TimeAttrController;
 })(window.smx);
 //# sourceMappingURL=smx.TimeAttrController.js.map
 ;'use strict';
 
 (function (smx) {
 
-    /**
-     *  UI ATTR CONTROLLER
-     *  Plugin Controller for attributes namespaced with 'ui-'
-     *  @module UIAttrController
-     */
+            /**
+             *  UI ATTR CONTROLLER
+             *  Plugin Controller for attributes namespaced with 'ui-'
+             *  @module UIAttrController
+             */
 
-    var UIAttrController = {
+            var UIAttrController = {
 
-        'MEDIA_TYPES': ['screen', 'print', 'tv'],
+                        'MEDIA_TYPES': ['screen', 'print', 'tv'],
 
-        'get': function get(node, key, media_type) {
+                        'get': function get(node, key, media_type) {
 
-            //resolve 'media' value
-            media_type = this.normalizeMediaType(media_type);
+                                    //resolve 'media' value
+                                    media_type = this.normalizeMediaType(media_type);
 
-            //get 'ui-type-key' attr
-            var asset = node.attr('ui-' + media_type + '-' + key);
+                                    //get 'ui-type-key' attr
+                                    var asset = node.attr('ui-' + media_type + '-' + key);
 
-            //no typed key? use generic 'ui-key'
-            if (_.isEmpty(asset)) asset = node.attr('ui-' + key);
+                                    //no typed key? use generic 'ui-key'
+                                    if (_.isEmpty(asset)) asset = node.attr('ui-' + key);
 
-            //resolve asset url
-            if (!_.isEmpty(asset)) return this.resolveURL(node, asset);
+                                    //resolve asset url
+                                    if (!_.isEmpty(asset)) return this.resolveURL(node, asset);
 
-            return;
-        },
+                                    return;
+                        },
 
-        'normalizeMediaType': function normalizeMediaType(type) {
+                        'normalizeMediaType': function normalizeMediaType(type) {
 
-            if (_.isEmpty(type)) return this.MEDIA_TYPES[0];
+                                    if (_.isEmpty(type)) return this.MEDIA_TYPES[0];
 
-            if (_.includes(this.MEDIA_TYPES, type)) return type;else return this.MEDIA_TYPES[0];
-        },
+                                    if (_.includes(this.MEDIA_TYPES, type)) return type;else return this.MEDIA_TYPES[0];
+                        },
 
-        'resolveURL': function resolveURL(node, asset) {
+                        'resolveURL': function resolveURL(node, asset) {
 
-            //starts with '$/' means package root
-            if (asset.substr(0, 2) == '$/') asset = node.root().get('url') + asset.substr(2);
-            //starts with './' means app root
-            else if (asset.substr(0, 2) == './') asset = asset.substr(2);
-                //else is relative to node
-                else asset = node.get('url') + asset;
+                                    //starts with '$/' means package root
+                                    if (asset.substr(0, 2) == '$/') asset = node.root().get('url') + asset.substr(2);
+                                    //starts with './' means app root
+                                    else if (asset.substr(0, 2) == './') asset = asset.substr(2);
+                                                //else is relative to node
+                                                else asset = node.get('url') + asset;
 
-            return asset;
-        }
+                                    return asset;
+                        }
 
-    };
+            };
 
-    //expose into global smx namespace
-    smx.UIAttrController = UIAttrController;
+            //expose into global smx namespace
+            smx.UIAttrController = UIAttrController;
 })(window.smx);
 //# sourceMappingURL=smx.UIAttrController.js.map
 ;'use strict';
