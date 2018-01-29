@@ -88,22 +88,26 @@ class Node {
      */
     get url() {
       let path = this.attr('path');
+      var result;
       if (this.parent) {
         if (!path)
-          return this.parent.url;
+          result = this.parent.url;
         else {
           //add trail slash
           let trail = path.substr(-1);
           if (trail != '/') path += '/';
-          return this.parent.url + path;
+          result = this.parent.url + path;
         }
       } else {
-        if (!path) return;
-        //add trail slash
-        let trail = path.substr(-1);
-        if (trail != '/') path += '/';
-        return path;
+        if (path){
+          //add trail slash
+          let trail = path.substr(-1);
+          if (trail != '/') path += '/';
+          result = path;
+        }
       }
+      if (result) result = result.replace(/\/\/+/g, '/');
+      return result;
     }
 
 
@@ -118,7 +122,7 @@ class Node {
         let file = this.attr('file');
 
         if (!file)
-            result = (this.parent) ? this.parent.file : undefined;
+            result = (this.parent) ? this.parent.src : undefined;
         else
             result = this.url + file;
 

@@ -2391,7 +2391,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
-(function (win, _, $, smx, log) {
+(function (global, _, $, smx, log) {
 
 		//private aux debug system
 		var DEBUG = true;
@@ -2487,35 +2487,33 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 				this.loadDocument = function (url) {
 
-						this.loadFile(url, 'smx');
+						this.loadFile(url);
 
 						return;
 				};
 
-				this.loadFile = function (_url, _type) {
+				this.loadFile = function (url) {
 
-						//check url param?
-						if (!_.isString(_url) || _url === "") this.onLoadFileError('ERROR: loadFile -> no file');
+						var onSuccess = _.bind(this.onLoadFileSuccess, this);
+						var onError = _.bind(this.onLoadFileError, this);
 
-						this.xhr = $.ajax({
-								'type': "GET",
-								'url': _url,
-								//'dataType': "xml",
-								'cache': false,
-								'data': '',
-								'success': _.bind(this.onLoadFileSuccess, this),
-								'error': _.bind(this.onLoadFileError, this)
-						});
+						this.xhr;
+						if (global.ActiveXObject) this.xhr = new global.ActiveXObject("MSXML2.XMLHTTP.3.0");else this.xhr = new global.XMLHttpRequest();
 
-						//reference for later use...
-						this.xhr._url = _url;
+						this.xhr.open('GET', url);
+						this.xhr.onload = function (evt) {
+								if (evt.target.status === 200) onSuccess(evt.target);else onError(evt.target);
+						};
+						this.xhr.send();
 
 						return;
 				};
 
-				this.onLoadFileSuccess = function (xml, status, xhr) {
+				this.onLoadFileSuccess = function (xhr) {
 
-						LOG('> ' + this.xhr._url + '" ' + this.xhr.status + ' ' + this.xhr.statusText);
+						LOG('> ' + xhr.responseURL + ' ' + xhr.status + ' (' + xhr.statusText + ')');
+						//LOG( xhr.responseText);
+						//var ext = xhr.responseURL.split('.').pop();
 
 						//detect if already exist xml root node
 						var is_root = !this.XML ? true : false;
@@ -2523,20 +2521,20 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 						if (is_root) {
 
 								//set xml root document
-								this.XML = xml;
+								this.XML = xhr.responseXML;
 
 								//extract desired root XMLnode in resultant XMLDocument and ignore the document...
 								//IE8 p.e. returns "ProcessingInstruction" for firstChild
 								//using lastChild prevents getting unwanted xml nodes...
-								var node = xml.lastChild;
+								var node = this.XML.lastChild;
 
-								resolvePathFileAttributes(node, xhr._url);
+								resolvePathFileAttributes(node, xhr.responseURL);
 						} else {
 
 								//if is not root -> is an include
 								//replaces 1st <include> found with just loaded xml
 
-								var includes = $(this.XML).find('include');
+								var includes = Sizzle('include', this.XML);
 
 								//get <include> node
 								var old_node = includes[0];
@@ -2544,12 +2542,15 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 								//get just loaded node
 								//ensure we are getting nodeType=1 (XMLElement)
 								//and avoid other nodetypes like comments, text nodes, ...
-								var new_node;
-								if (xml.childNodes) {
-										for (var i = 0; i < xml.childNodes.length; i++) {
-												if (xml.childNodes[i].nodeType == 1) new_node = xml.childNodes[i];
-										}
-								}
+								var new_node = xhr.responseXML ? xhr.responseXML.lastChild : null;
+								/*
+        if(xml.childNodes){
+        	for(var i=0; i< xml.childNodes.length; i++){
+        		if (xml.childNodes[i].nodeType==1)
+        			new_node = xml.childNodes[i];
+        	}
+        }
+        */
 
 								//not xml? create a new xml node to wrap the loaded data
 								if (!new_node) {
@@ -2558,7 +2559,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 										var nodeName = $(old_node).attr('name') || 'node';
 
 										//get just loaded data
-										var data = xml;
+										var data = xhr.responseText;
 
 										//autodetect data type based on just loaded file extension
 										var type = old_node.getAttribute('src').split('.').pop();
@@ -2641,11 +2642,10 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 						return;
 				};
 
-				this.onLoadFileError = function (e) {
+				this.onLoadFileError = function (xhr) {
 
-						LOG('> ' + this.xhr._url + '" ' + this.xhr.status + ' ' + this.xhr.statusText);
-
-						this.trigger('error', e);
+						LOG('> ' + xhr.responseURL + '" ' + xhr.status + ' (' + xhr.statusText + ')');
+						this.trigger('error', xhr.responseText);
 				};
 
 				this.onLoadXMLComplete = function () {
@@ -2699,7 +2699,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 						var XML = null;
 
-						if (win.ActiveXObject) {
+						if (global.ActiveXObject) {
 
 								var XML = new ActiveXObject('Microsoft.XMLDOM');
 								XML.async = 'false';
@@ -10351,20 +10351,24 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             key: 'url',
             get: function get() {
                 var path = this.attr('path');
+                var result;
                 if (this.parent) {
-                    if (!path) return this.parent.url;else {
+                    if (!path) result = this.parent.url;else {
                         //add trail slash
                         var trail = path.substr(-1);
                         if (trail != '/') path += '/';
-                        return this.parent.url + path;
+                        result = this.parent.url + path;
                     }
                 } else {
-                    if (!path) return;
-                    //add trail slash
-                    var _trail = path.substr(-1);
-                    if (_trail != '/') path += '/';
-                    return path;
+                    if (path) {
+                        //add trail slash
+                        var _trail = path.substr(-1);
+                        if (_trail != '/') path += '/';
+                        result = path;
+                    }
                 }
+                if (result) result = result.replace(/\/\/+/g, '/');
+                return result;
             }
 
             /**
@@ -10380,7 +10384,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                 var result = '';
                 var file = this.attr('file');
 
-                if (!file) result = this.parent ? this.parent.file : undefined;else result = this.url + file;
+                if (!file) result = this.parent ? this.parent.src : undefined;else result = this.url + file;
 
                 if (result) result = result.replace(/\/\/+/g, '/');
 
