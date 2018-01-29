@@ -1,4 +1,4 @@
-(function(win,_,$,smx,log){
+(function(global,_,$,smx,log){
 
 
 	//private aux debug system
@@ -60,6 +60,14 @@
   }
   
   
+  function createDataNode(xmlDocument, nodeName, data, type){
+    var node = xmlDocument.createElement(nodeName);
+		var cdata = xmlDocument.createCDATASection(data);
+		node.appendChild(cdata);
+		node.setAttribute('type', type || 'cdata');
+    return node;
+  }
+  
   function mergeNode(){
     
   }
@@ -94,41 +102,43 @@
 
 		this.loadDocument = function(url){
 
-			this.loadFile( url , 'smx');
+			this.loadFile(url);
 
 
 			return;
 
 		};
 
-		this.loadFile = function(_url, _type){
-
-			//check url param?
-			if(!_.isString(_url) || _url==="") this.onLoadFileError('ERROR: loadFile -> no file');
-
-
-			this.xhr = $.ajax({
-				'type': "GET",
-				'url': _url,
-				//'dataType': "xml",
-				'cache': false,
-				'data':'',
-				'success': _.bind(this.onLoadFileSuccess, this),
-				'error': _.bind(this.onLoadFileError, this)
-	 		});
-
-			//reference for later use...
-	 		this.xhr._url = _url;
-	 		this.xhr._type = _type;
+		this.loadFile = function(url){
+      
+      var onSuccess = _.bind(this.onLoadFileSuccess, this);
+      var onError = _.bind(this.onLoadFileError, this);
+      
+      this.xhr;
+      if(global.ActiveXObject)
+        this.xhr = new global.ActiveXObject("MSXML2.XMLHTTP.3.0")
+      else
+        this.xhr = new global.XMLHttpRequest();
+        
+      this.xhr.open('GET', url);
+      this.xhr.onload = function(evt) {
+          if (evt.target.status === 200)
+            onSuccess(evt.target);
+          else
+            onError(evt.target);
+      };
+      this.xhr.send();
 
 	 		return;
 
 		};
 
-		this.onLoadFileSuccess = function(xml, status, xhr){
+		this.onLoadFileSuccess = function(xhr){
       
       
-			LOG( '> '+this.xhr._url+'" '+this.xhr.status +' '+ this.xhr.statusText);
+      LOG('> '+ xhr.responseURL+' '+xhr.status +' ('+ xhr.statusText+')');
+      //LOG( xhr.responseText);
+      //var ext = xhr.responseURL.split('.').pop();
       
 			//detect if already exist xml root node
 			var is_root = (!this.XML)? true : false;
@@ -136,14 +146,14 @@
 			if (is_root){
         
 				//set xml root document
-				this.XML = xml;
+				this.XML = xhr.responseXML;
 				
 				//extract desired root XMLnode in resultant XMLDocument and ignore the document...
 				//IE8 p.e. returns "ProcessingInstruction" for firstChild
 				//using lastChild prevents getting unwanted xml nodes...
-				var node = xml.lastChild;
+				var node = this.XML.lastChild;
 
-				resolvePathFileAttributes(node, xhr._url);
+				resolvePathFileAttributes(node, xhr.responseURL);
         
 			}
 			else{
@@ -151,7 +161,7 @@
 				//if is not root -> is an include
 				//replaces 1st <include> found with just loaded xml
 
-				var includes = $(this.XML).find('include');
+				var includes = Sizzle('include', this.XML);
 
 				//get <include> node
 				var old_node = includes[0];
@@ -160,30 +170,30 @@
 				//get just loaded node
 				//ensure we are getting nodeType=1 (XMLElement)
 				//and avoid other nodetypes like comments, text nodes, ...
-				var new_node;
+				var new_node = (xhr.responseXML)? xhr.responseXML.lastChild : null;
+				/*
 				if(xml.childNodes){
 					for(var i=0; i< xml.childNodes.length; i++){
 						if (xml.childNodes[i].nodeType==1)
 							new_node = xml.childNodes[i];
 					}
 				}
+				*/
 
-				//prepare and merge the new XMLNode
-				if (!new_node){
+				//not xml? create a new xml node to wrap the loaded data
+				if(!new_node){
 				  
-					var node_name = $(old_node).attr('name') || 'node';
-					new_node = this.XML.createElement(node_name);
-
-					var cdata = this.XML.createCDATASection(xml);
-
-					//console.log(xml.toString());
-					//new_node.innerHTML = '<![CDATA[ '+xml+' ]]>';
-					//new_node.innerHTML = ''+xml+'';
-					new_node.appendChild(cdata);
-					
-					//set type attribute based on just loaded file extension
-					var ext = old_node.getAttribute('src').split('.').pop();
-					new_node.setAttribute('type',ext);
+				  //create new data node based on just loaded file
+				  var nodeName = $(old_node).attr('name') || 'node';
+				  
+				  //get just loaded data
+				  var data = xhr.responseText;
+				  
+				  //autodetect data type based on just loaded file extension
+				  var type = old_node.getAttribute('src').split('.').pop();
+				  
+          //create new data node
+				  new_node = createDataNode(this.XML,nodeName,data, type);
 
 				}
 
@@ -194,8 +204,7 @@
 				copyAttributes(old_node, new_node);
 
 				//replace old node with new node
-				//WRONG_DOCUMENT_ERR node was used in a different document...
-				old_node.parentNode.replaceChild(new_node.cloneNode(true), old_node);
+				old_node.parentNode.replaceChild(new_node, old_node);
 
 			}
 
@@ -260,7 +269,7 @@
 						ref = parent;
 					}
 
-					if (inc_path && inc_path !== '') this.loadFile(inc_path, inc_type);
+					if (inc_path && inc_path !== '') this.loadFile(inc_path);
 
 					return;
 
@@ -277,11 +286,11 @@
 
 		};
 
-		this.onLoadFileError = function(e){
+		this.onLoadFileError = function(xhr){
 
-			LOG( '> '+this.xhr._url+'" '+this.xhr.status +' '+ this.xhr.statusText);
-
-			this.trigger('error',e);
+      LOG( '> '+ xhr.responseURL+'" '+xhr.status +' ('+ xhr.statusText+')');
+			this.trigger('error', xhr.responseText);
+			
 		};
 
 		this.onLoadXMLComplete = function(){
@@ -344,7 +353,7 @@
 
 			var XML = null;
 
-      if (win.ActiveXObject){
+      if (global.ActiveXObject){
 
         var XML = new ActiveXObject('Microsoft.XMLDOM');
         XML.async = 'false';
