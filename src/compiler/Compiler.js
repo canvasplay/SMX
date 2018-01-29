@@ -119,7 +119,6 @@
 
 			//reference for later use...
 	 		this.xhr._url = _url;
-	 		this.xhr._type = _type;
 
 	 		return;
 
@@ -181,7 +180,7 @@
 					//new_node.innerHTML = ''+xml+'';
 					new_node.appendChild(cdata);
 					
-					//set type attribute based on just loaded file extension
+					//autodetect node type based on just loaded file extension
 					var ext = old_node.getAttribute('src').split('.').pop();
 					new_node.setAttribute('type',ext);
 
@@ -194,8 +193,7 @@
 				copyAttributes(old_node, new_node);
 
 				//replace old node with new node
-				//WRONG_DOCUMENT_ERR node was used in a different document...
-				old_node.parentNode.replaceChild(new_node.cloneNode(true), old_node);
+				old_node.parentNode.replaceChild(new_node, old_node);
 
 			}
 
@@ -260,7 +258,7 @@
 						ref = parent;
 					}
 
-					if (inc_path && inc_path !== '') this.loadFile(inc_path, inc_type);
+					if (inc_path && inc_path !== '') this.loadFile(inc_path);
 
 					return;
 
