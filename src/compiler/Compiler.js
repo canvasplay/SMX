@@ -1,12 +1,7 @@
-(function(global,_,$,smx,log){
+(function(global,_,smx,LOG){
 
 
-	//private aux debug system
-	const DEBUG = true;
-	const LOG = function(o){if(DEBUG)log(o)};
-
-
-  function copyAttributes(srcNode, targetNode){
+  var copyAttributes = function(srcNode, targetNode){
     
     var ignore_attributes = ['src','path','file'];
     
@@ -27,9 +22,9 @@
     
     return targetNode;
     
-  }
+  };
 
-  function resolvePathFileAttributes(node, url){
+  var resolvePathFileAttributes = function(node, url){
     
     //get src string from node attribute or given url
     let src = (url)? url : node.getAttribute('src');
@@ -57,20 +52,54 @@
 		
 		return node;
 
-  }
+  };
   
   
-  function createDataNode(xmlDocument, nodeName, data, type){
+  var createDataNode = function(xmlDocument, nodeName, data, type){
     var node = xmlDocument.createElement(nodeName);
 		var cdata = xmlDocument.createCDATASection(data);
 		node.appendChild(cdata);
 		node.setAttribute('type', type || 'cdata');
     return node;
-  }
+  };
   
-  function mergeNode(){
+  var parseIncludes = function(xmlDocument){
     
-  }
+    var inc;
+    
+    //find all existing <include> nodes
+    var includes = Sizzle('include', xmlDocument);
+    
+    //iterate and filter includes
+    while(!inc && includes.length>0){
+      
+			var follow = true;
+      
+			//get first include found
+			inc = includes.shift();
+      
+      //FILTER BY LANG ATTR
+			//attribute lang must match options lang
+			var inc_lang = inc.getAttribute('lang');
+			if(inc_lang && inc_lang!=this.options.lang) follow = false;
+      
+      //FILTER BY IGNORE ATTR
+			//exclude if ignore attribute is defined and != false
+			var inc_ignore = inc.getAttribute('ignore');
+			if(inc_ignore==='true') follow = false;
+			
+			if(!follow){
+				inc.parentNode.removeChild(inc);
+				inc = null;
+			}
+      
+    }
+    
+    return inc;
+    
+  };
+  
+
 
 /**
  * SMX Compiler Class
@@ -116,7 +145,7 @@
       
       this.xhr;
       if(global.ActiveXObject)
-        this.xhr = new global.ActiveXObject("MSXML2.XMLHTTP.3.0")
+        this.xhr = new global.ActiveXObject("MSXML2.XMLHTTP.3.0");
       else
         this.xhr = new global.XMLHttpRequest();
         
@@ -148,9 +177,8 @@
 				//set xml root document
 				this.XML = xhr.responseXML;
 				
-				//extract desired root XMLnode in resultant XMLDocument and ignore the document...
-				//IE8 p.e. returns "ProcessingInstruction" for firstChild
-				//using lastChild prevents getting unwanted xml nodes...
+        //ignore XMLDocument and other unwanted nodes like comments, text, ...
+        //get just the root XMLElement as lastChild in document
 				var node = this.XML.lastChild;
 
 				resolvePathFileAttributes(node, xhr.responseURL);
@@ -158,129 +186,73 @@
 			}
 			else{
         
-				//if is not root -> is an include
-				//replaces 1st <include> found with just loaded xml
+				//get 1st <include> found in current XMLDocument
+				var include = Sizzle('include[loading="true"]', this.XML)[0];
 
-				var includes = Sizzle('include', this.XML);
-
-				//get <include> node
-				var old_node = includes[0];
-
-
-				//get just loaded node
-				//ensure we are getting nodeType=1 (XMLElement)
-				//and avoid other nodetypes like comments, text nodes, ...
+        //resolve if just loaded data is an XML document or not
+        var isXml = (xhr.responseXML)? true : false;
+        
+        //ignore XMLDocument and other unwanted nodes like comments, text, ...
+        //get just the root XMLElement as lastChild in document
 				var new_node = (xhr.responseXML)? xhr.responseXML.lastChild : null;
-				/*
-				if(xml.childNodes){
-					for(var i=0; i< xml.childNodes.length; i++){
-						if (xml.childNodes[i].nodeType==1)
-							new_node = xml.childNodes[i];
-					}
-				}
-				*/
 
 				//not xml? create a new xml node to wrap the loaded data
 				if(!new_node){
 				  
-				  //create new data node based on just loaded file
-				  var nodeName = $(old_node).attr('name') || 'node';
+				  //resolves new node name based on include's name attribute
+				  //defaults to generic the nodeName `node`
+				  var nodeName = include.getAttribute('name') || 'node';
 				  
 				  //get just loaded data
 				  var data = xhr.responseText;
 				  
 				  //autodetect data type based on just loaded file extension
-				  var type = old_node.getAttribute('src').split('.').pop();
+				  var type = include.getAttribute('src').split('.').pop();
 				  
           //create new data node
-				  new_node = createDataNode(this.XML,nodeName,data, type);
+				  new_node = createDataNode(this.XML, nodeName, data, type);
 
 				}
 
 				//resolve 'path' and 'file' attributes from 'src'
-				resolvePathFileAttributes(new_node, old_node.getAttribute('src'));
+				resolvePathFileAttributes(new_node, include.getAttribute('src'));
 
-				//copy old node attributes into new node
-				copyAttributes(old_node, new_node);
+				//copy attributes from include node to the new node
+				copyAttributes(include, new_node);
 
-				//replace old node with new node
-				old_node.parentNode.replaceChild(new_node, old_node);
-
-			}
-
-
-			//check for <include>?
-			var includes = $(this.XML).find('include').get();
-			if(includes.length>0){
-
-				//get first include found
-				var inc;
-
-
-				//filter excluding non matching " ... " inlcudes
-				while(!inc && includes.length>0){
-
-					var follow = true;
-
-					//get first include found
-					inc = includes.shift();
-
-
-					//FILTER BY LANG ATTR
-					//attribute lang must match options lang
-					var inc_lang = inc.getAttribute('lang');
-					if(inc_lang && inc_lang!=this.options.lang) follow = false;
-
-
-					//FILTER BY IGNORE ATTR
-					//exclude if ignore attribute is defined and != false
-					var inc_ignore = inc.getAttribute('ignore');
-					if(inc_ignore==='true') follow = false;
-
-					if(!follow){
-						$(inc).remove();
-						inc = null;
-					}
-
-
-				}
-
-
-				if(inc){
-
-
-					//get include target url
-					var inc_path = $(inc).attr('src') || '';
-					var inc_type = $(inc).attr('type') || '';
-
-					//RESOLVE TARGET URL VALUE
-					//
-
-					if(inc_path.indexOf('@lang')>=0) inc_path = inc_path.replace(/@lang/g, this.options.lang);
-
-					//
-					/////
-
-					//resolve context path
-					var ref = inc;
-					while (ref.parentNode){
-						var parent = ref.parentNode;
-						if ($(parent).attr('path')) inc_path = $(parent).attr('path') + inc_path;
-						ref = parent;
-					}
-
-					if (inc_path && inc_path !== '') this.loadFile(inc_path);
-
-					return;
-
-				}
-
+				//replace include node with the new node
+				include.parentNode.replaceChild(new_node, include);
 
 			}
 
 
+      var inc = parseIncludes(this.XML);
 
-			this.onLoadXMLComplete();
+      if(inc){
+        
+        //flag include node as loading
+        inc.setAttribute('loading','true');
+          
+    		//get include target url
+    		var url = inc.getAttribute('src') || '';
+        
+        //replace @lang keyword in src
+    		if(url.indexOf('@lang')>=0) url = url.replace(/@lang/g, this.options.lang);
+        
+    		//resolve full url
+    		var ref = inc;
+    		while (ref.parentNode){
+    			var parent = ref.parentNode;
+    			var path = (parent.getAttribute) ? parent.getAttribute('path') || '' : '';
+    			url = path+url;
+    			ref = parent;
+    		}
+        
+        this.loadFile(url);
+        
+      }
+      else
+			  this.onLoadXMLComplete();
 
 			return;
 
@@ -301,12 +273,7 @@
   		//using lastChild prevents getting unwanted xml nodes...
       //IE8 p.e. returns "ProcessingInstruction" for firstChild
       XML = XML.removeChild(XML.lastChild);
-			
-			//also extract file and path attributes
-			$(XML).attr('path', $(this.XML).attr('path'));
-			$(XML).attr('file', $(this.XML).attr('file'));
-			
-			
+      
       //ATTRIBUTE PARSING
       
       //get defined parsers from smx ns
@@ -341,7 +308,7 @@
         }
         catch (e) {
           //Other browsers without XML Serializer
-          alert('Xmlserializer not supported');
+          alert('XMLSerializer not supported');
         }
       }
       
@@ -355,14 +322,14 @@
 
       if (global.ActiveXObject){
 
-        var XML = new ActiveXObject('Microsoft.XMLDOM');
+        XML = new ActiveXObject('Microsoft.XMLDOM');
         XML.async = 'false';
         XML.loadXML(str);
 
       } else {
 
         var parser = new DOMParser();
-        var XML = parser.parseFromString(str,'text/xml');
+        XML = parser.parseFromString(str,'text/xml');
 
       }
 
@@ -438,4 +405,4 @@ var CLEAN_XML_NODE = function(xml){
 
 
 
-})(window,_,$,smx,log);
+})(window,window._,window.smx,window.log);
