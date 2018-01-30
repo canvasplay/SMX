@@ -112,7 +112,7 @@ let TreeNode = {
 
 
     /**
-     * This method is `find` but returns only the first result
+     * This method is like `find` but returns only the first result
      * @method one
      * @memberof smx.fn.TreeNode
      * @param {String} selector - search selector
