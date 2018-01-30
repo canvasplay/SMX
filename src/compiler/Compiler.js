@@ -1,9 +1,9 @@
-(function(global,_,smx,LOG){
+(function(global,Sizzle,_,smx,LOG){
 
 
   var copyAttributes = function(srcNode, targetNode){
     
-    var ignore_attributes = ['src','path','file'];
+    var ignoreAttributes = ['src','path','file'];
     
     var attrs = srcNode.attributes;
     
@@ -12,7 +12,7 @@
       var name = attrs[i].name;
       var value = attrs[i].value;
       
-      if(!_.includes(ignore_attributes, name)){
+      if(ignoreAttributes.indexOf(name)<0){
         var attr = targetNode.getAttribute(name);
         if(typeof attr === undefined || attr === null || attr === false)
           targetNode.setAttribute(name, value);
@@ -35,9 +35,7 @@
 		//no src string? just ignore..
 		if(!src) return node;
     
-		//split by slashes and also
-		//clean empty or empty src parts
-		//src = _.compact(src.split('/'));
+		//split by slashes
 		src = src.split('/');
 		
 		//if multipart, last is file
@@ -80,8 +78,8 @@
       
       //FILTER BY LANG ATTR
 			//attribute lang must match options lang
-			var inc_lang = inc.getAttribute('lang');
-			if(inc_lang && inc_lang!=this.options.lang) follow = false;
+			//var inc_lang = inc.getAttribute('lang');
+			//if(inc_lang && inc_lang!=this.options.lang) follow = false;
       
       //FILTER BY IGNORE ATTR
 			//exclude if ignore attribute is defined and != false
@@ -106,19 +104,11 @@
  * @class Compiler
  */
  
- 	var DocumentCompiler = function(options){
+ 	var DocumentCompiler = function(){
 
 
 		//extended with custom events
 		_.extend(this, Backbone.Events);
-
-		//define default options
-		this.defaults = {
-			"lang":"es-ES"
-		};
-
-		// process options
-		this.options = _.defaults(options || {}, this.defaults);
 
 		// XML Document Object
 		this.XML = null;
@@ -140,8 +130,8 @@
 
 		this.loadFile = function(url){
       
-      var onSuccess = _.bind(this.onLoadFileSuccess, this);
-      var onError = _.bind(this.onLoadFileError, this);
+      var onSuccess = this.onLoadFileSuccess.bind(this);
+      var onError = this.onLoadFileError.bind(this);
       
       this.xhr;
       if(global.ActiveXObject)
@@ -237,7 +227,7 @@
     		var url = inc.getAttribute('src') || '';
         
         //replace @lang keyword in src
-    		if(url.indexOf('@lang')>=0) url = url.replace(/@lang/g, this.options.lang);
+    		//if(url.indexOf('@lang')>=0) url = url.replace(/@lang/g, this.options.lang);
         
     		//resolve full url
     		var ref = inc;
@@ -405,4 +395,4 @@ var CLEAN_XML_NODE = function(xml){
 
 
 
-})(window,window._,window.smx,window.log);
+})(window, window.Sizzle, window._, window.smx, window.log);

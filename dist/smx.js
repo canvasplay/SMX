@@ -2391,11 +2391,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
-(function (global, _, smx, LOG) {
+(function (global, Sizzle, _, smx, LOG) {
 
   var copyAttributes = function copyAttributes(srcNode, targetNode) {
 
-    var ignore_attributes = ['src', 'path', 'file'];
+    var ignoreAttributes = ['src', 'path', 'file'];
 
     var attrs = srcNode.attributes;
 
@@ -2404,7 +2404,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
       var name = attrs[i].name;
       var value = attrs[i].value;
 
-      if (!_.includes(ignore_attributes, name)) {
+      if (ignoreAttributes.indexOf(name) < 0) {
         var attr = targetNode.getAttribute(name);
         if ((typeof attr === 'undefined' ? 'undefined' : _typeof(attr)) === undefined || attr === null || attr === false) targetNode.setAttribute(name, value);
       }
@@ -2424,9 +2424,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     //no src string? just ignore..
     if (!src) return node;
 
-    //split by slashes and also
-    //clean empty or empty src parts
-    //src = _.compact(src.split('/'));
+    //split by slashes
     src = src.split('/');
 
     //if multipart, last is file
@@ -2467,8 +2465,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
       //FILTER BY LANG ATTR
       //attribute lang must match options lang
-      var inc_lang = inc.getAttribute('lang');
-      if (inc_lang && inc_lang != this.options.lang) follow = false;
+      //var inc_lang = inc.getAttribute('lang');
+      //if(inc_lang && inc_lang!=this.options.lang) follow = false;
 
       //FILTER BY IGNORE ATTR
       //exclude if ignore attribute is defined and != false
@@ -2489,18 +2487,10 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
    * @class Compiler
    */
 
-  var DocumentCompiler = function DocumentCompiler(options) {
+  var DocumentCompiler = function DocumentCompiler() {
 
     //extended with custom events
     _.extend(this, Backbone.Events);
-
-    //define default options
-    this.defaults = {
-      "lang": "es-ES"
-    };
-
-    // process options
-    this.options = _.defaults(options || {}, this.defaults);
 
     // XML Document Object
     this.XML = null;
@@ -2520,8 +2510,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
     this.loadFile = function (url) {
 
-      var onSuccess = _.bind(this.onLoadFileSuccess, this);
-      var onError = _.bind(this.onLoadFileError, this);
+      var onSuccess = this.onLoadFileSuccess.bind(this);
+      var onError = this.onLoadFileError.bind(this);
 
       this.xhr;
       if (global.ActiveXObject) this.xhr = new global.ActiveXObject("MSXML2.XMLHTTP.3.0");else this.xhr = new global.XMLHttpRequest();
@@ -2604,7 +2594,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         var url = inc.getAttribute('src') || '';
 
         //replace @lang keyword in src
-        if (url.indexOf('@lang') >= 0) url = url.replace(/@lang/g, this.options.lang);
+        //if(url.indexOf('@lang')>=0) url = url.replace(/@lang/g, this.options.lang);
 
         //resolve full url
         var ref = inc;
@@ -2744,7 +2734,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
   
   };
   */
-})(window, window._, window.smx, window.log);
+})(window, window.Sizzle, window._, window.smx, window.log);
 //# sourceMappingURL=Compiler.js.map
 ;"use strict";
 
