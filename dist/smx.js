@@ -2513,12 +2513,12 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
       var onSuccess = this.onLoadFileSuccess.bind(this);
       var onError = this.onLoadFileError.bind(this);
 
-      this.xhr;
-      if (global.ActiveXObject) this.xhr = new global.ActiveXObject("MSXML2.XMLHTTP.3.0");else this.xhr = new global.XMLHttpRequest();
+      this.xhr = new XMLHttpRequest();
+      this.xhr.open('GET', url, true);
+      this.xhr.onreadystatechange = function (evt) {
 
-      this.xhr.open('GET', url);
-      this.xhr.onload = function (evt) {
-        if (evt.target.status === 200) onSuccess(evt.target);else onError(evt.target);
+        if (this.readyState !== 4) return;
+        if (this.status >= 200 && this.status < 400) onSuccess(evt.target);else onError(evt.target);
       };
       this.xhr.send();
 
@@ -9772,7 +9772,7 @@ Sizzle.selectors.filters.meta = function (elem, i, match) {
     },
 
     /**
-     * This method is `find` but returns only the first result
+     * This method is like `find` but returns only the first result
      * @method one
      * @memberof smx.fn.TreeNode
      * @param {String} selector - search selector
@@ -10212,6 +10212,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
      * SMX Node Class
      * @memberof smx
      * @mixes smx.fn.Core
+     * @mixes smx.fn.TreeNode
      */
     var Node = function () {
 

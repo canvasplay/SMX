@@ -133,23 +133,21 @@
       var onSuccess = this.onLoadFileSuccess.bind(this);
       var onError = this.onLoadFileError.bind(this);
       
-      this.xhr;
-      if(global.ActiveXObject)
-        this.xhr = new global.ActiveXObject("MSXML2.XMLHTTP.3.0");
-      else
-        this.xhr = new global.XMLHttpRequest();
+      this.xhr = new XMLHttpRequest();
+      this.xhr.open('GET', url, true);
+      this.xhr.onreadystatechange = function(evt){
         
-      this.xhr.open('GET', url);
-      this.xhr.onload = function(evt) {
-          if (evt.target.status === 200)
-            onSuccess(evt.target);
-          else
-            onError(evt.target);
+        if (this.readyState !== 4) return;
+        if (this.status >= 200 && this.status < 400)
+          onSuccess(evt.target);
+        else
+          onError(evt.target);
+          
       };
       this.xhr.send();
-
-	 		return;
-
+      
+      return;
+      
 		};
 
 		this.onLoadFileSuccess = function(xhr){
@@ -335,63 +333,6 @@
 
 	//expose
 	smx.Compiler = DocumentCompiler;
-
-
-
-
-
-/*
-// UTIL METHODS
-
-var CLEAN_XML_NODE = function(xml){
-
-  var count = 0;
-
-	function clean(node){
-
-		for(var n = 0; n < node.childNodes.length; n ++){
-
-			var child = node.childNodes[n];
-
-			//	1	ELEMENT_NODE
-			//	2	ATTRIBUTE_NODE
-			//	3	TEXT_NODE
-			//	4	CDATA_SECTION_NODE
-			//	5	ENTITY_REFERENCE_NODE
-			//	6	ENTITY_NODE
-			//	7	PROCESSING_INSTRUCTION_NODE
-			//	8	COMMENT_NODE
-			//	9	DOCUMENT_NODE
-			//	10	DOCUMENT_TYPE_NODE
-			//	11	DOCUMENT_FRAGMENT_NODE
-			//	12	NOTATION_NODE
-			
-			var isElementNode = function(n){ return n.nodeType===1 }
-			var isCommentNode = function(n){ return n.nodeType===8 }
-			var isEmptyTextNode = function(n){ return n.nodeType===3 && !/\S/.test(n.nodeValue) }
-
-			if( isCommentNode(child) || isEmptyTextNode(child) ){
-			  node.removeChild(child);
-			  count++;
-			  n --;
-			}
-			else if( isElementNode(child) ){
-			  clean(child);
-			}
-
-
-		}
-
-	}
-
-	clean(xml);
-
-  LOG('CLEANING XML: '+ count+' nodes removed');
-
-};
-*/
-
-
 
 
 
