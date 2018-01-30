@@ -4,6 +4,7 @@
  * SMX Node Class
  * @memberof smx
  * @mixes smx.fn.Core
+ * @mixes smx.fn.TreeNode
  */
 class Node {
 
