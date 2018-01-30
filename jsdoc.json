@@ -27,6 +27,6 @@
         "destination": "./docs/",
         "sort": false,
         "mainpagetitle": "smx",
-        "template": "docs_template"
+        "template": "./node_modules/smx-jsdoc-template"
     }
 }

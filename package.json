@@ -1,9 +1,10 @@
 {
   "name": "smx",
   "branch": "master",
-  "version": "0.8.16",
+  "version": "0.8.17",
   "author": {
-    "name": "clopezdepablo"
+    "name": "canvasplay",
+    "email": "canvasplay1@gmail.com"
   },
   "repository": {
     "type": "git",
@@ -24,6 +25,7 @@
     "grunt-contrib-clean": "^1.1.0",
     "grunt-contrib-concat": "^1.0.1",
     "grunt-contrib-uglify": "^2.0.0",
-    "jsdoc": "^3.5.5"
+    "jsdoc": "^3.5.5",
+    "smx-jsdoc-template": "^1.0.0"
   }
 }
