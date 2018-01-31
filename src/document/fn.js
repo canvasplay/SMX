@@ -1,4 +1,4 @@
-(function(global, _, Sizzle, smx){
+(function(global, Sizzle, smx){
 
 /**
  * Placeholder namespace to contain Node extensions
@@ -100,4 +100,4 @@ fn.TimeInterface = {
 //extends smx fn methods
 smx.fn = (!smx.fn) ? fn : Object.assign(smx.fn, fn);
 
-})(window, window._, window.Sizzle, window.smx);
+})(window, window.Sizzle, window.smx);
