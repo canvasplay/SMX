@@ -12,7 +12,7 @@ let TreeNode = {
 
     /**
      * Gets a list of parent nodes up to root, ordered from outer to inner.
-     * @method parents
+     * @method getAncestors
      * @memberof smx.fn.TreeNode
      * @return {SMXNode[]}
      */
@@ -219,7 +219,7 @@ let TreeNode = {
 
 
     /**
-     * Gets next sibling node
+     * Gets the next sibling node matching the given selector.
      * @method getNext
      * @memberof smx.fn.TreeNode
      * @param {String=} selector - filter selector
@@ -244,7 +244,7 @@ let TreeNode = {
     },
 
     /**
-     * Gets next sibling nodes matching the given selector.
+     * Gets all next sibling nodes matching the given selector.
      * @method getAllNext
      * @memberof smx.fn.TreeNode
      * @param {String=} selector - filter selector
@@ -270,7 +270,7 @@ let TreeNode = {
     },
 
     /**
-     * Gets previous sibling node
+     * Gets the previous sibling node matching the given selector.
      * @method getPrevious
      * @memberof smx.fn.TreeNode
      * @param {String=} selector - filter selector
@@ -295,7 +295,7 @@ let TreeNode = {
     },
 
     /**
-     * Gets previous sibling nodes matching the given selector.
+     * Gets all previous sibling nodes matching the given selector.
      * @method getAllPrevious
      * @memberof smx.fn.TreeNode
      * @param {String=} selector - filter selector
