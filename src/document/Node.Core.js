@@ -74,6 +74,33 @@ let Core = {
         return str;
         
     },
+    
+    /**
+     * Gets the inner data content formatted according to node type.
+     *
+     * @memberof smx.fn.Core
+     * @return {String}
+     */
+    getData: function(){
+        
+        //get raw text data
+        var data = this.getText();
+        
+        //get data type
+        var type = this.type;
+        switch(this.type){
+          case 'json':
+              try{ data = JSON.parse(data) }
+              catch(e){}
+            break;
+            default:
+            break;
+        }
+        
+        return data;
+        
+    },
+
 
     /**
      * Gets the string representation.
