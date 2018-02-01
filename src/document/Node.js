@@ -45,7 +45,10 @@ class Node {
      * @readonly
      */
     get type() {
+      if(this[0].getAttribute)
         return this[0].getAttribute('type') || 'smx';
+      else
+        return 'smx';
     }
 
     /**
@@ -54,7 +57,10 @@ class Node {
      * @readonly
      */
     get className() {
+      if(this[0].getAttribute)
         return this[0].getAttribute('class');
+      else
+        return '';
     }
 
 
@@ -88,7 +94,16 @@ class Node {
      * @readonly
      */
     get url() {
-      let path = this.attr('path');
+      
+      //document node has no getAttribute method so use URI instead
+      if(!this[0].getAttribute){
+        var uri = this[0].URI.split('/');
+        uri.pop();
+        return uri.join('/');
+      }
+      
+      //else is element node
+      let path = this[0].getAttribute('path');
       var result;
       if (this.parent) {
         if (!path)
@@ -118,30 +133,26 @@ class Node {
      * @readonly
      */
     get src() {
-        
-        var result = '';
-        let file = this.attr('file');
+      
+      //document node has no getAttribute method so use URI instead
+      if(!this[0].getAttribute)
+        return this[0].URI;
+      
+      //else is element node
+      var result = '';
+      let file = this.attr('file');
 
-        if (!file)
-            result = (this.parent) ? this.parent.src : undefined;
-        else
-            result = this.url + file;
+      if (!file)
+          result = (this.parent) ? this.parent.src : undefined;
+      else
+          result = this.url + file;
 
-        if (result) result = result.replace(/\/\/+/g, '/');
+      if (result) result = result.replace(/\/\/+/g, '/');
 
-        return result;
+      return result;
 
     }
     
-    
-    /**
-     * Direct access to XMLNode.ownerDocument
-     * @type {XMLDocument}
-     * @readonly
-     */
-    get document() {
-      return this[0].ownerDocument;
-    }
     
     /**
      * Gets parent node
@@ -174,7 +185,7 @@ class Node {
      * @readonly
      */
     get root() {
-      return this.ancestors[0];
+      return this.ancestors[0] || this;
     }
 
     /**

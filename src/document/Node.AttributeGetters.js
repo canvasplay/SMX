@@ -22,7 +22,7 @@ let AttributeGetters = {
      */
     attr:function(name){
         
-        return this[0].getAttribute(name);
+        return (this[0].getAttribute)? this[0].getAttribute(name) : undefined;
         
     },
 
@@ -36,6 +36,8 @@ let AttributeGetters = {
      * @return {String} value
      */
     get: function(name, opt){
+        
+        if(!this[0].getAttribute) return undefined;
         
         //get an existing attribute parser for the given name
         var parser = smx.AttributeParsers[name];
@@ -57,9 +59,10 @@ let AttributeGetters = {
      * @return {Boolean}
      */
     has: function(name){
-        //return this[0].hasAttribute(name);
-        //IE8 does not support XMLNode.hasAttribute, so...
-        return (this[0].getAttribute(name) !== null);
+      if(!this[0].getAttribute) return false;
+      //return this[0].hasAttribute(name);
+      //IE8 does not support XMLNode.hasAttribute, so...
+      return (this[0].getAttribute(name) !== null);
     },
 
 

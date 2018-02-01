@@ -481,9 +481,9 @@ class Playhead{
 		
 			if (!cnode)
 			  options.swap_type = 'from_root';
-			else if(cnode.isParentOf(tnode))
+			else if(cnode.isAncestorOf(tnode))
 			  options.swap_type = 'child';
-			else if(tnode.isParentOf(cnode))
+			else if(tnode.isAncestorOf(cnode))
 			  options.swap_type = 'parent';
 			else if(cnode.parent && tnode.parent && cnode.parent.id === tnode.parent.id)
 				options.swap_type = 'sibling';
@@ -678,7 +678,7 @@ class Playhead{
 				this._exitNode(ref_node);
 
 				ref_node = ref_node.parent;
-				if (ref_node.isParentOf(tnode)) common_parent = ref_node;
+				if (ref_node.isAncestorOf(tnode)) common_parent = ref_node;
 			}
 			
 			//was common parent found?
@@ -705,7 +705,7 @@ class Playhead{
 		//Performs iterative 'enter' method on child nodes from parentnode to a known child_node
 
 		//check if child_node is not child of parentnode
-		if( parentnode && !parentnode.isParentOf(child_node) ) return;
+		if( parentnode && !parentnode.isAncestorOf(child_node) ) return;
 		
 		//creates a parent nodes array from child node
 		var child_node_parents = [];

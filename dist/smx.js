@@ -4206,7 +4206,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				//if swap_type parameter was not defined tries to autodetect direct values
 				if (!options.swap_type) {
 
-					if (!cnode) options.swap_type = 'from_root';else if (cnode.isParentOf(tnode)) options.swap_type = 'child';else if (tnode.isParentOf(cnode)) options.swap_type = 'parent';else if (cnode.parent && tnode.parent && cnode.parent.id === tnode.parent.id) options.swap_type = 'sibling';
+					if (!cnode) options.swap_type = 'from_root';else if (cnode.isAncestorOf(tnode)) options.swap_type = 'child';else if (tnode.isAncestorOf(cnode)) options.swap_type = 'parent';else if (cnode.parent && tnode.parent && cnode.parent.id === tnode.parent.id) options.swap_type = 'sibling';
 				}
 
 				//Do all required 'enter' and 'exit' calls for node navigation
@@ -4366,7 +4366,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 						this._exitNode(ref_node);
 
 						ref_node = ref_node.parent;
-						if (ref_node.isParentOf(tnode)) common_parent = ref_node;
+						if (ref_node.isAncestorOf(tnode)) common_parent = ref_node;
 					}
 
 					//was common parent found?
@@ -4392,7 +4392,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				//Performs iterative 'enter' method on child nodes from parentnode to a known child_node
 
 				//check if child_node is not child of parentnode
-				if (parentnode && !parentnode.isParentOf(child_node)) return;
+				if (parentnode && !parentnode.isAncestorOf(child_node)) return;
 
 				//creates a parent nodes array from child node
 				var child_node_parents = [];
@@ -9546,7 +9546,7 @@ Sizzle.selectors.filters.meta = function (elem, i, match) {
          */
         attr: function attr(name) {
 
-            return this[0].getAttribute(name);
+            return this[0].getAttribute ? this[0].getAttribute(name) : undefined;
         },
 
         /**
@@ -9559,6 +9559,8 @@ Sizzle.selectors.filters.meta = function (elem, i, match) {
          * @return {String} value
          */
         get: function get(name, opt) {
+
+            if (!this[0].getAttribute) return undefined;
 
             //get an existing attribute parser for the given name
             var parser = smx.AttributeParsers[name];
@@ -9578,6 +9580,7 @@ Sizzle.selectors.filters.meta = function (elem, i, match) {
          * @return {Boolean}
          */
         has: function has(name) {
+            if (!this[0].getAttribute) return false;
             //return this[0].hasAttribute(name);
             //IE8 does not support XMLNode.hasAttribute, so...
             return this[0].getAttribute(name) !== null;
@@ -9656,7 +9659,6 @@ Sizzle.selectors.filters.meta = function (elem, i, match) {
 
     /**
      * Gets a list of parent nodes up to root, ordered from outer to inner.
-     * @method getAncestors
      * @memberof smx.fn.TreeNode
      * @return {SMXNode[]}
      */
@@ -9672,13 +9674,12 @@ Sizzle.selectors.filters.meta = function (elem, i, match) {
     // EXTRA - PARENT RELATED OPERATIONS
 
     /**
-     * Checks if node is a parent of another.
-     * @method isParentOf
+     * Checks if node is an ancestor of another.
      * @memberof smx.fn.TreeNode
      * @param {SMXNode} node - reference node
      * @return {Boolean}
      */
-    isParentOf: function isParentOf(node) {
+    isAncestorOf: function isAncestorOf(node) {
 
       if (!node.parent) return false;
       var ancestorsId = node.ancestors.map(function (n) {
@@ -9691,7 +9692,6 @@ Sizzle.selectors.filters.meta = function (elem, i, match) {
 
     /**
      * Gets the node with the given identifier.
-     * @method getNodeById
      * @memberof smx.fn.TreeNode
      * @alias gid
      * @return {SMXNode}
@@ -9702,8 +9702,8 @@ Sizzle.selectors.filters.meta = function (elem, i, match) {
       if ($smx.cache[id]) return $smx.cache[id];
 
       //search in document
-      var node = Sizzle('#' + id, this[0]);
-      if (node.length > 0) return $smx(node[0]);
+      var node = Sizzle('#' + id, this[0])[0];
+      if (node) return $smx(node[0]);
 
       //not found
       return;
@@ -9715,7 +9715,6 @@ Sizzle.selectors.filters.meta = function (elem, i, match) {
 
     /**
      * Checks if node matches the given selector.
-     * @method isMatch
      * @memberof smx.fn.TreeNode
      * @param {String} selector - css selector to match
      * @return {Boolean}
@@ -9727,7 +9726,6 @@ Sizzle.selectors.filters.meta = function (elem, i, match) {
 
     /**
      * Finds all descendant nodes matching the given selector.
-     * @method find
      * @memberof smx.fn.TreeNode
      * @param {String} selector - search selector
      * @return {Array.<Node>}
@@ -9742,8 +9740,7 @@ Sizzle.selectors.filters.meta = function (elem, i, match) {
     },
 
     /**
-     * This method is like `find` but returns only the first result
-     * @method one
+     * This method is like `find` but returns only the first result.
      * @memberof smx.fn.TreeNode
      * @param {String} selector - search selector
      * @return {SMXNode}
@@ -9754,8 +9751,7 @@ Sizzle.selectors.filters.meta = function (elem, i, match) {
     },
 
     /**
-     * get child nodes
-     * @method getChildren
+     * Gets the children nodes matching the given selector.
      * @memberof smx.fn.TreeNode
      * @param {String=} selector
      * @return {Array.<Node>}
@@ -9770,8 +9766,7 @@ Sizzle.selectors.filters.meta = function (elem, i, match) {
     },
 
     /**
-     * Get the first child node
-     * @method getFirst
+     * Gets the first child node matching the given selector.
      * @memberof smx.fn.TreeNode
      * @param {String=} selector
      * @return {SMXNode}
@@ -9793,8 +9788,7 @@ Sizzle.selectors.filters.meta = function (elem, i, match) {
     },
 
     /**
-     * Gets the last child node matching the given selector
-     * @method getLast
+     * Gets the last child node matching the given selector.
      * @memberof smx.fn.TreeNode
      * @param {String=} selector
      * @return {SMXNode}
@@ -9819,7 +9813,6 @@ Sizzle.selectors.filters.meta = function (elem, i, match) {
 
     /**
      * Gets child node at given index
-     * @method getChildAt
      * @memberof smx.fn.TreeNode
      * @param {Integer} index - index position
      * @return {SMXNode}
@@ -9831,7 +9824,6 @@ Sizzle.selectors.filters.meta = function (elem, i, match) {
 
     /**
      * Checks if a node is child of another
-     * @method isDescendantOf
      * @memberof smx.fn.TreeNode
      * @param {SMXNode} node - reference node
      * @return {Boolean}
@@ -9850,7 +9842,6 @@ Sizzle.selectors.filters.meta = function (elem, i, match) {
 
     /**
      * Gets the next sibling node matching the given selector.
-     * @method getNext
      * @memberof smx.fn.TreeNode
      * @param {String=} selector - filter selector
      * @return {SMXNode}
@@ -9869,7 +9860,6 @@ Sizzle.selectors.filters.meta = function (elem, i, match) {
 
     /**
      * Gets all next sibling nodes matching the given selector.
-     * @method getAllNext
      * @memberof smx.fn.TreeNode
      * @param {String=} selector - filter selector
      * @return {SMXNode[]}
@@ -9893,7 +9883,6 @@ Sizzle.selectors.filters.meta = function (elem, i, match) {
 
     /**
      * Gets the previous sibling node matching the given selector.
-     * @method getPrevious
      * @memberof smx.fn.TreeNode
      * @param {String=} selector - filter selector
      * @return {SMXNode}
@@ -9912,7 +9901,6 @@ Sizzle.selectors.filters.meta = function (elem, i, match) {
 
     /**
      * Gets all previous sibling nodes matching the given selector.
-     * @method getAllPrevious
      * @memberof smx.fn.TreeNode
      * @param {String=} selector - filter selector
      * @return {SMXNode[]}
@@ -9933,55 +9921,6 @@ Sizzle.selectors.filters.meta = function (elem, i, match) {
       }
     }
 
-    // FLAT TREE SIBLINGS
-    //this method should be Playhead actions...
-
-    /**
-     * Gets previous node in a flat tree
-     * @method getStepBack
-     * @memberof smx.fn.TreeNode
-     * @return {SMXNode}
-     
-    stepBack: function(){
-         //previousSibling?
-        var _prev_sibling_node = this.previous();
-        if(_prev_sibling_node) return $smx(_prev_sibling_node);
-         //parentNode?
-        var _parent_node = this.parent();
-        if(_parent_node) return $smx(_parent_node);
-         //nothing found...
-        return;
-     },
-    */
-
-    /**
-     * get next node in a flat tree
-     * @method getStepForward
-     * @memberof smx.fn.TreeNode
-     * @return {SMXNode}
-    
-    stepForward: function(from_last_child){
-         //in recursive calls indicate if last recursion come from lastChild of its parent
-        var _from_last_child = (from_last_child)? from_last_child : false;
-         // 1. use children, trying to get deep inside node
-        // if (_from_last_child) means we arleady searched on childNodes and avoid it
-        // we avoid children when content is not smx
-        if (!_from_last_child && this.get('type')==='smx' && !this.time('timed')){
-             var _first_childnode = this.first();
-             if (_first_childnode.get('type')==='smx' ){
-                return $smx(_first_childnode);
-            }
-        }
-         //2. search nextSibling:
-        var _next_sibling_node = this.next();
-        if(_next_sibling_node) return $smx(_next_sibling_node);
-         //3. search on parentNode
-        var _parent_node = this.parent();
-        if(_parent_node) return $smx(_parent_node.stepForward(true));
-         //4. nothing found: return null!!
-        return;
-     }
-    */
   };
 
   //extends smx fn methods
@@ -10301,7 +10240,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         }, {
             key: 'type',
             get: function get() {
-                return this[0].getAttribute('type') || 'smx';
+                if (this[0].getAttribute) return this[0].getAttribute('type') || 'smx';else return 'smx';
             }
 
             /**
@@ -10313,7 +10252,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         }, {
             key: 'className',
             get: function get() {
-                return this[0].getAttribute('class');
+                if (this[0].getAttribute) return this[0].getAttribute('class');else return '';
             }
 
             /**
@@ -10352,7 +10291,16 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         }, {
             key: 'url',
             get: function get() {
-                var path = this.attr('path');
+
+                //document node has no getAttribute method so use URI instead
+                if (!this[0].getAttribute) {
+                    var uri = this[0].URI.split('/');
+                    uri.pop();
+                    return uri.join('/');
+                }
+
+                //else is element node
+                var path = this[0].getAttribute('path');
                 var result;
                 if (this.parent) {
                     if (!path) result = this.parent.url;else {
@@ -10383,6 +10331,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             key: 'src',
             get: function get() {
 
+                //document node has no getAttribute method so use URI instead
+                if (!this[0].getAttribute) return this[0].URI;
+
+                //else is element node
                 var result = '';
                 var file = this.attr('file');
 
@@ -10391,18 +10343,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                 if (result) result = result.replace(/\/\/+/g, '/');
 
                 return result;
-            }
-
-            /**
-             * Direct access to XMLNode.ownerDocument
-             * @type {XMLDocument}
-             * @readonly
-             */
-
-        }, {
-            key: 'document',
-            get: function get() {
-                return this[0].ownerDocument;
             }
 
             /**
@@ -10444,7 +10384,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         }, {
             key: 'root',
             get: function get() {
-                return this.ancestors[0];
+                return this.ancestors[0] || this;
             }
 
             /**
