@@ -1,9 +1,0 @@
-{
-    "jscs.enable": true,
-    "preset": "google",
-    "requireCurlyBraces": false,
-    "fileExtensions": [
-        ".js",
-        ".jsx"
-    ]
-}
