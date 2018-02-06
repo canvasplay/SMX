@@ -109,7 +109,7 @@ module.exports = function(grunt) {
 
         uglify: {
             options: {
-                banner: '/*! <%= pkg.name %> <%= pkg.version %> <%= grunt.template.today("dd-mm-yyyy HH:MM:ss") %> */\n'
+                banner: "/** <%= pkg.name %> <%= grunt.file.readJSON('package.json').version %> */\n"
             },
             dist: {
                 files: {
