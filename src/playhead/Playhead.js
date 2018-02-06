@@ -33,21 +33,7 @@ class Playhead{
 		 * @private
 		 */
 		this._path = [];
-    
-		/**
-		 * List of nodes entered in last movement
-		 * @type {SMXNode[]}
-		 * @private
-		 */
-		this._entered = [];
-    
-		/**
-		 * List of nodes exited in last movement
-		 * @type {SMXNode[]}
-		 * @private
-		 */
-		this._exited = [];
-	
+
 	}
 
 
@@ -293,12 +279,12 @@ class Playhead{
     //see leagacy playhead implementations for more info
     
     //resets private navigation registry
-		this._entered = []; this._exited = [];
+		var activated = [], deactivated = [];
     
     
     if(!cnode){
       cnode = this.document.root;
-      this._entered.push(cnode);
+      activated.push(cnode);
     }
 		
 		/* trying a better approach */
@@ -317,39 +303,39 @@ class Playhead{
 		else if(isDescendant){
 		  while(r!=tnode){
 		    r = r.children.filter(isNodeOrAncestorOf)[0]
-		    this._entered.push(r);
+		    activated.push(r);
 		  }
 		}
 		else if(isAncestor){
 		  while(r!=tnode){
-		    this._exited.push(r);
+		    deactivated.push(r);
 		    r = r.parent;
 		  }
 		}
 		else{
-		  while(!r.isAncestorOf(cnode) && !r.isAncestorOf(tnode)){
-		    this._exited.push(r);
+		  while(!r.isAncestorOf(cnode) || !r.isAncestorOf(tnode)){
+		    deactivated.push(r);
 		    r = r.parent;
 		  }
 		  while(r!=tnode){
 		    r = r.children.filter(isNodeOrAncestorOf)[0]
-		    this._entered.push(r);
+		    activated.push(r);
 		  }
 		}
 		
 		
 		//update path
-		for(var i=0; i<this._exited.length; i++){
+		for(var i=0; i<deactivated.length; i++){
 		  this._path.pop();
 		}
-		for(var i=0; i<this._entered.length; i++){
-		  this._path.push(this._entered[i]);
+		for(var i=0; i<activated.length; i++){
+		  this._path.push(activated[i]);
 		}
 
 
     this.trigger('change',{
-      activated: this._entered,
-      deactivated: this._exited,
+      activated: activated,
+      deactivated: deactivated,
       path: this._path,
       origin: cnode,
       target: tnode
@@ -406,7 +392,7 @@ class Playhead{
 		this._path.push(node);
 
 		//update last move registry
-		this._entered.push(node);
+		activated.push(node);
 
 		//fire generic 'enter' event
 		this.trigger('enter', node);
@@ -430,7 +416,7 @@ class Playhead{
 		var node = this._path.pop();
     
 		//update last move registry
-		this._exited.push(node);
+		deactivated.push(node);
     
 		//fire generic 'exit' event
 		this.trigger('exit', node);
