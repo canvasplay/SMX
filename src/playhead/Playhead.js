@@ -9,50 +9,41 @@ class Playhead{
 
 	/**
 	 * Create a playhead
-	 * @param {Document} document - The document to navigate through
+	 * @param {SMXDocument} document - The document to navigate through
 	 */
 	constructor(doc){
     
-		//document argument is required!
+		//document is required
 		if(!doc) return;
-
+    
 		//extend with events on, off, trigger
 		_.extend(this, Backbone.Events);
-
-
+    
 		/**
 		 * The document to navigate through
-		 * @type {Document}
+		 * @type {SMXDocument}
 		 * @private
 		 */
 		this._document = doc;
 		
-
 		/**
-		 * Contains all nodes in which playhead has entered
+		 * Contains all currently active nodes.
 		 * List ordered from outter to inner [root, ..., currentnode]
-		 * @type {Array.<Node>}
+		 * @type {SMXNode[]}
 		 * @private
 		 */
 		this._path = [];
-
-
-		/**
-		 * Currently active timeline
-		 * @type {Timeline}
-		 */
-		this.timeline = null;
-
+    
 		/**
 		 * List of nodes entered in last movement
-		 * @type {Array.<Node>}
+		 * @type {SMXNode[]}
 		 * @private
 		 */
 		this._entered = [];
-
+    
 		/**
 		 * List of nodes exited in last movement
-		 * @type {Array.<Node>}
+		 * @type {SMXNode[]}
 		 * @private
 		 */
 		this._exited = [];
@@ -62,7 +53,7 @@ class Playhead{
 
 	/**
 	 * Gets the associated document
-	 * @type {Document}
+	 * @type {SMXDocument}
 	 * @readonly
 	 */
 	get document(){
@@ -71,9 +62,9 @@ class Playhead{
 
 
 	/**
-	 * Contains all nodes in which playhead has entered
+	 * Gets all currently active nodes.
 	 * List ordered from outter to inner [root, ..., currentnode]
-	 * @type {Array.<Node>}
+	 * @type {SMXNode}
 	 * @readonly
 	 */
 	get path() {
@@ -82,7 +73,7 @@ class Playhead{
 
 	/**
 	 * Gets the last node in the path which is the head
-	 * @type {Node}
+	 * @type {SMXNode}
 	 * @readonly
 	 */
 	get head(){
@@ -91,7 +82,7 @@ class Playhead{
 
 	/**
 	 * Gets the first node in the path which is the root
-	 * @type {Node}
+	 * @type {SMXNode}
 	 * @readonly
 	 */
 	get root(){
@@ -100,240 +91,137 @@ class Playhead{
 
 
 	/**
-	 * Property getter
-	 * @param {String} key - property key name
-	 * @return {Node} property value
-	 * @summary Composes a list of functions.
-	 */
-	get(key) {
-
-		switch (key) {
-			case 'selected':
-				return this._path;
-				break;
-			case 'head':
-				return this._path[this._path.length - 1];
-				break;
-			case 'root':
-				return this._path[0];
-				break;
-			case 'entered':
-				return this._entered;
-				break;
-			case 'exited':
-				return this._exited;
-				break;
-			default:
-				return;
-				break;
-
-		}
-
-	}
-
-	/**
 	 * Performs play action
-	 * @param {String} id node identifier
+	 * @param {(String|SMXNode)=} ref target reference
 	 */
-	play(id){
-
-		var cnode = null;
-		var options = { };
-
-		//get target node
-		if (!id)	cnode = this.get('head');
-		else		cnode = this.document.getNodeById(id);
-
- 		if(!cnode) return;
-
- 		//check for node accesibility
-		if (!cnode.isAccesible()) return;
-
-		//if current node has timeline return node play result
-		//if( cnode.timeline && this.timeline ) return this.timeline.play();
-		if( this.timeline ) return this.timeline.play();
-
-		//if has childs get firstchild
-		//else get next node in the global timeline
-		var first = cnode.first; if(first) cnode = first;
-
-		if (!cnode.isAccesible()) return;
-
-		return this.go(cnode,options);
-
-	}
-
-	/**
-	 * performs pause action
-	 */
-	pause(){
-
-		//call timeline pause
-		if(this.timeline) this.timeline.pause();
+	play(ref){
+    
+		//no reference? just do forward
+		if(!ref)	return this.forward();
 		
-		return;
+		//resolve target node
+		var tnode = (ref.id)? ref : this.document.getNodeById(ref);
+    
+    //not found? ignore...
+    if(tnode) return this.navigate(tnode,{});
+    
+    //else ignore
+    return;
+    
 	}
 
 	/**
-	 * performs toggle action, alternating from playing to paused
-	 */
-	toggle(){
-
-		//call timeline toggle
-		if(this.timeline) this.timeline.toggle();
-
-		return;
-
-	}
-
-	/**
-	 * navigate to next Node if exists
+	 * Navigates to head's next node.
 	 */
 	next(){
 		
 		//get current node
-		var cnode = this.get('head'); if(!cnode) return;
+		var cnode = this.head; if(!cnode) return;
 
 		//get next node
 		var tnode = cnode.next; if (!tnode) return;
 		
-		//check for accesibility
-		if(!tnode.isAccesible()) return;
-
-		//go to next node using known swap type and passing recived params
-		return this.go(tnode,{'swap_type':'next'});
+		//go to next node using known swap type
+		return this.navigate(tnode,{'type':'next'});
 		
 	}
 
 	/**
-	 * navigate to previous Node if exists
+	 * Navigates to head's previous node.
 	 */
 	previous(){
 		
 		//get current node
-		var cnode = this.get('head'); if(!cnode) return;
-
+		var cnode = this.head; if(!cnode) return;
+    
 		//get previous node
 		var tnode = cnode.previous; if (!tnode) return;
-
-		//check for accesibility
-		if (!tnode.isAccesible()) return;
-
+    
 		//go to previous node using known swap type and passing recived params
-		return this.go(tnode,{'swap_type':'previous'});
+		return this.navigate(tnode,{'type':'previous'});
 		
 	}
 	
 	/**
-	 * navigate inside current Node if posible
+	 * Navigates inside head's node.
 	 */
-	inside(){
-	
+	enter(){
+    
 		//get current node
-		var cnode = this.get('head'); if(!cnode) return;
-
-		//inside navigation is only allowed above nodes without timeline
-		if (cnode.timeline) return;
-		
+		var cnode = this.head; if(!cnode) return;
+    
 		//get children nodes
 		let children = cnode.children;
-
+    
 		//no children?
 		if (!children.length) return;
-
+    
 		//get first child
 		var tnode = children[0];
-
-		//check for accesibility
-		if (!tnode.isAccesible()) return;
-
+    
 		//go to child node using known swap type and passing recived params
-		return this.go(tnode,{ 'swap_type':'inside' });
+		return this.navigate(tnode,{ 'type':'inside' });
 		
 	}
 
 	/**
-	 * navigate outside current Node if posible
+	 * Navigates outside head's node.
 	 */
-	outside(){
+	exit(){
 		
 		//get current node
-		var cnode = this.get('head'); if(!cnode) return;
-
+		var cnode = this.head; if(!cnode) return;
+    
 		//has parent node?
 		if(!cnode.parent) return;
-
+    
 		//get parent node
 		var tnode = cnode.parent;
-
+    
 		//go to child node using known swap type and passing recived params
-		return this.go(tnode,{ 'swap_type':'outside' });
+		return this.navigate(tnode,{ 'type':'outside' });
 		
 	}
 
 	/**
-	 * navigates up root
+	 * Navigates up to root node.
 	 */
 	reset(){
-		
-		//get root node
-		var rootnode = this.get('root');
-
-		//root node is required!
-		if(!rootnode) return;
-
-		//go to root node
-		return this.go(rootnode);
-		
+		return this.navigate(this.document.root);
 	}
 	
 
 	/**
-	 * Goes to next node in flat tree mode
+	 * Navigates to head's next node in flat tree mode.
 	 */
 	forward(){
 		
 		let tnode, cnode, children;
 		
 		//get current node
-		cnode = this.get('head');
+		cnode = this.head;
 		
 		//no current node? ignore
 		if(!cnode) return;
-
-		if(!cnode.time('timeline') && !cnode.time('timed')){
-		  
-			children = cnode.children;
-			
-			if(!children.length)
-				tnode = cnode.next;
-			else
-				tnode = cnode.first;
-			
-		}
-		else{
-			tnode = cnode.next;
-		}
-
-
+    
+		tnode = cnode.next;
+    
 		if(!tnode){
-
+      
 			var parent = cnode.parent;
 			while(parent && !tnode){
 				tnode = parent.next;
 				parent = parent.parent;
 			}
-
+      
 		}
-
-		
-		if (!tnode.isAccesible()) return;
-		return this.go(tnode);
-
+    
+		return this.navigate(tnode);
+    
 	}
 
 	/**
-	 * Goes to previous node in flat tree mode
+	 * Navigates to head's previous node in flat tree mode.
 	 */
 	backward(){
 		
@@ -341,447 +229,219 @@ class Playhead{
 		
 		if(!this.head) return;
 		
-		if(this.head.previous){
-		  tnode = this.head.previous;
-		}
-    else if(this.head.parent){
-     tnode = this.head.parent
-    }
+		if(this.head.previous)
+      tnode = this.head.previous;
     
-    if(!tnode || !tnode.isAccesible()) return;
-		return this.go(tnode);
-
+    else if(this.head.parent)
+      tnode = this.head.parent
+    
+		return this.navigate(tnode);
+    
 	}
 
 	/**
-	 * Go to given node
+	 * Executes a playhead action by keyword.
 	 */
-	go(ref, opt){
+	exec(keyword){
+    	  
+		//define valid keywords mapping existing methods
+		var keywords = [
+		  'reset', 'play', 'next', 'previous',
+		  'enter', 'exit', 'forward', 'backward'
+		];
+    
+    //resolve for a valid keyword
+    var isValidKeyword = (keywords.indexOf(keyword)>=0);
+    
+    //not valid keyword? error!
+		if(!isValidKeyword)
+		  throw new Error( 'UNKNOWN KEYWORD "!"'+ keyword +'"' );
+    
+    //try-catched execution
+		try{ return this[keyword]()	}
+		catch(e){	throw new Error( 'Playhead Error: Keyword exec "!'+ keyword +'"', e) }
+    
+	}
 
-		//is ref a keyword?
-		//keywords always strings prefixed with '!'
-		if(_.isString(ref) && ref.indexOf('!') === 0){
+	/**
+	 * Navigates to given node using optional configuration.
+	 */
+	navigate(ref, opt){
 
-			//remove '!' prefix
-			var keyword = ref.substr(1);
-
-			//define known keywords
-			var keywords = [
-			  'play',
-			  'pause',
-			  'toggle',
-			  'next',
-			  'previous',
-			  'inside',
-			  'outside',
-			  'root'
-			];
-
-			//is known keyword?
-			if(keywords.indexOf(keyword)){
-				
-				//get go method by keyword
-				var method = this[keyword];
-
-				//tries executing the method
-				try{
-					return _.bind(method,this)();
-				}
-				catch(e){
-					throw new Error( 'KEYWORD EXEC ERROR "!'+ keyword +'"');
-				}
-
-			}
-
-			//unknow keyword...
-			throw new Error( 'UNKNOWN KEYWORD "!"'+ keyword +'"' );
-
-		}
-
-
-		//normalize given ref, maybe be string or SMXNnode
-		var tnode = (_.isString(ref))? this.document.getNodeById(ref) : ref;
-
-		// GET CURRENT NODE
-		var cnode = this.get('head');
-			
-		//NODE NOT FOUND
-		if (!tnode)
-		  throw new Error('NODE WAS NOT FOUND');
+		//check for a keyword, must be '!' preffixed string
+		var isKeyword = (typeof ref === 'string' && ref.indexOf('!') === 0);
 		
-		//TARGET NODE == CURRENT NODE ?
-		//if (cnode) if (cnode.id == tnode.id) throw new Error('201');
-		if (cnode == tnode) return cnode;
-
-		//IS TARGET NODE INSIDE TIMELINE?
-		//playhead cannot access nodes inside a timeline
-		if (tnode.time('timed'))
-			throw new Error('NODE "'+ tnode.id +'" IS NOT VISITABLE');
-
-		//IS TARGET NODE ACCESIBLE ?
-		if (!tnode.isAccesible() && !global.app.config.FREE_ACCESS)
-			throw new Error('NODE "'+ cnode.id +'" IS NOT ACCESIBLE');
-
+		//keyword? resolve by exec unpreffixed reference
+		if(isKeyword)
+      return this.exec(ref.substr(1));
+    
+		//resolve target node by reference
+		//assuming having and id property means SMXNode...
+		var tnode = (ref.id)? ref : this.document.getNodeById(ref);
+    
+    //no target found? error!
+		if(!tnode)
+		  throw new Error('Playhead Error: Invalid target '+ ref);
 		
+		//get current node
+		var cnode = this.head;
 		
-
-		/**
-
-		HERE YOU CAN PLUG ASYNC NAVIGATION CONTROLLERS... like SCORMX or VMSCO or...
-
-		*/
-
-		try{
-	
-			var async = this.requestAsyncNodeAccess(tnode);
-
-			if(async){
-
-				this.trigger('sync', async);
-				return;
-
-			}
-
-		}
-		catch(e){}
-
-		/*****/
-
-
-
-
-		//INITIALIZE OPTIONS
-		var options = {	'swap_type': null };
-		if (opt){ options = { 'swap_type': opt.swap_type || null } }
-
+		//no need to move...
+		if(tnode === cnode) return cnode;
 		
-		
-
-
-
-		//RESET PRIVATE MOVE REGISTRY
+    //--> ASYNC ATTR CONDITIONAL NAVIGATION WAS HERE...
+    //see leagacy playhead implementations for more info
+    
+    //resets private navigation registry
 		this._entered = []; this._exited = [];
-
-
-
-		//if 'autoplay' behavior is enabled call
-		if (tnode.autoplay===true && tnode.children.length>0){
-			return this.go(tnode.cnode.getFirstChild(),options);
+    
+    
+    if(!cnode){
+      cnode = this.document.root;
+      this._entered.push(cnode);
+    }
+		
+		/* trying a better approach */
+		
+		var isDescendant = cnode.isAncestorOf(tnode);
+		var isAncestor = tnode.isAncestorOf(cnode);
+		
+		var isNodeOrAncestorOf = function(n){
+		  return (n==tnode || n.isAncestorOf(tnode));
+		}
+		
+		var r = cnode;
+		if(cnode === tnode){
+		  //..
+		}
+		else if(isDescendant){
+		  while(r!=tnode){
+		    r = r.children.filter(isNodeOrAncestorOf)[0]
+		    this._entered.push(r);
+		  }
+		}
+		else if(isAncestor){
+		  while(r!=tnode){
+		    this._exited.push(r);
+		    r = r.parent;
+		  }
+		}
+		else{
+		  while(!r.isAncestorOf(cnode) && !r.isAncestorOf(tnode)){
+		    this._exited.push(r);
+		    r = r.parent;
+		  }
+		  while(r!=tnode){
+		    r = r.children.filter(isNodeOrAncestorOf)[0]
+		    this._entered.push(r);
+		  }
+		}
+		
+		
+		//update path
+		for(var i=0; i<this._exited.length; i++){
+		  this._path.pop();
+		}
+		for(var i=0; i<this._entered.length; i++){
+		  this._path.push(this._entered[i]);
 		}
 
 
-
-
-
-		//We are going to check for multiple node swaping posibilities.
-		//Being selective should be faster than using the iterative method.
-		
-		//if swap_type parameter was not defined tries to autodetect direct values
-		if (!options.swap_type){
-		
-			if (!cnode)
-			  options.swap_type = 'from_root';
-			else if(cnode.isAncestorOf(tnode))
-			  options.swap_type = 'child';
-			else if(tnode.isAncestorOf(cnode))
-			  options.swap_type = 'parent';
-			else if(cnode.parent && tnode.parent && cnode.parent.id === tnode.parent.id)
-				options.swap_type = 'sibling';
-		
-		}
-		
-		
-		//Do all required 'enter' and 'exit' calls for node navigation
-		switch(options.swap_type){
-		
-			case 'outside':
-				//exit from current
-				this._exitNode(cnode);
-				//we are already inside tnode because tnode is first parent of cnode
-				//but re-enter for trigger 'enter' event
-				this._enterNode(tnode);
-			break;
-			case 'inside':
-				//enter in child node
-				this._enterNode(tnode);
-			break;
-			case 'next':
-			case 'previous':
-			case 'sibling':
-				//exit from current
-				this._exitNode(cnode);
-				//enter in sibling node
-				this._enterNode(tnode);
-			break;
-			case 'from_root':
-				//enter all nodes from root to tnode
-				this._enterStraight(null,tnode);
-			break;
-			case 'child':
-				//enter all nodes cnode to tnode
-				this._enterStraight(cnode,tnode);
-			break;
-			case 'parent':
-			
-				//navigates parents from cnode until reach tnode
-				let ref_node = cnode;
-				let tnode_found = false;
-				while (ref_node.parent && !tnode_found){
-					//exit from ref_node
-					this._exitNode(ref_node);
-					//update ref_node
-					ref_node = ref_node.parent;
-					//tnode found?
-					if (ref_node.id == tnode.id) tnode_found = true;
-				}
-				
-				//we are already inside tnode because tnode is parent of cnode
-				//but re-enter for trigger 'enter' event
-				this._enterNode(tnode);
-				
-			break;
-			default:
-				//iterative method
-				this._goIterative(cnode,tnode);
-			break;
-		}
-		
-
-
-		//TIMELINE?
-
-		//create timeline, will only be created if its possible and if its needed
-		if(tnode.time('timeline')) this._createTimeline();
-
-
+    this.trigger('change',{
+      activated: this._entered,
+      deactivated: this._exited,
+      path: this._path,
+      origin: cnode,
+      target: tnode
+    });
+    
+		/*
 		//FIRE EVENTS
-
+    
 		//FIRE 'LEAVE' EVENT
-		if (cnode){
+		if(cnode){
+      
 			//fire generic 'leave' event in resulting current node
-			this.trigger('leave',cnode);
-			//fire specific node 'leave' event
-			this.trigger('leave:'+cnode.id,cnode);
-		}
-
-
-
-		/* NOSTOP ATTRIBUTE WARNING VERY EXPERIMENTAL CODE BELOW */
-
-		// node having the 'nostop' attribute prevents the playhead to stop on it
-		var nostop = tnode.has('nostop');
-
-		if (nostop && tnode.id != this.get('root').id){
-
-			var entered = this.get('entered');
-			var exited = this.get('exited');
-
-			if (entered.length>0){
-				if( entered[entered.length-1].id == tnode.id){
-
-					if (tnode.children.length>0){
-						return this.inside();
-					}
-					else{
-						if(tnode.parent){
-							return this.outside();
-						}
-						else{
-							this.root();
-						}
-					}
-
-				}
-				else{
-					this.root();
-				}
-
-			}
-			else if (exited.length>0){
-
-				if( exited[0].isChildOf(tnode) ){
-					if(tnode.parent){
-						return this.outside();
-					}
-					else{
-						this.root();
-					}
-				}
-				else{
-					this.root();
-				}
-
-			}
-			else{
-				this.root();
-			}
-
-		}
-		else{
-
-			//DEFAULT BEHAVIOIR
-
-
-			//FIRE 'STAY' EVENT
-			//fire generic 'stay' event in resulting current node
-			this.trigger('stay',tnode);
-			//fire specific node 'stay' event
-			this.trigger('stay:'+tnode.id,tnode);
-
-			//FIRE 'READY' EVENT
-			//notify node navigation completed
-			this.trigger('ready',tnode);
-
-
-
-			//return resultant current node
-			return this.get('head');
-
-
-		}
-
-		
-		
-	}
-
-
-
-
-
-	/* PRIVATE METHODS */
-
-
-
-	/**
-	 * Performs a head transition from current to target node
-	 * @private
-	 * @param {Node} current - current node
-	 * @param {Node} target - target node
-	 */
-	_goIterative(cnode,tnode){
-	
-		//ok! we are going to navigates from cnode(current node) to tnode(target node). Lets go!
-		
-		//navigates from root
-		if(!cnode)
-			this._enterStraight(null,tnode);
-	
-		else{
-		//navigates from current node
-		
-			//looks parents for a common parent between current and target node
-			let ref_node = cnode;
-			let common_parent = null;
-			while (ref_node && ref_node.parent && !common_parent){
-
-				//exit nodes at same that searches
-				this._exitNode(ref_node);
-
-				ref_node = ref_node.parent;
-				if (ref_node.isAncestorOf(tnode)) common_parent = ref_node;
-			}
+			this.trigger('leave', cnode);
 			
-			//was common parent found?
-			if (common_parent){
-				this._enterStraight(common_parent,tnode);
-			}
-			else{
-				this._enterStraight(null, tnode);
-			}
-
+			//fire specific node 'leave' event
+			this.trigger('leave:'+cnode.id, cnode);
+			
 		}
+    
+		//--> NOSTOP ATTRIBUTE CONDITIONAL NAVIGATION WAS HERE...
+    //see leagacy playhead implementations for more info
+    
+		//fire generic 'stay' event in resulting current node
+		this.trigger('stay',tnode);
 		
+		//fire specific node 'stay' event
+		this.trigger('stay:'+tnode.id,tnode);
+    
+		//notify node navigation completed
+		this.trigger('ready',tnode);
+    
+    //return head node
+		return this.head;
+		
+		*/
 		
 	}
 
-	/**
-	 * Performs a head transition from parent to child node
-	 * @private
-	 * @param {Node} parent - parent node
-	 * @param {Node} child - child node
-	 */
-	_enterStraight(parentnode,child_node){
-	
-		//Performs iterative 'enter' method on child nodes from parentnode to a known child_node
 
-		//check if child_node is not child of parentnode
-		if( parentnode && !parentnode.isAncestorOf(child_node) ) return;
-		
-		//creates a parent nodes array from child node
-		var child_node_parents = [];
-		
-		//looks parents and fills the array until reach known parentnode
-		var ref_node = child_node;
-		var parentnode_reached = false;
-		while (ref_node && ref_node.parent && !parentnode_reached){
-			ref_node = ref_node.parent;
-			if(parentnode) if(ref_node.id == parentnode.id) parentnode_reached = true;
-
-			if(ref_node && !parentnode_reached) child_node_parents.unshift(ref_node);
-		}
-		
-		//call 'enter' method in each parent node
-		for (var p=0; p<child_node_parents.length; p++){
-			this._enterNode(child_node_parents[p]);
-		}
-		
-		//call 'enter' method in child node
-		this._enterNode(child_node);
-	
-	}
 		
 	/**
 	 * Enters in given node
 	 * @private
-	 * @param {Node} node
+	 * @param {SMXNode} node
 	 * @fires enter
-	 */
-	_enterNode(_node){
+	 * @fires enter:id
+	_enterNode(node){
 
-		//prevent re-enter in a node
-		var selectedIds = _.map(this._path,'id');
-		if(_.includes(selectedIds,_node.id)) return;
+		//prevents re-entering on node
+		var selectedIds = this._path.map(()=>{return n.id});
+		if(selectedIds.indexOf(node.id)>=0) return;
 
 		//update selection array
-		this._path.push(_node);
+		this._path.push(node);
 
 		//update last move registry
-		this._entered.push(_node);
+		this._entered.push(node);
 
 		//fire generic 'enter' event
-		this.trigger('enter', _node);
+		this.trigger('enter', node);
 
 		//fire specific node 'enter' event
-		this.trigger('enter:'+_node.id, _node);
+		this.trigger('enter:'+node.id, node);
 
 		return;
 	}
+	 */
 
 	/**
-	 * Exits from given node
+	 * Exits from current head node
 	 * @private
-	 * @param {Node} node
-	 */
-	_exitNode(_node){
-
-		//clear timeline
-		if(this.timeline) this._destroyTimeline();
-
+	 * @param {SMXNode} node
+	 * @fires exit
+	 * @fires exit:id
+	_exitNode(){
+    
 		//update blocks array
-		this._path.pop();
-
+		var node = this._path.pop();
+    
 		//update last move registry
-		this._exited.push(_node);
-
+		this._exited.push(node);
+    
 		//fire generic 'exit' event
-		this.trigger('exit', _node);
-
+		this.trigger('exit', node);
+    
 		//fire specific node 'exit' event
-		this.trigger('exit:'+_node.id, _node);
-
+		this.trigger('exit:'+node.id, node);
+    
 		return;
-
+    
 	}
+	 */
 
 	/**
 	 * Fired when entering to any node
@@ -853,185 +513,7 @@ class Playhead{
 	 * @return {PlayheadEvent}
 	 */
 
-
- 
-
-
-
-	/**
-	 *	TIMELINE HANDLING
-	 *	These methods just propagate the timeline events as nested playhead events
-	 *	Useful for listening to timeline events even when timeline does not exists
-	 *	Also useful for having a centralized playhead activity
-	 */
-
-	/**
-	 * @private
-	 */
-	_createTimeline(){
-	
-		var cnode = this.get('head');
-		if(!cnode) return;
-
-		//destroy current timeline if needed
-		if (this.timeline) this._destroyTimeline();
-		
-		//create timeline
-		this.timeline = new smx.time.Timeline(cnode);
-		
-		//setup listeners
-		this._bindTimelineListeners();
-
-		return;
-	}
-
-
-	/**
-	 * @private
-	 */
-	_destroyTimeline(){
-		
-		//remove listeners
-		this._unbindTimelineListeners();
-
-		//destroy timeline
-		this.timeline.destroy();
-
-		//reset timeline
-		this.timeline = null;
-		
-		return;
-	}
-
-
-	/**
-	 * Binds listeners to timeline events to propagate them up as playhead
-	 * events prefixed with `timeline:`, useful for listening to timeline
-	 * events even when timeline does not exists. Also useful for having a
-	 * centralized playhead activity.
-	 * @private
-	 */
-	_bindTimelineListeners(){
-	
-		if (!this.timeline) return;
-
-		this.timeline.on('play', this._onTimelinePlay, this);
-		this.timeline.on('pause', this._onTimelinePause, this);
-		this.timeline.on('update', this._onTimelineUpdate, this);
-		this.timeline.on('seek', this._onTimelineSeek, this);
-		this.timeline.on('reset', this._onTimelineReset, this);
-		this.timeline.on('enter', this._onTimelineEnter, this);
-		this.timeline.on('exit', this._onTimelineExit, this);
-		this.timeline.on('finish', this._onTimelineFinish, this);
-
-		return;
-	}
-
-	/**
-	 * Unbinds all timeline event listeners
-	 * @private
-	 */
-	_unbindTimelineListeners(){
-	
-		if (!this.timeline) return;
-
-		this.timeline.off('play', this._onTimelinePlay, this);
-		this.timeline.off('pause', this._onTimelinePause, this);
-		this.timeline.off('update', this._onTimelineUpdate, this);
-		this.timeline.off('seek', this._onTimelineSeek, this);
-		this.timeline.off('reset', this._onTimelineReset, this);
-		this.timeline.off('enter', this._onTimelineEnter, this);
-		this.timeline.off('exit', this._onTimelineExit, this);
-		this.timeline.off('finish', this._onTimelineFinish, this);
-	
-		return;
-	}
-
-	/**
-	 * @event timeline:play
-	 * @memberof smx.Playhead
-	 */
-	_onTimelinePlay(event){
-		this.trigger('timeline:play', event); return;
-	}
-
-	/**
-	 * @event timeline:pause
-	 * @memberof smx.Playhead
-	 * @return {PlayheadEvent}
-	 */
-	_onTimelinePause(event){
-		this.trigger('timeline:pause', event); return;
-	}
-
-	/**
-	 * @event timeline:update
-	 * @memberof smx.Playhead
-	 * @return {PlayheadEvent}
-	 */
-	_onTimelineUpdate(event){
-		this.trigger('timeline:update', event);	return;
-	}
-
-	/**
-	 * @event timeline:seek
-	 * @memberof smx.Playhead
-	 * @return {PlayheadEvent}
-	 */
-	_onTimelineSeek(event){
-		this.trigger('timeline:seek', event); return;
-	}
-
-	/**
-	 * @event timeline:finish
-	 * @memberof smx.Playhead
-	 * @return {PlayheadEvent}
-	 */
-	_onTimelineFinish(event){
-		this.trigger('timeline:finish', event); return;
-	}
-
-	/**
-	 * @event timeline:reset
-	 * @memberof smx.Playhead
-	 * @return {PlayheadEvent}
-	 */
-	_onTimelineReset(event){
-		this.trigger('timeline:reset', event); return;
-	}
-
-	/**
-	 * @event timeline:enter
-	 * @memberof smx.Playhead
-	 * @return {PlayheadEvent}
-	 */
-	_onTimelineEnter(event){
-		this.trigger('timeline:enter', event); return;
-	}
-
-	/**
-	 * @event timeline:exit
-	 * @memberof smx.Playhead
-	 * @return {PlayheadEvent}
-	 */
-	_onTimelineExit(event){
-		this.trigger('timeline:exit', event); return;
-	}
-
-
-	/**
-	 * check wether a node access should be async or not, default to false, needs overwritting
-	 */
-  requestAsyncNodeAccess(node){
-  	
-  	return false;
-  
-  }
-
 }
-
-
-
 
 
 

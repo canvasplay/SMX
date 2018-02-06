@@ -49,12 +49,6 @@ var IdAttributeParser = {
     //get nodes matching the parser selector
     var nodes = Sizzle(this.selector, xml);
     
-    //includes xml root itself to the list
-    if(Sizzle.matchesSelector(xml,this.selector))
-      nodes.unshift(xml);
-    else
-      ids_in_use.push(xml.getAttribute('id'));
-    
     //iterate over all matching nodes
     for(var i=0, len=nodes.length; i<len; i++){
       

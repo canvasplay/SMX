@@ -45,6 +45,10 @@ class Finder{
 	 * Performs a search
 	 * @param {String} query string
 	 * @param {Object=} options
+	 * @param {Boolean} options.sensitive
+	 * @param {Boolean} options.insensitive
+	 * @param {String[]} options.include
+	 * @param {String[]} options.exclude
 	 * @return {Object[]}
 	 */
   find(str, opts){

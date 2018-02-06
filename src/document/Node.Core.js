@@ -2,7 +2,7 @@
 
 /**
  * Extends SMXNode with core methods
- * @mixin Core
+ * @mixin Node.Core
  * @memberof smx.fn
  */
 

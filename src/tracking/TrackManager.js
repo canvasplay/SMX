@@ -67,7 +67,7 @@ TrackManager.prototype.initializeDocument = function(_callback){
 	var nodes = this.document.find(selector);
 	
 	//add document node itself to list
-	nodes.unshift(this.document);
+	//nodes.unshift(this.document);
 
     //exclude nodes without any track-* attribute
     nodes = _.without(nodes, function(n){ return n.isTracking() });
@@ -135,7 +135,7 @@ TrackManager.prototype.setTriggers = function(_callback){
 
 
 	var nodes = this.document.find('[track-trigger]:not([track-trigger-processed])');
-	if(this.document.has('track-trigger')) nodes.push(this.document);
+	//if(this.document.has('track-trigger')) nodes.push(this.document);
 
 	var parseTriggerExpression = function(exp){
 
@@ -911,7 +911,7 @@ TrackManager.prototype.exportsCode = function (options){
 /**
  * Exports tracking data
  * @param {Object=} options
- * @return {data}
+ * @return {Object} data
  */
 TrackManager.prototype.exports = function (options){
 	

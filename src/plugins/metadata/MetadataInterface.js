@@ -1,20 +1,25 @@
-/**
- * Extends SMXNode with utility attribute getters
- * @module Node/Metadata
- */
-
 (function(global, smx){
 
+/**
+ * Extends SMXNode with utility attribute getters
+ * @namespace Metadata
+ */
 
     if(!smx.fn) smx.fn = {};
     
 
+    /**
+     * Extends SMXNode with utility attribute getters
+     * @mixin Node.Metadata
+     * @memberof Metadata
+     */
+ 
     smx.fn.MetadataInterface = {
                     
         /**
          * Gets the metadata field value for the given associated to the node
          *
-         * @method meta
+         * @memberof Metadata.MetadataInterface
          * @param {String} key - key name of meta field
          * @param {String=} lang - langcode
          * @return {String}
@@ -39,7 +44,7 @@
          * This method is like `meta` but will return an interpolated version
          * using the node as interpolation context object.
          *
-         * @method interpolate
+         * @memberof Metadata.MetadataInterface
          * @param {String} key - key name of meta field
          * @param {String=} lang - langcode
          * @return {String}

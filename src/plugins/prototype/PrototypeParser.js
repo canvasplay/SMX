@@ -155,9 +155,10 @@
     PrototypeProcessor.applyPrototypes = function(xml,proto){
 
         //get target node
-        var node = Sizzle('#'+proto.id, xml)[0];
+        //var node = Sizzle('#'+proto.id, xml)[0];
+        //var XML = node || xml;
 
-        var XML = node || xml;
+        var XML = xml;
 
         var RULES = proto.rules;
 
@@ -211,7 +212,7 @@
             var nodes = Sizzle(key, XML);
 
             //include document itself to nodes list
-            if (Sizzle.matchesSelector(XML,key)) nodes.unshift(XML);
+            //if (Sizzle.matchesSelector(XML,key)) nodes.unshift(XML);
 
             //get proto attrs
             var attrs = RULES[key];
@@ -244,7 +245,8 @@
             //WARNING!!!!!!!! IE8 FAILS!!!!
             //var node = XML.getElementById(nodeId);
             //.getElementById is not supported for XML documents
-            var node = (XML.getAttribute('id')===nodeId)? XML : Sizzle('#'+nodeId, XML)[0];
+            //var node = (XML.getAttribute('id')===nodeId)? XML : Sizzle('#'+nodeId, XML)[0];
+            var node = Sizzle('#'+nodeId, XML)[0];
 
             //node = node[0];
 

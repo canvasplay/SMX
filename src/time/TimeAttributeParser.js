@@ -40,10 +40,6 @@ var TimeAttributeParser = {
     //get nodes matching the parser selector
     var nodes = Sizzle(this.selector, xml);
     
-    //includes xml root itself to the list
-    if(Sizzle.matchesSelector(xml,this.selector))
-      nodes.unshift(xml);
-    
     //iterate over all matching nodes
     for(var i=0, len=nodes.length; i<len; i++){
       

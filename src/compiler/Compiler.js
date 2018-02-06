@@ -24,16 +24,16 @@
     
   };
 
-  var resolvePathFileAttributes = function(node, url){
+  var resolvePathFileAttributes = function(xmlNode, url){
     
-    //get src string from node attribute or given url
-    let src = (url)? url : node.getAttribute('src');
+    //get src string from xmlNode attribute or given url
+    let src = (url)? url : xmlNode.getAttribute('src');
     
     //declare resultant attribute values
 		var path, file;
 		
 		//no src string? just ignore..
-		if(!src) return node;
+		if(!src) return xmlNode;
     
 		//split by slashes
 		src = src.split('/');
@@ -44,11 +44,11 @@
     //join path parts
 		path = src.join('/')+'/';
     
-		//set inlcuded node core attributes
-		if(path) node.setAttribute('path', path);
-		if(file) node.setAttribute('file', file);
+		//set inlcuded xmlNode core attributes
+		if(path) xmlNode.setAttribute('path', path);
+		if(file) xmlNode.setAttribute('file', file);
 		
-		return node;
+		return xmlNode;
 
   };
   
@@ -111,10 +111,7 @@
 		_.extend(this, Backbone.Events);
 
 		// XML Document Object
-		this.XML = null;
-
-		// TEXT XML code String (compressed & factorized)
-		this.TEXT = null;
+		this.xmlDocument = null;
 
 		// xhr controller for file requests
 		this.xhr = null;
@@ -158,16 +155,16 @@
       //var ext = xhr.responseURL.split('.').pop();
       
 			//detect if already exist xml root node
-			var is_root = (!this.XML)? true : false;
+			var is_root = (!this.xmlDocument)? true : false;
       
 			if (is_root){
         
 				//set xml root document
-				this.XML = xhr.responseXML;
+				this.xmlDocument = xhr.responseXML;
 				
         //ignore XMLDocument and other unwanted nodes like comments, text, ...
         //get just the root XMLElement as lastChild in document
-				var node = this.XML.lastChild;
+				var node = this.xmlDocument.lastChild;
 
 				resolvePathFileAttributes(node, xhr.responseURL);
         
@@ -175,7 +172,7 @@
 			else{
         
 				//get 1st <include> found in current XMLDocument
-				var include = Sizzle('include[loading="true"]', this.XML)[0];
+				var include = Sizzle('include[loading="true"]', this.xmlDocument)[0];
 
         //resolve if just loaded data is an XML document or not
         var isXml = (xhr.responseXML)? true : false;
@@ -198,7 +195,7 @@
 				  var type = include.getAttribute('src').split('.').pop();
 				  
           //create new data node
-				  new_node = createDataNode(this.XML, nodeName, data, type);
+				  new_node = createDataNode(this.xmlDocument, nodeName, data, type);
 
 				}
 
@@ -214,7 +211,7 @@
 			}
 
 
-      var inc = parseIncludes(this.XML);
+      var inc = parseIncludes(this.xmlDocument);
 
       if(inc){
         
@@ -247,40 +244,26 @@
 		};
 
 		this.onLoadFileError = function(xhr){
-
+      
       LOG( '> '+ xhr.responseURL+'" '+xhr.status +' ('+ xhr.statusText+')');
 			this.trigger('error', xhr.responseText);
 			
 		};
 
 		this.onLoadXMLComplete = function(){
-
-			var XML = this.XML;
-
-			//extract last child XMLnode in resultant XMLDocument and ignore the document...
-  		//using lastChild prevents getting unwanted xml nodes...
-      //IE8 p.e. returns "ProcessingInstruction" for firstChild
-      XML = XML.removeChild(XML.lastChild);
-      
-      //ATTRIBUTE PARSING
       
       //get defined parsers from smx ns
       var parsers = smx.AttributeParsers;
       
       //do parsing one by one
       for(var i=0, len=parsers.length; i<len; i++ )
-        XML = parsers[i].parse(XML);
-
-
-
-			this.XML = XML;
-			this.TEXT = this.XML2str(this.XML);
-
-
-			this.trigger('complete', XML);
-
+        parsers[i].parse(this.xmlDocument);
+      
+      //trigger complete event
+			this.trigger('complete', this.xmlDocument);
+      
 			return;
-
+      
 		};
 		
 		this.XML2str = function (xmlNode) {
@@ -306,22 +289,22 @@
 
 		this.str2XML = function(str){
 
-			var XML = null;
+			var xml = null;
 
       if (global.ActiveXObject){
 
-        XML = new ActiveXObject('Microsoft.XMLDOM');
-        XML.async = 'false';
-        XML.loadXML(str);
+        xml = new ActiveXObject('Microsoft.XMLDOM');
+        xml.async = 'false';
+        xml.loadXML(str);
 
       } else {
 
         var parser = new DOMParser();
-        XML = parser.parseFromString(str,'text/xml');
+        xml = parser.parseFromString(str,'text/xml');
 
       }
 
-      return XML;
+      return xml;
 		};
 		
 

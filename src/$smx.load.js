@@ -24,21 +24,21 @@ $smx.load = function(data, success, error){
   else
     LOAD_SMX_DOCUMENT_FROM_JSON(data);
   
-}
+};
 
 /**
- * This callback is displayed as part of the Requester class.
+ * Callback function called when loading completes succefully.
  * @callback $smx~onLoadSuccess
  * @param {Document} document - Just loaded document
  */
-var SUCCESS_CALLBACK = function(document){}
+var SUCCESS_CALLBACK = function(document){};
 
 /**
- * This callback is displayed as part of the Requester class.
+ * Callback function to be called when an error happens while loading.
  * @callback $smx~onLoadError
  * @param {Object} error - Error object
  */
-var ERROR_CALLBACK = function(e){}
+var ERROR_CALLBACK = function(e){};
  
  
 	/////////////////////////////////////////////////////////////////////////////////////
@@ -65,7 +65,7 @@ var ERROR_CALLBACK = function(e){}
 
 		SMX_COMPILER.loadDocument(url);
 
-		return
+		return;
 
 	};
 
@@ -77,7 +77,7 @@ var ERROR_CALLBACK = function(e){}
 
 		var XML = x2js.json2xml(data);
 		
-		XML = XML.removeChild(XML.lastChild);
+		//XML = XML.removeChild(XML.lastChild);
 
 		PARSE_METADATA(XML);
 
@@ -92,7 +92,7 @@ var ERROR_CALLBACK = function(e){}
 
 			callback: function(XML,data){
 
-				global['$meta'] = data;
+				global.$meta = data;
 
 				PARSE_PROTOTYPES(XML);
 
@@ -100,8 +100,8 @@ var ERROR_CALLBACK = function(e){}
 
 		});
 
-		return
-	}
+		return;
+	};
 
 
 	var PARSE_PROTOTYPES = function(xml){
@@ -114,7 +114,7 @@ var ERROR_CALLBACK = function(e){}
 
 				//console.log(data);
 
-				CLEAN_TEXT_NODES(XML)
+				CLEAN_TEXT_NODES(XML);
 
 			}
 
@@ -181,7 +181,7 @@ var ERROR_CALLBACK = function(e){}
 
 		var d = new smx.Document(xml);
 		
-		$smx.cache[d.id] = d;
+		//$smx.cache[d.id] = d;
 		$smx.documents.push(d);
 		
 		if(!$smx.document)
@@ -189,7 +189,7 @@ var ERROR_CALLBACK = function(e){}
 		
 		SUCCESS_CALLBACK(d);
 
-		return
+		return;
 
 	};
 
@@ -199,7 +199,7 @@ var ERROR_CALLBACK = function(e){}
 		
 		ERROR_CALLBACK(e);
 
-		return
+		return;
 
 	};
 

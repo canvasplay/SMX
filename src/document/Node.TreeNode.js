@@ -2,7 +2,7 @@
 
 /**
  * Extends SMXNode with utility tree node methods
- * @mixin TreeNode
+ * @mixin Node.TreeNode
  * @memberof smx.fn
  */
 
@@ -16,11 +16,10 @@ let TreeNode = {
    * @return {SMXNode[]}
    */
   getAncestors: function(selector){
-      
-    if(!selector) return this.ancestors;
     
+    if(!selector) return this.ancestors;
     return this.ancestors.filter((n)=>n.isMatch(selector));
-
+    
   },
   
   // EXTRA - PARENT RELATED OPERATIONS
@@ -32,39 +31,13 @@ let TreeNode = {
    * @return {Boolean}
    */
   isAncestorOf: function(node){
-
+    
     if (!node.parent) return false;
     var ancestorsId = node.ancestors.map((n)=>{ return n.id });
     if (ancestorsId.indexOf(this.id)>-1) return true;
     else return false;
-
+    
   },
-
-
-  // CHILD RELATED OPERATIONS
-
-  /**
-   * Gets the node with the given identifier.
-   * @memberof smx.fn.TreeNode
-   * @alias gid
-   * @return {SMXNode}
-   */
-  getNodeById: function(id){
-
-      //is nodes cache array?
-      if($smx.cache[id]) return $smx.cache[id];
-
-      //search in document
-      var node = Sizzle('#'+id,this[0])[0];
-      if (node) return $smx(node[0]);
-
-      //not found
-      return;
-
-  },
-
-  gid: function(id){ return this.getNodeById(id) },
-
 
 
   /**
@@ -78,7 +51,8 @@ let TreeNode = {
     return Sizzle.matchesSelector(this[0],selector);
     
   },
-
+  
+  // CHILD RELATED OPERATIONS
 
   /**
    * Finds all descendant nodes matching the given selector.
@@ -90,9 +64,8 @@ let TreeNode = {
     
     if (!selector) return [];
     if (!this.children.length) return [];
-    var nodes = Sizzle(selector,this[0]);
-    //if(nodes.length) nodes = _.uniqBy(nodes,'id');
-    return $smx(nodes);
+    
+    return this.document.find(selector, this);
     
   },
 
@@ -120,7 +93,7 @@ let TreeNode = {
   getChildren: function(selector) {
     
     if(!selector) return this.children;
-
+    
     return this.children.filter((n) => n.isMatch(selector));
     
   },
@@ -143,7 +116,7 @@ let TreeNode = {
         result = children[i];
       i++;
     }
-
+    
     return result;
     
   },
@@ -166,7 +139,7 @@ let TreeNode = {
         result = children[i];
       i++;
     }
-
+    
     return result;
     
   },
@@ -214,7 +187,7 @@ let TreeNode = {
    * @return {SMXNode}
    */
   getNext: function(selector) {
-
+    
     if(!selector)
       return this.next;
     else {
@@ -228,7 +201,7 @@ let TreeNode = {
       }
       return (isMatch)? n : undefined;
     }
-
+    
   },
 
   /**
@@ -263,7 +236,7 @@ let TreeNode = {
    * @return {SMXNode}
    */
   getPrevious: function(selector) {
-
+    
     if (!selector)
       return this.previous;
     else {
@@ -277,7 +250,7 @@ let TreeNode = {
       }
       return (isMatch) ? n : undefined;
     }
-
+    
   },
 
   /**
@@ -287,7 +260,9 @@ let TreeNode = {
    * @return {SMXNode[]}
    */
   getAllPrevious: function (selector) {
+    
     if (!this.previous) return [];
+    
     else {
       //fill up nodes array walking all previous nodes
       var n = this.previous;
@@ -301,6 +276,7 @@ let TreeNode = {
       else //return filtered by selector
         return nodes.filter((n) => { return n.isMatch(selector) });
     }
+    
   }
   
 };
