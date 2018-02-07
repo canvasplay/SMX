@@ -43,7 +43,6 @@ module.exports = function(grunt) {
                     'dist/$smx.load.js',
 
                     
-                    'dist/compiler/Loader.js',
                     'dist/compiler/Compiler.js',
                     'dist/compiler/IdAttributeParser.js',
 
