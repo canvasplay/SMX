@@ -20,7 +20,7 @@ class Node {
       /**
        * Original XMLNode for reference
        * @type {XMLNode}
-       * @readonly
+       * @protected
        */
       this[0] = xmlNode;
   }
@@ -140,7 +140,7 @@ class Node {
   get src() {
     
     var result = '';
-    let file = this[0].getAtribute('file');
+    let file = this[0].getAttribute('file');
 
     if (!file)
         result = (this.parent) ? this.parent.src : undefined;
