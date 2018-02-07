@@ -47,12 +47,6 @@ module.exports = function(grunt) {
                     'dist/compiler/Compiler.js',
                     'dist/compiler/IdAttributeParser.js',
 
-                    'dist/time/time.js',
-                    'dist/time/Timer.js',
-                    'dist/time/Timeline.js',
-                    'dist/time/TimelineEvent.js',
-                    'dist/time/TimeAttributeParser.js',
-                    
                     'dist/playhead/Playhead.js',
                     
 

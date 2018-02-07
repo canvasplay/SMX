@@ -1896,183 +1896,183 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 (function (global, Sizzle, smx, $smx, LOG) {
 
-		/**
-   * Loads a new smx document.
-   * @memberof $smx
-   * @param {String} url
-   * @param {$smx~onLoadSuccess} onSuccess
-   * @param {$smx~onLoadError} onError
-   * @async
-   */
-		$smx.load = function (data, success, error) {
+	/**
+  * Loads a new smx document.
+  * @memberof $smx
+  * @param {String} url
+  * @param {$smx~onLoadSuccess} onSuccess
+  * @param {$smx~onLoadError} onError
+  * @async
+  */
+	$smx.load = function (data, success, error) {
 
-				if (!data) return;
+		if (!data) return;
 
-				//conditional loading should check for multiple data source types
-				//from url file as xml or json file... from xmlNode... from json object...
-				//for now just proceed assuming an url for an xml file
-				SUCCESS_CALLBACK = success;
-				ERROR_CALLBACK = error;
+		//conditional loading should check for multiple data source types
+		//from url file as xml or json file... from xmlNode... from json object...
+		//for now just proceed assuming an url for an xml file
+		SUCCESS_CALLBACK = success;
+		ERROR_CALLBACK = error;
 
-				if (typeof data === 'string') LOAD_SMX_DOCUMENT(data);else LOAD_SMX_DOCUMENT_FROM_JSON(data);
-		};
+		if (typeof data === 'string') LOAD_SMX_DOCUMENT(data);else LOAD_SMX_DOCUMENT_FROM_JSON(data);
+	};
 
-		/**
-   * Callback function called when loading completes succefully.
-   * @callback $smx~onLoadSuccess
-   * @param {Document} document - Just loaded document
-   */
-		var SUCCESS_CALLBACK = function SUCCESS_CALLBACK(document) {};
+	/**
+  * Callback function called when loading completes succefully.
+  * @callback $smx~onLoadSuccess
+  * @param {Document} document - Just loaded document
+  */
+	var SUCCESS_CALLBACK = function SUCCESS_CALLBACK(document) {};
 
-		/**
-   * Callback function to be called when an error happens while loading.
-   * @callback $smx~onLoadError
-   * @param {Object} error - Error object
-   */
-		var ERROR_CALLBACK = function ERROR_CALLBACK(e) {};
+	/**
+  * Callback function to be called when an error happens while loading.
+  * @callback $smx~onLoadError
+  * @param {Object} error - Error object
+  */
+	var ERROR_CALLBACK = function ERROR_CALLBACK(e) {};
 
-		/////////////////////////////////////////////////////////////////////////////////////
-		// LOADING AND COMPILE SMX DOCUMENT
+	/////////////////////////////////////////////////////////////////////////////////////
+	// LOADING AND COMPILE SMX DOCUMENT
 
-		var SMX_COMPILER = null;
+	var SMX_COMPILER = null;
 
-		var LOAD_SMX_DOCUMENT = function LOAD_SMX_DOCUMENT(url) {
+	var LOAD_SMX_DOCUMENT = function LOAD_SMX_DOCUMENT(url) {
 
-				//INSTANCE SMX COMPILER
-				SMX_COMPILER = new smx.Compiler();
+		//INSTANCE SMX COMPILER
+		SMX_COMPILER = new smx.Compiler();
 
-				//SMX_COMPILER.on('complete', LOAD_SMX_COMPLETE);
-				SMX_COMPILER.on('complete', PARSE_METADATA);
-				SMX_COMPILER.on('error', LOAD_SMX_ERROR);
+		//SMX_COMPILER.on('complete', LOAD_SMX_COMPLETE);
+		SMX_COMPILER.on('complete', PARSE_METADATA);
+		SMX_COMPILER.on('error', LOAD_SMX_ERROR);
 
-				//global
-				//global['$compiler'] = SMX_COMPILER;
+		//global
+		//global['$compiler'] = SMX_COMPILER;
 
-				//var data_path = app.config.DATA_PATH || '';
-				//if(app.config.PACKAGE) data_path = app.config.PACKAGE+'/'+ data_path;
+		//var data_path = app.config.DATA_PATH || '';
+		//if(app.config.PACKAGE) data_path = app.config.PACKAGE+'/'+ data_path;
 
-				SMX_COMPILER.loadDocument(url);
+		SMX_COMPILER.loadDocument(url);
 
-				return;
-		};
+		return;
+	};
 
-		var LOAD_SMX_DOCUMENT_FROM_JSON = function LOAD_SMX_DOCUMENT_FROM_JSON(data) {
+	var LOAD_SMX_DOCUMENT_FROM_JSON = function LOAD_SMX_DOCUMENT_FROM_JSON(data) {
 
-				var x2js = new X2JS();
+		var x2js = new X2JS();
 
-				var XML = x2js.json2xml(data);
+		var XML = x2js.json2xml(data);
 
-				//XML = XML.removeChild(XML.lastChild);
+		//XML = XML.removeChild(XML.lastChild);
 
-				PARSE_METADATA(XML);
-		};
+		PARSE_METADATA(XML);
+	};
 
-		var PARSE_METADATA = function PARSE_METADATA(xml) {
+	var PARSE_METADATA = function PARSE_METADATA(xml) {
 
-				smx.meta.parseXML(xml, {
+		smx.meta.parseXML(xml, {
 
-						callback: function callback(XML, data) {
+			callback: function callback(XML, data) {
 
-								global.$meta = data;
+				global.$meta = data;
 
-								PARSE_PROTOTYPES(XML);
-						}
+				PARSE_PROTOTYPES(XML);
+			}
 
-				});
+		});
 
-				return;
-		};
+		return;
+	};
 
-		var PARSE_PROTOTYPES = function PARSE_PROTOTYPES(xml) {
+	var PARSE_PROTOTYPES = function PARSE_PROTOTYPES(xml) {
 
-				smx.proto.parseXML(xml, {
+		smx.proto.parseXML(xml, {
 
-						propagate: true,
+			propagate: true,
 
-						callback: function callback(XML, data) {
+			callback: function callback(XML, data) {
 
-								//console.log(data);
+				//console.log(data);
 
-								CLEAN_TEXT_NODES(XML);
-						}
+				CLEAN_TEXT_NODES(XML);
+			}
 
-				});
-		};
+		});
+	};
 
-		var CLEAN_TEXT_NODES = function CLEAN_TEXT_NODES(xml) {
+	var CLEAN_TEXT_NODES = function CLEAN_TEXT_NODES(xml) {
 
-				var count = 0;
+		var count = 0;
 
-				function clean(node) {
+		function clean(node) {
 
-						for (var n = 0; n < node.childNodes.length; n++) {
+			for (var n = 0; n < node.childNodes.length; n++) {
 
-								var child = node.childNodes[n];
+				var child = node.childNodes[n];
 
-								//	1	ELEMENT_NODE
-								//	2	ATTRIBUTE_NODE
-								//	3	TEXT_NODE
-								//	4	CDATA_SECTION_NODE
-								//	5	ENTITY_REFERENCE_NODE
-								//	6	ENTITY_NODE
-								//	7	PROCESSING_INSTRUCTION_NODE
-								//	8	COMMENT_NODE
-								//	9	DOCUMENT_NODE
-								//	10	DOCUMENT_TYPE_NODE
-								//	11	DOCUMENT_FRAGMENT_NODE
-								//	12	NOTATION_NODE
+				//	1	ELEMENT_NODE
+				//	2	ATTRIBUTE_NODE
+				//	3	TEXT_NODE
+				//	4	CDATA_SECTION_NODE
+				//	5	ENTITY_REFERENCE_NODE
+				//	6	ENTITY_NODE
+				//	7	PROCESSING_INSTRUCTION_NODE
+				//	8	COMMENT_NODE
+				//	9	DOCUMENT_NODE
+				//	10	DOCUMENT_TYPE_NODE
+				//	11	DOCUMENT_FRAGMENT_NODE
+				//	12	NOTATION_NODE
 
-								var isElementNode = function isElementNode(n) {
-										return n.nodeType === 1;
-								};
-								var isCommentNode = function isCommentNode(n) {
-										return n.nodeType === 8;
-								};
-								var isEmptyTextNode = function isEmptyTextNode(n) {
-										return n.nodeType === 3 && !/\S/.test(n.nodeValue);
-								};
+				var isElementNode = function isElementNode(n) {
+					return n.nodeType === 1;
+				};
+				var isCommentNode = function isCommentNode(n) {
+					return n.nodeType === 8;
+				};
+				var isEmptyTextNode = function isEmptyTextNode(n) {
+					return n.nodeType === 3 && !/\S/.test(n.nodeValue);
+				};
 
-								if (isCommentNode(child) || isEmptyTextNode(child)) {
-										node.removeChild(child);
-										count++;
-										n--;
-								} else if (isElementNode(child)) {
-										clean(child);
-								}
-						}
+				if (isCommentNode(child) || isEmptyTextNode(child)) {
+					node.removeChild(child);
+					count++;
+					n--;
+				} else if (isElementNode(child)) {
+					clean(child);
 				}
+			}
+		}
 
-				clean(xml);
+		clean(xml);
 
-				LOG('CLEANING XML: ' + count + ' nodes removed');
+		LOG('CLEANING XML: ' + count + ' nodes removed');
 
-				LOAD_SMX_COMPLETE(xml);
-		};
+		LOAD_SMX_COMPLETE(xml);
+	};
 
-		var LOAD_SMX_COMPLETE = function LOAD_SMX_COMPLETE(xml) {
+	var LOAD_SMX_COMPLETE = function LOAD_SMX_COMPLETE(xml) {
 
-				LOG('smx load complete!');
+		LOG('smx load complete!');
 
-				var d = new smx.Document(xml);
+		var d = new smx.Document(xml);
 
-				//$smx.cache[d.id] = d;
-				$smx.documents.push(d);
+		//$smx.cache[d.id] = d;
+		$smx.documents.push(d);
 
-				if (!$smx.document) $smx.document = d;
+		if (!$smx.document) $smx.document = d;
 
-				SUCCESS_CALLBACK(d);
+		SUCCESS_CALLBACK(d);
 
-				return;
-		};
+		return;
+	};
 
-		var LOAD_SMX_ERROR = function LOAD_SMX_ERROR(e) {
+	var LOAD_SMX_ERROR = function LOAD_SMX_ERROR(e) {
 
-				LOG('smx load error: ' + e);
+		LOG('smx load error: ' + e);
 
-				ERROR_CALLBACK(e);
+		ERROR_CALLBACK(e);
 
-				return;
-		};
+		return;
+	};
 })(window, window.Sizzle, window.smx, window.$smx, window.log);
 //# sourceMappingURL=$smx.load.js.map
 ;'use strict';
@@ -2510,1212 +2510,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
   smx.AttributeParsers.push(IdAttributeParser);
 })(window, window.smx, window.Sizzle, window.log);
 //# sourceMappingURL=IdAttributeParser.js.map
-;"use strict";
-
-(function (smx) {
-
-  /**
-   * Placeholder namespace to contain Node extensions
-   * @namespace time
-   * @memberof smx
-   */
-
-  //expose
-  smx.time = {};
-})(window.smx);
-//# sourceMappingURL=time.js.map
-;'use strict';
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-(function (win, _, Backbone, smx) {
-
-	/**
-  * SMX Timer Class
-  * @memberof smx.time
-  */
-	var Timer = function () {
-
-		/**
-   * creates a Timer
-   **/
-		function Timer() {
-			_classCallCheck(this, Timer);
-
-			//inherit events behavior
-			_.extend(this, Backbone.Events);
-
-			//fps only applied when using internal timer
-			//[ 16 | 24 | 32 | 48 | 64 ... ] higher values may push performance limits (not recommended)
-			this.fps = 16;
-
-			//internal timer engine object
-			//usually return value of setTimeout or setInterval
-			this.engine = null;
-
-			//external engine collection
-			this.extEngines = [];
-
-			//time counter
-			this.time = 0;
-
-			//aux time flag
-			this.time_flag = null;
-
-			//bool engine paused or not
-			this.paused = true;
-
-			//bool flag requestAnimationFrame?
-			this.rAF = false;
-
-			//fps multiplier
-			this.factor = 1;
-		}
-
-		/**
-   * Starts the timer
-   */
-
-
-		_createClass(Timer, [{
-			key: 'start',
-			value: function start() {
-
-				//prevents duplicated runs
-				if (this.engine) this.stop();
-
-				//set time_flag
-				this.time_flag = new Date().getTime();
-
-				//activate loop
-				this.paused = false;
-
-				//set timeout
-				if (this.rAF) this.engine = global.requestAnimationFrame(_.bind(this.update, this));else this.engine = setTimeout(_.bind(this.update, this), 1000 / this.fps);
-			}
-
-			/**
-    * Plugs an external time engine
-    * @param {String} engine id
-    * @param {Function} callback - Function returning current time in ms when invoked
-    */
-
-		}, {
-			key: 'plugExtEngine',
-			value: function plugExtEngine(id, callback) {
-
-				//callback must be a function returning current time in ms
-				this.extEngines.unshift({ 'id': id, 'callback': callback });
-
-				return;
-			}
-
-			/**
-    * Unplugs an external engine
-    * @param {String} id - Identifier of the engine to be removed
-    */
-
-		}, {
-			key: 'unplugExtEngine',
-			value: function unplugExtEngine(id) {
-
-				var found_at_index = -1;
-				for (var i = 0; i < this.extEngines.length; i++) {
-					if (this.extEngines[i].id == id) {
-						this.extEngines[i] = null;
-						found_at_index = i;
-					}
-				}
-				if (found_at_index >= 0) {
-					this.extEngines.splice(found_at_index, 1);
-				}
-
-				if (!this.extEngines.length && !this.paused) this.start();
-
-				return;
-			}
-
-			/**
-    * Updates the timer
-    */
-
-		}, {
-			key: 'update',
-			value: function update(time, timerId) {
-
-				//using internal engine 'update' recives 0 parameters
-				//and will use new Date().getTime() to calculate time ellapsed since last update
-
-				//using an external engine callback must recive 2 param
-				//time: target time
-				//timerId: id of a registered external engine
-				//only registered engines via 'plugExtEngine' method take effect
-				//if timerId is not found time param will be ignored and will exit silently
-
-				if (typeof time != 'undefined' && typeof timerId != 'undefined') {
-
-					//multiple external engines are not supported
-					//so, always take only the first extEngine and ignore the others
-					if (this.extEngines[0].id == timerId) {
-
-						//update using param provided by external engine
-						this.time = time;
-						//debug.log('TIMER - timer:'+ parseInt(this.time) +' from externalEngine:'+this.extEngines[0].id);
-
-						//notify update and exit
-						this.trigger('update');
-						return;
-					} else {
-
-						//timerId not found, exit silently
-						return;
-					}
-				}
-
-				//calculate time ellapsed since last update
-				var time_now = new Date().getTime();
-				var time_offset = this.time_flag !== null ? time_now - this.time_flag : 0;
-				this.time_flag = time_now;
-
-				//calculate real fps
-				//var fps = 1000/time_offset;
-
-				//update time
-				this.time += time_offset * this.factor;
-				//debug.log('TIMER - timer:'+ parseInt(this.time) +' from internal engine');
-
-
-				//set timeout to next frame
-				if (!this.paused && !this.extEngines.length) {
-					if (this.rAF) this.engine = global.requestAnimationFrame(_.bind(this.update, this));else this.engine = setTimeout(_.bind(this.update, this), 1000 / this.fps);
-				}
-
-				//notify update and exit
-				this.trigger('update');
-
-				return;
-			}
-
-			/**
-    * Sets a given time in ms
-    * @param {Number} t - time to be set
-    */
-
-		}, {
-			key: 'setTime',
-			value: function setTime(t) {
-
-				this.time = t;
-
-				//notify update
-				this.trigger('update');
-			}
-
-			/**
-    * Stops the timer
-    */
-
-		}, {
-			key: 'stop',
-			value: function stop() {
-
-				//reset timeout
-				if (this.engine) {
-					if (this.rAF) global.cancelAnimationFrame(this.engine);else clearTimeout(this.engine);
-					this.engine = null;
-				}
-
-				//reset time_flag
-				this.time_flag = null;
-
-				//deactivate update loop
-				this.paused = true;
-
-				return;
-			}
-
-			/**
-    * Resets the timer
-    */
-
-		}, {
-			key: 'reset',
-			value: function reset() {
-
-				this.stop();
-				this.time = 0;
-			}
-
-			/**
-    * Destroys the timer
-    */
-
-		}, {
-			key: 'destroy',
-			value: function destroy() {
-
-				//kill loop process
-				this.stop();
-
-				//clear extEngines
-				this.extEngines = [];
-
-				return;
-			}
-		}]);
-
-		return Timer;
-	}();
-
-	//expose class in smx namespace
-
-
-	smx.time.Timer = Timer;
-})(window, window._, window.Backbone, window.smx);
-//# sourceMappingURL=Timer.js.map
-;'use strict';
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-(function (smx) {
-
-			/**
-    * SMX Timeline Class
-    * @memberof smx.time
-    */
-			var Timeline = function () {
-
-						/**
-       * creates a new Timeline
-       * @param {Node} node node to be used as timeline base
-       * @return {Timeline}
-       */
-						function Timeline(node) {
-									_classCallCheck(this, Timeline);
-
-									if (!node) return;
-
-									//extends with events
-									_.extend(this, Backbone.Events);
-
-									/**
-          * Node from which the timeline is created
-          * @type {Node}
-          */
-
-									//define node ref
-									this.node = node;
-
-									/**
-          * Current time
-          * @default 0
-          */
-									this.time = 0;
-
-									//time cache
-									this.time2 = -2;
-
-									//timeline duration
-									this.duration = 0;
-
-									//limit max update events per second
-									this.fps = 2;
-
-									/**
-          * Timer engine used for time tic tacking
-          * @type {smx.time.Timer}
-            */
-									this.timer = null;
-
-									//used for scrolling
-									//this.scroller = null;
-
-									//STATUS FLAGS
-
-									//true if playing
-									this.is_playing = false;
-
-									//true when using high speed playback
-									//this.is_scrolling = false;
-
-									//is false when its busy :D
-									this.is_ready = true;
-
-									//TIMELINE SELECTION
-									//Array containing all selected nodes
-									this.activeNodes = [];
-
-									//KEYFRAMES
-									this.keyFrames = {};
-
-									this.debug = false;
-
-									this.initialize();
-						}
-
-						_createClass(Timeline, [{
-									key: 'initialize',
-									value: function initialize() {
-
-												this.createTimer();
-
-												this.duration = this.node.time('duration');
-
-												this.synchronize();
-									}
-						}, {
-									key: 'createTimer',
-									value: function createTimer() {
-
-												//create timer engine
-												this.timer = new smx.time.Timer();
-
-												//create observer for timer 'update' event
-												this.timer.on('update', this.update, this);
-
-												//create timer engine
-												//this.scroller = new smx.time.Timer();
-												//this.scroller.fps = 10;
-
-												//create observer for timer 'update' event
-												//this.scroller.on('update', this.onscroll, this);
-
-									}
-						}, {
-									key: 'destroyTimer',
-									value: function destroyTimer() {
-
-												if (!this.timer) return;
-
-												this.timer.off('update', this.update);
-
-												this.timer.destroy();
-
-												this.timer = null;
-
-												//if (!this.scroller) return;
-
-												//this.scroller.off('update', this.onscroll);
-
-												//this.scroller.destroy();
-
-												//this.scroller = null;
-									}
-						}, {
-									key: 'plugExtTimer',
-									value: function plugExtTimer(name, callback) {
-
-												if (!this.timer || !name || !callback) return;
-
-												this.timer.plugExtEngine(name, callback);
-
-												return;
-									}
-						}, {
-									key: 'unplugExtTimer',
-									value: function unplugExtTimer(name) {
-
-												if (!this.timer || !name) return;
-
-												this.timer.unplugExtEngine(name);
-												return;
-									}
-
-									/*
-         //!!! DEPRECATED -- not in use?
-         //better use duration property directly
-         this.getDuration = function(){
-         	return this.duration;
-         };
-         */
-
-						}, {
-									key: 'synchronize',
-									value: function synchronize() {
-
-												//create/reset empty object
-												this.keyFrames = {};
-
-												//get timemarks
-												var childs = this.node.find('*');
-
-												for (var i = 0; i < childs.length; i++) {
-
-															//get tm
-															var child = childs[i];
-
-															//get resulting times
-															var _startTime = child.time('offset', this.node);
-															var _finishTime = child.time('offset', this.node) + child.time('duration');
-
-															//create activation keyframe at start time
-															this.addKeyFrame(_startTime, child.id, 1);
-
-															//create deactivation keyframe at finish time
-															this.addKeyFrame(_finishTime, child.id, 0);
-												}
-
-												this._optimizeKeyFrames();
-
-												return;
-									}
-
-									/**
-          * Adds a new keyframe
-          * @param {Integer} t - time position for the keyframe
-          * @param {String} id - keyframe identifier
-          * @param {String} action - action to be permformed
-          * @private
-          */
-
-						}, {
-									key: '_addKeyFrame',
-									value: function _addKeyFrame(t, id, action) {
-
-												//if keyframe[t] does not exist create keyframe array
-												if (!this.keyFrames[t + '']) this.keyFrames[t + ''] = [];
-
-												//the push keyframe in array
-												this.keyFrames[t + ''].push({ 'id': id, 'action': action });
-
-												return;
-									}
-
-									/**
-          * Optimizes existing keyframes map
-          * @private
-          * @summary
-         * keyframes are stored in a plain object not in an array
-         * object properties are the keys time in seconds
-         * so properties may be unordered {5:x,2:y,12:z}
-         * the optimization consists in ordering keyframes object
-         */
-
-						}, {
-									key: '_optimizeKeyFrames',
-									value: function _optimizeKeyFrames() {
-
-												//sort keyframes
-												var sorted_keyframes = {};
-												var kfs = _.keys(this.keyFrames);
-												kfs = _.sortBy(kfs, function (num) {
-															return parseFloat(num);
-												});
-												for (var i = 0; i < kfs.length; i++) {
-															sorted_keyframes[kfs[i]] = this.keyFrames[kfs[i]];
-												}
-												this.keyFrames = sorted_keyframes;
-
-												return;
-									}
-
-									/**
-           * Updates timeline time
-           * @param {Number=} time - update timeline at given time
-           * @return {Boolean} success or not
-           */
-
-						}, {
-									key: 'update',
-									value: function update(time) {
-
-												//check for "is_ready" flag
-												if (!this.is_ready) return;
-
-												//check for "is_playing" flag
-												//if (!this.is_playing) return;
-
-												//process parameter
-												var t = typeof time != 'undefined' ? parseInt(time) : false;
-
-												//update time
-												if (this.timer) this.time = this.timer.time; //update from timer
-												else if (t !== false) this.time = t; // update from parameter
-															else return;
-
-												//prevent LEFT timeline offset
-												if (this.time < 0) this.time = 0;
-
-												//prevent RIGHT timeline offset
-												var max = this.duration * 1000;
-												if (this.time >= max) {
-															this.time = max;
-															this.pause();
-															this.finish();
-												}
-
-												//check for keyframes
-												t = Math.floor(this.time / 1000);
-												if (this.time2 != t) {
-
-															var diff = t - this.time2;
-															if (diff > 0 && Math.abs(diff) <= 1) {
-
-																		//is linear progress
-
-																		//get keyframes for this frame
-																		var kfs = this.keyFrames[t + ''];
-
-																		//exist keyframes?
-																		if (kfs) {
-
-																					//debug.log('keyframe found at '+t);
-
-																					for (var i = 0; i < kfs.length; i++) {
-
-																								var kf = kfs[i];
-																								var node = this.node.root().getNodeById(kf.id);
-																								var action = kf.action;
-
-																								if (action > 0) this._enterNode(node);else {
-																											var last_frame = Math.floor(max / 1000);
-																											if (t != last_frame) this._exitNode(node);
-																								}
-																					}
-																		}
-															} else {
-
-																		//is not linear progress
-
-																		//get keyframes names: ['0','5','12',...]
-																		var kfs = _.keys(this.keyFrames);
-
-																		//aux array for active nodes
-																		var active_nodes = [];
-
-																		//loop trough keyframes before time t
-																		for (var k = 0; k < kfs.length && parseInt(kfs[k]) <= parseInt(t); k++) {
-
-																					var kf = this.keyFrames[kfs[k]];
-
-																					for (var i = 0; i < kf.length; i++) {
-
-																								var item = kf[i];
-																								var node = this.node.root().getNodeById(item.id);
-																								var action = item.action;
-
-																								var index = active_nodes.indexOf(node);
-
-																								if (action > 0) active_nodes.push(node);else active_nodes.splice(index, 1);
-																					}
-																		}
-
-																		//perform resulting 'exit' nodes
-																		var need_exit = [];
-																		for (var i = 0; i < this.activeNodes.length; i++) {
-																					var node = this.activeNodes[i];
-																					if (active_nodes.indexOf(node) < 0) {
-																								need_exit.push(node);
-																					}
-																		}
-																		for (var i = 0; i < need_exit.length; i++) {
-																					this._exitNode(need_exit[i]);
-																		} //perform resulting 'enter' nodes
-																		for (var i = 0; i < active_nodes.length; i++) {
-																					this._enterNode(active_nodes[i]);
-																		}
-															}
-
-															//this._debug('-------------------------------');
-															//for (var i=0; i< this.activeNodes.length; i++) debug.log(''+this.activeNodes[i].nodeName +'#'+this.activeNodes[i].id);
-
-
-															//update aux time
-															this.time2 = t;
-												}
-
-												//create timeline event object
-												var e = this.buildEventObject(this.node);
-
-												//notify 'update'
-												this.trigger('update', e);
-
-												return;
-									}
-
-									/**
-          * Checks if the given node or node identifier is currently active in the timeline
-          * @param {String|Node} node
-          */
-
-						}, {
-									key: 'isActive',
-									value: function isActive(node_or_id) {
-
-												var node = node_or_id;
-
-												if (typeof node_or_id == 'string') node = this.node.root().getNodeById(node_or_id);
-
-												if (!node) return;
-
-												if (this.activeNodes.indexOf(node) >= 0) return true;
-									}
-
-									/**
-          * @private
-          */
-
-						}, {
-									key: '_enterNode',
-									value: function _enterNode(node) {
-
-												//check node
-												if (!node) return;
-
-												//check if already active
-												if (this.activeNodes.indexOf(node) >= 0) return;
-
-												//add to active nodes
-												this.activeNodes.push(node);
-
-												//create timeline event object
-												var e = this.buildEventObject(node);
-
-												//generic timeline enter event
-												this.trigger('enter', e);
-
-												//specific timeline node enter event
-												this.trigger('enter:' + node.id, e);
-
-												//debug action
-												this._debug('TIMELINE !enter: ' + node.nodeName + '#' + node.id);
-
-												return;
-									}
-
-									/**
-          * @private
-          */
-
-						}, {
-									key: '_exitNode',
-									value: function _exitNode(node) {
-
-												//check node
-												if (!node) return;
-
-												//check if active
-												var index = this.activeNodes.indexOf(node);
-												if (index < 0) return;
-
-												//remove from active nodes
-												this.activeNodes.splice(index, 1);
-
-												//create timeline event object
-												var e = this.buildEventObject(node);
-
-												//generic timeline exit event
-												this.trigger('exit', e);
-
-												//specific timeline node exit event
-												this.trigger('exit:' + node.id, e);
-
-												//debug action
-												this._debug('TIMELINE !exit: ' + node.nodeName + '#' + node.id);
-
-												return;
-									}
-
-									/**
-            * Plays the timeline
-            * @fires play
-            */
-
-						}, {
-									key: 'play',
-									value: function play(silent) {
-
-												//if is scrolling stop scroll
-												//if(this.is_scrolling) this.stopScroll();
-
-												//check for "is_ready" flag
-												if (!this.is_ready) return;
-
-												//play in offset time become replay
-												var max = this.duration * 1000;
-												if (this.time >= max) return this.replay();
-
-												//update "is_playing" flag
-												this.is_playing = true;
-
-												//start timer
-												if (this.timer) this.timer.start();
-
-												//create timeline event object
-												var e = this.buildEventObject(this.node);
-
-												//notify 'play'
-												if (!silent) this.trigger('play', e);
-
-												return;
-									}
-
-									/**
-          * Fired every time the timeline performs the `play` action
-          * @event play
-          * @memberof smx.time.Timeline
-          * @return {TimelineEvent}
-          */
-
-									/**
-          * Replays the timeline, performs `seekTo' to 0 and `play`
-          */
-
-						}, {
-									key: 'replay',
-									value: function replay() {
-
-												//if is scrolling stop scroll
-												//if(this.is_scrolling) this.stopScroll();
-
-												//check for "is_ready" flag
-												if (!this.is_ready) return;
-
-												this.seekTo(0);
-												this.play();
-
-												return;
-									}
-
-									/**
-            * Pauses the timeline
-            * @fires pause
-            */
-
-						}, {
-									key: 'pause',
-									value: function pause(silent) {
-
-												//if is scrolling stop scroll
-												//if(this.is_scrolling) this.stopScroll();
-
-												if (this.is_playing) {
-
-															//update "is_playing" flag
-															this.is_playing = false;
-
-															//stop timer
-															if (this.timer) this.timer.stop();
-
-															//create timeline event object
-															var e = this.buildEventObject(this.node);
-
-															//notify 'pause'
-															if (!silent) this.trigger('pause', e);
-												}
-
-												return;
-									}
-
-									/**
-          * Fired every time the timeline performs the `pause` action
-          * @event pause
-          * @memberof smx.time.Timeline
-          * @return {TimelineEvent}
-          */
-
-									/**
-            * Toggles the timeline, will perform `play` or `pause` depending on
-            * current timeline status
-            */
-
-						}, {
-									key: 'toggle',
-									value: function toggle() {
-
-												//if (!this.is_scrolling && !this.is_playing) this.play();
-												if (!this.is_playing) this.play();else this.pause();
-
-												return;
-									}
-
-									/**
-          * Finishes the timeline
-          * @fires finish
-          */
-
-						}, {
-									key: 'finish',
-									value: function finish() {
-
-												//update 'is_playing' flag
-												//this.is_playing = false;
-
-												//rewind
-												//this.seekTo(0);
-												this.pause();
-
-												//stop timer
-												if (this.timer) this.timer.reset();
-
-												//create timeline event object
-												var e = this.buildEventObject(this.node);
-
-												//notify reset
-												this.trigger('finish', e);
-
-												return;
-									}
-
-									/**
-          * Fired every time the timeline performs the `finish` action
-          * @event finish
-          * @memberof smx.time.Timeline
-          * @return {TimelineEvent}
-          */
-
-									/**
-          * Resets the timeline to 0
-          * @fires reset
-          */
-
-						}, {
-									key: 'reset',
-									value: function reset() {
-
-												//update 'is_playing' flag
-												this.is_playing = false;
-
-												//reset timer
-												if (this.timer) this.timer.reset();
-
-												//rewind
-												this.seekTo(0);
-
-												//notify reset
-												this.trigger('reset');
-
-												return;
-									}
-
-									/**
-          * Fired every time the timeline performs the `reset` action
-          * @event reset
-          * @memberof smx.time.Timeline
-          * @return {TimelineEvent}
-          */
-
-									/**
-          * Seeks current time to the new given time
-          * @param {Number} t - target time
-          * @fires seek
-          */
-
-						}, {
-									key: 'seekTo',
-									value: function seekTo(t) {
-
-												//check for "is_ready" flag
-												if (!this.is_ready) return;
-
-												//trying seek to start?
-												t = t ? t <= 0 ? 0 : t : 0;
-
-												//update time
-												if (this.timer) this.timer.setTime(t); //from timer
-												else this.update(t);
-
-												//notify seek
-												this.trigger('seek', t);
-
-												return;
-									}
-
-									/**
-          * Fired every time the timeline performs the `seekTo` action
-          * @event seek
-          * @memberof smx.time.Timeline
-          * @return {TimelineEvent}
-          */
-
-									/*
-         this.scroll = function(factor){
-         			if (!this.scroller) return;
-         			if(!_.isNumber(factor) || factor===0){
-         				//set scroll factor
-         		this.stopScroll();
-         				return;
-         			}
-         			//pause timeline while scrolling
-         	this.pause();
-         			//update 'is_scrolling' flag
-         	this.is_scrolling = true;
-         			//set scroll factor
-         	this.scroller.factor = factor;
-         			//sync scroller with timer
-         	this.scroller.time = this.timer.time;
-         			//start scroll timer if is not already started
-         	if(this.scroller.paused) this.scroller.start();
-         
-         	return;
-         
-         };
-         		this.stopScroll = function(){
-         			if (!this.scroller) return;
-         			//set scroll factor
-         	this.scroller.factor = 0;
-         			//stop scroll timer
-         	this.scroller.stop();
-         			//update 'is_scrolling' flag
-         	this.is_scrolling = false;
-         			return;
-         
-         };
-         		this.onscroll = function(time){
-         			if(this.is_playing || !this.is_scrolling){
-         		this.stopScroll();	return;
-         	}
-         			//process parameter
-         	var t = (typeof time != 'undefined')? parseInt(time) : false;
-         			//update time
-         	if (this.scroller)	t = this.scroller.time; //update from timer
-         			//prevent LEFT timeline offset
-         	if (t<0){
-         		t = 0;
-         		this.stopScroll();
-         	}
-         			//prevent RIGHT timeline offset
-         	var max = this.duration*1000;
-         	if (t>=max){
-         		t = max;
-         		this.stopScroll();
-         	}
-         			this.seekTo(t);
-         			return;
-         
-         };
-         */
-
-						}, {
-									key: 'buildEventObject',
-									value: function buildEventObject(target) {
-
-												var TimelineEvent = {
-
-															'target': target,
-															'active': this.activeNodes,
-															'time': this.time,
-															'duration': this.duration,
-															'progress': this.time / 1000 * 100 / this.duration
-
-												};
-
-												return TimelineEvent;
-									}
-
-									/**
-          * destroys the timeline
-          * @fires destroy
-          */
-
-						}, {
-									key: 'destroy',
-									value: function destroy() {
-
-												//destroy timer
-												this.destroyTimer();
-
-												//notify destroy
-												this.trigger('destroy');
-
-												return;
-									}
-
-									/**
-          * Fired when the timeline is destroyed
-          * @event destroy
-          * @memberof smx.time.Timeline
-          * @return {TimelineEvent}
-          */
-
-						}, {
-									key: '_debug',
-									value: function _debug(msg) {
-												if (this.debug) debug.log(msg);
-									}
-						}]);
-
-						return Timeline;
-			}();
-
-			//expose
-
-			window.smx.time.Timeline = Timeline;
-})(window.smx);
-//# sourceMappingURL=Timeline.js.map
-;"use strict";
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-(function (smx) {
-
-  /**
-   * TimelineEvent Class
-   * @memberof smx.time
-   */
-  var TimelineEvent =
-
-  /**
-   * creates a new TimelineEvent
-   * @param {Node} node node to be used as timeline base
-   * @return {TimelineEvent}
-   */
-  function TimelineEvent(playhead) {
-    _classCallCheck(this, TimelineEvent);
-
-    /**
-     * @type {Node}
-     */
-    this.target = target;
-
-    /**
-     * @type {Node[]}
-     */
-    this.active = playhead.activeNodes;
-
-    /**
-     * @type {Number}
-     */
-    this.time = playhead.time;
-
-    /**
-     * @type {Number}
-     */
-    this.duration = playhead.duration;
-
-    /**
-     * @type {Number}
-     */
-    this.progress = this.time / 1000 * 100 / this.duration;
-  };
-
-  //expose
-
-
-  window.smx.time.TimelineEvent = TimelineEvent;
-})(window.smx);
-//# sourceMappingURL=TimelineEvent.js.map
-;'use strict';
-
-(function (global, smx, Sizzle, LOG) {
-
-  /**
-   * @mixin TimeAttributeParser
-   */
-
-  var TimeAttributeParser = {
-
-    /**
-     * Parser name
-     *
-     * @memberof TimeAttributeParser
-     * @type {String}
-     * @protected
-     */
-    name: 'Time',
-
-    /**
-     * Selector used to find nodes having matching attributes to be parsed
-     *
-     * @memberof TimeAttributeParser
-     * @type {String}
-     * @protected
-     */
-    selector: '[duration],[start],[offset]',
-
-    /**
-     * Parser function
-     *
-     * @memberof TimeAttributeParser
-     * @static
-     * @param {XMLNode} xml
-     * @return {XMLNode}
-     */
-    parse: function parse(xml) {
-
-      //internal counter
-      var attributeCounter = 0;
-
-      //get nodes matching the parser selector
-      var nodes = Sizzle(this.selector, xml);
-
-      //iterate over all matching nodes
-      for (var i = 0, len = nodes.length; i < len; i++) {
-
-        //get node
-        var node = nodes[i];
-
-        //duration attr
-        var duration = node.getAttribute('duration');
-        if (duration) {
-          node.setAttribute('duration', this.parseAttributeValue(duration, 'auto'));
-          attributeCounter++;
-        }
-
-        //start attr
-        var start = node.getAttribute('start');
-        if (start) {
-          node.setAttribute('start', this.parseAttributeValue(start, 'auto'));
-          attributeCounter++;
-        }
-
-        //offset attr
-        var offset = node.getAttribute('offset');
-        if (offset) {
-          node.setAttribute('offset', this.parseAttributeValue(offset, 0));
-          attributeCounter++;
-        }
-      }
-
-      LOG('ATTRIBUTE PARSER: TIME (' + attributeCounter + ' attributes in ' + nodes.length + ' nodes)');
-
-      return xml;
-    },
-
-    /**
-     * Parses a time attribute value
-     *
-     * @memberof TimeAttributeParser
-     * @static
-     * @param {String} value
-     * @param {String} default value
-     * @return {String}
-     */
-    parseAttributeValue: function parseAttributeValue(value, _default) {
-
-      if (!value || typeof value !== 'string' || value === 'auto' || value < 0) return _default;
-
-      var important = false;
-      if (value.indexOf('!') === 0) {
-        important = true;
-        value = value.substr(1);
-      }
-
-      if (value.indexOf(':') >= 0) {
-
-        var sum = 0,
-            factor = 1,
-            values = value.split(':');
-        values.reverse();
-        for (var i = 0; i < values.length; i++) {
-          sum += parseFloat(values[i]) * factor;
-          factor = factor * 60;
-        }
-
-        if (important) return '!' + sum;else return sum;
-      }
-
-      if (important) return '!' + parseFloat(value);else return parseFloat(value);
-    }
-
-    //expose to smx namespace
-  };smx.AttributeParsers.push(TimeAttributeParser);
-})(window, window.smx, window.Sizzle, window.log);
-//# sourceMappingURL=TimeAttributeParser.js.map
 ;'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -8937,123 +7731,123 @@ Sizzle.selectors.filters.meta = function (elem, i, match) {
 
 (function (global, Sizzle, smx) {
 
+    /**
+     * Extends SMXNode with utility attribute getters
+     * @mixin AttributeGetters
+     * @memberof smx.fn
+     */
+
+    var AttributeGetters = {
+
         /**
-         * Extends SMXNode with utility attribute getters
-         * @mixin AttributeGetters
-         * @memberof smx.fn
+         * Gets the value for the given attribute name.
+         *
+         * @memberof smx.fn.AttributeGetters
+         * @param {String} name - attribute name
+         * @return {String} value
+         * @example
+         * <movie tags="sci-fi, horror, adventures" />
+         * @example
+         * $movie.attr('tags')
+         * // => "sci-fi, horror, adventures"
          */
+        attr: function attr(name) {
 
-        var AttributeGetters = {
+            return this[0].getAttribute ? this[0].getAttribute(name) : undefined;
+        },
 
-                /**
-                 * Gets the value for the given attribute name.
-                 *
-                 * @memberof smx.fn.AttributeGetters
-                 * @param {String} name - attribute name
-                 * @return {String} value
-                 * @example
-                 * <movie tags="sci-fi, horror, adventures" />
-                 * @example
-                 * $movie.attr('tags')
-                 * // => "sci-fi, horror, adventures"
-                 */
-                attr: function attr(name) {
+        /**
+         * This method is like `attr` but will use an attribute parser if there is
+         * one predefined for the given attribute name.
+         *
+         * @memberof smx.fn.AttributeGetters
+         * @param {String} name - attribute name
+         * @param {Object=} opt - options to pass into attribute parser
+         * @return {String} value
+         */
+        get: function get(name, opt) {
 
-                        return this[0].getAttribute ? this[0].getAttribute(name) : undefined;
-                },
+            if (!this[0].getAttribute) return undefined;
 
-                /**
-                 * This method is like `attr` but will use an attribute parser if there is
-                 * one predefined for the given attribute name.
-                 *
-                 * @memberof smx.fn.AttributeGetters
-                 * @param {String} name - attribute name
-                 * @param {Object=} opt - options to pass into attribute parser
-                 * @return {String} value
-                 */
-                get: function get(name, opt) {
+            //get an existing attribute parser for the given name
+            var parser = smx.AttributeParsers[name];
 
-                        if (!this[0].getAttribute) return undefined;
+            //no parser? return the raw attribute
+            if (!parser) return this.attr(name);
 
-                        //get an existing attribute parser for the given name
-                        var parser = smx.AttributeParsers[name];
+            //else use the parser with the given options
+            else return parser(name, opt);
+        },
 
-                        //no parser? return the raw attribute
-                        if (!parser) return this.attr(name);
+        /**
+         * Checks if node has or not an attribute with the given name
+         * @method has
+         * @memberof smx.fn.AttributeGetters
+         * @param {String} name - attribute name
+         * @return {Boolean}
+         */
+        has: function has(name) {
+            if (!this[0].getAttribute) return false;
+            //return this[0].hasAttribute(name);
+            //IE8 does not support XMLNode.hasAttribute, so...
+            return this[0].getAttribute(name) !== null;
+        },
 
-                        //else use the parser with the given options
-                        else return parser(name, opt);
-                },
+        /**
+         * Gets Delimiter Separated Value
+         * An utility method converts given attribute value into dsv array
+         * @method dsv
+         * @memberof smx.fn.AttributeGetters
+         * @param name {String} the name of the attribute
+         * @param delimiter {String=} delimiter string
+         * @return {Array.<String>}
+         * @example
+         * <movie tags="sci-fi, horror, adventures">
+         * @example
+         * $movie.dsv('tags',',')
+         * // => ["sci-fi", "horror", "adventures"]
+         */
+        dsv: function dsv(name, delimiter) {
 
-                /**
-                 * Checks if node has or not an attribute with the given name
-                 * @method has
-                 * @memberof smx.fn.AttributeGetters
-                 * @param {String} name - attribute name
-                 * @return {Boolean}
-                 */
-                has: function has(name) {
-                        if (!this[0].getAttribute) return false;
-                        //return this[0].hasAttribute(name);
-                        //IE8 does not support XMLNode.hasAttribute, so...
-                        return this[0].getAttribute(name) !== null;
-                },
+            //ignore undefined attributes
+            if (!this.has(name)) return;
 
-                /**
-                 * Gets Delimiter Separated Value
-                 * An utility method converts given attribute value into dsv array
-                 * @method dsv
-                 * @memberof smx.fn.AttributeGetters
-                 * @param name {String} the name of the attribute
-                 * @param delimiter {String=} delimiter string
-                 * @return {Array.<String>}
-                 * @example
-                 * <movie tags="sci-fi, horror, adventures">
-                 * @example
-                 * $movie.dsv('tags',',')
-                 * // => ["sci-fi", "horror", "adventures"]
-                 */
-                dsv: function dsv(name, delimiter) {
+            //get attr's value by name
+            var value = this.attr(name);
 
-                        //ignore undefined attributes
-                        if (!this.has(name)) return;
+            //resolve delimiter, defaults to space
+            var d = delimiter || ' ';
 
-                        //get attr's value by name
-                        var value = this.attr(name);
+            //if attribute exists value must be String
+            if (typeof value != 'string') return [];
 
-                        //resolve delimiter, defaults to space
-                        var d = delimiter || ' ';
+            //split value by delimiter
+            var list = value.split(delimiter);
 
-                        //if attribute exists value must be String
-                        if (typeof value != 'string') return [];
+            //trim spaces nicely handling multiple spaced values
+            list = list.map(function (str) {
 
-                        //split value by delimiter
-                        var list = value.split(delimiter);
+                //convert multiple spaces, tabs, newlines, etc, to single spaces
+                str = str.replace(/^\s+/, '');
 
-                        //trim spaces nicely handling multiple spaced values
-                        list = list.map(function (str) {
+                //trim leading and trailing whitespaces
+                str = str.replace(/(^\s+|\s+$)/g, '');
 
-                                //convert multiple spaces, tabs, newlines, etc, to single spaces
-                                str = str.replace(/^\s+/, '');
+                return str;
+            });
 
-                                //trim leading and trailing whitespaces
-                                str = str.replace(/(^\s+|\s+$)/g, '');
+            //remove empty like values
+            list = list.filter(function (str) {
+                return value !== '' && value !== ' ';
+            });
 
-                                return str;
-                        });
+            return list;
+        }
 
-                        //remove empty like values
-                        list = list.filter(function (str) {
-                                return value !== '' && value !== ' ';
-                        });
+    };
 
-                        return list;
-                }
-
-        };
-
-        //extend smx fn methods
-        smx.fn = !smx.fn ? { AttributeGetters: AttributeGetters } : Object.assign(smx.fn, { AttributeGetters: AttributeGetters });
+    //extend smx fn methods
+    smx.fn = !smx.fn ? { AttributeGetters: AttributeGetters } : Object.assign(smx.fn, { AttributeGetters: AttributeGetters });
 })(window, window.Sizzle, window.smx);
 //# sourceMappingURL=Node.AttributeGetters.js.map
 ;"use strict";
@@ -9320,248 +8114,248 @@ Sizzle.selectors.filters.meta = function (elem, i, match) {
 
 (function (smx) {
 
-                /**
-                 *  TIME ATTR CONTROLLER
-                 *  Plugin Controller for attributes namespace with 'ui'
-                 *  @module TimeAttrController
-                 */
+    /**
+     *  TIME ATTR CONTROLLER
+     *  Plugin Controller for attributes namespace with 'ui'
+     *  @module TimeAttrController
+     */
 
-                var TimeAttrController = {
+    var TimeAttrController = {
 
-                                'getters': {
+        'getters': {
 
-                                                'timeline': function timeline(node) {
-                                                                return node.attr('timeline') === 'true';
-                                                },
+            'timeline': function timeline(node) {
+                return node.attr('timeline') === 'true';
+            },
 
-                                                'timed': function timed(node) {
+            'timed': function timed(node) {
 
-                                                                var is_in_timeline = false;
-                                                                var is_timeline = this.timeline(node);
+                var is_in_timeline = false;
+                var is_timeline = this.timeline(node);
 
-                                                                if (is_timeline) return false;else {
-                                                                                var parent = node.parent;
-                                                                                while (parent && !this.timeline(parent)) {
-                                                                                                parent = parent.parent;
-                                                                                }
+                if (is_timeline) return false;else {
+                    var parent = node.parent;
+                    while (parent && !this.timeline(parent)) {
+                        parent = parent.parent;
+                    }
 
-                                                                                if (!parent) return false;else if (this.timeline(parent)) return true;else return false;
-                                                                }
-                                                },
+                    if (!parent) return false;else if (this.timeline(parent)) return true;else return false;
+                }
+            },
 
-                                                'timing': function timing(node) {
-                                                                return node.attr('timing') === 'absolute' ? 'absolute' : 'relative';
-                                                },
+            'timing': function timing(node) {
+                return node.attr('timing') === 'absolute' ? 'absolute' : 'relative';
+            },
 
-                                                'duration': function duration(node, force_sync) {
+            'duration': function duration(node, force_sync) {
 
-                                                                //use local value if already exists...
-                                                                if (!force_sync && _.isNumber(node.duration)) return node.duration;
+                //use local value if already exists...
+                if (!force_sync && _.isNumber(node.duration)) return node.duration;
 
-                                                                //has duration attribute?
-                                                                var duration = parseInt(node.attr('duration'));
-                                                                if (_.isNaN(duration) || duration < 0) duration = NaN;
+                //has duration attribute?
+                var duration = parseInt(node.attr('duration'));
+                if (_.isNaN(duration) || duration < 0) duration = NaN;
 
-                                                                //sync start for
-                                                                var start = this.start(node);
+                //sync start for
+                var start = this.start(node);
 
-                                                                //try child summatory
-                                                                if (_.isNaN(duration)) {
-                                                                                var childs = node.children;
-                                                                                childs = childs.reverse();
-                                                                                if (childs.length > 0) {
-                                                                                                // childs will define duration using
-                                                                                                // the child with the highest offset+duration value
-                                                                                                var max = 0;
-                                                                                                for (var n = 0; n < childs.length; n++) {
-                                                                                                                var child = childs[n];
-                                                                                                                var sum = this.offset(child) + this.duration(child, force_sync);
-                                                                                                                if (sum > max) max = sum;
-                                                                                                }
-                                                                                                duration = max;
-                                                                                } else if (!node.next && !node.previous) {
-                                                                                                duration = 0;
-                                                                                }
-                                                                }
+                //try child summatory
+                if (_.isNaN(duration)) {
+                    var childs = node.children;
+                    childs = childs.reverse();
+                    if (childs.length > 0) {
+                        // childs will define duration using
+                        // the child with the highest offset+duration value
+                        var max = 0;
+                        for (var n = 0; n < childs.length; n++) {
+                            var child = childs[n];
+                            var sum = this.offset(child) + this.duration(child, force_sync);
+                            if (sum > max) max = sum;
+                        }
+                        duration = max;
+                    } else if (!node.next && !node.previous) {
+                        duration = 0;
+                    }
+                }
 
-                                                                //check next sibling dependencies
-                                                                if (_.isNaN(duration) && this.timed(node)) {
+                //check next sibling dependencies
+                if (_.isNaN(duration) && this.timed(node)) {
 
-                                                                                //get parent
-                                                                                var parent = node.parent;
+                    //get parent
+                    var parent = node.parent;
 
-                                                                                if (parent && _.isNumber(parent.duration)) {
+                    if (parent && _.isNumber(parent.duration)) {
 
-                                                                                                //get next sibling with absolute timing
-                                                                                                var next = node.next;
-                                                                                                var target = null;
-                                                                                                while (next && !target) {
-                                                                                                                if (this.timing(next) == 'absolute') target = next;else next = next.next;
-                                                                                                }
+                        //get next sibling with absolute timing
+                        var next = node.next;
+                        var target = null;
+                        while (next && !target) {
+                            if (this.timing(next) == 'absolute') target = next;else next = next.next;
+                        }
 
-                                                                                                if (target) {
-                                                                                                                if (_.isNumber(target.start) && _.isNumber(node.start)) {
-                                                                                                                                duration = parseInt(this.offset(next) - node.start);
-                                                                                                                                if (_.isNaN(duration) || duration < 0) duration = NaN;
-                                                                                                                }
-                                                                                                } else {
-                                                                                                                duration = parseInt(this.duration(parent) - node.start);
-                                                                                                                if (_.isNaN(duration) || duration < 0) duration = NaN;
-                                                                                                }
-                                                                                } else {
-                                                                                                duration = NaN;
-                                                                                }
-                                                                }
+                        if (target) {
+                            if (_.isNumber(target.start) && _.isNumber(node.start)) {
+                                duration = parseInt(this.offset(next) - node.start);
+                                if (_.isNaN(duration) || duration < 0) duration = NaN;
+                            }
+                        } else {
+                            duration = parseInt(this.duration(parent) - node.start);
+                            if (_.isNaN(duration) || duration < 0) duration = NaN;
+                        }
+                    } else {
+                        duration = NaN;
+                    }
+                }
 
-                                                                if (_.isNaN(duration) && !this.timed(node)) {
-                                                                                duration = 0;
-                                                                }
+                if (_.isNaN(duration) && !this.timed(node)) {
+                    duration = 0;
+                }
 
-                                                                //could not determine duration? set to 0
-                                                                if (_.isNaN(duration)) {
-                                                                                duration = 0;
-                                                                } else {
-                                                                                //create sync flag attribute
-                                                                                node[0].setAttribute('is-sync', 'true');
-                                                                }
+                //could not determine duration? set to 0
+                if (_.isNaN(duration)) {
+                    duration = 0;
+                } else {
+                    //create sync flag attribute
+                    node[0].setAttribute('is-sync', 'true');
+                }
 
-                                                                //set local value
-                                                                node.duration = duration;
+                //set local value
+                node.duration = duration;
 
-                                                                //return local value
-                                                                return node.duration;
-                                                },
+                //return local value
+                return node.duration;
+            },
 
-                                                'start': function start(node, force_sync) {
+            'start': function start(node, force_sync) {
 
-                                                                var start;
+                var start;
 
-                                                                //bool flag use or not local value if exists
-                                                                if (!force_sync) {
+                //bool flag use or not local value if exists
+                if (!force_sync) {
 
-                                                                                //has local value?
-                                                                                start = node.attr('start');
-                                                                                if (_.isNumber(start)) return start;
-                                                                }
+                    //has local value?
+                    start = node.attr('start');
+                    if (_.isNumber(start)) return start;
+                }
 
-                                                                //get it from attribute
-                                                                start = parseInt(node.attr('start'));
-                                                                if (_.isNaN(start) || start < 0) start = 0;
+                //get it from attribute
+                start = parseInt(node.attr('start'));
+                if (_.isNaN(start) || start < 0) start = 0;
 
-                                                                //set local value
-                                                                node.start = start;
+                //set local value
+                node.start = start;
 
-                                                                //return local value
-                                                                return start;
-                                                },
+                //return local value
+                return start;
+            },
 
-                                                'offset': function offset(node, from) {
+            'offset': function offset(node, from) {
 
-                                                                var offset = 0;
-                                                                var timing = this.timing(node);
+                var offset = 0;
+                var timing = this.timing(node);
 
-                                                                var start = this.start(node);
+                var start = this.start(node);
 
-                                                                if (timing == 'absolute') {
-                                                                                //absolute timing
-                                                                                //depends on parent node
+                if (timing == 'absolute') {
+                    //absolute timing
+                    //depends on parent node
 
-                                                                                offset = start;
-                                                                } else {
-                                                                                //relative timing
-                                                                                //depends on previous sibling node
+                    offset = start;
+                } else {
+                    //relative timing
+                    //depends on previous sibling node
 
-                                                                                var prev = node.previous;
+                    var prev = node.previous;
 
-                                                                                if (prev) offset = this.offset(prev) + this.duration(prev) + start;else offset = start;
-                                                                }
+                    if (prev) offset = this.offset(prev) + this.duration(prev) + start;else offset = start;
+                }
 
-                                                                if (!from) return offset;
+                if (!from) return offset;
 
-                                                                if (!from.isParentOf(node)) offset = -1;else {
+                if (!from.isParentOf(node)) offset = -1;else {
 
-                                                                                var parent = node.parent;
-                                                                                if (!parent) offset = -1;
-                                                                                /////????????????????????????
-                                                                                else if (parent != from) offset = this.offset(parent, from) + offset;
-                                                                }
+                    var parent = node.parent;
+                    if (!parent) offset = -1;
+                    /////????????????????????????
+                    else if (parent != from) offset = this.offset(parent, from) + offset;
+                }
 
-                                                                return offset;
-                                                },
+                return offset;
+            },
 
-                                                'end': function end(node) {
-                                                                return this.start(node) + this.duration(node);
-                                                }
+            'end': function end(node) {
+                return this.start(node) + this.duration(node);
+            }
 
-                                },
+        },
 
-                                'get': function get(node, key) {
+        'get': function get(node, key) {
 
-                                                if (_.isFunction(this.getters[key])) {
-                                                                return this.getters[key](node);
-                                                } else return;
-                                }
+            if (_.isFunction(this.getters[key])) {
+                return this.getters[key](node);
+            } else return;
+        }
 
-                };
+    };
 
-                //expose into global smx namespace
-                smx.TimeAttrController = TimeAttrController;
+    //expose into global smx namespace
+    smx.TimeAttrController = TimeAttrController;
 })(window.smx);
 //# sourceMappingURL=smx.TimeAttrController.js.map
 ;'use strict';
 
 (function (smx) {
 
-            /**
-             *  UI ATTR CONTROLLER
-             *  Plugin Controller for attributes namespaced with 'ui-'
-             *  @module UIAttrController
-             */
+    /**
+     *  UI ATTR CONTROLLER
+     *  Plugin Controller for attributes namespaced with 'ui-'
+     *  @module UIAttrController
+     */
 
-            var UIAttrController = {
+    var UIAttrController = {
 
-                        'MEDIA_TYPES': ['screen', 'print', 'tv'],
+        'MEDIA_TYPES': ['screen', 'print', 'tv'],
 
-                        'get': function get(node, key, media_type) {
+        'get': function get(node, key, media_type) {
 
-                                    //resolve 'media' value
-                                    media_type = this.normalizeMediaType(media_type);
+            //resolve 'media' value
+            media_type = this.normalizeMediaType(media_type);
 
-                                    //get 'ui-type-key' attr
-                                    var asset = node.attr('ui-' + media_type + '-' + key);
+            //get 'ui-type-key' attr
+            var asset = node.attr('ui-' + media_type + '-' + key);
 
-                                    //no typed key? use generic 'ui-key'
-                                    if (_.isEmpty(asset)) asset = node.attr('ui-' + key);
+            //no typed key? use generic 'ui-key'
+            if (_.isEmpty(asset)) asset = node.attr('ui-' + key);
 
-                                    //resolve asset url
-                                    if (!_.isEmpty(asset)) return this.resolveURL(node, asset);
+            //resolve asset url
+            if (!_.isEmpty(asset)) return this.resolveURL(node, asset);
 
-                                    return;
-                        },
+            return;
+        },
 
-                        'normalizeMediaType': function normalizeMediaType(type) {
+        'normalizeMediaType': function normalizeMediaType(type) {
 
-                                    if (_.isEmpty(type)) return this.MEDIA_TYPES[0];
+            if (_.isEmpty(type)) return this.MEDIA_TYPES[0];
 
-                                    if (_.includes(this.MEDIA_TYPES, type)) return type;else return this.MEDIA_TYPES[0];
-                        },
+            if (_.includes(this.MEDIA_TYPES, type)) return type;else return this.MEDIA_TYPES[0];
+        },
 
-                        'resolveURL': function resolveURL(node, asset) {
+        'resolveURL': function resolveURL(node, asset) {
 
-                                    //starts with '$/' means package root
-                                    if (asset.substr(0, 2) == '$/') asset = node.root().get('url') + asset.substr(2);
-                                    //starts with './' means app root
-                                    else if (asset.substr(0, 2) == './') asset = asset.substr(2);
-                                                //else is relative to node
-                                                else asset = node.get('url') + asset;
+            //starts with '$/' means package root
+            if (asset.substr(0, 2) == '$/') asset = node.root().get('url') + asset.substr(2);
+            //starts with './' means app root
+            else if (asset.substr(0, 2) == './') asset = asset.substr(2);
+                //else is relative to node
+                else asset = node.get('url') + asset;
 
-                                    return asset;
-                        }
+            return asset;
+        }
 
-            };
+    };
 
-            //expose into global smx namespace
-            smx.UIAttrController = UIAttrController;
+    //expose into global smx namespace
+    smx.UIAttrController = UIAttrController;
 })(window.smx);
 //# sourceMappingURL=smx.UIAttrController.js.map
 ;'use strict';
