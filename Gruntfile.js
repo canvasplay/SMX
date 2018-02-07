@@ -53,20 +53,7 @@ module.exports = function(grunt) {
                     'dist/finder/SMXFinder.js',
 
 
-
                     //PLUGINS
-
-                    //Tracking
-                    'dist/tracking/tracking.js',
-                    'dist/tracking/TrackManager.js',
-                    'dist/tracking/attributes/progress.js',
-                    'dist/tracking/attributes/score.js',
-                    'dist/tracking/attributes/status.js',
-                    'dist/tracking/attributes/access.js',
-                    'dist/tracking/attributes/points.js',
-                    'dist/tracking/TrackInterface.js',
-                    'dist/tracking/Sizzle.selectors.filters.track.js',
-                    
 
                     //Prototype
                     'dist/plugins/prototype/CSSParser.js',
@@ -88,7 +75,6 @@ module.exports = function(grunt) {
                     'dist/document/Node.AttributeGetters.js',
                     'dist/document/Node.TreeNode.js',
                     
-                    'dist/document/smx.TimeAttrController.js',
                     'dist/document/smx.UIAttrController.js',
 
                     'dist/document/Node.js',

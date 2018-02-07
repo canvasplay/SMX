@@ -37,17 +37,17 @@ var IdAttributeParser = {
   /**
    * Parser function
    * @static
-   * @param {XMLNode} xml
-   * @return {XMLNode}
+   * @param {XMLDocument} xmlDocument
+   * @return {XMLDocument}
    */
-  parse: function(xml){
+  parse: function(xmlDocument){
     
-    //get ids already in use inside xml
-    var nodes_with_id_attr = Sizzle('[id]', xml);
+    //get ids already in use inside xmlDocument
+    var nodes_with_id_attr = Sizzle('[id]', xmlDocument);
     var ids_in_use = nodes_with_id_attr.map(function(n){ return n.id });
     
     //get nodes matching the parser selector
-    var nodes = Sizzle(this.selector, xml);
+    var nodes = Sizzle(this.selector, xmlDocument);
     
     //iterate over all matching nodes
     for(var i=0, len=nodes.length; i<len; i++){
@@ -70,7 +70,7 @@ var IdAttributeParser = {
     
     LOG('ATTRIBUTE PARSER: ID ('+ nodes.length +' nodes)');
     
-    return xml;
+    return xmlDocument;
     
   }
   
