@@ -27,12 +27,11 @@ class Playhead{
 		this._document = doc;
 		
 		/**
-		 * Contains all currently active nodes.
-		 * List ordered from outter to inner [root, ..., currentnode]
+		 * Contains all currently selected nodes ordered from outter to inner.
 		 * @type {SMXNode[]}
 		 * @private
 		 */
-		this._path = [];
+		this._selection = [];
 
 	}
 
@@ -48,33 +47,38 @@ class Playhead{
 
 
 	/**
-	 * Gets all currently active nodes.
-	 * List ordered from outter to inner [root, ..., currentnode]
+	 * Gets all currently selected nodes ordered from outter to inner.
 	 * @type {SMXNode}
 	 * @readonly
 	 */
-	get path() {
-		return this._path;
+	get selection() {
+		return this._selection;
 	}
 
 	/**
-	 * Gets the last node in the path which is the head
+	 * Gets the head node, which is the last node in the path.
 	 * @type {SMXNode}
 	 * @readonly
 	 */
 	get head(){
-		return this._path[this._path.length - 1];
+		return this._selection[this._selection.length - 1];
 	}
 
 	/**
-	 * Gets the first node in the path which is the root
+	 * Gets the root node, which is the first node in the path.
 	 * @type {SMXNode}
 	 * @readonly
 	 */
 	get root(){
-		return this._path[0];
+		return this._selection[0];
 	}
 
+	/**
+	 * Navigates to document's root node.
+	 */
+  reset() {
+    return this.navigate(this.document.root);
+  }
 
 	/**
 	 * Performs play action
@@ -82,24 +86,65 @@ class Playhead{
 	 */
 	play(ref){
     
-		//no reference? just do forward
-		if(!ref)	return this.forward();
+		//no reference? just do a forward
+		if(!ref) return this.forward();
 		
 		//resolve target node
 		var tnode = (ref.id)? ref : this.document.getNodeById(ref);
     
-    //not found? ignore...
-    if(tnode) return this.navigate(tnode,{});
+		//not found? ignore...
+		if(tnode) return this.navigate(tnode,{});
+		
+		//else ignore
+		return;
     
-    //else ignore
-    return;
+  }
+  
+  /**
+   * Navigates inside head's node.
+   */
+  enter(){
     
-	}
+    //get current node
+    var cnode = this.head; if(!cnode) return;
+    
+    //get children nodes
+    let children = cnode.children;
+    
+    //no children?
+    if (!children.length) return;
+    
+    //get first child
+    var tnode = children[0];
+    
+    //go to child node using known swap type and passing recived params
+    return this.navigate(tnode,{ 'type':'inside' });
+    
+  }
+
+  /**
+   * Navigates outside head's node.
+   */
+  exit(){
+    
+    //get current node
+    var cnode = this.head; if(!cnode) return;
+    
+    //has parent node?
+    if(!cnode.parent) return;
+    
+    //get parent node
+    var tnode = cnode.parent;
+    
+    //go to child node using known swap type and passing recived params
+    return this.navigate(tnode,{ 'type':'outside' });
+    
+  }
 
 	/**
 	 * Navigates to head's next node.
 	 */
-	next(){
+  next(){
 		
 		//get current node
 		var cnode = this.head; if(!cnode) return;
@@ -129,55 +174,6 @@ class Playhead{
 	}
 	
 	/**
-	 * Navigates inside head's node.
-	 */
-	enter(){
-    
-		//get current node
-		var cnode = this.head; if(!cnode) return;
-    
-		//get children nodes
-		let children = cnode.children;
-    
-		//no children?
-		if (!children.length) return;
-    
-		//get first child
-		var tnode = children[0];
-    
-		//go to child node using known swap type and passing recived params
-		return this.navigate(tnode,{ 'type':'inside' });
-		
-	}
-
-	/**
-	 * Navigates outside head's node.
-	 */
-	exit(){
-		
-		//get current node
-		var cnode = this.head; if(!cnode) return;
-    
-		//has parent node?
-		if(!cnode.parent) return;
-    
-		//get parent node
-		var tnode = cnode.parent;
-    
-		//go to child node using known swap type and passing recived params
-		return this.navigate(tnode,{ 'type':'outside' });
-		
-	}
-
-	/**
-	 * Navigates up to root node.
-	 */
-	reset(){
-		return this.navigate(this.document.root);
-	}
-	
-
-	/**
 	 * Navigates to head's next node in flat tree mode.
 	 */
 	forward(){
@@ -190,7 +186,7 @@ class Playhead{
 		//no current node? ignore
 		if(!cnode) return;
     
-		tnode = cnode.next;
+		tnode = cnode.first || cnode.next;
     
 		if(!tnode){
       
@@ -200,33 +196,26 @@ class Playhead{
 				parent = parent.parent;
 			}
       
-		}
+    }
     
-		return this.navigate(tnode);
+    return (tnode)? this.navigate(tnode) : null;
     
 	}
-
+  
 	/**
-	 * Navigates to head's previous node in flat tree mode.
+   * Navigates to head's previous node in flat tree mode.
 	 */
-	backward(){
-		
-		var tnode;
-		
+  backward(){
+    
 		if(!this.head) return;
-		
-		if(this.head.previous)
-      tnode = this.head.previous;
-    
-    else if(this.head.parent)
-      tnode = this.head.parent
-    
-		return this.navigate(tnode);
+    var tnode = this.head.previous || this.head.parent
+    return (tnode)? this.navigate(tnode) : null;
     
 	}
 
 	/**
 	 * Executes a playhead action by keyword.
+   * @param {String} keyword
 	 */
 	exec(keyword){
     	  
@@ -251,23 +240,24 @@ class Playhead{
 
 	/**
 	 * Navigates to given node using optional configuration.
+   * @param {String} target
 	 */
-	navigate(ref, opt){
+  navigate(target){
 
 		//check for a keyword, must be '!' preffixed string
-		var isKeyword = (typeof ref === 'string' && ref.indexOf('!') === 0);
+    var isKeyword = (typeof target === 'string' && target.indexOf('!') === 0);
 		
 		//keyword? resolve by exec unpreffixed reference
 		if(isKeyword)
-      return this.exec(ref.substr(1));
+      return this.exec(target.substr(1));
     
 		//resolve target node by reference
 		//assuming having and id property means SMXNode...
-		var tnode = (ref.id)? ref : this.document.getNodeById(ref);
+    var tnode = (target.id) ? target : this.document.getNodeById(target);
     
     //no target found? error!
 		if(!tnode)
-		  throw new Error('Playhead Error: Invalid target '+ ref);
+      throw new Error('Playhead Error: Invalid target ' + target);
 		
 		//get current node
 		var cnode = this.head;
@@ -279,22 +269,21 @@ class Playhead{
     //see leagacy playhead implementations for more info
     
     //resets private navigation registry
-		var activated = [], deactivated = [];
+		var selected = [], deselected = [];
     
     
     if(!cnode){
       cnode = this.document.root;
-      activated.push(cnode);
+      selected.push(cnode);
     }
 		
 		/* trying a better approach */
 		
 		var isDescendant = cnode.isAncestorOf(tnode);
 		var isAncestor = tnode.isAncestorOf(cnode);
-		
-		var isNodeOrAncestorOf = function(n){
-		  return (n==tnode || n.isAncestorOf(tnode));
-		}
+    
+    //aux filter fn for later use
+		var isNodeOrAncestorOf = (n) => (n==tnode || n.isAncestorOf(tnode));
 		
 		var r = cnode;
 		if(cnode === tnode){
@@ -303,40 +292,40 @@ class Playhead{
 		else if(isDescendant){
 		  while(r!=tnode){
 		    r = r.children.filter(isNodeOrAncestorOf)[0]
-		    activated.push(r);
+		    selected.push(r);
 		  }
 		}
 		else if(isAncestor){
 		  while(r!=tnode){
-		    deactivated.push(r);
+		    deselected.push(r);
 		    r = r.parent;
 		  }
 		}
 		else{
 		  while(!r.isAncestorOf(cnode) || !r.isAncestorOf(tnode)){
-		    deactivated.push(r);
+		    deselected.push(r);
 		    r = r.parent;
 		  }
 		  while(r!=tnode){
 		    r = r.children.filter(isNodeOrAncestorOf)[0]
-		    activated.push(r);
+		    selected.push(r);
 		  }
 		}
 		
 		
 		//update path
-		for(var i=0; i<deactivated.length; i++){
-		  this._path.pop();
+		for(var i=0; i<deselected.length; i++){
+		  this._selection.pop();
 		}
-		for(var i=0; i<activated.length; i++){
-		  this._path.push(activated[i]);
+		for(var i=0; i<selected.length; i++){
+		  this._selection.push(selected[i]);
 		}
 
 
     this.trigger('change',{
-      activated: activated,
-      deactivated: deactivated,
-      path: this._path,
+      selected: selected,
+      deselected: deselected,
+      path: this._selection,
       origin: cnode,
       target: tnode
     });
@@ -374,60 +363,6 @@ class Playhead{
 		
 	}
 
-
-		
-	/**
-	 * Enters in given node
-	 * @private
-	 * @param {SMXNode} node
-	 * @fires enter
-	 * @fires enter:id
-	_enterNode(node){
-
-		//prevents re-entering on node
-		var selectedIds = this._path.map(()=>{return n.id});
-		if(selectedIds.indexOf(node.id)>=0) return;
-
-		//update selection array
-		this._path.push(node);
-
-		//update last move registry
-		activated.push(node);
-
-		//fire generic 'enter' event
-		this.trigger('enter', node);
-
-		//fire specific node 'enter' event
-		this.trigger('enter:'+node.id, node);
-
-		return;
-	}
-	 */
-
-	/**
-	 * Exits from current head node
-	 * @private
-	 * @param {SMXNode} node
-	 * @fires exit
-	 * @fires exit:id
-	_exitNode(){
-    
-		//update blocks array
-		var node = this._path.pop();
-    
-		//update last move registry
-		deactivated.push(node);
-    
-		//fire generic 'exit' event
-		this.trigger('exit', node);
-    
-		//fire specific node 'exit' event
-		this.trigger('exit:'+node.id, node);
-    
-		return;
-    
-	}
-	 */
 
 	/**
 	 * Fired when entering to any node
