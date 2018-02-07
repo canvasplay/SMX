@@ -22,15 +22,15 @@ var IdAttributeParser = {
   
   /**
    * Parser name
-   * @type {String}
    * @protected
+   * @type {String}
    */
   name: 'Id',
   
   /**
    * Selector used to find nodes having matching attributes to be parsed
-   * @type {String}
    * @protected
+   * @type {String}
    */
   selector: ':not([id])',
   
