@@ -19,7 +19,7 @@ class Document {
     /**
      * Original XMLDocument for reference
      * @type {XMLDocument}
-     * @readonly
+     * @protected
      */
     this[0] = xmlDocument;
     
@@ -63,8 +63,7 @@ class Document {
 
   /**
    * Gets the node with the given identifier.
-   * @memberof smx.fn.TreeNode
-   * @alias gid
+   * @param {String} id
    * @return {SMXNode}
    */
   getNodeById(id){
@@ -80,7 +79,7 @@ class Document {
 
   }
 
-  gid(id){ return this.getNodeById(id) }
+  //gid(id){ return this.getNodeById(id) }
   
   /**
    * Finds all nodes matching the given selector.
