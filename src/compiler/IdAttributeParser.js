@@ -43,7 +43,7 @@ var IdAttributeParser = {
   parse: function(xml){
     
     //get ids already in use inside xml
-    var nodes_with_id_attr = Sizzle('[id]');
+    var nodes_with_id_attr = Sizzle('[id]', xml);
     var ids_in_use = nodes_with_id_attr.map(function(n){ return n.id });
     
     //get nodes matching the parser selector
