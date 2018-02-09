@@ -1,15 +1,15 @@
-(function(global, Sizzle, smx, $smx, LOG){
+(function(global, Sizzle, smx, LOG){
  
  
 /**
  * Loads a new smx document.
- * @memberof $smx
+ * @memberof smx
  * @param {String} url
- * @param {$smx~onLoadSuccess} onSuccess
- * @param {$smx~onLoadError} onError
+ * @param {smx~onLoadSuccess} onSuccess
+ * @param {smx~onLoadError} onError
  * @async
  */
-$smx.load = function(data, success, error){
+smx.load = function(data, success, error){
 
   if(!data) return;
   
@@ -27,16 +27,16 @@ $smx.load = function(data, success, error){
 };
 
 /**
- * Callback function called when loading completes succefully.
- * @callback $smx~onLoadSuccess
- * @param {Document} document - Just loaded document
+ * Callback function when loading completes succefully.
+ * @callback smx~onLoadSuccess
+ * @param {SMXDocument} document - Just loaded document
  */
 var SUCCESS_CALLBACK = function(document){};
 
 /**
- * Callback function to be called when an error happens while loading.
- * @callback $smx~onLoadError
- * @param {Object} error - Error object
+ * Callback function used loading throws an error.
+ * @callback smx~onLoadError
+ * @param {Error} error - Error object
  */
 var ERROR_CALLBACK = function(e){};
  
@@ -181,11 +181,10 @@ var ERROR_CALLBACK = function(e){};
 
 		var d = new smx.Document(xml);
 		
-		//$smx.cache[d.id] = d;
-		$smx.documents.push(d);
+		smx.documents.push(d);
 		
-		if(!$smx.document)
-		  $smx.document = d;
+		//set it as active document if its empty
+		if(!smx.document) smx.document = d;
 		
 		SUCCESS_CALLBACK(d);
 
@@ -204,4 +203,4 @@ var ERROR_CALLBACK = function(e){};
 	};
 
  
-})(window, window.Sizzle, window.smx, window.$smx, window.log);
+})(window, window.Sizzle, window.smx, window.log);

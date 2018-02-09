@@ -1,7 +1,6 @@
 /**
  * SMX Metadata Parser
  * @module MetadataParser
- * @memberof Metadata
  */
 
 smx.meta = (function(global, Sizzle, smx, LOG){
@@ -20,7 +19,7 @@ var escapeHtml = function(html){
 };
 
 /**
- * @memberof Metadata.MetadataParser
+ * @memberof MetadataParser
  * @param {XMLDocument} xml
  * @param {Object} options
  * @static
@@ -140,7 +139,7 @@ var parseXML = function(xml, opt){
 
 
 /**
- * @memberof Metadata.MetadataParser
+ * @memberof MetadataParser
  * @param {XMLNode} node
  * @static
  */
@@ -243,7 +242,7 @@ var parseMetadataNode = function(node){
 }
 
 /**
- * @memberof Metadata.MetadataParser
+ * @memberof MetadataParser
  * @param {XMLNode} node
  * @static
  */

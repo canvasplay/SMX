@@ -2,8 +2,7 @@
 
 /**
  * Extends SMXNode with utility tree node methods
- * @mixin Node.TreeNode
- * @memberof smx.fn
+ * @mixin Node-TreeNode
  */
 
 let TreeNode = {
@@ -12,7 +11,7 @@ let TreeNode = {
 
   /**
    * Gets a list of parent nodes up to root, ordered from outer to inner.
-   * @memberof smx.fn.TreeNode
+   * @memberof Node-TreeNode
    * @return {SMXNode[]}
    */
   getAncestors: function(selector){
@@ -26,7 +25,7 @@ let TreeNode = {
 
   /**
    * Checks if node is an ancestor of another.
-   * @memberof smx.fn.TreeNode
+   * @memberof Node-TreeNode
    * @param {SMXNode} node - reference node
    * @return {Boolean}
    */
@@ -42,7 +41,7 @@ let TreeNode = {
 
   /**
    * Checks if node matches the given selector.
-   * @memberof smx.fn.TreeNode
+   * @memberof Node-TreeNode
    * @param {String} selector - css selector to match
    * @return {Boolean}
    */
@@ -56,7 +55,7 @@ let TreeNode = {
 
   /**
    * Finds all descendant nodes matching the given selector.
-   * @memberof smx.fn.TreeNode
+   * @memberof Node-TreeNode
    * @param {String} selector - search selector
    * @return {Array.<Node>}
    */
@@ -72,7 +71,7 @@ let TreeNode = {
 
   /**
    * This method is like `find` but returns only the first result.
-   * @memberof smx.fn.TreeNode
+   * @memberof Node-TreeNode
    * @param {String} selector - search selector
    * @return {SMXNode}
    */
@@ -86,7 +85,7 @@ let TreeNode = {
 
   /**
    * Gets the children nodes matching the given selector.
-   * @memberof smx.fn.TreeNode
+   * @memberof Node-TreeNode
    * @param {String=} selector
    * @return {Array.<Node>}
    */
@@ -101,7 +100,7 @@ let TreeNode = {
 
   /**
    * Gets the first child node matching the given selector.
-   * @memberof smx.fn.TreeNode
+   * @memberof Node-TreeNode
    * @param {String=} selector
    * @return {SMXNode}
    */
@@ -124,7 +123,7 @@ let TreeNode = {
 
   /**
    * Gets the last child node matching the given selector.
-   * @memberof smx.fn.TreeNode
+   * @memberof Node-TreeNode
    * @param {String=} selector
    * @return {SMXNode}
    */
@@ -150,7 +149,7 @@ let TreeNode = {
 
   /**
    * Gets child node at given index
-   * @memberof smx.fn.TreeNode
+   * @memberof Node-TreeNode
    * @param {Integer} index - index position
    * @return {SMXNode}
    */
@@ -163,7 +162,7 @@ let TreeNode = {
 
   /**
    * Checks if a node is child of another
-   * @memberof smx.fn.TreeNode
+   * @memberof Node-TreeNode
    * @param {SMXNode} node - reference node
    * @return {Boolean}
    */
@@ -182,7 +181,7 @@ let TreeNode = {
 
   /**
    * Gets the next sibling node matching the given selector.
-   * @memberof smx.fn.TreeNode
+   * @memberof Node-TreeNode
    * @param {String=} selector - filter selector
    * @return {SMXNode}
    */
@@ -206,7 +205,7 @@ let TreeNode = {
 
   /**
    * Gets all next sibling nodes matching the given selector.
-   * @memberof smx.fn.TreeNode
+   * @memberof Node-TreeNode
    * @param {String=} selector - filter selector
    * @return {SMXNode[]}
    */
@@ -231,7 +230,7 @@ let TreeNode = {
 
   /**
    * Gets the previous sibling node matching the given selector.
-   * @memberof smx.fn.TreeNode
+   * @memberof Node-TreeNode
    * @param {String=} selector - filter selector
    * @return {SMXNode}
    */
@@ -255,7 +254,7 @@ let TreeNode = {
 
   /**
    * Gets all previous sibling nodes matching the given selector.
-   * @memberof smx.fn.TreeNode
+   * @memberof Node-TreeNode
    * @param {String=} selector - filter selector
    * @return {SMXNode[]}
    */

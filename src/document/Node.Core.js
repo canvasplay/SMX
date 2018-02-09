@@ -2,8 +2,7 @@
 
 /**
  * Extends SMXNode with core methods
- * @mixin Node.Core
- * @memberof smx.fn
+ * @mixin Node-Core
  */
 
 let Core = {
@@ -15,7 +14,7 @@ let Core = {
      * the given selector, if node does not match the selector itself will
      * return -1.
      *
-     * @memberof smx.fn.Core
+     * @memberof Node-Core
      * @param {String=} selector - filter selector
      * @return {Integer}
      */
@@ -45,7 +44,7 @@ let Core = {
     /**
      * Gets the text content.
      *
-     * @memberof smx.fn.Core
+     * @memberof Node-Core
      * @return {String}
      */
     getText: function(){
@@ -57,7 +56,7 @@ let Core = {
     /**
      * Gets the html content.
      *
-     * @memberof smx.fn.Core
+     * @memberof Node-Core
      * @return {String}
      */
     getHTML: function(){
@@ -78,7 +77,7 @@ let Core = {
     /**
      * Gets the inner data content formatted according to node type.
      *
-     * @memberof smx.fn.Core
+     * @memberof Node-Core
      * @return {String}
      */
     getData: function(){
@@ -105,7 +104,7 @@ let Core = {
     /**
      * Gets the string representation.
      *
-     * @memberof smx.fn.Core
+     * @memberof Node-Core
      * @return {String}
      */
     toString: function (){
@@ -117,7 +116,7 @@ let Core = {
     /**
      * Gets the JSON representation. NOT IMPLEMENTED
      * @method toJSON
-     * @memberof smx.fn.Core
+     * @memberof Node-Core
      * @return {Object}
      */
     toJSON: function(){

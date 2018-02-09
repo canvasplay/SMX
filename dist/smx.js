@@ -1804,7 +1804,9 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
    * Global namespace to hold all framework classes and modules.
    * @namespace smx
    */
-  var smx = {};
+  var smx = function smx() {
+    return _smx_wrapper.apply(smx, arguments);
+  };
 
   /**
    * Gets current framework version
@@ -1812,6 +1814,20 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
    * @type {String}
    */
   smx.version = '0.8.14';
+
+  /**
+   * Currently active document.
+   * @memberof smx
+   * @type {SMXDocument}
+   */
+  smx.document = null;
+
+  /**
+   * Array of loaded documents.
+   * @memberof smx
+   * @type {SMXDocument[]}
+   */
+  smx.documents = [];
 
   /**
    * This namescape is a placeholder for custom attribute parsers.
@@ -1831,46 +1847,15 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
    */
   smx.NodeParsers = [];
 
-  //expose globals
-  global.smx = smx;
-})(window);
-//# sourceMappingURL=smx.js.map
-;'use strict';
-
-(function (global) {
-
-  /**
-   * Global smx runtime object.
-   * @namespace $smx
-   */
-  var $smx = function $smx() {
-    return _smx_wrapper.apply($smx, arguments);
-  };
-
-  /**
-   * Currently active document.
-   * @memberof $smx
-   * @type {SMXDocument}
-   */
-  $smx.document = null;
-
-  /**
-   * Array of loaded documents.
-   * @memberof $smx
-   * @type {SMXDocument[]}
-   */
-  $smx.documents = [];
-
   /**
   * Global node wrapper.
-  * @name $smx
   * @param {String|SMXNode|SMXNode[]} s - selector, node or node collection
   * @return {SMXNode|SMXNodes[]}
   */
   var _smx_wrapper = function _smx_wrapper(s) {
 
     //require an active document
-    if (!$smx.document) return;
+    if (!smx.document) return;
 
     //no arguments? do nothing...
     if (!s) return;
@@ -1879,32 +1864,32 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     if (typeof s === 'string') {
 
       //require an active document instance
-      if (!$smx.document) return [];
+      if (!smx.document) return [];
 
       //use given selector to find in active document
-      return $smx.document.find(s);
+      return smx.document.find(s);
     }
 
-    return $smx.document.wrap(s);
+    return smx.document.wrap(s);
   };
 
-  //expose global
-  global.$smx = $smx;
+  //expose globals
+  global.smx = smx;
 })(window);
-//# sourceMappingURL=$smx.js.map
+//# sourceMappingURL=smx.js.map
 ;'use strict';
 
-(function (global, Sizzle, smx, $smx, LOG) {
+(function (global, Sizzle, smx, LOG) {
 
 	/**
   * Loads a new smx document.
-  * @memberof $smx
+  * @memberof smx
   * @param {String} url
-  * @param {$smx~onLoadSuccess} onSuccess
-  * @param {$smx~onLoadError} onError
+  * @param {smx~onLoadSuccess} onSuccess
+  * @param {smx~onLoadError} onError
   * @async
   */
-	$smx.load = function (data, success, error) {
+	smx.load = function (data, success, error) {
 
 		if (!data) return;
 
@@ -1918,16 +1903,16 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 	};
 
 	/**
-  * Callback function called when loading completes succefully.
-  * @callback $smx~onLoadSuccess
-  * @param {Document} document - Just loaded document
+  * Callback function when loading completes succefully.
+  * @callback smx~onLoadSuccess
+  * @param {SMXDocument} document - Just loaded document
   */
 	var SUCCESS_CALLBACK = function SUCCESS_CALLBACK(document) {};
 
 	/**
-  * Callback function to be called when an error happens while loading.
-  * @callback $smx~onLoadError
-  * @param {Object} error - Error object
+  * Callback function used loading throws an error.
+  * @callback smx~onLoadError
+  * @param {Error} error - Error object
   */
 	var ERROR_CALLBACK = function ERROR_CALLBACK(e) {};
 
@@ -2055,10 +2040,10 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 		var d = new smx.Document(xml);
 
-		//$smx.cache[d.id] = d;
-		$smx.documents.push(d);
+		smx.documents.push(d);
 
-		if (!$smx.document) $smx.document = d;
+		//set it as active document if its empty
+		if (!smx.document) smx.document = d;
 
 		SUCCESS_CALLBACK(d);
 
@@ -2073,8 +2058,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 		return;
 	};
-})(window, window.Sizzle, window.smx, window.$smx, window.log);
-//# sourceMappingURL=$smx.load.js.map
+})(window, window.Sizzle, window.smx, window.log);
+//# sourceMappingURL=smx.load.js.map
 ;'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -4786,7 +4771,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 /**
  * SMX Metadata Parser
  * @module MetadataParser
- * @memberof Metadata
  */
 
 smx.meta = function (global, Sizzle, smx, LOG) {
@@ -4806,7 +4790,7 @@ smx.meta = function (global, Sizzle, smx, LOG) {
     };
 
     /**
-     * @memberof Metadata.MetadataParser
+     * @memberof MetadataParser
      * @param {XMLDocument} xml
      * @param {Object} options
      * @static
@@ -4917,7 +4901,7 @@ smx.meta = function (global, Sizzle, smx, LOG) {
     };
 
     /**
-     * @memberof Metadata.MetadataParser
+     * @memberof MetadataParser
      * @param {XMLNode} node
      * @static
      */
@@ -5008,7 +4992,7 @@ smx.meta = function (global, Sizzle, smx, LOG) {
     };
 
     /**
-     * @memberof Metadata.MetadataParser
+     * @memberof MetadataParser
      * @param {XMLNode} node
      * @static
      */
@@ -5070,17 +5054,11 @@ smx.meta = function (global, Sizzle, smx, LOG) {
 
 (function (global, smx) {
 
-            /**
-             * Extends SMXNode with utility attribute getters
-             * @namespace Metadata
-             */
-
             if (!smx.fn) smx.fn = {};
 
             /**
              * Extends SMXNode with utility attribute getters
-             * @mixin Node.Metadata
-             * @memberof Metadata
+             * @mixin Node-Metadata
              */
 
             smx.fn.MetadataInterface = {
@@ -5088,7 +5066,7 @@ smx.meta = function (global, Sizzle, smx, LOG) {
                         /**
                          * Gets the metadata field value for the given associated to the node
                          *
-                         * @memberof Metadata.MetadataInterface
+                         * @memberof Node-Metadata
                          * @param {String} key - key name of meta field
                          * @param {String=} lang - langcode
                          * @return {String}
@@ -5109,7 +5087,7 @@ smx.meta = function (global, Sizzle, smx, LOG) {
                          * This method is like `meta` but will return an interpolated version
                          * using the node as interpolation context object.
                          *
-                         * @memberof Metadata.MetadataInterface
+                         * @memberof Node-Metadata
                          * @param {String} key - key name of meta field
                          * @param {String=} lang - langcode
                          * @return {String}
@@ -5233,90 +5211,42 @@ Sizzle.selectors.filters.meta = function (elem, i, match) {
     smx.fn = _.extend(smx.fn, { TaxonomyAttrInterface: methods });
 })(window, window._, window.smx);
 //# sourceMappingURL=TaxonomyInterface.js.map
-;'use strict';
+;"use strict";
 
 (function (global, Sizzle, smx) {
 
-    /**
-     * Placeholder namespace to contain Node extensions
-     * @namespace fn
-     * @memberof smx
-     */
+  /**
+   * Placeholder namespace to contain Node extensions
+   * @namespace fn
+   * @memberof smx
+   */
 
-    var fn = {};
+  var fn = {};
 
-    ////////////////////////////////
-    // UI ATTRIBUTES INTERFACE
-    // shortcut for UIAttrController.get
-    // definend in smx/document/UIAttrController.js
+  ////////////////////////////////
+  // UI ATTRIBUTES INTERFACE
+  // shortcut for UIAttrController.get
+  // definend in smx/document/UIAttrController.js
 
-    /**
-     * UserInterface Methods
-     * @module Node/UI
-     */
+  /**
+   * UserInterface Methods
+   * @module Node/UI
+   */
 
-    fn.UIAttrInterface = {
-
-        /**
-        *   @method ui
-        */
-        ui: function ui(key, type) {
-
-            return smx.UIAttrController.get(this, key, type);
-        }
-
-    };
-
-    ////////////////////////////////
-    // TIME INTERFACE
-    // 'time' attributes namespace
-    // definend in smx/document/TimeAttrController.js
+  fn.UIAttrInterface = {
 
     /**
-     * Time Interface Methods
-     * @module Node/Time
-     */
-    fn.TimeInterface = {
+    *   @method ui
+    */
+    ui: function ui(key, type) {
 
-        /**
-        *   @method time
-        */
-        time: function time(key) {
+      return smx.UIAttrController.get(this, key, type);
+    }
 
-            return smx.TimeAttrController.get(this, key);
-        },
+  };
 
-        /**
-        *   @method synchronize
-        */
-        synchronize: function synchronize() {
-
-            /*
-            //get 'timing' attribute value
-            var is_timed = this.time('timed');
-            var is_timeline = this.time('timeline');
-              //check if node need to be sync
-            if (!is_timed && !is_timeline){
-                  this.duration=0;
-                this.start=0;
-                  //do not use 'sync' attribute so flag it with 'is-sync'
-                this[0].setAttribute('is-sync','true');
-                  return;
-            }
-            */
-
-            //update sync values (start, duration)
-            var force_sync = true;
-            var duration = this.time('duration', force_sync);
-            var start = this.time('start', force_sync);
-
-            return;
-        }
-
-    };
-
-    //extends smx fn methods
-    smx.fn = !smx.fn ? fn : Object.assign(smx.fn, fn);
+  //extends smx fn methods
+  smx.fn = !smx.fn ? fn : Object.assign(smx.fn, fn);
 })(window, window.Sizzle, window.smx);
 //# sourceMappingURL=fn.js.map
 ;'use strict';
@@ -5325,8 +5255,7 @@ Sizzle.selectors.filters.meta = function (elem, i, match) {
 
     /**
      * Extends SMXNode with core methods
-     * @mixin Node.Core
-     * @memberof smx.fn
+     * @mixin Node-Core
      */
 
     var Core = {
@@ -5338,7 +5267,7 @@ Sizzle.selectors.filters.meta = function (elem, i, match) {
          * the given selector, if node does not match the selector itself will
          * return -1.
          *
-         * @memberof smx.fn.Core
+         * @memberof Node-Core
          * @param {String=} selector - filter selector
          * @return {Integer}
          */
@@ -5367,7 +5296,7 @@ Sizzle.selectors.filters.meta = function (elem, i, match) {
         /**
          * Gets the text content.
          *
-         * @memberof smx.fn.Core
+         * @memberof Node-Core
          * @return {String}
          */
         getText: function getText() {
@@ -5378,7 +5307,7 @@ Sizzle.selectors.filters.meta = function (elem, i, match) {
         /**
          * Gets the html content.
          *
-         * @memberof smx.fn.Core
+         * @memberof Node-Core
          * @return {String}
          */
         getHTML: function getHTML() {
@@ -5397,7 +5326,7 @@ Sizzle.selectors.filters.meta = function (elem, i, match) {
         /**
          * Gets the inner data content formatted according to node type.
          *
-         * @memberof smx.fn.Core
+         * @memberof Node-Core
          * @return {String}
          */
         getData: function getData() {
@@ -5423,7 +5352,7 @@ Sizzle.selectors.filters.meta = function (elem, i, match) {
         /**
          * Gets the string representation.
          *
-         * @memberof smx.fn.Core
+         * @memberof Node-Core
          * @return {String}
          */
         toString: function toString() {
@@ -5434,7 +5363,7 @@ Sizzle.selectors.filters.meta = function (elem, i, match) {
         /**
          * Gets the JSON representation. NOT IMPLEMENTED
          * @method toJSON
-         * @memberof smx.fn.Core
+         * @memberof Node-Core
          * @return {Object}
          */
         toJSON: function toJSON() {
@@ -5453,8 +5382,7 @@ Sizzle.selectors.filters.meta = function (elem, i, match) {
 
     /**
      * Extends SMXNode with utility attribute getters
-     * @mixin AttributeGetters
-     * @memberof smx.fn
+     * @mixin Node-AttributeGetters
      */
 
     var AttributeGetters = {
@@ -5462,7 +5390,7 @@ Sizzle.selectors.filters.meta = function (elem, i, match) {
         /**
          * Gets the value for the given attribute name.
          *
-         * @memberof smx.fn.AttributeGetters
+         * @memberof Node-AttributeGetters
          * @param {String} name - attribute name
          * @return {String} value
          * @example
@@ -5480,7 +5408,7 @@ Sizzle.selectors.filters.meta = function (elem, i, match) {
          * This method is like `attr` but will use an attribute parser if there is
          * one predefined for the given attribute name.
          *
-         * @memberof smx.fn.AttributeGetters
+         * @memberof Node-AttributeGetters
          * @param {String} name - attribute name
          * @param {Object=} opt - options to pass into attribute parser
          * @return {String} value
@@ -5502,7 +5430,7 @@ Sizzle.selectors.filters.meta = function (elem, i, match) {
         /**
          * Checks if node has or not an attribute with the given name
          * @method has
-         * @memberof smx.fn.AttributeGetters
+         * @memberof Node-AttributeGetters
          * @param {String} name - attribute name
          * @return {Boolean}
          */
@@ -5517,7 +5445,7 @@ Sizzle.selectors.filters.meta = function (elem, i, match) {
          * Gets Delimiter Separated Value
          * An utility method converts given attribute value into dsv array
          * @method dsv
-         * @memberof smx.fn.AttributeGetters
+         * @memberof Node-AttributeGetters
          * @param name {String} the name of the attribute
          * @param delimiter {String=} delimiter string
          * @return {Array.<String>}
@@ -5576,8 +5504,7 @@ Sizzle.selectors.filters.meta = function (elem, i, match) {
 
   /**
    * Extends SMXNode with utility tree node methods
-   * @mixin Node.TreeNode
-   * @memberof smx.fn
+   * @mixin Node-TreeNode
    */
 
   var TreeNode = {
@@ -5586,7 +5513,7 @@ Sizzle.selectors.filters.meta = function (elem, i, match) {
 
     /**
      * Gets a list of parent nodes up to root, ordered from outer to inner.
-     * @memberof smx.fn.TreeNode
+     * @memberof Node-TreeNode
      * @return {SMXNode[]}
      */
     getAncestors: function getAncestors(selector) {
@@ -5601,7 +5528,7 @@ Sizzle.selectors.filters.meta = function (elem, i, match) {
 
     /**
      * Checks if node is an ancestor of another.
-     * @memberof smx.fn.TreeNode
+     * @memberof Node-TreeNode
      * @param {SMXNode} node - reference node
      * @return {Boolean}
      */
@@ -5616,7 +5543,7 @@ Sizzle.selectors.filters.meta = function (elem, i, match) {
 
     /**
      * Checks if node matches the given selector.
-     * @memberof smx.fn.TreeNode
+     * @memberof Node-TreeNode
      * @param {String} selector - css selector to match
      * @return {Boolean}
      */
@@ -5629,7 +5556,7 @@ Sizzle.selectors.filters.meta = function (elem, i, match) {
 
     /**
      * Finds all descendant nodes matching the given selector.
-     * @memberof smx.fn.TreeNode
+     * @memberof Node-TreeNode
      * @param {String} selector - search selector
      * @return {Array.<Node>}
      */
@@ -5643,7 +5570,7 @@ Sizzle.selectors.filters.meta = function (elem, i, match) {
 
     /**
      * This method is like `find` but returns only the first result.
-     * @memberof smx.fn.TreeNode
+     * @memberof Node-TreeNode
      * @param {String} selector - search selector
      * @return {SMXNode}
      */
@@ -5654,7 +5581,7 @@ Sizzle.selectors.filters.meta = function (elem, i, match) {
 
     /**
      * Gets the children nodes matching the given selector.
-     * @memberof smx.fn.TreeNode
+     * @memberof Node-TreeNode
      * @param {String=} selector
      * @return {Array.<Node>}
      */
@@ -5669,7 +5596,7 @@ Sizzle.selectors.filters.meta = function (elem, i, match) {
 
     /**
      * Gets the first child node matching the given selector.
-     * @memberof smx.fn.TreeNode
+     * @memberof Node-TreeNode
      * @param {String=} selector
      * @return {SMXNode}
      */
@@ -5691,7 +5618,7 @@ Sizzle.selectors.filters.meta = function (elem, i, match) {
 
     /**
      * Gets the last child node matching the given selector.
-     * @memberof smx.fn.TreeNode
+     * @memberof Node-TreeNode
      * @param {String=} selector
      * @return {SMXNode}
      */
@@ -5715,7 +5642,7 @@ Sizzle.selectors.filters.meta = function (elem, i, match) {
 
     /**
      * Gets child node at given index
-     * @memberof smx.fn.TreeNode
+     * @memberof Node-TreeNode
      * @param {Integer} index - index position
      * @return {SMXNode}
      */
@@ -5726,7 +5653,7 @@ Sizzle.selectors.filters.meta = function (elem, i, match) {
 
     /**
      * Checks if a node is child of another
-     * @memberof smx.fn.TreeNode
+     * @memberof Node-TreeNode
      * @param {SMXNode} node - reference node
      * @return {Boolean}
      */
@@ -5744,7 +5671,7 @@ Sizzle.selectors.filters.meta = function (elem, i, match) {
 
     /**
      * Gets the next sibling node matching the given selector.
-     * @memberof smx.fn.TreeNode
+     * @memberof Node-TreeNode
      * @param {String=} selector - filter selector
      * @return {SMXNode}
      */
@@ -5762,7 +5689,7 @@ Sizzle.selectors.filters.meta = function (elem, i, match) {
 
     /**
      * Gets all next sibling nodes matching the given selector.
-     * @memberof smx.fn.TreeNode
+     * @memberof Node-TreeNode
      * @param {String=} selector - filter selector
      * @return {SMXNode[]}
      */
@@ -5785,7 +5712,7 @@ Sizzle.selectors.filters.meta = function (elem, i, match) {
 
     /**
      * Gets the previous sibling node matching the given selector.
-     * @memberof smx.fn.TreeNode
+     * @memberof Node-TreeNode
      * @param {String=} selector - filter selector
      * @return {SMXNode}
      */
@@ -5803,7 +5730,7 @@ Sizzle.selectors.filters.meta = function (elem, i, match) {
 
     /**
      * Gets all previous sibling nodes matching the given selector.
-     * @memberof smx.fn.TreeNode
+     * @memberof Node-TreeNode
      * @param {String=} selector - filter selector
      * @return {SMXNode[]}
      */

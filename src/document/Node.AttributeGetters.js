@@ -2,8 +2,7 @@
 
 /**
  * Extends SMXNode with utility attribute getters
- * @mixin AttributeGetters
- * @memberof smx.fn
+ * @mixin Node-AttributeGetters
  */
 
 let AttributeGetters = {
@@ -11,7 +10,7 @@ let AttributeGetters = {
     /**
      * Gets the value for the given attribute name.
      *
-     * @memberof smx.fn.AttributeGetters
+     * @memberof Node-AttributeGetters
      * @param {String} name - attribute name
      * @return {String} value
      * @example
@@ -30,7 +29,7 @@ let AttributeGetters = {
      * This method is like `attr` but will use an attribute parser if there is
      * one predefined for the given attribute name.
      *
-     * @memberof smx.fn.AttributeGetters
+     * @memberof Node-AttributeGetters
      * @param {String} name - attribute name
      * @param {Object=} opt - options to pass into attribute parser
      * @return {String} value
@@ -54,7 +53,7 @@ let AttributeGetters = {
     /**
      * Checks if node has or not an attribute with the given name
      * @method has
-     * @memberof smx.fn.AttributeGetters
+     * @memberof Node-AttributeGetters
      * @param {String} name - attribute name
      * @return {Boolean}
      */
@@ -70,7 +69,7 @@ let AttributeGetters = {
      * Gets Delimiter Separated Value
      * An utility method converts given attribute value into dsv array
      * @method dsv
-     * @memberof smx.fn.AttributeGetters
+     * @memberof Node-AttributeGetters
      * @param name {String} the name of the attribute
      * @param delimiter {String=} delimiter string
      * @return {Array.<String>}

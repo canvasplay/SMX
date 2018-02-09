@@ -39,8 +39,7 @@ module.exports = function(grunt) {
                     'dist/document/Sizzle.js',
 
                     'dist/smx.js',
-                    'dist/$smx.js',
-                    'dist/$smx.load.js',
+                    'dist/smx.load.js',
 
                     
                     'dist/compiler/Compiler.js',
