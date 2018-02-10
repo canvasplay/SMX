@@ -2304,7 +2304,7 @@ if ( typeof define === "function" && define.amd ) {
   smx.documents = [];
 
   /**
-   * Namespace for SMXNode extended methods.
+   * Namespace for SMXNode extended mixin methods.
    * @memberof smx
    * @type {Object}
    */
@@ -5705,92 +5705,73 @@ smx.meta = function (global, Sizzle, smx, LOG) {
 //# sourceMappingURL=Node.Taxonomy.js.map
 ;'use strict';
 
-(function (smx) {
-
-    /**
-     *  UI ATTR CONTROLLER
-     *  Plugin Controller for attributes namespaced with 'ui-'
-     *  @module UIAttrController
-     */
-
-    var UIAttrController = {
-
-        'MEDIA_TYPES': ['screen', 'print', 'tv'],
-
-        'get': function get(node, key, media_type) {
-
-            //resolve 'media' value
-            media_type = this.normalizeMediaType(media_type);
-
-            //get 'ui-type-key' attr
-            var asset = node.attr('ui-' + media_type + '-' + key);
-
-            //no typed key? use generic 'ui-key'
-            if (_.isEmpty(asset)) asset = node.attr('ui-' + key);
-
-            //resolve asset url
-            if (!_.isEmpty(asset)) return this.resolveURL(node, asset);
-
-            return;
-        },
-
-        'normalizeMediaType': function normalizeMediaType(type) {
-
-            if (_.isEmpty(type)) return this.MEDIA_TYPES[0];
-
-            if (_.includes(this.MEDIA_TYPES, type)) return type;else return this.MEDIA_TYPES[0];
-        },
-
-        'resolveURL': function resolveURL(node, asset) {
-
-            //starts with '$/' means package root
-            if (asset.substr(0, 2) == '$/') asset = node.root().get('url') + asset.substr(2);
-            //starts with './' means app root
-            else if (asset.substr(0, 2) == './') asset = asset.substr(2);
-                //else is relative to node
-                else asset = node.get('url') + asset;
-
-            return asset;
-        }
-
-    };
-
-    //expose into global smx namespace
-    smx.UIAttrController = UIAttrController;
-})(window.smx);
-//# sourceMappingURL=smx.UIAttrController.js.map
-;"use strict";
-
-////////////////////////////////
-// UI ATTRIBUTES INTERFACE
-// shortcut for UIAttrController.get
-// definend in smx/document/UIAttrController.js
-
 /**
  * Extends SMXNode with UserInterface methods
- * @mixin Node/UI
+ * @mixin Node-Ui
  */
 
 (function (smx) {
 
-  var NodeUiInterface = {
+          var UiAttrController = {
 
-    /**
-     * Gets an user interface asset by key and type
-     * @memberof Node/UI
-     * @param {String}
-     * @param {String=}
-     */
-    ui: function ui(key, type) {
+                    'MEDIA_TYPES': ['screen', 'print', 'tv'],
 
-      return smx.UIAttrController.get(this, key, type);
-    }
+                    'get': function get(node, key, media_type) {
 
-  };
+                              //resolve 'media' value
+                              media_type = this.normalizeMediaType(media_type);
 
-  //extends smx fn methods
-  smx.fn = smx.fn || {};
-  smx.fn = Object.assign(smx.fn, NodeUiInterface);
+                              //get 'ui-type-key' attr
+                              var asset = node.attr('ui-' + media_type + '-' + key);
+
+                              //no typed key? use generic 'ui-key'
+                              if (_.isEmpty(asset)) asset = node.attr('ui-' + key);
+
+                              //resolve asset url
+                              if (!_.isEmpty(asset)) return this.resolveURL(node, asset);
+
+                              return;
+                    },
+
+                    'normalizeMediaType': function normalizeMediaType(type) {
+
+                              if (_.isEmpty(type)) return this.MEDIA_TYPES[0];
+
+                              if (_.includes(this.MEDIA_TYPES, type)) return type;else return this.MEDIA_TYPES[0];
+                    },
+
+                    'resolveURL': function resolveURL(node, asset) {
+
+                              //starts with '$/' means package root
+                              if (asset.substr(0, 2) == '$/') asset = node.root().get('url') + asset.substr(2);
+                              //starts with './' means app root
+                              else if (asset.substr(0, 2) == './') asset = asset.substr(2);
+                                        //else is relative to node
+                                        else asset = node.get('url') + asset;
+
+                              return asset;
+                    }
+
+          };
+
+          var NodeUiInterface = {
+
+                    /**
+                     * Gets an user interface asset by key and type
+                     * @memberof Node/UI
+                     * @param {String}
+                     * @param {String=}
+                     */
+                    ui: function ui(key, type) {
+
+                              return UiAttrController.get(this, key, type);
+                    }
+
+          };
+
+          //extends smx fn methods
+          smx.fn = smx.fn || {};
+          smx.fn = Object.assign(smx.fn, NodeUiInterface);
 })(window.smx);
 //# sourceMappingURL=Node.Ui.js.map
 ;'use strict';

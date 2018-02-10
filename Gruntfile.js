@@ -67,7 +67,6 @@ module.exports = function(grunt) {
                     'dist/plugins/taxonomy/Node.Taxonomy.js',
 
                     //UserInterface
-                    'dist/plugins/ui/smx.UIAttrController.js',
                     'dist/plugins/ui/Node.Ui.js',
 
                     //Core
