@@ -2304,20 +2304,27 @@ if ( typeof define === "function" && define.amd ) {
   smx.documents = [];
 
   /**
-   * This namescape is a placeholder for custom attribute parsers.
+   * Namespace for SMXNode extended methods.
+   * @memberof smx
+   * @type {Object}
+   */
+  smx.fn = {};
+
+  /**
+   * Namescape for custom attribute parsers.
    * Attribute parsers are used during XML transpilation to process original
    * nodes attributes in different ways.
-   * @namespace AttributeParsers
    * @memberof smx
+   * @type {Array}
    */
   smx.AttributeParsers = [];
 
   /**
-   * This namescape is a placeholder for custom node parsers.
+   * Namespace for custom node parsers.
    * Tag parsers are used during XML transpilation to transform original nodes
    * in different ways.
-   * @namespace NodeParsers
    * @memberof smx
+   * @type {Array}
    */
   smx.NodeParsers = [];
 
@@ -5786,22 +5793,6 @@ smx.meta = function (global, Sizzle, smx, LOG) {
   smx.fn = Object.assign(smx.fn, NodeUiInterface);
 })(window.smx);
 //# sourceMappingURL=Node.Ui.js.map
-;"use strict";
-
-(function (global, Sizzle, smx) {
-
-  /**
-   * Placeholder namespace to contain Node extensions
-   * @namespace fn
-   * @memberof smx
-   */
-
-  var fn = {};
-
-  //extends smx fn methods
-  smx.fn = !smx.fn ? fn : Object.assign(smx.fn, fn);
-})(window, window.Sizzle, window.smx);
-//# sourceMappingURL=fn.js.map
 ;'use strict';
 
 (function (global, _, Sizzle, smx) {

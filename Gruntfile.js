@@ -71,12 +71,10 @@ module.exports = function(grunt) {
                     'dist/plugins/ui/Node.Ui.js',
 
                     //Core
-                    'dist/document/fn.js',
                     'dist/document/Node.Core.js',
                     'dist/document/Node.AttributeGetters.js',
                     'dist/document/Node.TreeNode.js',
                     
-
                     'dist/document/Node.js',
                     'dist/document/Document.js'
 
