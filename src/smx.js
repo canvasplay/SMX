@@ -32,7 +32,7 @@
  
 
   /**
-   * Namespace for SMXNode extended methods.
+   * Namespace for SMXNode extended mixin methods.
    * @memberof smx
    * @type {Object}
    */

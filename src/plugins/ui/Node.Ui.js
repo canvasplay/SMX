@@ -1,11 +1,6 @@
-////////////////////////////////
-// UI ATTRIBUTES INTERFACE
-// shortcut for UIAttrController.get
-// definend in smx/document/UIAttrController.js
-
 /**
  * Extends SMXNode with UserInterface methods
- * @mixin Node/UI
+ * @mixin Node-Ui
  */
 
 ((smx)=>{
