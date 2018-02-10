@@ -1,7 +1,7 @@
-////////////////////////////////
-// smx plugin
-// TAXONOMY PARSER
-//
+/**
+ * SMX Taxonomy Parser
+ * @module TaxonomyParser
+ */
 
 /*
 
@@ -140,4 +140,4 @@ smx.taxonomy = TaxonomyParser;
 
 
 
-})(window);
+})(window, window.smx, window.Sizzle, window.log);

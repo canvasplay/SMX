@@ -1,10 +1,8 @@
-////////////////////////////////
-// smx plugin
-// PROTOTYPE PARSER
-// This plugins process all <prototype> nodes
-// convert first level children nodes into meta-* attributes
-// and apply those attributes to direct parent node
-
+/**
+ * SMX Prototype Parser
+ * @module PrototypeParser
+ * @description This parser will parse and process all <prototype> nodes.
+ */
 
 (function(global, Sizzle, smx){
  

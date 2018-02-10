@@ -3,7 +3,7 @@
  * @module MetadataParser
  */
 
-smx.meta = (function(global, Sizzle, smx, LOG){
+((global, Sizzle, smx, LOG)=>{
 
 
 //local helper
@@ -300,7 +300,7 @@ var parseMetaAttributes = function(node){
 }
 
 
-return {
+smx.meta = {
   parseXML: parseXML,
   parseMetadataNode: parseMetadataNode,
   parseMetaAttributes: parseMetaAttributes

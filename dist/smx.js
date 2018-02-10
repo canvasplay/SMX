@@ -2397,27 +2397,16 @@ if ( typeof define === "function" && define.amd ) {
   */
 	var ERROR_CALLBACK = function ERROR_CALLBACK(e) {};
 
-	/////////////////////////////////////////////////////////////////////////////////////
-	// LOADING AND COMPILE SMX DOCUMENT
-
-	var SMX_COMPILER = null;
-
 	var LOAD_SMX_DOCUMENT = function LOAD_SMX_DOCUMENT(url) {
 
-		//INSTANCE SMX COMPILER
-		SMX_COMPILER = new smx.Compiler();
+		//Instance a new SMX Loader
+		var loader = new smx.Loader();
 
-		//SMX_COMPILER.on('complete', LOAD_SMX_COMPLETE);
-		SMX_COMPILER.on('complete', PARSE_METADATA);
-		SMX_COMPILER.on('error', LOAD_SMX_ERROR);
+		//loader.on('complete', LOAD_SMX_COMPLETE);
+		loader.on('complete', PARSE_METADATA);
+		loader.on('error', LOAD_SMX_ERROR);
 
-		//global
-		//global['$compiler'] = SMX_COMPILER;
-
-		//var data_path = app.config.DATA_PATH || '';
-		//if(app.config.PACKAGE) data_path = app.config.PACKAGE+'/'+ data_path;
-
-		SMX_COMPILER.loadDocument(url);
+		loader.loadDocument(url);
 
 		return;
 	};
@@ -2547,101 +2536,12 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 (function (global, Sizzle, _, smx, LOG) {
 
-  var copyAttributes = function copyAttributes(srcNode, targetNode) {
-
-    var ignoreAttributes = ['src', 'path', 'file'];
-
-    var attrs = srcNode.attributes;
-
-    for (var i = 0; i < attrs.length; i++) {
-
-      var name = attrs[i].name;
-      var value = attrs[i].value;
-
-      if (ignoreAttributes.indexOf(name) < 0) {
-        var attr = targetNode.getAttribute(name);
-        if ((typeof attr === 'undefined' ? 'undefined' : _typeof(attr)) === undefined || attr === null || attr === false) targetNode.setAttribute(name, value);
-      }
-    }
-
-    return targetNode;
-  };
-
-  var resolvePathFileAttributes = function resolvePathFileAttributes(xmlNode, url) {
-
-    //get src string from xmlNode attribute or given url
-    var src = url ? url : xmlNode.getAttribute('src');
-
-    //declare resultant attribute values
-    var path, file;
-
-    //no src string? just ignore..
-    if (!src) return xmlNode;
-
-    //split by slashes
-    src = src.split('/');
-
-    //if multipart, last is file
-    if (src.length > 0) file = src.pop();
-
-    //join path parts
-    path = src.join('/') + '/';
-
-    //set inlcuded xmlNode core attributes
-    if (path) xmlNode.setAttribute('path', path);
-    if (file) xmlNode.setAttribute('file', file);
-
-    return xmlNode;
-  };
-
-  var createDataNode = function createDataNode(xmlDocument, nodeName, data, type) {
-    var node = xmlDocument.createElement(nodeName);
-    var cdata = xmlDocument.createCDATASection(data);
-    node.appendChild(cdata);
-    node.setAttribute('type', type || 'cdata');
-    return node;
-  };
-
-  var parseIncludes = function parseIncludes(xmlDocument) {
-
-    var inc;
-
-    //find all existing <include> nodes
-    var includes = Sizzle('include', xmlDocument);
-
-    //iterate and filter includes
-    while (!inc && includes.length > 0) {
-
-      var follow = true;
-
-      //get first include found
-      inc = includes.shift();
-
-      //FILTER BY LANG ATTR
-      //attribute lang must match options lang
-      //var inc_lang = inc.getAttribute('lang');
-      //if(inc_lang && inc_lang!=this.options.lang) follow = false;
-
-      //FILTER BY IGNORE ATTR
-      //exclude if ignore attribute is defined and != false
-      var inc_ignore = inc.getAttribute('ignore');
-      if (inc_ignore === 'true') follow = false;
-
-      if (!follow) {
-        inc.parentNode.removeChild(inc);
-        inc = null;
-      }
-    }
-
-    return inc;
-  };
-
   /**
-   * SMX Compiler Class
-   * @class Compiler
+   * SMX Loader Class
+   * @class Loader
    */
 
-  var DocumentCompiler = function DocumentCompiler() {
+  var Loader = function Loader() {
 
     //extended with custom events
     _.extend(this, Backbone.Events);
@@ -2821,10 +2721,103 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     return this;
   };
 
+  //
+  //  PRIVATE HELPER METHODS
+  //
+
+  var copyAttributes = function copyAttributes(srcNode, targetNode) {
+
+    var ignoreAttributes = ['src', 'path', 'file'];
+
+    var attrs = srcNode.attributes;
+
+    for (var i = 0; i < attrs.length; i++) {
+
+      var name = attrs[i].name;
+      var value = attrs[i].value;
+
+      if (ignoreAttributes.indexOf(name) < 0) {
+        var attr = targetNode.getAttribute(name);
+        if ((typeof attr === 'undefined' ? 'undefined' : _typeof(attr)) === undefined || attr === null || attr === false) targetNode.setAttribute(name, value);
+      }
+    }
+
+    return targetNode;
+  };
+
+  var resolvePathFileAttributes = function resolvePathFileAttributes(xmlNode, url) {
+
+    //get src string from xmlNode attribute or given url
+    var src = url ? url : xmlNode.getAttribute('src');
+
+    //declare resultant attribute values
+    var path, file;
+
+    //no src string? just ignore..
+    if (!src) return xmlNode;
+
+    //split by slashes
+    src = src.split('/');
+
+    //if multipart, last is file
+    if (src.length > 0) file = src.pop();
+
+    //join path parts
+    path = src.join('/') + '/';
+
+    //set inlcuded xmlNode core attributes
+    if (path) xmlNode.setAttribute('path', path);
+    if (file) xmlNode.setAttribute('file', file);
+
+    return xmlNode;
+  };
+
+  var createDataNode = function createDataNode(xmlDocument, nodeName, data, type) {
+    var node = xmlDocument.createElement(nodeName);
+    var cdata = xmlDocument.createCDATASection(data);
+    node.appendChild(cdata);
+    node.setAttribute('type', type || 'cdata');
+    return node;
+  };
+
+  var parseIncludes = function parseIncludes(xmlDocument) {
+
+    var inc;
+
+    //find all existing <include> nodes
+    var includes = Sizzle('include', xmlDocument);
+
+    //iterate and filter includes
+    while (!inc && includes.length > 0) {
+
+      var follow = true;
+
+      //get first include found
+      inc = includes.shift();
+
+      //FILTER BY LANG ATTR
+      //attribute lang must match options lang
+      //var inc_lang = inc.getAttribute('lang');
+      //if(inc_lang && inc_lang!=this.options.lang) follow = false;
+
+      //FILTER BY IGNORE ATTR
+      //exclude if ignore attribute is defined and != false
+      var inc_ignore = inc.getAttribute('ignore');
+      if (inc_ignore === 'true') follow = false;
+
+      if (!follow) {
+        inc.parentNode.removeChild(inc);
+        inc = null;
+      }
+    }
+
+    return inc;
+  };
+
   //expose
-  smx.Compiler = DocumentCompiler;
+  smx.Loader = Loader;
 })(window, window.Sizzle, window._, window.smx, window.log);
-//# sourceMappingURL=Compiler.js.map
+//# sourceMappingURL=Loader.js.map
 ;'use strict';
 
 (function (global, smx, Sizzle, LOG) {
@@ -5007,13 +5000,11 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //# sourceMappingURL=CSSParser.js.map
 ;'use strict';
 
-////////////////////////////////
-// smx plugin
-// PROTOTYPE PARSER
-// This plugins process all <prototype> nodes
-// convert first level children nodes into meta-* attributes
-// and apply those attributes to direct parent node
-
+/**
+ * SMX Prototype Parser
+ * @module PrototypeParser
+ * @description This parser will parse and process all <prototype> nodes.
+ */
 
 (function (global, Sizzle, smx) {
 
@@ -5271,7 +5262,7 @@ Sizzle.selectors.filters.meta = function (elem, i, match) {
  * @module MetadataParser
  */
 
-smx.meta = function (global, Sizzle, smx, LOG) {
+(function (global, Sizzle, smx, LOG) {
 
     //local helper
     var escapeHtml = function escapeHtml(html) {
@@ -5541,12 +5532,12 @@ smx.meta = function (global, Sizzle, smx, LOG) {
         };
     };
 
-    return {
+    smx.meta = {
         parseXML: parseXML,
         parseMetadataNode: parseMetadataNode,
         parseMetaAttributes: parseMetaAttributes
     };
-}(window, window.Sizzle, window.smx, window.log);
+})(window, window.Sizzle, window.smx, window.log);
 //# sourceMappingURL=MetadataParser.js.map
 ;"use strict";
 
@@ -5612,6 +5603,140 @@ smx.meta = function (global, Sizzle, smx, LOG) {
             smx.fn = Object.assign(smx.fn, NodeMetadataInterface);
 })(window, window.smx);
 //# sourceMappingURL=Node.Metadata.js.map
+;'use strict';
+
+/**
+ * SMX Taxonomy Parser
+ * @module TaxonomyParser
+ */
+
+/*
+
+CONCEPT...
+
+CATEGORIES
+Categories are meant for broad grouping of nodes.
+Think of these as general topics or the table of contents
+Categories are hierarchical, so you can sub-categories.
+
+TAGS
+Tags are meant to describe specific nodes' details.
+Think of these as your document’s index words.
+They are the micro-data to micro-categorize nodes.
+Tags are not hierarchical.
+
+*/
+
+(function (global, smx, Sizzle, LOG) {
+
+    TaxonomyParser = {};
+
+    TaxonomyParser.parseXML = function (xmlDocument, opt) {
+
+        //xmlDocument required!
+        if (!xmlDocument) return;
+
+        //normalize options
+        var options = _.extend({
+            data: {},
+            callback: function callback() {
+                return;
+            },
+            total: 0,
+            nodes: null
+        }, opt);
+
+        // get all unparsed nodes based on flag attr
+        // `taxonomy-processed` attribute is added while parsing process
+        // nodes missing the flag attr are the nodes we need to parse
+        var nodes;
+        if (!options.nodes) nodes = Sizzle('[categories]:not([taxonomy-processed])', xmlDocument);else nodes = options.nodes;
+
+        //calculate percent progress
+        if (nodes.length > options.total) options.total = nodes.length;
+        var percent = 100 - parseInt(nodes.length * 100 / options.total);
+
+        LOG('PARSING... (' + (options.total - nodes.length) + '/' + options.total + ') ' + percent + '%');
+
+        var max_iterations = 100;
+        var i = 0;
+
+        while (nodes.length && i < max_iterations) {
+
+            var node = nodes.shift();
+
+            var result = this.parseXMLNode(node);
+
+            if (result) {
+
+                //create node data object if does not exists yet
+                if (!options.data[result.id]) options.data[result.id] = {};
+
+                //extend parent data object
+                if (!_.isEmpty(result.data)) _.extend(options.data[result.id], result.data);
+            }
+
+            i++;
+        }
+
+        //more nodes to parse?
+        if (nodes.length) {
+
+            _.delay(_.bind(function () {
+                this.parseXML(xmlDocument, {
+                    data: options.data,
+                    callback: options.callback,
+                    total: options.total,
+                    nodes: nodes
+                });
+            }, this), 0);
+        }
+        //complete! no more nodes to parse
+        else {
+
+                LOG('COMPLETE! (' + options.total + '/' + options.total + ') 100%');
+
+                try {
+                    options.callback(xmlDocument, options.data);
+                } catch (e) {
+
+                    LOG('CALLBACK ERROR! ' + e.toString());
+                }
+            }
+
+        return;
+    };
+
+    TaxonomyParser.parseXMLNode = function (node) {
+
+        if (!node) return;
+
+        //instance returning data object
+        var data = {};
+
+        //node id which to attach data parsed
+        var id = node.getAttribute('id');
+
+        //get taxonomy related data
+        var categories = node.getAttribute('categories');
+        var tags = node.getAttribute('tags');
+
+        if (categories) data.categories = categories;
+        if (tags) data.tags = tags;
+
+        //add "taxonomy-processed" flag attr
+        node.setAttribute('taxonomy-processed', 'true');
+
+        return {
+            'id': id,
+            'data': data
+        };
+    };
+
+    //expose into global smx namespace
+    smx.taxonomy = TaxonomyParser;
+})(window, window.smx, window.Sizzle, window.log);
+//# sourceMappingURL=TaxonomyParser.js.map
 ;'use strict';
 
 (function (global, _, smx) {
