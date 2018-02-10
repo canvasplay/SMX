@@ -42,8 +42,8 @@ module.exports = function(grunt) {
                     'dist/smx.load.js',
 
                     
-                    'dist/compiler/Compiler.js',
-                    'dist/compiler/IdAttributeParser.js',
+                    'dist/loader/Loader.js',
+                    'dist/loader/IdAttributeParser.js',
 
                     'dist/playhead/Playhead.js',
                     
@@ -63,7 +63,7 @@ module.exports = function(grunt) {
                     'dist/plugins/metadata/Node.Metadata.js',
 
                     //Taxonomy
-                    //'dist/taxonomy/TaxonomyParser.js',
+                    'dist/plugins/taxonomy/TaxonomyParser.js',
                     'dist/plugins/taxonomy/Node.Taxonomy.js',
 
                     //UserInterface
