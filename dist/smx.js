@@ -5242,6 +5242,23 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //# sourceMappingURL=PrototypeParser.js.map
 ;'use strict';
 
+Sizzle.selectors.filters.meta = function (elem, i, match) {
+    var preffix = 'meta-';
+    var regex = new RegExp('\\s*' + preffix + '\\w*="', 'ig');
+    var attrs = elem.attributes;
+    var str = [];
+    str.push('<' + elem.nodeName);
+    for (var i = 0; i < attrs.length; i++) {
+        str.push(attrs[i].nodeName + '="' + attrs[i].nodeValue + '"');
+    }
+    str.push('>');
+    str = str.join(' ');
+
+    return regex.test(str);
+};
+//# sourceMappingURL=Sizzle.selectors.filters.meta.js.map
+;'use strict';
+
 /**
  * SMX Metadata Parser
  * @module MetadataParser
@@ -5528,14 +5545,12 @@ smx.meta = function (global, Sizzle, smx, LOG) {
 
 (function (global, smx) {
 
-            if (!smx.fn) smx.fn = {};
-
             /**
              * Extends SMXNode with utility attribute getters
              * @mixin Node-Metadata
              */
 
-            smx.fn.MetadataInterface = {
+            var NodeMetadataInterface = {
 
                         /**
                          * Gets the metadata field value for the given associated to the node
@@ -5584,33 +5599,26 @@ smx.meta = function (global, Sizzle, smx, LOG) {
                         }
 
             };
+
+            //extends smx fn methods
+            smx.fn = smx.fn || {};
+            smx.fn = Object.assign(smx.fn, NodeMetadataInterface);
 })(window, window.smx);
-//# sourceMappingURL=MetadataInterface.js.map
-;'use strict';
-
-Sizzle.selectors.filters.meta = function (elem, i, match) {
-    var preffix = 'meta-';
-    var regex = new RegExp('\\s*' + preffix + '\\w*="', 'ig');
-    var attrs = elem.attributes;
-    var str = [];
-    str.push('<' + elem.nodeName);
-    for (var i = 0; i < attrs.length; i++) {
-        str.push(attrs[i].nodeName + '="' + attrs[i].nodeValue + '"');
-    }
-    str.push('>');
-    str = str.join(' ');
-
-    return regex.test(str);
-};
-//# sourceMappingURL=Sizzle.selectors.filters.meta.js.map
+//# sourceMappingURL=Node.Metadata.js.map
 ;'use strict';
 
 (function (global, _, smx) {
 
-    var methods = {
+    /**
+     * Extends SMXNode with taxonomy methods
+     * @mixin Node-Taxonomy
+     */
+
+    var NodeTaxonomyInterface = {
 
         /**
         * get collection of node's tags
+        * @memberof Node-Taxonomy
         * @return {Array.<String>}
         */
         tags: function tags(namespace) {
@@ -5634,6 +5642,7 @@ Sizzle.selectors.filters.meta = function (elem, i, match) {
 
         /**
         * get collection of categories
+        * @memberof Node-Taxonomy
         * @return {Array.<String>}
         */
         categories: function categories(namespace) {
@@ -5657,6 +5666,7 @@ Sizzle.selectors.filters.meta = function (elem, i, match) {
 
         /**
         * get collection of node's branches
+        * @memberof Node-Taxonomy
         * @return {Array.<String>}
         */
         branches: function branches() {
@@ -5681,10 +5691,101 @@ Sizzle.selectors.filters.meta = function (elem, i, match) {
 
     };
 
-    //expose to global
-    smx.fn = _.extend(smx.fn, { TaxonomyAttrInterface: methods });
+    //extends smx fn methods
+    smx.fn = smx.fn || {};
+    smx.fn = Object.assign(smx.fn, NodeTaxonomyInterface);
 })(window, window._, window.smx);
-//# sourceMappingURL=TaxonomyInterface.js.map
+//# sourceMappingURL=Node.Taxonomy.js.map
+;'use strict';
+
+(function (smx) {
+
+    /**
+     *  UI ATTR CONTROLLER
+     *  Plugin Controller for attributes namespaced with 'ui-'
+     *  @module UIAttrController
+     */
+
+    var UIAttrController = {
+
+        'MEDIA_TYPES': ['screen', 'print', 'tv'],
+
+        'get': function get(node, key, media_type) {
+
+            //resolve 'media' value
+            media_type = this.normalizeMediaType(media_type);
+
+            //get 'ui-type-key' attr
+            var asset = node.attr('ui-' + media_type + '-' + key);
+
+            //no typed key? use generic 'ui-key'
+            if (_.isEmpty(asset)) asset = node.attr('ui-' + key);
+
+            //resolve asset url
+            if (!_.isEmpty(asset)) return this.resolveURL(node, asset);
+
+            return;
+        },
+
+        'normalizeMediaType': function normalizeMediaType(type) {
+
+            if (_.isEmpty(type)) return this.MEDIA_TYPES[0];
+
+            if (_.includes(this.MEDIA_TYPES, type)) return type;else return this.MEDIA_TYPES[0];
+        },
+
+        'resolveURL': function resolveURL(node, asset) {
+
+            //starts with '$/' means package root
+            if (asset.substr(0, 2) == '$/') asset = node.root().get('url') + asset.substr(2);
+            //starts with './' means app root
+            else if (asset.substr(0, 2) == './') asset = asset.substr(2);
+                //else is relative to node
+                else asset = node.get('url') + asset;
+
+            return asset;
+        }
+
+    };
+
+    //expose into global smx namespace
+    smx.UIAttrController = UIAttrController;
+})(window.smx);
+//# sourceMappingURL=smx.UIAttrController.js.map
+;"use strict";
+
+////////////////////////////////
+// UI ATTRIBUTES INTERFACE
+// shortcut for UIAttrController.get
+// definend in smx/document/UIAttrController.js
+
+/**
+ * Extends SMXNode with UserInterface methods
+ * @mixin Node/UI
+ */
+
+(function (smx) {
+
+  var NodeUiInterface = {
+
+    /**
+     * Gets an user interface asset by key and type
+     * @memberof Node/UI
+     * @param {String}
+     * @param {String=}
+     */
+    ui: function ui(key, type) {
+
+      return smx.UIAttrController.get(this, key, type);
+    }
+
+  };
+
+  //extends smx fn methods
+  smx.fn = smx.fn || {};
+  smx.fn = Object.assign(smx.fn, NodeUiInterface);
+})(window.smx);
+//# sourceMappingURL=Node.Ui.js.map
 ;"use strict";
 
 (function (global, Sizzle, smx) {
@@ -5696,28 +5797,6 @@ Sizzle.selectors.filters.meta = function (elem, i, match) {
    */
 
   var fn = {};
-
-  ////////////////////////////////
-  // UI ATTRIBUTES INTERFACE
-  // shortcut for UIAttrController.get
-  // definend in smx/document/UIAttrController.js
-
-  /**
-   * UserInterface Methods
-   * @module Node/UI
-   */
-
-  fn.UIAttrInterface = {
-
-    /**
-    *   @method ui
-    */
-    ui: function ui(key, type) {
-
-      return smx.UIAttrController.get(this, key, type);
-    }
-
-  };
 
   //extends smx fn methods
   smx.fn = !smx.fn ? fn : Object.assign(smx.fn, fn);
@@ -5732,7 +5811,7 @@ Sizzle.selectors.filters.meta = function (elem, i, match) {
      * @mixin Node-Core
      */
 
-    var Core = {
+    var NodeCoreMethods = {
 
         /**
          * Gets the index position in parent's children. If node has no parent,
@@ -5847,7 +5926,8 @@ Sizzle.selectors.filters.meta = function (elem, i, match) {
     };
 
     //extends smx fn methods
-    smx.fn = !smx.fn ? { Core: Core } : Object.assign(smx.fn, { Core: Core });
+    smx.fn = smx.fn || {};
+    smx.fn = Object.assign(smx.fn, NodeCoreMethods);
 })(window, window._, window.Sizzle, window.smx);
 //# sourceMappingURL=Node.Core.js.map
 ;'use strict';
@@ -5859,7 +5939,7 @@ Sizzle.selectors.filters.meta = function (elem, i, match) {
      * @mixin Node-AttributeGetters
      */
 
-    var AttributeGetters = {
+    var NodeAttributeGetters = {
 
         /**
          * Gets the value for the given attribute name.
@@ -5968,8 +6048,9 @@ Sizzle.selectors.filters.meta = function (elem, i, match) {
 
     };
 
-    //extend smx fn methods
-    smx.fn = !smx.fn ? { AttributeGetters: AttributeGetters } : Object.assign(smx.fn, { AttributeGetters: AttributeGetters });
+    //extends smx fn methods
+    smx.fn = smx.fn || {};
+    smx.fn = Object.assign(smx.fn, NodeAttributeGetters);
 })(window, window.Sizzle, window.smx);
 //# sourceMappingURL=Node.AttributeGetters.js.map
 ;"use strict";
@@ -5981,7 +6062,7 @@ Sizzle.selectors.filters.meta = function (elem, i, match) {
    * @mixin Node-TreeNode
    */
 
-  var TreeNode = {
+  var TreeNodeInterface = {
 
     // PARENT RELATED OPERATIONS
 
@@ -6228,65 +6309,10 @@ Sizzle.selectors.filters.meta = function (elem, i, match) {
   };
 
   //extends smx fn methods
-  smx.fn = !smx.fn ? { TreeNode: TreeNode } : Object.assign(smx.fn, { TreeNode: TreeNode });
+  smx.fn = smx.fn || {};
+  smx.fn = Object.assign(smx.fn, TreeNodeInterface);
 })(window, window._, window.Sizzle, window.smx);
 //# sourceMappingURL=Node.TreeNode.js.map
-;'use strict';
-
-(function (smx) {
-
-    /**
-     *  UI ATTR CONTROLLER
-     *  Plugin Controller for attributes namespaced with 'ui-'
-     *  @module UIAttrController
-     */
-
-    var UIAttrController = {
-
-        'MEDIA_TYPES': ['screen', 'print', 'tv'],
-
-        'get': function get(node, key, media_type) {
-
-            //resolve 'media' value
-            media_type = this.normalizeMediaType(media_type);
-
-            //get 'ui-type-key' attr
-            var asset = node.attr('ui-' + media_type + '-' + key);
-
-            //no typed key? use generic 'ui-key'
-            if (_.isEmpty(asset)) asset = node.attr('ui-' + key);
-
-            //resolve asset url
-            if (!_.isEmpty(asset)) return this.resolveURL(node, asset);
-
-            return;
-        },
-
-        'normalizeMediaType': function normalizeMediaType(type) {
-
-            if (_.isEmpty(type)) return this.MEDIA_TYPES[0];
-
-            if (_.includes(this.MEDIA_TYPES, type)) return type;else return this.MEDIA_TYPES[0];
-        },
-
-        'resolveURL': function resolveURL(node, asset) {
-
-            //starts with '$/' means package root
-            if (asset.substr(0, 2) == '$/') asset = node.root().get('url') + asset.substr(2);
-            //starts with './' means app root
-            else if (asset.substr(0, 2) == './') asset = asset.substr(2);
-                //else is relative to node
-                else asset = node.get('url') + asset;
-
-            return asset;
-        }
-
-    };
-
-    //expose into global smx namespace
-    smx.UIAttrController = UIAttrController;
-})(window.smx);
-//# sourceMappingURL=smx.UIAttrController.js.map
 ;'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -6573,9 +6599,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
   //extends Node prototype
 
 
-  for (var key in smx.fn) {
-    Object.assign(Node.prototype, smx.fn[key]);
-  }
+  Object.assign(Node.prototype, smx.fn);
 
   //expose
   smx.Node = Node;

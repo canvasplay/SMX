@@ -5,7 +5,7 @@
  * @mixin Node-AttributeGetters
  */
 
-let AttributeGetters = {
+let NodeAttributeGetters = {
 
     /**
      * Gets the value for the given attribute name.
@@ -121,8 +121,8 @@ let AttributeGetters = {
 
 };
 
-//extend smx fn methods
-smx.fn = (!smx.fn) ? { AttributeGetters } : Object.assign(smx.fn, { AttributeGetters });
-
+//extends smx fn methods
+smx.fn = smx.fn || {};
+smx.fn = Object.assign(smx.fn, NodeAttributeGetters);
 
 })(window, window.Sizzle, window.smx);

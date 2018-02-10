@@ -1,11 +1,16 @@
 (function(global, _, smx){
 
 
-
-let methods = {
+/**
+ * Extends SMXNode with taxonomy methods
+ * @mixin Node-Taxonomy
+ */
+ 
+let NodeTaxonomyInterface = {
 
     /**
     * get collection of node's tags
+    * @memberof Node-Taxonomy
     * @return {Array.<String>}
     */
     tags: function(namespace){
@@ -31,6 +36,7 @@ let methods = {
 
     /**
     * get collection of categories
+    * @memberof Node-Taxonomy
     * @return {Array.<String>}
     */
     categories: function(namespace){
@@ -57,6 +63,7 @@ let methods = {
 
     /**
     * get collection of node's branches
+    * @memberof Node-Taxonomy
     * @return {Array.<String>}
     */
     branches: function(){
@@ -85,8 +92,9 @@ let methods = {
 
 
 
-//expose to global
-smx.fn = _.extend(smx.fn,{ TaxonomyAttrInterface: methods });
+//extends smx fn methods
+smx.fn = smx.fn || {};
+smx.fn = Object.assign(smx.fn, NodeTaxonomyInterface);
 
 
 

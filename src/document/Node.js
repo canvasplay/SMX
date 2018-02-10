@@ -242,9 +242,7 @@ class Node {
 //Object.defineProperty(Node.prototype, 'duration', { get: function() { return this.time('duration'); } });
 
 //extends Node prototype
-for (var key in smx.fn){
-    Object.assign(Node.prototype, smx.fn[key]);
-}
+Object.assign(Node.prototype, smx.fn);
 
 //expose
 smx.Node = Node;

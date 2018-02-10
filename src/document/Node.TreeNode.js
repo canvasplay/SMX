@@ -5,7 +5,7 @@
  * @mixin Node-TreeNode
  */
 
-let TreeNode = {
+let TreeNodeInterface = {
 
   // PARENT RELATED OPERATIONS
 
@@ -282,7 +282,8 @@ let TreeNode = {
 
 
 //extends smx fn methods
-smx.fn = (!smx.fn) ? { TreeNode } : Object.assign(smx.fn, { TreeNode });
+smx.fn = smx.fn || {};
+smx.fn = Object.assign(smx.fn, TreeNodeInterface);
 
 
 })(window, window._, window.Sizzle, window.smx);

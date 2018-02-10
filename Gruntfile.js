@@ -58,14 +58,17 @@ module.exports = function(grunt) {
                     'dist/plugins/prototype/PrototypeParser.js',
                     
                     //Metadata
-                    'dist/plugins/metadata/MetadataParser.js',
-                    'dist/plugins/metadata/MetadataInterface.js',
                     'dist/plugins/metadata/Sizzle.selectors.filters.meta.js',
+                    'dist/plugins/metadata/MetadataParser.js',
+                    'dist/plugins/metadata/Node.Metadata.js',
 
                     //Taxonomy
                     //'dist/taxonomy/TaxonomyParser.js',
-                    'dist/plugins/taxonomy/TaxonomyInterface.js',
+                    'dist/plugins/taxonomy/Node.Taxonomy.js',
 
+                    //UserInterface
+                    'dist/plugins/ui/smx.UIAttrController.js',
+                    'dist/plugins/ui/Node.Ui.js',
 
                     //Core
                     'dist/document/fn.js',
@@ -73,7 +76,6 @@ module.exports = function(grunt) {
                     'dist/document/Node.AttributeGetters.js',
                     'dist/document/Node.TreeNode.js',
                     
-                    'dist/document/smx.UIAttrController.js',
 
                     'dist/document/Node.js',
                     'dist/document/Document.js'

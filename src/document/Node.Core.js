@@ -5,7 +5,7 @@
  * @mixin Node-Core
  */
 
-let Core = {
+let NodeCoreMethods = {
 
     /**
      * Gets the index position in parent's children. If node has no parent,
@@ -126,7 +126,8 @@ let Core = {
 };
 
 //extends smx fn methods
-smx.fn = (!smx.fn) ? { Core } : Object.assign(smx.fn, { Core });
+smx.fn = smx.fn || {};
+smx.fn = Object.assign(smx.fn, NodeCoreMethods);
 
 
 

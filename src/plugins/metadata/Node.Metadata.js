@@ -1,6 +1,5 @@
 (function(global, smx){
 
-    if(!smx.fn) smx.fn = {};
     
 
     /**
@@ -8,7 +7,7 @@
      * @mixin Node-Metadata
      */
  
-    smx.fn.MetadataInterface = {
+    let NodeMetadataInterface = {
                     
         /**
          * Gets the metadata field value for the given associated to the node
@@ -66,6 +65,9 @@
     };
 
 
+//extends smx fn methods
+smx.fn = smx.fn || {};
+smx.fn = Object.assign(smx.fn, NodeMetadataInterface);
 
 
 })(window, window.smx);
