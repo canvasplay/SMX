@@ -26,6 +26,7 @@
     "grunt-contrib-concat": "^1.0.1",
     "grunt-contrib-uglify": "^2.0.0",
     "jsdoc": "^3.5.5",
+    "sizzle": "^2.3.3",
     "smx-jsdoc-template": "^1.0.0"
   }
 }

@@ -36,7 +36,7 @@ module.exports = function(grunt) {
             dist: {
                 src: [
 
-                    'dist/document/Sizzle.js',
+                    './node_modules/sizzle/dist/sizzle.js',
 
                     'dist/smx.js',
                     'dist/smx.load.js',
