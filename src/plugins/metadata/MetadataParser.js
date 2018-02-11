@@ -46,14 +46,6 @@ var parseXML = function(xml, opt){
     // nodes missing the flag attr are the nodes we need to parse
     var nodes;
     if(!options.nodes){
-      /*
-      var selector = [];
-      selector.push('*'); //get all nodes as starting point
-      selector.push(':not(prototype)'); //ignore prototype elements
-      selector.push(':not(metadata *)'); //ignore contents of metadata elements
-      selector.push(':not([metadata-processed])'); //ignore already processed nodes
-      selector.push(':not([type] *)'); //ignore contents of nodes having type attribute
-      */
       //using Sizzle.selectors.filters.meta.js
       var selector = ['metadata,:meta'];
       nodes = Sizzle(selector.join(''), XML);

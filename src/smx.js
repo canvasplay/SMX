@@ -39,6 +39,8 @@
   smx.fn = {};
   
 
+  smx.parsers = [];
+  
   /**
    * Namescape for custom attribute parsers.
    * Attribute parsers are used during XML transpilation to process original

@@ -2310,6 +2310,8 @@ if ( typeof define === "function" && define.amd ) {
    */
   smx.fn = {};
 
+  smx.parsers = [];
+
   /**
    * Namescape for custom attribute parsers.
    * Attribute parsers are used during XML transpilation to process original
@@ -2362,6 +2364,9 @@ if ( typeof define === "function" && define.amd ) {
 
 (function (global, Sizzle, smx, LOG) {
 
+	var DATA;
+	var PARSER_INDEX;
+
 	/**
   * Loads a new smx document.
   * @memberof smx
@@ -2379,6 +2384,9 @@ if ( typeof define === "function" && define.amd ) {
 		//for now just proceed assuming an url for an xml file
 		SUCCESS_CALLBACK = success;
 		ERROR_CALLBACK = error;
+
+		DATA = {};
+		PARSER_INDEX = 0;
 
 		if (typeof data === 'string') LOAD_SMX_DOCUMENT(data);else LOAD_SMX_DOCUMENT_FROM_JSON(data);
 	};
@@ -2398,60 +2406,30 @@ if ( typeof define === "function" && define.amd ) {
 	var ERROR_CALLBACK = function ERROR_CALLBACK(e) {};
 
 	var LOAD_SMX_DOCUMENT = function LOAD_SMX_DOCUMENT(url) {
-
-		//Instance a new SMX Loader
 		var loader = new smx.Loader();
-
-		//loader.on('complete', LOAD_SMX_COMPLETE);
-		loader.on('complete', PARSE_METADATA);
+		loader.on('complete', APPLY_PARSERS);
 		loader.on('error', LOAD_SMX_ERROR);
-
 		loader.loadDocument(url);
-
-		return;
 	};
 
 	var LOAD_SMX_DOCUMENT_FROM_JSON = function LOAD_SMX_DOCUMENT_FROM_JSON(data) {
-
 		var x2js = new X2JS();
-
-		var XML = x2js.json2xml(data);
-
-		//XML = XML.removeChild(XML.lastChild);
-
-		PARSE_METADATA(XML);
+		var xmlDocument = x2js.json2xml(data);
+		APPLY_PARSERS(xmlDocument);
 	};
 
-	var PARSE_METADATA = function PARSE_METADATA(xml) {
-
-		smx.meta.parseXML(xml, {
-
-			callback: function callback(XML, data) {
-
-				global.$meta = data;
-
-				PARSE_PROTOTYPES(XML);
-			}
-
-		});
-
-		return;
-	};
-
-	var PARSE_PROTOTYPES = function PARSE_PROTOTYPES(xml) {
-
-		smx.proto.parseXML(xml, {
-
-			propagate: true,
-
-			callback: function callback(XML, data) {
-
-				//console.log(data);
-
-				CLEAN_TEXT_NODES(XML);
-			}
-
-		});
+	var APPLY_PARSERS = function APPLY_PARSERS(xmlDocument) {
+		var xml = xmlDocument;
+		var parser = smx.parsers[PARSER_INDEX];
+		if (parser) {
+			parser(xml, function (data) {
+				if (data) Object.assign(DATA, data);
+				PARSER_INDEX = PARSER_INDEX + 1;
+				APPLY_PARSERS(xml);
+			});
+		} else {
+			CLEAN_TEXT_NODES(xml);
+		}
 	};
 
 	var CLEAN_TEXT_NODES = function CLEAN_TEXT_NODES(xml) {
@@ -2501,19 +2479,26 @@ if ( typeof define === "function" && define.amd ) {
 
 		LOG('CLEANING XML: ' + count + ' nodes removed');
 
-		LOAD_SMX_COMPLETE(xml);
+		CREATE_SMX_DOCUMENT(xml);
 	};
 
-	var LOAD_SMX_COMPLETE = function LOAD_SMX_COMPLETE(xml) {
+	var CREATE_SMX_DOCUMENT = function CREATE_SMX_DOCUMENT(xml) {
 
 		LOG('smx load complete!');
 
 		var d = new smx.Document(xml);
 
+		Object.assign(d, DATA);
+
 		smx.documents.push(d);
 
 		//set it as active document if its empty
 		if (!smx.document) smx.document = d;
+
+		SUCCESS_CALLBACK(d);
+	};
+
+	var LOAD_SMX_COMPLETE = function LOAD_SMX_COMPLETE(smxDocument) {
 
 		SUCCESS_CALLBACK(d);
 
@@ -3525,6 +3510,1641 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
   smx.Finder = Finder;
 })(window, window._, window.smx);
 //# sourceMappingURL=SMXFinder.js.map
+;'use strict';
+
+/**
+ * SMX Taxonomy Parser
+ * @module TaxonomyParser
+ */
+
+/*
+
+CONCEPT...
+
+CATEGORIES
+Categories are meant for broad grouping of nodes.
+Think of these as general topics or the table of contents
+Categories are hierarchical, so you can sub-categories.
+
+TAGS
+Tags are meant to describe specific nodes' details.
+Think of these as your document’s index words.
+They are the micro-data to micro-categorize nodes.
+Tags are not hierarchical.
+
+*/
+
+(function (global, smx, Sizzle, LOG) {
+
+    TaxonomyParser = {};
+
+    TaxonomyParser.parseXML = function (xmlDocument, opt) {
+
+        //xmlDocument required!
+        if (!xmlDocument) return;
+
+        //normalize options
+        var options = _.extend({
+            data: {},
+            callback: function callback() {
+                return;
+            },
+            total: 0,
+            nodes: null
+        }, opt);
+
+        // get all unparsed nodes based on flag attr
+        // `taxonomy-processed` attribute is added while parsing process
+        // nodes missing the flag attr are the nodes we need to parse
+        var nodes;
+        if (!options.nodes) nodes = Sizzle('[categories]:not([taxonomy-processed])', xmlDocument);else nodes = options.nodes;
+
+        //calculate percent progress
+        if (nodes.length > options.total) options.total = nodes.length;
+        var percent = 100 - parseInt(nodes.length * 100 / options.total);
+
+        LOG('PARSING... (' + (options.total - nodes.length) + '/' + options.total + ') ' + percent + '%');
+
+        var max_iterations = 100;
+        var i = 0;
+
+        while (nodes.length && i < max_iterations) {
+
+            var node = nodes.shift();
+
+            var result = this.parseXMLNode(node);
+
+            if (result) {
+
+                //create node data object if does not exists yet
+                if (!options.data[result.id]) options.data[result.id] = {};
+
+                //extend parent data object
+                if (!_.isEmpty(result.data)) _.extend(options.data[result.id], result.data);
+            }
+
+            i++;
+        }
+
+        //more nodes to parse?
+        if (nodes.length) {
+
+            _.delay(_.bind(function () {
+                this.parseXML(xmlDocument, {
+                    data: options.data,
+                    callback: options.callback,
+                    total: options.total,
+                    nodes: nodes
+                });
+            }, this), 0);
+        }
+        //complete! no more nodes to parse
+        else {
+
+                LOG('COMPLETE! (' + options.total + '/' + options.total + ') 100%');
+
+                try {
+                    options.callback(xmlDocument, options.data);
+                } catch (e) {
+
+                    LOG('CALLBACK ERROR! ' + e.toString());
+                }
+            }
+
+        return;
+    };
+
+    TaxonomyParser.parseXMLNode = function (node) {
+
+        if (!node) return;
+
+        //instance returning data object
+        var data = {};
+
+        //node id which to attach data parsed
+        var id = node.getAttribute('id');
+
+        //get taxonomy related data
+        var categories = node.getAttribute('categories');
+        var tags = node.getAttribute('tags');
+
+        if (categories) data.categories = categories;
+        if (tags) data.tags = tags;
+
+        //add "taxonomy-processed" flag attr
+        node.setAttribute('taxonomy-processed', 'true');
+
+        return {
+            'id': id,
+            'data': data
+        };
+    };
+
+    //expose into global smx namespace
+    smx.taxonomy = TaxonomyParser;
+})(window, window.smx, window.Sizzle, window.log);
+//# sourceMappingURL=TaxonomyParser.js.map
+;'use strict';
+
+(function (global, _, smx) {
+
+    /**
+     * Extends SMXNode with taxonomy methods
+     * @mixin Node-Taxonomy
+     */
+
+    var NodeTaxonomyInterface = {
+
+        /**
+        * get collection of node's tags
+        * @memberof Node-Taxonomy
+        * @return {Array.<String>}
+        */
+        tags: function tags(namespace) {
+
+            //default result is an empty array
+            var results = [];
+
+            //get comma separetd array from tags attribute
+            var values = this.dsv('tags', ',');
+
+            //namespace filter
+            if (_.isString(namespace) && namespace.length > 1) {
+                var ns = namespace;
+                results = _.filter(results, function (r) {
+                    return (r + '').indexOf(ns + '-') === 0;
+                });
+            }
+
+            return results;
+        },
+
+        /**
+        * get collection of categories
+        * @memberof Node-Taxonomy
+        * @return {Array.<String>}
+        */
+        categories: function categories(namespace) {
+
+            //default result is an empty array
+            var results = [];
+
+            //get comma separetd array from tags attribute
+            var values = this.dsv('categories', ',');
+
+            //namespace filter
+            if (_.isString(namespace) && namespace.length > 1) {
+                var ns = namespace;
+                results = _.filter(results, function (r) {
+                    return (r + '').indexOf(ns + '-') === 0;
+                });
+            }
+
+            return results;
+        },
+
+        /**
+        * get collection of node's branches
+        * @memberof Node-Taxonomy
+        * @return {Array.<String>}
+        */
+        branches: function branches() {
+
+            //default result is an empty array
+            var results = [];
+
+            //get comma separetd array from tags attribute
+            var ids = this.dsv('branches', ',');
+
+            //get parent document
+            var doc = this.root();
+
+            //maps ids into nodes
+            results = _.map(values, doc.gid);
+
+            //remove not found ids from results
+            results = _.compact(results);
+
+            return results;
+        }
+
+    };
+
+    //extends smx fn methods
+    smx.fn = smx.fn || {};
+    smx.fn = Object.assign(smx.fn, NodeTaxonomyInterface);
+})(window, window._, window.smx);
+//# sourceMappingURL=Node.Taxonomy.js.map
+;'use strict';
+
+/**
+ * Extends SMXNode with UserInterface methods
+ * @mixin Node-Ui
+ */
+
+(function (smx) {
+
+          var UiAttrController = {
+
+                    'MEDIA_TYPES': ['screen', 'print', 'tv'],
+
+                    'get': function get(node, key, media_type) {
+
+                              //resolve 'media' value
+                              media_type = this.normalizeMediaType(media_type);
+
+                              //get 'ui-type-key' attr
+                              var asset = node.attr('ui-' + media_type + '-' + key);
+
+                              //no typed key? use generic 'ui-key'
+                              if (_.isEmpty(asset)) asset = node.attr('ui-' + key);
+
+                              //resolve asset url
+                              if (!_.isEmpty(asset)) return this.resolveURL(node, asset);
+
+                              return;
+                    },
+
+                    'normalizeMediaType': function normalizeMediaType(type) {
+
+                              if (_.isEmpty(type)) return this.MEDIA_TYPES[0];
+
+                              if (_.includes(this.MEDIA_TYPES, type)) return type;else return this.MEDIA_TYPES[0];
+                    },
+
+                    'resolveURL': function resolveURL(node, asset) {
+
+                              //starts with '$/' means package root
+                              if (asset.substr(0, 2) == '$/') asset = node.root().get('url') + asset.substr(2);
+                              //starts with './' means app root
+                              else if (asset.substr(0, 2) == './') asset = asset.substr(2);
+                                        //else is relative to node
+                                        else asset = node.get('url') + asset;
+
+                              return asset;
+                    }
+
+          };
+
+          var NodeUiInterface = {
+
+                    /**
+                     * Gets an user interface asset by key and type
+                     * @memberof Node/UI
+                     * @param {String}
+                     * @param {String=}
+                     */
+                    ui: function ui(key, type) {
+
+                              return UiAttrController.get(this, key, type);
+                    }
+
+          };
+
+          //extends smx fn methods
+          smx.fn = smx.fn || {};
+          smx.fn = Object.assign(smx.fn, NodeUiInterface);
+})(window.smx);
+//# sourceMappingURL=Node.Ui.js.map
+;'use strict';
+
+(function (global, _, Sizzle, smx) {
+
+    /**
+     * Extends SMXNode with core methods
+     * @mixin Node-Core
+     */
+
+    var NodeCoreMethods = {
+
+        /**
+         * Gets the index position in parent's children. If node has no parent,
+         * will return 0. When using the optional parameter `selector`, the
+         * resultant index is calculated based only in the sibling nodes matching
+         * the given selector, if node does not match the selector itself will
+         * return -1.
+         *
+         * @memberof Node-Core
+         * @param {String=} selector - filter selector
+         * @return {Integer}
+         */
+        getIndex: function getIndex(selector) {
+
+            //0 by default
+            var index = 0;
+
+            //no parent? its kind of root so it has no sibling nodes
+            if (!this.parent) return index;
+
+            //get sibling nodes
+            var siblings = this.parent.children;
+
+            //filter siblings collection with a css selector if its defined
+            if (selector) siblings = siblings.filter(function (s) {
+                return Sizzle.matchesSelector(s[0], selector);
+            });
+
+            //get position in siblings collection
+            index = siblings.indexOf(this);
+
+            return index;
+        },
+
+        /**
+         * Gets the text content.
+         *
+         * @memberof Node-Core
+         * @return {String}
+         */
+        getText: function getText() {
+
+            return this[0].text || this[0].textContent || '';
+        },
+
+        /**
+         * Gets the html content.
+         *
+         * @memberof Node-Core
+         * @return {String}
+         */
+        getHTML: function getHTML() {
+
+            //get raw children XMLNodes
+            var children = this[0].childNodes;
+
+            //defaults to empty string
+            var str = '';
+
+            for (var i = 0, len = children.length; i < len; i++) {
+                str += children[i].xml || new XMLSerializer().serializeToString(children[i]);
+            }return str;
+        },
+
+        /**
+         * Gets the inner data content formatted according to node type.
+         *
+         * @memberof Node-Core
+         * @return {String}
+         */
+        getData: function getData() {
+
+            //get raw text data
+            var data = this.getText();
+
+            //get data type
+            var type = this.type;
+            switch (this.type) {
+                case 'json':
+                    try {
+                        data = JSON.parse(data);
+                    } catch (e) {}
+                    break;
+                default:
+                    break;
+            }
+
+            return data;
+        },
+
+        /**
+         * Gets the string representation.
+         *
+         * @memberof Node-Core
+         * @return {String}
+         */
+        toString: function toString() {
+
+            return ('<' + this.name + ' id="' + this.id + '">').trim();
+        },
+
+        /**
+         * Gets the JSON representation. NOT IMPLEMENTED
+         * @method toJSON
+         * @memberof Node-Core
+         * @return {Object}
+         */
+        toJSON: function toJSON() {
+            return {}; //not implemented...
+        }
+
+    };
+
+    //extends smx fn methods
+    smx.fn = smx.fn || {};
+    smx.fn = Object.assign(smx.fn, NodeCoreMethods);
+})(window, window._, window.Sizzle, window.smx);
+//# sourceMappingURL=Node.Core.js.map
+;'use strict';
+
+(function (global, Sizzle, smx) {
+
+    /**
+     * Extends SMXNode with utility attribute getters
+     * @mixin Node-AttributeGetters
+     */
+
+    var NodeAttributeGetters = {
+
+        /**
+         * Gets the value for the given attribute name.
+         *
+         * @memberof Node-AttributeGetters
+         * @param {String} name - attribute name
+         * @return {String} value
+         * @example
+         * <movie tags="sci-fi, horror, adventures" />
+         * @example
+         * $movie.attr('tags')
+         * // => "sci-fi, horror, adventures"
+         */
+        attr: function attr(name) {
+
+            return this[0].getAttribute ? this[0].getAttribute(name) : undefined;
+        },
+
+        /**
+         * This method is like `attr` but will use an attribute parser if there is
+         * one predefined for the given attribute name.
+         *
+         * @memberof Node-AttributeGetters
+         * @param {String} name - attribute name
+         * @param {Object=} opt - options to pass into attribute parser
+         * @return {String} value
+         */
+        get: function get(name, opt) {
+
+            if (!this[0].getAttribute) return undefined;
+
+            //get an existing attribute parser for the given name
+            var parser = smx.AttributeParsers[name];
+
+            //no parser? return the raw attribute
+            if (!parser) return this.attr(name);
+
+            //else use the parser with the given options
+            else return parser(name, opt);
+        },
+
+        /**
+         * Checks if node has or not an attribute with the given name
+         * @method has
+         * @memberof Node-AttributeGetters
+         * @param {String} name - attribute name
+         * @return {Boolean}
+         */
+        has: function has(name) {
+            if (!this[0].getAttribute) return false;
+            //return this[0].hasAttribute(name);
+            //IE8 does not support XMLNode.hasAttribute, so...
+            return this[0].getAttribute(name) !== null;
+        },
+
+        /**
+         * Gets Delimiter Separated Value
+         * An utility method converts given attribute value into dsv array
+         * @method dsv
+         * @memberof Node-AttributeGetters
+         * @param name {String} the name of the attribute
+         * @param delimiter {String=} delimiter string
+         * @return {Array.<String>}
+         * @example
+         * <movie tags="sci-fi, horror, adventures">
+         * @example
+         * $movie.dsv('tags',',')
+         * // => ["sci-fi", "horror", "adventures"]
+         */
+        dsv: function dsv(name, delimiter) {
+
+            //ignore undefined attributes
+            if (!this.has(name)) return;
+
+            //get attr's value by name
+            var value = this.attr(name);
+
+            //resolve delimiter, defaults to space
+            var d = delimiter || ' ';
+
+            //if attribute exists value must be String
+            if (typeof value != 'string') return [];
+
+            //split value by delimiter
+            var list = value.split(delimiter);
+
+            //trim spaces nicely handling multiple spaced values
+            list = list.map(function (str) {
+
+                //convert multiple spaces, tabs, newlines, etc, to single spaces
+                str = str.replace(/^\s+/, '');
+
+                //trim leading and trailing whitespaces
+                str = str.replace(/(^\s+|\s+$)/g, '');
+
+                return str;
+            });
+
+            //remove empty like values
+            list = list.filter(function (str) {
+                return value !== '' && value !== ' ';
+            });
+
+            return list;
+        }
+
+    };
+
+    //extends smx fn methods
+    smx.fn = smx.fn || {};
+    smx.fn = Object.assign(smx.fn, NodeAttributeGetters);
+})(window, window.Sizzle, window.smx);
+//# sourceMappingURL=Node.AttributeGetters.js.map
+;"use strict";
+
+(function (global, _, Sizzle, smx) {
+
+  /**
+   * Extends SMXNode with utility tree node methods
+   * @mixin Node-TreeNode
+   */
+
+  var TreeNodeInterface = {
+
+    // PARENT RELATED OPERATIONS
+
+    /**
+     * Gets a list of parent nodes up to root, ordered from outer to inner.
+     * @memberof Node-TreeNode
+     * @return {SMXNode[]}
+     */
+    getAncestors: function getAncestors(selector) {
+
+      if (!selector) return this.ancestors;
+      return this.ancestors.filter(function (n) {
+        return n.isMatch(selector);
+      });
+    },
+
+    // EXTRA - PARENT RELATED OPERATIONS
+
+    /**
+     * Checks if node is an ancestor of another.
+     * @memberof Node-TreeNode
+     * @param {SMXNode} node - reference node
+     * @return {Boolean}
+     */
+    isAncestorOf: function isAncestorOf(node) {
+
+      if (!node.parent) return false;
+      var ancestorsId = node.ancestors.map(function (n) {
+        return n.id;
+      });
+      if (ancestorsId.indexOf(this.id) > -1) return true;else return false;
+    },
+
+    /**
+     * Checks if node matches the given selector.
+     * @memberof Node-TreeNode
+     * @param {String} selector - css selector to match
+     * @return {Boolean}
+     */
+    isMatch: function isMatch(selector) {
+
+      return Sizzle.matchesSelector(this[0], selector);
+    },
+
+    // CHILD RELATED OPERATIONS
+
+    /**
+     * Finds all descendant nodes matching the given selector.
+     * @memberof Node-TreeNode
+     * @param {String} selector - search selector
+     * @return {Array.<Node>}
+     */
+    find: function find(selector) {
+
+      if (!selector) return [];
+      if (!this.children.length) return [];
+
+      return this.document.find(selector, this);
+    },
+
+    /**
+     * This method is like `find` but returns only the first result.
+     * @memberof Node-TreeNode
+     * @param {String} selector - search selector
+     * @return {SMXNode}
+     */
+    one: function one(selector) {
+
+      return this.find(selector)[0];
+    },
+
+    /**
+     * Gets the children nodes matching the given selector.
+     * @memberof Node-TreeNode
+     * @param {String=} selector
+     * @return {Array.<Node>}
+     */
+    getChildren: function getChildren(selector) {
+
+      if (!selector) return this.children;
+
+      return this.children.filter(function (n) {
+        return n.isMatch(selector);
+      });
+    },
+
+    /**
+     * Gets the first child node matching the given selector.
+     * @memberof Node-TreeNode
+     * @param {String=} selector
+     * @return {SMXNode}
+     */
+    getFirst: function getFirst(selector) {
+
+      if (!selector) return this.first;
+
+      var children = this.children;
+      var i = 0,
+          len = children.length,
+          result;
+      while (i < len && !result) {
+        if (children[i].isMatch(selector)) result = children[i];
+        i++;
+      }
+
+      return result;
+    },
+
+    /**
+     * Gets the last child node matching the given selector.
+     * @memberof Node-TreeNode
+     * @param {String=} selector
+     * @return {SMXNode}
+     */
+    getLast: function getLast(selector) {
+
+      if (!selector) return this.last;
+
+      var children = this.children.reverse();
+      var i = 0,
+          len = children.length,
+          result;
+      while (i < len && !result) {
+        if (children[i].isMatch(selector)) result = children[i];
+        i++;
+      }
+
+      return result;
+    },
+
+    // EXTRA - CHILD RELATED OPERATIONS
+
+    /**
+     * Gets child node at given index
+     * @memberof Node-TreeNode
+     * @param {Integer} index - index position
+     * @return {SMXNode}
+     */
+    getChildAt: function getChildAt(index) {
+
+      return this.children[index];
+    },
+
+    /**
+     * Checks if a node is child of another
+     * @memberof Node-TreeNode
+     * @param {SMXNode} node - reference node
+     * @return {Boolean}
+     */
+    isDescendantOf: function isDescendantOf(node) {
+
+      if (!node.parent) return false;
+      var ancestorsId = this.ancestors.map(function (n) {
+        return n.id;
+      });
+      if (ancestorsId.indexOf(node.id) > -1) return true;else return false;
+    },
+
+    // SIBLING RELATED OPERATIONS
+
+
+    /**
+     * Gets the next sibling node matching the given selector.
+     * @memberof Node-TreeNode
+     * @param {String=} selector - filter selector
+     * @return {SMXNode}
+     */
+    getNext: function getNext(selector) {
+
+      if (!selector) return this.next;else {
+        var n = this.next;
+        var isMatch = false;
+        while (!isMatch && n) {
+          if (n.isMatch(selector)) isMatch = true;else n = n.next;
+        }
+        return isMatch ? n : undefined;
+      }
+    },
+
+    /**
+     * Gets all next sibling nodes matching the given selector.
+     * @memberof Node-TreeNode
+     * @param {String=} selector - filter selector
+     * @return {SMXNode[]}
+     */
+    getAllNext: function getAllNext(selector) {
+
+      if (!this.next) return [];else {
+        //fill up nodes array walking all next nodes
+        var n = this.next;
+        var nodes = [n];
+        while (n && n.next) {
+          n = n.next;
+          nodes.push(n);
+        }
+        if (!selector) return nodes;else //return filtered by selector
+          return nodes.filter(function (n) {
+            return n.isMatch(selector);
+          });
+      }
+    },
+
+    /**
+     * Gets the previous sibling node matching the given selector.
+     * @memberof Node-TreeNode
+     * @param {String=} selector - filter selector
+     * @return {SMXNode}
+     */
+    getPrevious: function getPrevious(selector) {
+
+      if (!selector) return this.previous;else {
+        var n = this.previous;
+        var isMatch = false;
+        while (!isMatch && n) {
+          if (n.isMatch(selector)) isMatch = true;else n = n.previous;
+        }
+        return isMatch ? n : undefined;
+      }
+    },
+
+    /**
+     * Gets all previous sibling nodes matching the given selector.
+     * @memberof Node-TreeNode
+     * @param {String=} selector - filter selector
+     * @return {SMXNode[]}
+     */
+    getAllPrevious: function getAllPrevious(selector) {
+
+      if (!this.previous) return [];else {
+        //fill up nodes array walking all previous nodes
+        var n = this.previous;
+        var nodes = [n];
+        while (n && n.previous) {
+          n = n.previous;
+          nodes.unshift(n);
+        }
+        if (!selector) return nodes;else //return filtered by selector
+          return nodes.filter(function (n) {
+            return n.isMatch(selector);
+          });
+      }
+    }
+
+  };
+
+  //extends smx fn methods
+  smx.fn = smx.fn || {};
+  smx.fn = Object.assign(smx.fn, TreeNodeInterface);
+})(window, window._, window.Sizzle, window.smx);
+//# sourceMappingURL=Node.TreeNode.js.map
+;'use strict';
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+(function (global, smx) {
+
+  /**
+   * SMX Node Class
+   * @memberof smx
+   * @mixes smx.fn.Core
+   * @mixes smx.fn.TreeNode
+   */
+  var Node = function () {
+
+    /**
+     * @param {XMLNode} xmlNode
+     */
+    function Node(xmlNode) {
+      _classCallCheck(this, Node);
+
+      //require nodeType === 1 --> Node.ELEMENT_NODE
+      if (xmlNode.nodeType !== 1) throw new Error('Node constructor requires ELEMENT_NODE');
+
+      /**
+       * Original XMLNode for reference
+       * @type {XMLNode}
+       * @protected
+       */
+      this[0] = xmlNode;
+    }
+
+    /**
+     * Direct access to XMLNode.id
+     * @type {String}
+     * @readonly
+     */
+
+
+    _createClass(Node, [{
+      key: 'id',
+      get: function get() {
+        return this[0].id;
+      }
+
+      /**
+       * Direct access to XMLNode name
+       * @type {String}
+       * @readonly
+       */
+
+    }, {
+      key: 'name',
+      get: function get() {
+        return this[0].nodeName;
+      }
+
+      /**
+       * Gets node name based on inner XMLNode.nodeName,
+       * default is `smx`, posible values are `txt`, `md`, `html`, ...
+       * @type {String}
+       * @readonly
+       */
+
+    }, {
+      key: 'type',
+      get: function get() {
+        if (this[0].getAttribute) return this[0].getAttribute('type') || 'smx';else return 'smx';
+      }
+
+      /**
+       * Gets node className based on inner XMLNode class attribute
+       * @type {String}
+       * @readonly
+       */
+
+    }, {
+      key: 'className',
+      get: function get() {
+        if (this[0].getAttribute) return this[0].getAttribute('class');else return '';
+      }
+
+      /**
+       * Gets the owner SMXDoxument
+       * @type {SMXDocument}
+       * @readonly
+       */
+
+    }, {
+      key: 'document',
+      get: function get() {
+        return this._document;
+      }
+
+      /**
+       * Gets browser url hash
+       * @type {String}
+       * @readonly
+       */
+
+    }, {
+      key: 'hash',
+      get: function get() {
+        return '#!/' + this.uri;
+      }
+
+      /**
+       * Gets Uniform Resource Identifier.
+       * Concatenation of id values from parent nodes up to document root
+       * @type {String}
+       * @readonly
+       */
+
+    }, {
+      key: 'uri',
+      get: function get() {
+        var hash = this.id + '/';
+        if (this.parent) return this.parent.uri + hash;else return hash;
+      }
+
+      /**
+       * Gets Uniform Resource Locator
+       * Concatenation of path values from parent nodes up to document root
+       * @type {String}
+       * @readonly
+       */
+
+    }, {
+      key: 'url',
+      get: function get() {
+
+        var path = this[0].getAttribute('path');
+        var result;
+        if (this.parent) {
+          if (!path) result = this.parent.url;else {
+            //add trail slash
+            var trail = path.substr(-1);
+            if (trail != '/') path += '/';
+            result = this.parent.url + path;
+          }
+        } else {
+          if (path) {
+            //add trail slash
+            var _trail = path.substr(-1);
+            if (_trail != '/') path += '/';
+            result = path;
+          }
+        }
+        if (result) result = result.replace(/\/\/+/g, '/');
+        return result;
+      }
+
+      /**
+       * Gets source file url for this node
+       * @type {String}
+       * @readonly
+       */
+
+    }, {
+      key: 'src',
+      get: function get() {
+
+        var result = '';
+        var file = this[0].getAttribute('file');
+
+        if (!file) result = this.parent ? this.parent.src : undefined;else result = this.url + file;
+
+        if (result) result = result.replace(/\/\/+/g, '/');
+
+        return result;
+      }
+
+      /**
+       * Gets parent node
+       * @type {SMXNode}
+       * @readonly
+       */
+
+    }, {
+      key: 'parent',
+      get: function get() {
+        return this.document.wrap(this[0].parentNode);
+      }
+
+      /**
+       * Gets ancestors nodes
+       * @type {SMXNode[]}
+       * @readonly
+       */
+
+    }, {
+      key: 'ancestors',
+      get: function get() {
+        var a = [];
+        var p = this;
+        while (p.parent) {
+          p = p.parent;
+          a.push(p);
+        }
+        return a;
+      }
+
+      /**
+       * Gets root node
+       * @type {SMXNode}
+       * @readonly
+       */
+
+    }, {
+      key: 'root',
+      get: function get() {
+        return this.ancestors[0] || this;
+      }
+
+      /**
+       * Gets children nodes
+       * @type {SMXNode[]}
+       * @readonly
+       */
+
+    }, {
+      key: 'children',
+      get: function get() {
+        //non smx nodes should have no children
+        if (this.type !== 'smx') return [];else return this.document.wrap(this[0].childNodes);
+      }
+
+      /**
+       * Gets first child node
+       * @type {SMXNode}
+       * @readonly
+       */
+
+    }, {
+      key: 'first',
+      get: function get() {
+        return this.children.shift();
+      }
+
+      /**
+       * Gets last child node
+       * @type {SMXNode}
+       * @readonly
+       */
+
+    }, {
+      key: 'last',
+      get: function get() {
+        return this.children.pop();
+      }
+
+      /**
+       * Gets previous sibling node
+       * @type {SMXNode}
+       * @readonly
+       */
+
+    }, {
+      key: 'previous',
+      get: function get() {
+        return this.document.wrap(this[0].previousElementSibling || this[0].previousSibling);
+      }
+
+      /**
+       * Gets next sibling node
+       * @type {SMXNode}
+       * @readonly
+       */
+
+    }, {
+      key: 'next',
+      get: function get() {
+        return this.document.wrap(this[0].nextElementSibling || this[0].nextSibling);
+      }
+    }]);
+
+    return Node;
+  }();
+
+  //inline property getter definition
+  //Object.defineProperty(Node.prototype, 'duration', { get: function() { return this.time('duration'); } });
+
+  //extends Node prototype
+
+
+  Object.assign(Node.prototype, smx.fn);
+
+  //expose
+  smx.Node = Node;
+})(window, window.smx);
+//# sourceMappingURL=Node.js.map
+;'use strict';
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+(function (global, smx, Sizzle) {
+
+  /**
+   * SMX Document Class
+   * @memberof smx
+   */
+  var Document = function () {
+
+    /**
+     * @param {XMLDocument}
+     */
+    function Document(xmlDocument) {
+      _classCallCheck(this, Document);
+
+      //requires DOCUMENT_NODE
+      if (xmlDocument.nodeType !== 9) throw new Error('Document constructor requires DOCUMENT_NODE');
+
+      /**
+       * Original XMLDocument for reference
+       * @type {XMLDocument}
+       * @protected
+       */
+      this[0] = xmlDocument;
+
+      /**
+       * Contains an id &rarr; key map of all processed nodes for easy acccess.
+       * @type {Object}
+       * @private
+       */
+      this._cache = {};
+    }
+
+    /**
+     * Gets Uniform Resource Locator
+     * Concatenation of path values from parent nodes up to document root
+     * @type {String}
+     * @readonly
+     */
+
+
+    _createClass(Document, [{
+      key: 'getNodeById',
+
+
+      /**
+       * Gets the node with the given identifier.
+       * @param {String} id
+       * @return {SMXNode}
+       */
+      value: function getNodeById(id) {
+
+        //cached id?
+        if (this._cache[id]) return this._cache[id];
+
+        //search in document
+        var xmlNode = this[0].getElementById(id);
+
+        //not found
+        return this.wrap(xmlNode);
+      }
+
+      //gid(id){ return this.getNodeById(id) }
+
+      /**
+       * Finds all nodes matching the given selector.
+       * @param {String} selector - search selector
+       * @param {SMXNode=} context - node context to find inside
+       * @return {Array.<SMXNode>}
+       */
+
+    }, {
+      key: 'find',
+      value: function find(selector, ctxNode) {
+
+        if (!selector) return [];
+        var nodes = Sizzle(selector, (ctxNode || this)[0]);
+        return this.wrap(nodes);
+      }
+
+      /**
+       * Wraps an existing node or nodes in smx paradigm.
+       * @param {XMLNode|XMLNode[]}
+       * @return {SMXNode|SMXNode[]}
+       */
+
+    }, {
+      key: 'wrap',
+      value: function wrap(s) {
+
+        if (!s) return;
+
+        var _this = this;
+        var _wrapNode = function _wrapNode(xmlNode) {
+
+          var id;
+
+          try {
+            id = xmlNode.getAttribute('id');
+          } catch (e) {}
+
+          //id attr is required!
+          if (!id) return;
+
+          //ensure using the active document
+          if (xmlNode.ownerDocument !== _this[0]) return;
+
+          //Does already exists a node with this id?
+          //prevent duplicated nodes and return existing one
+          if (_this._cache[id]) return _this._cache[id];
+
+          //create new Node from given XMLNode
+          var node = new smx.Node(xmlNode);
+
+          //reference node owner document
+          node._document = _this;
+
+          //adds wrapped node in cache
+          _this._cache[id] = node;
+
+          //return wrapped node
+          return node;
+        };
+
+        var isArray = s.constructor.name === 'Array';
+        var isNodeList = s.constructor.name === 'NodeList';
+        if (isArray || isNodeList) {
+          //NodeList does not allow .map
+          //force array so we can do the mapping
+          //s = Array.prototype.slice.call(s);
+          return [].map.call(s, function (n) {
+            return n[0] ? n : _wrapNode(n);
+          });
+        } else {
+          return s[0] ? s : _wrapNode(s);
+        }
+      }
+    }, {
+      key: 'path',
+      get: function get() {
+        var path = this[0].URL.split('/');
+        path.pop();return path.join('/');
+      }
+
+      /**
+       * Gets the source file url for this document.
+       * @type {String}
+       * @readonly
+       */
+
+    }, {
+      key: 'src',
+      get: function get() {
+        return this[0].URL;
+      }
+
+      /**
+       * Gets the root node.
+       * @type {SMXNode}
+       * @readonly
+       */
+
+    }, {
+      key: 'root',
+      get: function get() {
+        return this.wrap(this[0].lastChild);
+      }
+    }]);
+
+    return Document;
+  }();
+
+  //expose
+
+
+  smx.Document = Document;
+})(window, window.smx, window.Sizzle);
+//# sourceMappingURL=Document.js.map
+;'use strict';
+
+Sizzle.selectors.filters.meta = function (elem, i, match) {
+    var preffix = 'meta-';
+    var regex = new RegExp('\\s*' + preffix + '\\w*="', 'ig');
+    var attrs = elem.attributes;
+    var str = [];
+    str.push('<' + elem.nodeName);
+    for (var i = 0; i < attrs.length; i++) {
+        str.push(attrs[i].nodeName + '="' + attrs[i].nodeValue + '"');
+    }
+    str.push('>');
+    str = str.join(' ');
+
+    return regex.test(str);
+};
+//# sourceMappingURL=Sizzle.selectors.filters.meta.js.map
+;'use strict';
+
+/**
+ * SMX Metadata Parser
+ * @module MetadataParser
+ */
+
+(function (global, Sizzle, smx, LOG) {
+
+    //local helper
+    var escapeHtml = function escapeHtml(html) {
+        var map = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;'
+        };
+        return html.replace(/[&<>"']/g, function (m) {
+            return map[m];
+        });
+    };
+
+    /**
+     * @memberof MetadataParser
+     * @param {XMLDocument} xml
+     * @param {Object} options
+     * @static
+     */
+    var parseXML = function parseXML(xml, opt) {
+
+        var XML = xml;
+
+        //validate XML
+        if (!XML) return;
+
+        //normalize options
+        var options = _.extend({
+            data: {},
+            callback: function callback() {
+                return;
+            },
+            total: 0,
+            nodes: null,
+            max_iterations: 25
+        }, opt);
+
+        // get all unparsed nodes based on flag attr
+        // `metadata-processed` attribute is added while parsing process
+        // nodes missing the flag attr are the nodes we need to parse
+        var nodes;
+        if (!options.nodes) {
+            //using Sizzle.selectors.filters.meta.js
+            var selector = ['metadata,:meta'];
+            nodes = Sizzle(selector.join(''), XML);
+            //include root node itself to the list
+            //nodes.unshift(XML);
+        } else nodes = options.nodes;
+
+        //calculate percent progress
+        if (nodes.length > options.total) options.total = nodes.length;
+        var percent = Math.floor(100 - nodes.length * 100 / options.total);
+
+        LOG('METADATA PARSING... (' + (options.total - nodes.length) + '/' + options.total + ') ' + percent + '%');
+
+        var i = 0;
+
+        while (nodes.length && i < options.max_iterations) {
+
+            var node = nodes.shift();
+
+            var result;
+
+            if (node.nodeType == 1) {
+
+                result = node.nodeName == 'metadata' ? parseMetadataNode(node) : parseMetaAttributes(node);
+
+                if (result) {
+
+                    //create node data object if does not exists yet
+                    if (!options.data[result.id]) options.data[result.id] = {};
+
+                    //extend parent data object
+                    if (!_.isEmpty(result.data)) _.extend(options.data[result.id], result.data);
+                }
+            }
+
+            i++;
+        }
+
+        //more nodes to parse?
+        if (nodes.length) {
+
+            _.delay(_.bind(function () {
+                parseXML(XML, {
+                    data: options.data,
+                    callback: options.callback,
+                    total: options.total,
+                    nodes: nodes
+                });
+            }, this), 0);
+        }
+        //complete! no more nodes to parse
+        else {
+
+                //remove all existing metadata-processed attributes
+                //LOG('METADATA REMOVING FLAGS...' );
+                var flagged_nodes = Sizzle('[metadata-processed]', XML);
+                _.each(flagged_nodes, function (node) {
+                    node.removeAttribute('metadata-processed');
+                });
+
+                LOG('METADATA COMPLETE!   (' + options.total + '/' + options.total + ') 100%');
+
+                try {
+
+                    options.callback(XML, options.data);
+                } catch (e) {
+
+                    LOG('METADATA CALLBACK ERROR! ' + e.toString());
+                }
+            }
+
+        return;
+    };
+
+    /**
+     * @memberof MetadataParser
+     * @param {XMLNode} node
+     * @static
+     */
+
+    var parseMetadataNode = function parseMetadataNode(node) {
+
+        //metadata node is required...
+        if (!node || node.nodeName !== 'metadata') return;
+
+        //get direct metadata parent node
+        var parent = node.parentNode;
+
+        //no parent node? wtf!!
+        if (!parent) return;
+
+        //node id which to attach data parsed
+        var id = parent.getAttribute('id');
+
+        //instance returning data object
+        var data = {};
+
+        //get and remove metadata node from parent
+        var md = parent.removeChild(node);
+
+        for (var c = 0; c < md.childNodes.length; c++) {
+
+            var xmlNode = md.childNodes[c];
+
+            var key = xmlNode.nodeName;
+
+            var value;
+
+            if (xmlNode.innerHTML) {
+
+                //is <![CDATA ???
+                var is_cdata = (xmlNode.innerHTML + '').indexOf('<![CDATA') >= 0;
+
+                if (is_cdata) {
+
+                    var _chilNodes = xmlNode.childNodes;
+
+                    var _cdata,
+                        i = 0;
+
+                    while (!_cdata && i < _chilNodes.length) {
+
+                        var _node = _chilNodes[i];
+
+                        if (_node && _node.nodeType === 4) _cdata = _node;
+
+                        i++;
+                    }
+
+                    if (_node) value = escapeHtml(_cdata.textContent + '');else value = xmlNode.innerHTML;
+                } else {
+
+                    value = xmlNode.innerHTML;
+
+                    //trim unwanted trailing and leading whitespace
+                    value = (value + '').replace(/^\s+|\s+$/gm, '');
+                }
+            } else {
+
+                var childs = xmlNode.childNodes;
+
+                var str = '';
+
+                if (childs.length) {
+                    _.each(childs, function (item, index) {
+                        str += item.xml || new XMLSerializer().serializeToString(item);
+                    });
+                }
+
+                value = str;
+
+                //trim unwanted trailing and leading whitespace
+                value = (value + '').replace(/^\s+|\s+$/gm, '');
+            }
+
+            //ignore text nodes, comment nodes, ...
+            if (xmlNode.nodeType == 1) data[key] = value;
+        }
+
+        return {
+            'data': data,
+            'id': id
+        };
+    };
+
+    /**
+     * @memberof MetadataParser
+     * @param {XMLNode} node
+     * @static
+     */
+
+    var parseMetaAttributes = function parseMetaAttributes(node) {
+
+        if (!node) return;
+
+        //instance the resultant data object
+        var data = {};
+
+        //node id which to attach data parsed
+        var id = node.getAttribute('id');
+
+        //get data from node attributes
+        var attrs = node.attributes;
+
+        var names = _.map(attrs, 'name');
+        var values = _.map(attrs, 'value');
+
+        var len = attrs.length;
+
+        for (var i = 0; i < len; i++) {
+            var name = names[i];
+            var value = values[i];
+            if (name.indexOf("meta-") == 0) {
+
+                //remove meta- preffix
+                name = name.substr(5);
+
+                //trim unwanted trailing and leading whitespace
+                value = (value + '').replace(/^\s+|\s+$/gm, '');
+
+                //set new data entry
+                data[name] = value;
+
+                //remove the attribute
+                node.removeAttribute("meta-" + name);
+            }
+        }
+
+        //flag node with "metadata-processed" attr
+        node.setAttribute('metadata-processed', 'true');
+
+        return {
+            'data': data,
+            'id': id
+        };
+    };
+
+    smx.meta = {
+        parseXML: parseXML,
+        parseMetadataNode: parseMetadataNode,
+        parseMetaAttributes: parseMetaAttributes
+    };
+})(window, window.Sizzle, window.smx, window.log);
+//# sourceMappingURL=MetadataParser.js.map
+;'use strict';
+
+(function (smx) {
+
+  var NodeInterface = {
+
+    meta: function meta(key) {
+
+      try {
+        return this.document.metadata[this.id][key];
+      } catch (e) {}
+    },
+
+    interpolate: function interpolate(key) {
+
+      var settings = { interpolate: /\{\{(.+?)\}\}/g };
+      try {
+        return _.template(this.meta(key), this, settings);
+      } catch (e) {}
+    }
+
+  };
+
+  var DocumentInterface = {};
+
+  var Parser = function Parser(xmlDocument, _callback) {
+
+    var doc = xmlDocument;
+    var __callback = _callback || function () {};
+
+    smx.meta.parseXML(xmlDocument, {
+      callback: function callback(xmlDocument, data) {
+        __callback({
+          metadata: data
+        });
+      }
+    });
+  };
+
+  var MetadataPlugin = {
+
+    selector: ':meta',
+
+    register: function register() {
+
+      //add parser
+      smx.parsers.push(Parser);
+
+      //extend SMXNode
+      Object.assign(smx.Node.prototype, NodeInterface);
+
+      //extend SMXDocument
+      Object.assign(smx.Document.prototype, DocumentInterface);
+    }
+
+  };
+
+  MetadataPlugin.register();
+})(window.smx);
+//# sourceMappingURL=MetadataPlugin.js.map
 ;"use strict";
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
@@ -5240,1648 +6860,44 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //# sourceMappingURL=PrototypeParser.js.map
 ;'use strict';
 
-Sizzle.selectors.filters.meta = function (elem, i, match) {
-    var preffix = 'meta-';
-    var regex = new RegExp('\\s*' + preffix + '\\w*="', 'ig');
-    var attrs = elem.attributes;
-    var str = [];
-    str.push('<' + elem.nodeName);
-    for (var i = 0; i < attrs.length; i++) {
-        str.push(attrs[i].nodeName + '="' + attrs[i].nodeValue + '"');
-    }
-    str.push('>');
-    str = str.join(' ');
-
-    return regex.test(str);
-};
-//# sourceMappingURL=Sizzle.selectors.filters.meta.js.map
-;'use strict';
-
-/**
- * SMX Metadata Parser
- * @module MetadataParser
- */
-
-(function (global, Sizzle, smx, LOG) {
-
-    //local helper
-    var escapeHtml = function escapeHtml(html) {
-        var map = {
-            '&': '&amp;',
-            '<': '&lt;',
-            '>': '&gt;',
-            '"': '&quot;',
-            "'": '&#039;'
-        };
-        return html.replace(/[&<>"']/g, function (m) {
-            return map[m];
-        });
-    };
-
-    /**
-     * @memberof MetadataParser
-     * @param {XMLDocument} xml
-     * @param {Object} options
-     * @static
-     */
-    var parseXML = function parseXML(xml, opt) {
-
-        var XML = xml;
-
-        //validate XML
-        if (!XML) return;
-
-        //normalize options
-        var options = _.extend({
-            data: {},
-            callback: function callback() {
-                return;
-            },
-            total: 0,
-            nodes: null,
-            max_iterations: 25
-        }, opt);
-
-        // get all unparsed nodes based on flag attr
-        // `metadata-processed` attribute is added while parsing process
-        // nodes missing the flag attr are the nodes we need to parse
-        var nodes;
-        if (!options.nodes) {
-            /*
-            var selector = [];
-            selector.push('*'); //get all nodes as starting point
-            selector.push(':not(prototype)'); //ignore prototype elements
-            selector.push(':not(metadata *)'); //ignore contents of metadata elements
-            selector.push(':not([metadata-processed])'); //ignore already processed nodes
-            selector.push(':not([type] *)'); //ignore contents of nodes having type attribute
-            */
-            //using Sizzle.selectors.filters.meta.js
-            var selector = ['metadata,:meta'];
-            nodes = Sizzle(selector.join(''), XML);
-            //include root node itself to the list
-            //nodes.unshift(XML);
-        } else nodes = options.nodes;
-
-        //calculate percent progress
-        if (nodes.length > options.total) options.total = nodes.length;
-        var percent = Math.floor(100 - nodes.length * 100 / options.total);
-
-        LOG('METADATA PARSING... (' + (options.total - nodes.length) + '/' + options.total + ') ' + percent + '%');
-
-        var i = 0;
-
-        while (nodes.length && i < options.max_iterations) {
-
-            var node = nodes.shift();
-
-            var result;
-
-            if (node.nodeType == 1) {
-
-                result = node.nodeName == 'metadata' ? parseMetadataNode(node) : parseMetaAttributes(node);
-
-                if (result) {
-
-                    //create node data object if does not exists yet
-                    if (!options.data[result.id]) options.data[result.id] = {};
-
-                    //extend parent data object
-                    if (!_.isEmpty(result.data)) _.extend(options.data[result.id], result.data);
-                }
-            }
-
-            i++;
-        }
-
-        //more nodes to parse?
-        if (nodes.length) {
-
-            _.delay(_.bind(function () {
-                parseXML(XML, {
-                    data: options.data,
-                    callback: options.callback,
-                    total: options.total,
-                    nodes: nodes
-                });
-            }, this), 0);
-        }
-        //complete! no more nodes to parse
-        else {
-
-                //remove all existing metadata-processed attributes
-                //LOG('METADATA REMOVING FLAGS...' );
-                var flagged_nodes = Sizzle('[metadata-processed]', XML);
-                _.each(flagged_nodes, function (node) {
-                    node.removeAttribute('metadata-processed');
-                });
-
-                LOG('METADATA COMPLETE!   (' + options.total + '/' + options.total + ') 100%');
-
-                try {
-
-                    options.callback(XML, options.data);
-                } catch (e) {
-
-                    LOG('METADATA CALLBACK ERROR! ' + e.toString());
-                }
-            }
-
-        return;
-    };
-
-    /**
-     * @memberof MetadataParser
-     * @param {XMLNode} node
-     * @static
-     */
-
-    var parseMetadataNode = function parseMetadataNode(node) {
-
-        //metadata node is required...
-        if (!node || node.nodeName !== 'metadata') return;
-
-        //get direct metadata parent node
-        var parent = node.parentNode;
-
-        //no parent node? wtf!!
-        if (!parent) return;
-
-        //node id which to attach data parsed
-        var id = parent.getAttribute('id');
-
-        //instance returning data object
-        var data = {};
-
-        //get and remove metadata node from parent
-        var md = parent.removeChild(node);
-
-        for (var c = 0; c < md.childNodes.length; c++) {
-
-            var xmlNode = md.childNodes[c];
-
-            var key = xmlNode.nodeName;
-
-            var value;
-
-            if (xmlNode.innerHTML) {
-
-                //is <![CDATA ???
-                var is_cdata = (xmlNode.innerHTML + '').indexOf('<![CDATA') >= 0;
-
-                if (is_cdata) {
-
-                    var _chilNodes = xmlNode.childNodes;
-
-                    var _cdata,
-                        i = 0;
-
-                    while (!_cdata && i < _chilNodes.length) {
-
-                        var _node = _chilNodes[i];
-
-                        if (_node && _node.nodeType === 4) _cdata = _node;
-
-                        i++;
-                    }
-
-                    if (_node) value = escapeHtml(_cdata.textContent + '');else value = xmlNode.innerHTML;
-                } else {
-
-                    value = xmlNode.innerHTML;
-
-                    //trim unwanted trailing and leading whitespace
-                    value = (value + '').replace(/^\s+|\s+$/gm, '');
-                }
-            } else {
-
-                var childs = xmlNode.childNodes;
-
-                var str = '';
-
-                if (childs.length) {
-                    _.each(childs, function (item, index) {
-                        str += item.xml || new XMLSerializer().serializeToString(item);
-                    });
-                }
-
-                value = str;
-
-                //trim unwanted trailing and leading whitespace
-                value = (value + '').replace(/^\s+|\s+$/gm, '');
-            }
-
-            //ignore text nodes, comment nodes, ...
-            if (xmlNode.nodeType == 1) data[key] = value;
-        }
-
-        return {
-            'data': data,
-            'id': id
-        };
-    };
-
-    /**
-     * @memberof MetadataParser
-     * @param {XMLNode} node
-     * @static
-     */
-
-    var parseMetaAttributes = function parseMetaAttributes(node) {
-
-        if (!node) return;
-
-        //instance the resultant data object
-        var data = {};
-
-        //node id which to attach data parsed
-        var id = node.getAttribute('id');
-
-        //get data from node attributes
-        var attrs = node.attributes;
-
-        var names = _.map(attrs, 'name');
-        var values = _.map(attrs, 'value');
-
-        var len = attrs.length;
-
-        for (var i = 0; i < len; i++) {
-            var name = names[i];
-            var value = values[i];
-            if (name.indexOf("meta-") == 0) {
-
-                //remove meta- preffix
-                name = name.substr(5);
-
-                //trim unwanted trailing and leading whitespace
-                value = (value + '').replace(/^\s+|\s+$/gm, '');
-
-                //set new data entry
-                data[name] = value;
-
-                //remove the attribute
-                node.removeAttribute("meta-" + name);
-            }
-        }
-
-        //flag node with "metadata-processed" attr
-        node.setAttribute('metadata-processed', 'true');
-
-        return {
-            'data': data,
-            'id': id
-        };
-    };
-
-    smx.meta = {
-        parseXML: parseXML,
-        parseMetadataNode: parseMetadataNode,
-        parseMetaAttributes: parseMetaAttributes
-    };
-})(window, window.Sizzle, window.smx, window.log);
-//# sourceMappingURL=MetadataParser.js.map
-;"use strict";
-
-(function (global, smx) {
-
-            /**
-             * Extends SMXNode with utility attribute getters
-             * @mixin Node-Metadata
-             */
-
-            var NodeMetadataInterface = {
-
-                        /**
-                         * Gets the metadata field value for the given associated to the node
-                         *
-                         * @memberof Node-Metadata
-                         * @param {String} key - key name of meta field
-                         * @param {String=} lang - langcode
-                         * @return {String}
-                         */
-                        meta: function meta(key, lang) {
-
-                                    var value;
-
-                                    try {
-
-                                                value = $meta[this.id][key];
-                                    } catch (e) {}
-
-                                    return value;
-                        },
-
-                        /**
-                         * This method is like `meta` but will return an interpolated version
-                         * using the node as interpolation context object.
-                         *
-                         * @memberof Node-Metadata
-                         * @param {String} key - key name of meta field
-                         * @param {String=} lang - langcode
-                         * @return {String}
-                         */
-                        interpolate: function interpolate(key, lang) {
-
-                                    var str = this.meta(key, lang);
-
-                                    if (!_.isString(str)) return;
-
-                                    var settings = { interpolate: /\{\{(.+?)\}\}/g };
-
-                                    var result;
-
-                                    try {
-                                                result = _.template(str, this, settings);
-                                    } catch (e) {}
-
-                                    return result;
-                        }
-
-            };
-
-            //extends smx fn methods
-            smx.fn = smx.fn || {};
-            smx.fn = Object.assign(smx.fn, NodeMetadataInterface);
-})(window, window.smx);
-//# sourceMappingURL=Node.Metadata.js.map
-;'use strict';
-
-/**
- * SMX Taxonomy Parser
- * @module TaxonomyParser
- */
-
-/*
-
-CONCEPT...
-
-CATEGORIES
-Categories are meant for broad grouping of nodes.
-Think of these as general topics or the table of contents
-Categories are hierarchical, so you can sub-categories.
-
-TAGS
-Tags are meant to describe specific nodes' details.
-Think of these as your document’s index words.
-They are the micro-data to micro-categorize nodes.
-Tags are not hierarchical.
-
-*/
-
-(function (global, smx, Sizzle, LOG) {
-
-    TaxonomyParser = {};
-
-    TaxonomyParser.parseXML = function (xmlDocument, opt) {
-
-        //xmlDocument required!
-        if (!xmlDocument) return;
-
-        //normalize options
-        var options = _.extend({
-            data: {},
-            callback: function callback() {
-                return;
-            },
-            total: 0,
-            nodes: null
-        }, opt);
-
-        // get all unparsed nodes based on flag attr
-        // `taxonomy-processed` attribute is added while parsing process
-        // nodes missing the flag attr are the nodes we need to parse
-        var nodes;
-        if (!options.nodes) nodes = Sizzle('[categories]:not([taxonomy-processed])', xmlDocument);else nodes = options.nodes;
-
-        //calculate percent progress
-        if (nodes.length > options.total) options.total = nodes.length;
-        var percent = 100 - parseInt(nodes.length * 100 / options.total);
-
-        LOG('PARSING... (' + (options.total - nodes.length) + '/' + options.total + ') ' + percent + '%');
-
-        var max_iterations = 100;
-        var i = 0;
-
-        while (nodes.length && i < max_iterations) {
-
-            var node = nodes.shift();
-
-            var result = this.parseXMLNode(node);
-
-            if (result) {
-
-                //create node data object if does not exists yet
-                if (!options.data[result.id]) options.data[result.id] = {};
-
-                //extend parent data object
-                if (!_.isEmpty(result.data)) _.extend(options.data[result.id], result.data);
-            }
-
-            i++;
-        }
-
-        //more nodes to parse?
-        if (nodes.length) {
-
-            _.delay(_.bind(function () {
-                this.parseXML(xmlDocument, {
-                    data: options.data,
-                    callback: options.callback,
-                    total: options.total,
-                    nodes: nodes
-                });
-            }, this), 0);
-        }
-        //complete! no more nodes to parse
-        else {
-
-                LOG('COMPLETE! (' + options.total + '/' + options.total + ') 100%');
-
-                try {
-                    options.callback(xmlDocument, options.data);
-                } catch (e) {
-
-                    LOG('CALLBACK ERROR! ' + e.toString());
-                }
-            }
-
-        return;
-    };
-
-    TaxonomyParser.parseXMLNode = function (node) {
-
-        if (!node) return;
-
-        //instance returning data object
-        var data = {};
-
-        //node id which to attach data parsed
-        var id = node.getAttribute('id');
-
-        //get taxonomy related data
-        var categories = node.getAttribute('categories');
-        var tags = node.getAttribute('tags');
-
-        if (categories) data.categories = categories;
-        if (tags) data.tags = tags;
-
-        //add "taxonomy-processed" flag attr
-        node.setAttribute('taxonomy-processed', 'true');
-
-        return {
-            'id': id,
-            'data': data
-        };
-    };
-
-    //expose into global smx namespace
-    smx.taxonomy = TaxonomyParser;
-})(window, window.smx, window.Sizzle, window.log);
-//# sourceMappingURL=TaxonomyParser.js.map
-;'use strict';
-
-(function (global, _, smx) {
-
-    /**
-     * Extends SMXNode with taxonomy methods
-     * @mixin Node-Taxonomy
-     */
-
-    var NodeTaxonomyInterface = {
-
-        /**
-        * get collection of node's tags
-        * @memberof Node-Taxonomy
-        * @return {Array.<String>}
-        */
-        tags: function tags(namespace) {
-
-            //default result is an empty array
-            var results = [];
-
-            //get comma separetd array from tags attribute
-            var values = this.dsv('tags', ',');
-
-            //namespace filter
-            if (_.isString(namespace) && namespace.length > 1) {
-                var ns = namespace;
-                results = _.filter(results, function (r) {
-                    return (r + '').indexOf(ns + '-') === 0;
-                });
-            }
-
-            return results;
-        },
-
-        /**
-        * get collection of categories
-        * @memberof Node-Taxonomy
-        * @return {Array.<String>}
-        */
-        categories: function categories(namespace) {
-
-            //default result is an empty array
-            var results = [];
-
-            //get comma separetd array from tags attribute
-            var values = this.dsv('categories', ',');
-
-            //namespace filter
-            if (_.isString(namespace) && namespace.length > 1) {
-                var ns = namespace;
-                results = _.filter(results, function (r) {
-                    return (r + '').indexOf(ns + '-') === 0;
-                });
-            }
-
-            return results;
-        },
-
-        /**
-        * get collection of node's branches
-        * @memberof Node-Taxonomy
-        * @return {Array.<String>}
-        */
-        branches: function branches() {
-
-            //default result is an empty array
-            var results = [];
-
-            //get comma separetd array from tags attribute
-            var ids = this.dsv('branches', ',');
-
-            //get parent document
-            var doc = this.root();
-
-            //maps ids into nodes
-            results = _.map(values, doc.gid);
-
-            //remove not found ids from results
-            results = _.compact(results);
-
-            return results;
-        }
-
-    };
-
-    //extends smx fn methods
-    smx.fn = smx.fn || {};
-    smx.fn = Object.assign(smx.fn, NodeTaxonomyInterface);
-})(window, window._, window.smx);
-//# sourceMappingURL=Node.Taxonomy.js.map
-;'use strict';
-
-/**
- * Extends SMXNode with UserInterface methods
- * @mixin Node-Ui
- */
-
 (function (smx) {
 
-          var UiAttrController = {
+  var NodeInterface = {};
 
-                    'MEDIA_TYPES': ['screen', 'print', 'tv'],
+  var DocumentInterface = {};
 
-                    'get': function get(node, key, media_type) {
+  var Parser = function Parser(xmlDocument, _callback) {
 
-                              //resolve 'media' value
-                              media_type = this.normalizeMediaType(media_type);
+    var doc = xmlDocument;
+    var __callback = _callback || function () {};
 
-                              //get 'ui-type-key' attr
-                              var asset = node.attr('ui-' + media_type + '-' + key);
-
-                              //no typed key? use generic 'ui-key'
-                              if (_.isEmpty(asset)) asset = node.attr('ui-' + key);
-
-                              //resolve asset url
-                              if (!_.isEmpty(asset)) return this.resolveURL(node, asset);
-
-                              return;
-                    },
-
-                    'normalizeMediaType': function normalizeMediaType(type) {
-
-                              if (_.isEmpty(type)) return this.MEDIA_TYPES[0];
-
-                              if (_.includes(this.MEDIA_TYPES, type)) return type;else return this.MEDIA_TYPES[0];
-                    },
-
-                    'resolveURL': function resolveURL(node, asset) {
-
-                              //starts with '$/' means package root
-                              if (asset.substr(0, 2) == '$/') asset = node.root().get('url') + asset.substr(2);
-                              //starts with './' means app root
-                              else if (asset.substr(0, 2) == './') asset = asset.substr(2);
-                                        //else is relative to node
-                                        else asset = node.get('url') + asset;
-
-                              return asset;
-                    }
-
-          };
-
-          var NodeUiInterface = {
-
-                    /**
-                     * Gets an user interface asset by key and type
-                     * @memberof Node/UI
-                     * @param {String}
-                     * @param {String=}
-                     */
-                    ui: function ui(key, type) {
-
-                              return UiAttrController.get(this, key, type);
-                    }
-
-          };
-
-          //extends smx fn methods
-          smx.fn = smx.fn || {};
-          smx.fn = Object.assign(smx.fn, NodeUiInterface);
-})(window.smx);
-//# sourceMappingURL=Node.Ui.js.map
-;'use strict';
-
-(function (global, _, Sizzle, smx) {
-
-    /**
-     * Extends SMXNode with core methods
-     * @mixin Node-Core
-     */
-
-    var NodeCoreMethods = {
-
-        /**
-         * Gets the index position in parent's children. If node has no parent,
-         * will return 0. When using the optional parameter `selector`, the
-         * resultant index is calculated based only in the sibling nodes matching
-         * the given selector, if node does not match the selector itself will
-         * return -1.
-         *
-         * @memberof Node-Core
-         * @param {String=} selector - filter selector
-         * @return {Integer}
-         */
-        getIndex: function getIndex(selector) {
-
-            //0 by default
-            var index = 0;
-
-            //no parent? its kind of root so it has no sibling nodes
-            if (!this.parent) return index;
-
-            //get sibling nodes
-            var siblings = this.parent.children;
-
-            //filter siblings collection with a css selector if its defined
-            if (selector) siblings = siblings.filter(function (s) {
-                return Sizzle.matchesSelector(s[0], selector);
-            });
-
-            //get position in siblings collection
-            index = siblings.indexOf(this);
-
-            return index;
-        },
-
-        /**
-         * Gets the text content.
-         *
-         * @memberof Node-Core
-         * @return {String}
-         */
-        getText: function getText() {
-
-            return this[0].text || this[0].textContent || '';
-        },
-
-        /**
-         * Gets the html content.
-         *
-         * @memberof Node-Core
-         * @return {String}
-         */
-        getHTML: function getHTML() {
-
-            //get raw children XMLNodes
-            var children = this[0].childNodes;
-
-            //defaults to empty string
-            var str = '';
-
-            for (var i = 0, len = children.length; i < len; i++) {
-                str += children[i].xml || new XMLSerializer().serializeToString(children[i]);
-            }return str;
-        },
-
-        /**
-         * Gets the inner data content formatted according to node type.
-         *
-         * @memberof Node-Core
-         * @return {String}
-         */
-        getData: function getData() {
-
-            //get raw text data
-            var data = this.getText();
-
-            //get data type
-            var type = this.type;
-            switch (this.type) {
-                case 'json':
-                    try {
-                        data = JSON.parse(data);
-                    } catch (e) {}
-                    break;
-                default:
-                    break;
-            }
-
-            return data;
-        },
-
-        /**
-         * Gets the string representation.
-         *
-         * @memberof Node-Core
-         * @return {String}
-         */
-        toString: function toString() {
-
-            return ('<' + this.name + ' id="' + this.id + '">').trim();
-        },
-
-        /**
-         * Gets the JSON representation. NOT IMPLEMENTED
-         * @method toJSON
-         * @memberof Node-Core
-         * @return {Object}
-         */
-        toJSON: function toJSON() {
-            return {}; //not implemented...
-        }
-
-    };
-
-    //extends smx fn methods
-    smx.fn = smx.fn || {};
-    smx.fn = Object.assign(smx.fn, NodeCoreMethods);
-})(window, window._, window.Sizzle, window.smx);
-//# sourceMappingURL=Node.Core.js.map
-;'use strict';
-
-(function (global, Sizzle, smx) {
-
-    /**
-     * Extends SMXNode with utility attribute getters
-     * @mixin Node-AttributeGetters
-     */
-
-    var NodeAttributeGetters = {
-
-        /**
-         * Gets the value for the given attribute name.
-         *
-         * @memberof Node-AttributeGetters
-         * @param {String} name - attribute name
-         * @return {String} value
-         * @example
-         * <movie tags="sci-fi, horror, adventures" />
-         * @example
-         * $movie.attr('tags')
-         * // => "sci-fi, horror, adventures"
-         */
-        attr: function attr(name) {
-
-            return this[0].getAttribute ? this[0].getAttribute(name) : undefined;
-        },
-
-        /**
-         * This method is like `attr` but will use an attribute parser if there is
-         * one predefined for the given attribute name.
-         *
-         * @memberof Node-AttributeGetters
-         * @param {String} name - attribute name
-         * @param {Object=} opt - options to pass into attribute parser
-         * @return {String} value
-         */
-        get: function get(name, opt) {
-
-            if (!this[0].getAttribute) return undefined;
-
-            //get an existing attribute parser for the given name
-            var parser = smx.AttributeParsers[name];
-
-            //no parser? return the raw attribute
-            if (!parser) return this.attr(name);
-
-            //else use the parser with the given options
-            else return parser(name, opt);
-        },
-
-        /**
-         * Checks if node has or not an attribute with the given name
-         * @method has
-         * @memberof Node-AttributeGetters
-         * @param {String} name - attribute name
-         * @return {Boolean}
-         */
-        has: function has(name) {
-            if (!this[0].getAttribute) return false;
-            //return this[0].hasAttribute(name);
-            //IE8 does not support XMLNode.hasAttribute, so...
-            return this[0].getAttribute(name) !== null;
-        },
-
-        /**
-         * Gets Delimiter Separated Value
-         * An utility method converts given attribute value into dsv array
-         * @method dsv
-         * @memberof Node-AttributeGetters
-         * @param name {String} the name of the attribute
-         * @param delimiter {String=} delimiter string
-         * @return {Array.<String>}
-         * @example
-         * <movie tags="sci-fi, horror, adventures">
-         * @example
-         * $movie.dsv('tags',',')
-         * // => ["sci-fi", "horror", "adventures"]
-         */
-        dsv: function dsv(name, delimiter) {
-
-            //ignore undefined attributes
-            if (!this.has(name)) return;
-
-            //get attr's value by name
-            var value = this.attr(name);
-
-            //resolve delimiter, defaults to space
-            var d = delimiter || ' ';
-
-            //if attribute exists value must be String
-            if (typeof value != 'string') return [];
-
-            //split value by delimiter
-            var list = value.split(delimiter);
-
-            //trim spaces nicely handling multiple spaced values
-            list = list.map(function (str) {
-
-                //convert multiple spaces, tabs, newlines, etc, to single spaces
-                str = str.replace(/^\s+/, '');
-
-                //trim leading and trailing whitespaces
-                str = str.replace(/(^\s+|\s+$)/g, '');
-
-                return str;
-            });
-
-            //remove empty like values
-            list = list.filter(function (str) {
-                return value !== '' && value !== ' ';
-            });
-
-            return list;
-        }
-
-    };
-
-    //extends smx fn methods
-    smx.fn = smx.fn || {};
-    smx.fn = Object.assign(smx.fn, NodeAttributeGetters);
-})(window, window.Sizzle, window.smx);
-//# sourceMappingURL=Node.AttributeGetters.js.map
-;"use strict";
-
-(function (global, _, Sizzle, smx) {
-
-  /**
-   * Extends SMXNode with utility tree node methods
-   * @mixin Node-TreeNode
-   */
-
-  var TreeNodeInterface = {
-
-    // PARENT RELATED OPERATIONS
-
-    /**
-     * Gets a list of parent nodes up to root, ordered from outer to inner.
-     * @memberof Node-TreeNode
-     * @return {SMXNode[]}
-     */
-    getAncestors: function getAncestors(selector) {
-
-      if (!selector) return this.ancestors;
-      return this.ancestors.filter(function (n) {
-        return n.isMatch(selector);
-      });
-    },
-
-    // EXTRA - PARENT RELATED OPERATIONS
-
-    /**
-     * Checks if node is an ancestor of another.
-     * @memberof Node-TreeNode
-     * @param {SMXNode} node - reference node
-     * @return {Boolean}
-     */
-    isAncestorOf: function isAncestorOf(node) {
-
-      if (!node.parent) return false;
-      var ancestorsId = node.ancestors.map(function (n) {
-        return n.id;
-      });
-      if (ancestorsId.indexOf(this.id) > -1) return true;else return false;
-    },
-
-    /**
-     * Checks if node matches the given selector.
-     * @memberof Node-TreeNode
-     * @param {String} selector - css selector to match
-     * @return {Boolean}
-     */
-    isMatch: function isMatch(selector) {
-
-      return Sizzle.matchesSelector(this[0], selector);
-    },
-
-    // CHILD RELATED OPERATIONS
-
-    /**
-     * Finds all descendant nodes matching the given selector.
-     * @memberof Node-TreeNode
-     * @param {String} selector - search selector
-     * @return {Array.<Node>}
-     */
-    find: function find(selector) {
-
-      if (!selector) return [];
-      if (!this.children.length) return [];
-
-      return this.document.find(selector, this);
-    },
-
-    /**
-     * This method is like `find` but returns only the first result.
-     * @memberof Node-TreeNode
-     * @param {String} selector - search selector
-     * @return {SMXNode}
-     */
-    one: function one(selector) {
-
-      return this.find(selector)[0];
-    },
-
-    /**
-     * Gets the children nodes matching the given selector.
-     * @memberof Node-TreeNode
-     * @param {String=} selector
-     * @return {Array.<Node>}
-     */
-    getChildren: function getChildren(selector) {
-
-      if (!selector) return this.children;
-
-      return this.children.filter(function (n) {
-        return n.isMatch(selector);
-      });
-    },
-
-    /**
-     * Gets the first child node matching the given selector.
-     * @memberof Node-TreeNode
-     * @param {String=} selector
-     * @return {SMXNode}
-     */
-    getFirst: function getFirst(selector) {
-
-      if (!selector) return this.first;
-
-      var children = this.children;
-      var i = 0,
-          len = children.length,
-          result;
-      while (i < len && !result) {
-        if (children[i].isMatch(selector)) result = children[i];
-        i++;
+    smx.proto.parseXML(xmlDocument, {
+      callback: function callback(xmlDocument, data) {
+        __callback({
+          proto: data
+        });
       }
+    });
+  };
 
-      return result;
-    },
+  var PrototypePlugin = {
 
-    /**
-     * Gets the last child node matching the given selector.
-     * @memberof Node-TreeNode
-     * @param {String=} selector
-     * @return {SMXNode}
-     */
-    getLast: function getLast(selector) {
+    selector: ':proto',
 
-      if (!selector) return this.last;
+    register: function register() {
 
-      var children = this.children.reverse();
-      var i = 0,
-          len = children.length,
-          result;
-      while (i < len && !result) {
-        if (children[i].isMatch(selector)) result = children[i];
-        i++;
-      }
+      //add parser
+      smx.parsers.push(Parser);
 
-      return result;
-    },
+      //extend SMXNode
+      Object.assign(smx.Node.prototype, NodeInterface);
 
-    // EXTRA - CHILD RELATED OPERATIONS
-
-    /**
-     * Gets child node at given index
-     * @memberof Node-TreeNode
-     * @param {Integer} index - index position
-     * @return {SMXNode}
-     */
-    getChildAt: function getChildAt(index) {
-
-      return this.children[index];
-    },
-
-    /**
-     * Checks if a node is child of another
-     * @memberof Node-TreeNode
-     * @param {SMXNode} node - reference node
-     * @return {Boolean}
-     */
-    isDescendantOf: function isDescendantOf(node) {
-
-      if (!node.parent) return false;
-      var ancestorsId = this.ancestors.map(function (n) {
-        return n.id;
-      });
-      if (ancestorsId.indexOf(node.id) > -1) return true;else return false;
-    },
-
-    // SIBLING RELATED OPERATIONS
-
-
-    /**
-     * Gets the next sibling node matching the given selector.
-     * @memberof Node-TreeNode
-     * @param {String=} selector - filter selector
-     * @return {SMXNode}
-     */
-    getNext: function getNext(selector) {
-
-      if (!selector) return this.next;else {
-        var n = this.next;
-        var isMatch = false;
-        while (!isMatch && n) {
-          if (n.isMatch(selector)) isMatch = true;else n = n.next;
-        }
-        return isMatch ? n : undefined;
-      }
-    },
-
-    /**
-     * Gets all next sibling nodes matching the given selector.
-     * @memberof Node-TreeNode
-     * @param {String=} selector - filter selector
-     * @return {SMXNode[]}
-     */
-    getAllNext: function getAllNext(selector) {
-
-      if (!this.next) return [];else {
-        //fill up nodes array walking all next nodes
-        var n = this.next;
-        var nodes = [n];
-        while (n && n.next) {
-          n = n.next;
-          nodes.push(n);
-        }
-        if (!selector) return nodes;else //return filtered by selector
-          return nodes.filter(function (n) {
-            return n.isMatch(selector);
-          });
-      }
-    },
-
-    /**
-     * Gets the previous sibling node matching the given selector.
-     * @memberof Node-TreeNode
-     * @param {String=} selector - filter selector
-     * @return {SMXNode}
-     */
-    getPrevious: function getPrevious(selector) {
-
-      if (!selector) return this.previous;else {
-        var n = this.previous;
-        var isMatch = false;
-        while (!isMatch && n) {
-          if (n.isMatch(selector)) isMatch = true;else n = n.previous;
-        }
-        return isMatch ? n : undefined;
-      }
-    },
-
-    /**
-     * Gets all previous sibling nodes matching the given selector.
-     * @memberof Node-TreeNode
-     * @param {String=} selector - filter selector
-     * @return {SMXNode[]}
-     */
-    getAllPrevious: function getAllPrevious(selector) {
-
-      if (!this.previous) return [];else {
-        //fill up nodes array walking all previous nodes
-        var n = this.previous;
-        var nodes = [n];
-        while (n && n.previous) {
-          n = n.previous;
-          nodes.unshift(n);
-        }
-        if (!selector) return nodes;else //return filtered by selector
-          return nodes.filter(function (n) {
-            return n.isMatch(selector);
-          });
-      }
+      //extend SMXDocument
+      Object.assign(smx.Document.prototype, DocumentInterface);
     }
 
   };
 
-  //extends smx fn methods
-  smx.fn = smx.fn || {};
-  smx.fn = Object.assign(smx.fn, TreeNodeInterface);
-})(window, window._, window.Sizzle, window.smx);
-//# sourceMappingURL=Node.TreeNode.js.map
-;'use strict';
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-(function (global, smx) {
-
-  /**
-   * SMX Node Class
-   * @memberof smx
-   * @mixes smx.fn.Core
-   * @mixes smx.fn.TreeNode
-   */
-  var Node = function () {
-
-    /**
-     * @param {XMLNode} xmlNode
-     */
-    function Node(xmlNode) {
-      _classCallCheck(this, Node);
-
-      //require nodeType === 1 --> Node.ELEMENT_NODE
-      if (xmlNode.nodeType !== 1) throw new Error('Node constructor requires ELEMENT_NODE');
-
-      /**
-       * Original XMLNode for reference
-       * @type {XMLNode}
-       * @protected
-       */
-      this[0] = xmlNode;
-    }
-
-    /**
-     * Direct access to XMLNode.id
-     * @type {String}
-     * @readonly
-     */
-
-
-    _createClass(Node, [{
-      key: 'id',
-      get: function get() {
-        return this[0].id;
-      }
-
-      /**
-       * Direct access to XMLNode name
-       * @type {String}
-       * @readonly
-       */
-
-    }, {
-      key: 'name',
-      get: function get() {
-        return this[0].nodeName;
-      }
-
-      /**
-       * Gets node name based on inner XMLNode.nodeName,
-       * default is `smx`, posible values are `txt`, `md`, `html`, ...
-       * @type {String}
-       * @readonly
-       */
-
-    }, {
-      key: 'type',
-      get: function get() {
-        if (this[0].getAttribute) return this[0].getAttribute('type') || 'smx';else return 'smx';
-      }
-
-      /**
-       * Gets node className based on inner XMLNode class attribute
-       * @type {String}
-       * @readonly
-       */
-
-    }, {
-      key: 'className',
-      get: function get() {
-        if (this[0].getAttribute) return this[0].getAttribute('class');else return '';
-      }
-
-      /**
-       * Gets the owner SMXDoxument
-       * @type {SMXDocument}
-       * @readonly
-       */
-
-    }, {
-      key: 'document',
-      get: function get() {
-        return this._document;
-      }
-
-      /**
-       * Gets browser url hash
-       * @type {String}
-       * @readonly
-       */
-
-    }, {
-      key: 'hash',
-      get: function get() {
-        return '#!/' + this.uri;
-      }
-
-      /**
-       * Gets Uniform Resource Identifier.
-       * Concatenation of id values from parent nodes up to document root
-       * @type {String}
-       * @readonly
-       */
-
-    }, {
-      key: 'uri',
-      get: function get() {
-        var hash = this.id + '/';
-        if (this.parent) return this.parent.uri + hash;else return hash;
-      }
-
-      /**
-       * Gets Uniform Resource Locator
-       * Concatenation of path values from parent nodes up to document root
-       * @type {String}
-       * @readonly
-       */
-
-    }, {
-      key: 'url',
-      get: function get() {
-
-        var path = this[0].getAttribute('path');
-        var result;
-        if (this.parent) {
-          if (!path) result = this.parent.url;else {
-            //add trail slash
-            var trail = path.substr(-1);
-            if (trail != '/') path += '/';
-            result = this.parent.url + path;
-          }
-        } else {
-          if (path) {
-            //add trail slash
-            var _trail = path.substr(-1);
-            if (_trail != '/') path += '/';
-            result = path;
-          }
-        }
-        if (result) result = result.replace(/\/\/+/g, '/');
-        return result;
-      }
-
-      /**
-       * Gets source file url for this node
-       * @type {String}
-       * @readonly
-       */
-
-    }, {
-      key: 'src',
-      get: function get() {
-
-        var result = '';
-        var file = this[0].getAttribute('file');
-
-        if (!file) result = this.parent ? this.parent.src : undefined;else result = this.url + file;
-
-        if (result) result = result.replace(/\/\/+/g, '/');
-
-        return result;
-      }
-
-      /**
-       * Gets parent node
-       * @type {SMXNode}
-       * @readonly
-       */
-
-    }, {
-      key: 'parent',
-      get: function get() {
-        return this.document.wrap(this[0].parentNode);
-      }
-
-      /**
-       * Gets ancestors nodes
-       * @type {SMXNode[]}
-       * @readonly
-       */
-
-    }, {
-      key: 'ancestors',
-      get: function get() {
-        var a = [];
-        var p = this;
-        while (p.parent) {
-          p = p.parent;
-          a.push(p);
-        }
-        return a;
-      }
-
-      /**
-       * Gets root node
-       * @type {SMXNode}
-       * @readonly
-       */
-
-    }, {
-      key: 'root',
-      get: function get() {
-        return this.ancestors[0] || this;
-      }
-
-      /**
-       * Gets children nodes
-       * @type {SMXNode[]}
-       * @readonly
-       */
-
-    }, {
-      key: 'children',
-      get: function get() {
-        //non smx nodes should have no children
-        if (this.type !== 'smx') return [];else return this.document.wrap(this[0].childNodes);
-      }
-
-      /**
-       * Gets first child node
-       * @type {SMXNode}
-       * @readonly
-       */
-
-    }, {
-      key: 'first',
-      get: function get() {
-        return this.children.shift();
-      }
-
-      /**
-       * Gets last child node
-       * @type {SMXNode}
-       * @readonly
-       */
-
-    }, {
-      key: 'last',
-      get: function get() {
-        return this.children.pop();
-      }
-
-      /**
-       * Gets previous sibling node
-       * @type {SMXNode}
-       * @readonly
-       */
-
-    }, {
-      key: 'previous',
-      get: function get() {
-        return this.document.wrap(this[0].previousElementSibling || this[0].previousSibling);
-      }
-
-      /**
-       * Gets next sibling node
-       * @type {SMXNode}
-       * @readonly
-       */
-
-    }, {
-      key: 'next',
-      get: function get() {
-        return this.document.wrap(this[0].nextElementSibling || this[0].nextSibling);
-      }
-    }]);
-
-    return Node;
-  }();
-
-  //inline property getter definition
-  //Object.defineProperty(Node.prototype, 'duration', { get: function() { return this.time('duration'); } });
-
-  //extends Node prototype
-
-
-  Object.assign(Node.prototype, smx.fn);
-
-  //expose
-  smx.Node = Node;
-})(window, window.smx);
-//# sourceMappingURL=Node.js.map
-;'use strict';
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-(function (global, smx, Sizzle) {
-
-  /**
-   * SMX Document Class
-   * @memberof smx
-   */
-  var Document = function () {
-
-    /**
-     * @param {XMLDocument}
-     */
-    function Document(xmlDocument) {
-      _classCallCheck(this, Document);
-
-      //requires DOCUMENT_NODE
-      if (xmlDocument.nodeType !== 9) throw new Error('Document constructor requires DOCUMENT_NODE');
-
-      /**
-       * Original XMLDocument for reference
-       * @type {XMLDocument}
-       * @protected
-       */
-      this[0] = xmlDocument;
-
-      /**
-       * Contains an id &rarr; key map of all processed nodes for easy acccess.
-       * @type {Object}
-       * @private
-       */
-      this._cache = {};
-    }
-
-    /**
-     * Gets Uniform Resource Locator
-     * Concatenation of path values from parent nodes up to document root
-     * @type {String}
-     * @readonly
-     */
-
-
-    _createClass(Document, [{
-      key: 'getNodeById',
-
-
-      /**
-       * Gets the node with the given identifier.
-       * @param {String} id
-       * @return {SMXNode}
-       */
-      value: function getNodeById(id) {
-
-        //cached id?
-        if (this._cache[id]) return this._cache[id];
-
-        //search in document
-        var xmlNode = this[0].getElementById(id);
-
-        //not found
-        return this.wrap(xmlNode);
-      }
-
-      //gid(id){ return this.getNodeById(id) }
-
-      /**
-       * Finds all nodes matching the given selector.
-       * @param {String} selector - search selector
-       * @param {SMXNode=} context - node context to find inside
-       * @return {Array.<SMXNode>}
-       */
-
-    }, {
-      key: 'find',
-      value: function find(selector, ctxNode) {
-
-        if (!selector) return [];
-        var nodes = Sizzle(selector, (ctxNode || this)[0]);
-        return this.wrap(nodes);
-      }
-
-      /**
-       * Wraps an existing node or nodes in smx paradigm.
-       * @param {XMLNode|XMLNode[]}
-       * @return {SMXNode|SMXNode[]}
-       */
-
-    }, {
-      key: 'wrap',
-      value: function wrap(s) {
-
-        if (!s) return;
-
-        var _this = this;
-        var _wrapNode = function _wrapNode(xmlNode) {
-
-          var id;
-
-          try {
-            id = xmlNode.getAttribute('id');
-          } catch (e) {}
-
-          //id attr is required!
-          if (!id) return;
-
-          //ensure using the active document
-          if (xmlNode.ownerDocument !== _this[0]) return;
-
-          //Does already exists a node with this id?
-          //prevent duplicated nodes and return existing one
-          if (_this._cache[id]) return _this._cache[id];
-
-          //create new Node from given XMLNode
-          var node = new smx.Node(xmlNode);
-
-          //reference node owner document
-          node._document = _this;
-
-          //adds wrapped node in cache
-          _this._cache[id] = node;
-
-          //return wrapped node
-          return node;
-        };
-
-        var isArray = s.constructor.name === 'Array';
-        var isNodeList = s.constructor.name === 'NodeList';
-        if (isArray || isNodeList) {
-          //NodeList does not allow .map
-          //force array so we can do the mapping
-          //s = Array.prototype.slice.call(s);
-          return [].map.call(s, function (n) {
-            return n[0] ? n : _wrapNode(n);
-          });
-        } else {
-          return s[0] ? s : _wrapNode(s);
-        }
-      }
-    }, {
-      key: 'path',
-      get: function get() {
-        var path = this[0].URL.split('/');
-        path.pop();return path.join('/');
-      }
-
-      /**
-       * Gets the source file url for this document.
-       * @type {String}
-       * @readonly
-       */
-
-    }, {
-      key: 'src',
-      get: function get() {
-        return this[0].URL;
-      }
-
-      /**
-       * Gets the root node.
-       * @type {SMXNode}
-       * @readonly
-       */
-
-    }, {
-      key: 'root',
-      get: function get() {
-        return this.wrap(this[0].lastChild);
-      }
-    }]);
-
-    return Document;
-  }();
-
-  //expose
-
-
-  smx.Document = Document;
-})(window, window.smx, window.Sizzle);
-//# sourceMappingURL=Document.js.map
+  PrototypePlugin.register();
+})(window.smx);
+//# sourceMappingURL=PrototypePlugin.js.map

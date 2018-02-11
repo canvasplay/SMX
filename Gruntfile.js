@@ -14,19 +14,26 @@ module.exports = function(grunt) {
         },
 
         babel: {
-            options: {
-                sourceMap: true,
-                presets: ['babel-preset-env']
-            },
-            dist: {
-                files: [{
-                    expand: true,
-                    cwd: 'src/',
-                    src: ['**/*.js'],
-                    dest: 'dist/'
-                }]
-            },
-
+          options: {
+            sourceMap: true,
+            presets: ['babel-preset-env']
+          },
+          dist: {
+            files: [{
+              expand: true,
+              cwd: 'src/',
+              src: ['**/*.js'],
+              dest: 'dist/'
+            }]
+          },
+          test: {
+            files: [{
+              expand: true,
+              cwd: 'test/',
+              src: ['test.js'],
+              dest: 'out/'
+            }]
+          }
         },
 
         concat: {
@@ -53,14 +60,6 @@ module.exports = function(grunt) {
 
                     //PLUGINS
 
-                    //Prototype
-                    'dist/plugins/prototype/CSSParser.js',
-                    'dist/plugins/prototype/PrototypeParser.js',
-                    
-                    //Metadata
-                    'dist/plugins/metadata/Sizzle.selectors.filters.meta.js',
-                    'dist/plugins/metadata/MetadataParser.js',
-                    'dist/plugins/metadata/Node.Metadata.js',
 
                     //Taxonomy
                     'dist/plugins/taxonomy/TaxonomyParser.js',
@@ -75,9 +74,20 @@ module.exports = function(grunt) {
                     'dist/document/Node.TreeNode.js',
                     
                     'dist/document/Node.js',
-                    'dist/document/Document.js'
+                    'dist/document/Document.js',
+                    
+                    
+                    //REGISTRABLE PLUGINS
+                    
+                    //Metadata
+                    'dist/plugins/metadata/Sizzle.selectors.filters.meta.js',
+                    'dist/plugins/metadata/MetadataParser.js',
+                    'dist/plugins/metadata/MetadataPlugin.js',
 
-
+                    //Prototype
+                    'dist/plugins/prototype/CSSParser.js',
+                    'dist/plugins/prototype/PrototypeParser.js',
+                    'dist/plugins/prototype/PrototypePlugin.js'
 
                 ],
                 dest: 'dist/smx.js'
@@ -112,5 +122,6 @@ module.exports = function(grunt) {
     grunt.registerTask('version', ['bump']);
     //grunt.registerTask('default', ['babel', 'concat', 'uglify','clean']);
     grunt.registerTask('default', ['babel', 'concat', 'uglify', 'clean']);
+    grunt.registerTask('test', ['babel:test']);
 
 };

@@ -1,6 +1,9 @@
 (function(global, Sizzle, smx, LOG){
  
- 
+
+var DATA;
+var PARSER_INDEX;
+
 /**
  * Loads a new smx document.
  * @memberof smx
@@ -19,12 +22,16 @@ smx.load = function(data, success, error){
   SUCCESS_CALLBACK = success;
   ERROR_CALLBACK = error;
   
+  DATA = {};
+  PARSER_INDEX = 0;
+  
   if(typeof data === 'string')
     LOAD_SMX_DOCUMENT(data);
   else
     LOAD_SMX_DOCUMENT_FROM_JSON(data);
   
 };
+
 
 /**
  * Callback function when loading completes succefully.
@@ -41,76 +48,35 @@ var SUCCESS_CALLBACK = function(document){};
 var ERROR_CALLBACK = function(e){};
  
 
- 
 var LOAD_SMX_DOCUMENT = function(url){
-
-
-	//Instance a new SMX Loader
 	var loader = new smx.Loader();
-
-	//loader.on('complete', LOAD_SMX_COMPLETE);
-	loader.on('complete', PARSE_METADATA);
+	loader.on('complete', APPLY_PARSERS);
 	loader.on('error', LOAD_SMX_ERROR);
-
 	loader.loadDocument(url);
-
-	return;
-
 };
-
-
 
 var LOAD_SMX_DOCUMENT_FROM_JSON = function(data){
-
 	var x2js = new X2JS();
-
-	var XML = x2js.json2xml(data);
-	
-	//XML = XML.removeChild(XML.lastChild);
-
-	PARSE_METADATA(XML);
-
+	var xmlDocument = x2js.json2xml(data);
+	APPLY_PARSERS(xmlDocument);
 };
 
 
-
-
-var PARSE_METADATA = function(xml){
-
-	smx.meta.parseXML(xml,{
-
-		callback: function(XML,data){
-
-			global.$meta = data;
-
-			PARSE_PROTOTYPES(XML);
-
-		}
-
-	});
-
-	return;
-};
-
-
-var PARSE_PROTOTYPES = function(xml){
-
-	smx.proto.parseXML(xml,{
-
-		propagate: true,
-
-		callback: function(XML,data){
-
-			//console.log(data);
-
-			CLEAN_TEXT_NODES(XML);
-
-		}
-
-	});
-
-
-};
+var APPLY_PARSERS = function(xmlDocument){
+  var xml = xmlDocument;
+  var parser = smx.parsers[PARSER_INDEX];
+  if(parser){
+    parser(xml, function(data){
+      if(data)
+        Object.assign(DATA,data);
+      PARSER_INDEX = PARSER_INDEX+1;
+      APPLY_PARSERS(xml);
+    })
+  }
+  else{
+    CLEAN_TEXT_NODES(xml);
+  }
+}
 
 
 var CLEAN_TEXT_NODES = function(xml){
@@ -158,22 +124,32 @@ var CLEAN_TEXT_NODES = function(xml){
 
   LOG('CLEANING XML: '+ count+' nodes removed');
   
-	LOAD_SMX_COMPLETE(xml);
+	CREATE_SMX_DOCUMENT(xml);
 
 };
 
 
 
-var LOAD_SMX_COMPLETE = function(xml){
+var CREATE_SMX_DOCUMENT = function(xml){
+ 
 
 	LOG('smx load complete!');
 
 	var d = new smx.Document(xml);
 	
+  Object.assign(d,DATA);
+  
 	smx.documents.push(d);
 	
 	//set it as active document if its empty
 	if(!smx.document) smx.document = d;
+	
+	SUCCESS_CALLBACK(d);
+  
+}
+
+
+var LOAD_SMX_COMPLETE = function(smxDocument){
 	
 	SUCCESS_CALLBACK(d);
 
