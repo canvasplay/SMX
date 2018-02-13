@@ -127,8 +127,12 @@ class Node {
         result = path;
       }
     }
-    if (result) result = result.replace(/\/\/+/g, '/');
+    
+    //remove double slashes
+    if (result) result = result.replace(/(https?:\/\/)|(\/)+/g, "$1$2");
+    
     return result;
+    
   }
 
 
@@ -141,16 +145,17 @@ class Node {
     
     var result = '';
     let file = this[0].getAttribute('file');
-
+    
     if (!file)
-        result = (this.parent) ? this.parent.src : undefined;
+      result = (this.parent) ? this.parent.src : undefined;
     else
-        result = this.url + file;
-
-    if (result) result = result.replace(/\/\/+/g, '/');
-
+      result = this.url + file;
+    
+    //remove double slashes
+    if (result) result = result.replace(/(https?:\/\/)|(\/)+/g, "$1$2");
+    
     return result;
-
+    
   }
   
   

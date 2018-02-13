@@ -14,7 +14,7 @@
  *
  */
 
-const GET_UNIQUE_ID = function(){ return parseInt(_.uniqueId()).toString(36) };
+const GET_UNIQUE_ID = () => { return parseInt(_.uniqueId()).toString(36) };
 //const GET_UNIQUE_ID = ()=>{ return bigInt2str(str2bigInt(_.uniqueId()+"",10,0,0),62) };
 	
 	

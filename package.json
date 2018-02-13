@@ -12,10 +12,11 @@
   },
   "bin": "./node_modules/.bin/",
   "scripts": {
-    "build": "grunt",
+    "build": "grunt && webpack",
     "docs": "del-cli docs/ && jsdoc -r -p -c jsdoc.json"
   },
   "devDependencies": {
+    "babel-loader": "^7.1.2",
     "babel-preset-env": "^1.6.1",
     "del-cli": "^1.1.0",
     "grunt": "^1.0.1",
@@ -27,6 +28,7 @@
     "grunt-contrib-uglify": "^2.0.0",
     "jsdoc": "^3.5.5",
     "sizzle": "^2.3.3",
-    "smx-jsdoc-template": "^1.0.0"
+    "smx-jsdoc-template": "^1.0.0",
+    "uglifyjs-webpack-plugin": "^1.1.8"
   }
 }

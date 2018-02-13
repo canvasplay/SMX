@@ -63,8 +63,10 @@
 
   /**
   * Global node wrapper.
+  * @method smx
   * @param {String|SMXNode|SMXNode[]} s - selector, node or node collection
   * @return {SMXNode|SMXNodes[]}
+  * @memberof smx
   */
   var _smx_wrapper = function(s){
   

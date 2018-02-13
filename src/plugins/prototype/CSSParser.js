@@ -1,5 +1,3 @@
-(function(global){
-
 /*
 
 JSCSSP a CSS parser
@@ -58,9 +56,4 @@ jscsspStylesheet.prototype.getJSONP = function(){
 
 
 
-//expose to global
-
-global.CSSParser = CSSParser;
-
-
-})(window);
+export default CSSParser;

@@ -19,8 +19,8 @@ smx.load = function(data, success, error){
   //conditional loading should check for multiple data source types
   //from url file as xml or json file... from xmlNode... from json object...
   //for now just proceed assuming an url for an xml file
-  SUCCESS_CALLBACK = success;
-  ERROR_CALLBACK = error;
+  SUCCESS_CALLBACK = success || function(){};
+  ERROR_CALLBACK = error || function(){};
   
   DATA = {};
   PARSER_INDEX = 0;

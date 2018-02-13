@@ -1,6 +1,7 @@
 /**
  * SMX Taxonomy Parser
  * @module TaxonomyParser
+ * @memberof module:Taxonomy
  */
 
 /*
@@ -20,11 +21,13 @@ Tags are not hierarchical.
 
 */
 
-(function(global, smx, Sizzle, LOG){
- 
-TaxonomyParser = {};
-
-TaxonomyParser.parseXML = function(xmlDocument, opt){
+/**
+ * Parses the given XMLDocument
+ * @param {XMLNode} xmlDocument
+ * @param {Object} options
+ * @async
+ */
+var parseXML = function(xmlDocument, opt){
 
     //xmlDocument required!
     if(!xmlDocument) return;
@@ -51,7 +54,7 @@ TaxonomyParser.parseXML = function(xmlDocument, opt){
     var percent =  100- parseInt((nodes.length*100) / options.total);
 
 
-    LOG('PARSING... ('+ (options.total-nodes.length) +'/'+ options.total +') '+percent+'%');
+    log('PARSING... ('+ (options.total-nodes.length) +'/'+ options.total +') '+percent+'%');
 
 
     var max_iterations = 100;
@@ -92,13 +95,13 @@ TaxonomyParser.parseXML = function(xmlDocument, opt){
     //complete! no more nodes to parse
     else{
 
-        LOG( 'COMPLETE! ('+ options.total +'/'+ options.total +') 100%' );
+        log( 'COMPLETE! ('+ options.total +'/'+ options.total +') 100%' );
 
         try{
             options.callback(xmlDocument,options.data);
         }catch(e){
 
-            LOG( 'CALLBACK ERROR! '+ e.toString() );
+            log( 'CALLBACK ERROR! '+ e.toString() );
         }
     }
 
@@ -106,8 +109,14 @@ TaxonomyParser.parseXML = function(xmlDocument, opt){
     return
 }
 
-
-TaxonomyParser.parseXMLNode = function(node){
+/**
+ * Parses the given XMLNode
+ * @param {XMLNode} xmlNode
+ * @return {Object} data
+ * @return {String} data.id
+ * @return {Object} data.data
+ */
+var parseXMLNode = function(node){
   
   if(!node) return;
   
@@ -135,9 +144,7 @@ TaxonomyParser.parseXMLNode = function(node){
 }
 
 
-//expose into global smx namespace
-smx.taxonomy = TaxonomyParser;
-
-
-
-})(window, window.smx, window.Sizzle, window.log);
+export default {
+  parseXML: parseXML,
+  parseXMLNode: parseXMLNode
+}

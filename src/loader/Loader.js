@@ -1,11 +1,10 @@
 (function(global,Sizzle,_,smx,LOG){
 
 
-
-
 /**
  * SMX Loader Class
  * @class Loader
+ * @memberof smx
  */
 
  var Loader = function(){
@@ -103,7 +102,7 @@
 
 			}
 
-			//resolve 'path' and 'file' attributes from 'src'
+			//resolve 'path' and 'file' attributes from original 'src'
 			resolvePathFileAttributes(new_node, include.getAttribute('src'));
 
 			//copy attributes from include node to the new node

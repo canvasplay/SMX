@@ -54,40 +54,15 @@ module.exports = function(grunt) {
 
                     'dist/playhead/Playhead.js',
                     
-
-                    'dist/finder/SMXFinder.js',
-
-
-                    //PLUGINS
-
-
-                    //Taxonomy
-                    'dist/plugins/taxonomy/TaxonomyParser.js',
-                    'dist/plugins/taxonomy/Node.Taxonomy.js',
-
-                    //UserInterface
-                    'dist/plugins/ui/Node.Ui.js',
-
                     //Core
                     'dist/document/Node.Core.js',
                     'dist/document/Node.AttributeGetters.js',
                     'dist/document/Node.TreeNode.js',
                     
                     'dist/document/Node.js',
-                    'dist/document/Document.js',
+                    'dist/document/Document.js'
                     
-                    
-                    //REGISTRABLE PLUGINS
-                    
-                    //Metadata
-                    'dist/plugins/metadata/Sizzle.selectors.filters.meta.js',
-                    'dist/plugins/metadata/MetadataParser.js',
-                    'dist/plugins/metadata/MetadataPlugin.js',
-
-                    //Prototype
-                    'dist/plugins/prototype/CSSParser.js',
-                    'dist/plugins/prototype/PrototypeParser.js',
-                    'dist/plugins/prototype/PrototypePlugin.js'
+                    //without plugins...
 
                 ],
                 dest: 'dist/smx.js'

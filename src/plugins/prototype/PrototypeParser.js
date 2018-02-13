@@ -2,278 +2,288 @@
  * SMX Prototype Parser
  * @module PrototypeParser
  * @description This parser will parse and process all <prototype> nodes.
+ * @memberof module:Prototype
  */
 
-(function(global, Sizzle, smx){
- 
+import Sizzle from 'sizzle';
+import CSSParser from './CSSParser.js';
 
-    //private aux debug system
-    var DEBUG = true; var LOG = function(str){ if (global.console&&global.console.log&&DEBUG) global.console.log('PROTOTYPE '+str) };
+/**
+ * Parses the given XMLDocument
+ * @param {XMLDocument} xml
+ * @param {Object} options
+ * @async
+ */
+var parseXML = function(XML,opt){
 
+  //validate XML
+  if(!XML) return;
 
-    var PrototypeProcessor = {};
+  //normalize options
+  var options = _.extend({
+      data: [],
+      propagate: true,
+      callback: function(){ return },
+      max_iterations: 1
+  },opt);
 
 
-    PrototypeProcessor.parseXML = function(XML,opt){
+  // get all <prototype> nodes in given XML
+  // <prototype> nodes will get removed after parse process
+  var nodes = Sizzle('prototype', XML);
 
-        //validate XML
-        if(!XML) return;
 
-        //normalize options
-        var options = _.extend({
-            data: [],
-            propagate: true,
-            callback: function(){ return },
-            max_iterations: 1
-        },opt);
+  log('PARSING PROTOTYPES... ('+ nodes.length +')');
 
 
-        // get all <prototype> nodes in given XML
-        // <prototype> nodes will get removed after parse process
-        var nodes = Sizzle('prototype', XML);
+  var iterations = 0;
 
+  var i = 0;
 
-        LOG('PARSING PROTOTYPES... ('+ nodes.length +')');
+  while(nodes.length && i<options.max_iterations){
 
+      var node = nodes[i];
 
-        var iterations = 0;
+      var proto = parseXMLNode(node);
 
-        var i = 0;
+      options.data.push(proto);
 
-        while(nodes.length && i<options.max_iterations){
+      i++;
 
-            var node = nodes[i];
+  }
 
-            var proto = this.parseXMLNode(node);
 
-            options.data.push(proto);
+  //all nodes parsed?
+  if(nodes.length){
 
-            i++;
+      _.delay(_.bind(function(){ parseXML(XML,{
+          data: options.data,
+          propagate: options.propagate,
+          callback: options.callback
+      }) },this),0);
 
-        }
+  }
+  //ok all nodes parsed!
+  else{
 
+      log('PARSING PROTOTYPES... DONE!');
 
-        //all nodes parsed?
-        if(nodes.length){
+      //reverse extracted prototypes...
+      //so we apply from outter to the inner
+      //so specific rules will overwrite global rules
+      options.data = options.data.reverse();
 
-            _.delay(_.bind(function(){ this.parseXML(XML,{
-                data: options.data,
-                propagate: options.propagate,
-                callback: options.callback
-            }) },this),0);
+      //APPLY EXTRACTED PROTOTYPES
+      if(options.propagate) for (var x=0; x<options.data.length; x++) applyPrototypes(XML,options.data[x]);
 
-        }
-        //ok all nodes parsed!
-        else{
+      log('APPLYING PROTOTYPES... DONE!');
 
-            LOG('PARSING PROTOTYPES... DONE!');
+      log( 'COMPLETE!'); //' ('+ options.total +'/'+ options.total +') 100%' );
 
-            //reverse extracted prototypes...
-            //so we apply from outter to the inner
-            //so specific rules will overwrite global rules
-            options.data = options.data.reverse();
+      try{ options.callback(XML,options.data) }
+      catch(e){ log( 'CALLBACK ERROR! '+ e.toString() ) }
 
-            //APPLY EXTRACTED PROTOTYPES
-            if(options.propagate) for (var x=0; x<options.data.length; x++) this.applyPrototypes(XML,options.data[x]);
 
-            LOG('APPLYING PROTOTYPES... DONE!');
+  }
 
-            LOG( 'COMPLETE!'); //' ('+ options.total +'/'+ options.total +') 100%' );
 
-            try{ options.callback(XML,options.data) }
-            catch(e){ LOG( 'CALLBACK ERROR! '+ e.toString() ) }
+  return
+}
 
+/**
+ * Parses the given XMLNode
+ * @param {XMLNode} xmlNode
+ * @return {Object} data
+ * @return {String} data.id
+ * @return {Object[]} data.rules
+ */
+var parseXMLNode = function(node){
 
-        }
+  //prototype node required...
+  if(!node || node.nodeName!=='prototype') return;
 
+  var RULES = {};
 
-        return
-    }
+  //get direct metadata parent node
+  var parent = node.parentNode;
 
+  //no parent node? wtf!!
+  if(!parent) return;
 
-    PrototypeProcessor.parseXMLNode = function(node){
+  //get and remove <prototype> node from parent
+  var proto = parent.removeChild(node);
 
-        //prototype node required...
-        if(!node || node.nodeName!=='prototype') return;
 
-        var RULES = {};
+  /* CSS PARSING */
 
-        //get direct metadata parent node
-        var parent = node.parentNode;
+  //get CSS text
+  var source = proto.textContent || proto.firstChild.nodeValue; // "proto.firstChild.nodeValue" in IE8
 
-        //no parent node? wtf!!
-        if(!parent) return;
+  //Remove css comments, comments outside any rule could break CSSParser...
+  //!!!WARNING, THIS IS NOT BULLETPROOF!!! empty comments like this -> /**/ wont be removed
+  source = source.replace(/\s*(?!<\")\/\*[^\*]+\*\/(?!\")\s*/g, '');
 
-        //get and remove <prototype> node from parent
-        var proto = parent.removeChild(node);
 
+  var parser = new CSSParser();
+  var sheet = parser.parse(source, false, true);
 
-        /* CSS PARSING */
 
-        //get CSS text
-        var source = proto.textContent || proto.firstChild.nodeValue; // "proto.firstChild.nodeValue" in IE8
+  var rules = sheet.getJSONP();
+  var keys = _.keys(rules);
 
-        //Remove css comments, comments outside any rule could break CSSParser...
-        //!!!WARNING, THIS IS NOT BULLETPROOF!!! empty comments like this -> /**/ wont be removed
-        source = source.replace(/\s*(?!<\")\/\*[^\*]+\*\/(?!\")\s*/g, '');
 
+  for(var i=0; i<keys.length; i++){
 
-        var parser = new CSSParser();
-        var sheet = parser.parse(source, false, true);
+      var key = keys[i];
+      var rule = rules[key];
 
+      //if key rule exists extend it
+      if(RULES[key]) _.extend(RULES[key], rule);
 
-        var rules = sheet.getJSONP();
-        var keys = _.keys(rules);
+      //else create key rule
+      else RULES[key] = rule;
 
 
-        for(var i=0; i<keys.length; i++){
+  }
 
-            var key = keys[i];
-            var rule = rules[key];
+  return {
+      'id': parent.getAttribute('id'),
+      'rules': RULES
+  };
+  
+}
 
-            //if key rule exists extend it
-            if(RULES[key]) _.extend(RULES[key], rule);
 
-            //else create key rule
-            else RULES[key] = rule;
 
 
-        }
+/**
+ * Parses the given XMLNode
+ * @param {XMLDocument} xmlDocument
+ * @param {Object} data
+ * @return {XMLDocument} result
+ */
+var applyPrototypes = function(xml,proto){
 
-        return {
-            'id': parent.getAttribute('id'),
-            'rules': RULES
-        };
-        
-    }
-    
+  //get target node
+  //var node = Sizzle('#'+proto.id, xml)[0];
+  //var XML = node || xml;
 
+  var XML = xml;
 
+  var RULES = proto.rules;
 
-    PrototypeProcessor.applyPrototypes = function(xml,proto){
+  var RESOLVED_PROTO_ATTRS = {};
 
-        //get target node
-        //var node = Sizzle('#'+proto.id, xml)[0];
-        //var XML = node || xml;
 
-        var XML = xml;
+  var applyProtoAttributes = function(node,attrs){
 
-        var RULES = proto.rules;
+      var id = node.getAttribute('id') || node.getAttribute('id');
 
-        var RESOLVED_PROTO_ATTRS = {};
+      _.each(attrs, function(value,key,list){
 
+          //all values should/must be strings
+          if (!_.isString(value)) return;
 
-        var applyProtoAttributes = function(node,attrs){
+          //important flag? starting with '!'
+          //important values will overwrite node attribute values
+          if(value.indexOf('!')===0){
 
-            var id = node.getAttribute('id') || node.getAttribute('id');
+              //remove '!' so it does not apply to node attributes
+              value = value.substr(1);
 
-            _.each(attrs, function(value,key,list){
+              //apply attr value into node using temp namespace
+              node.setAttribute(key,value);
 
-                //all values should/must be strings
-                if (!_.isString(value)) return;
+          }
+          else{
 
-                //important flag? starting with '!'
-                //important values will overwrite node attribute values
-                if(value.indexOf('!')===0){
+              //apply using temp namespace
+              if (!RESOLVED_PROTO_ATTRS[id]) RESOLVED_PROTO_ATTRS[id] = {};
 
-                    //remove '!' so it does not apply to node attributes
-                    value = value.substr(1);
+              RESOLVED_PROTO_ATTRS[id][key] = value;
 
-                    //apply attr value into node using temp namespace
-                    node.setAttribute(key,value);
+              //node.setAttribute('temp-'+key,value);
 
-                }
-                else{
+          }
 
-                    //apply using temp namespace
-                    if (!RESOLVED_PROTO_ATTRS[id]) RESOLVED_PROTO_ATTRS[id] = {};
 
-                    RESOLVED_PROTO_ATTRS[id][key] = value;
 
-                    //node.setAttribute('temp-'+key,value);
+      });
 
-                }
 
+  }
 
 
-            });
+  //APPLY PROTOTYPES
 
+  _.each(RULES, function(value, key, list){
 
-        }
+      //get matching nodes
+      var nodes = Sizzle(key, XML);
 
+      //include document itself to nodes list
+      //if (Sizzle.matchesSelector(XML,key)) nodes.unshift(XML);
 
-        //APPLY PROTOTYPES
+      //get proto attrs
+      var attrs = RULES[key];
 
-        _.each(RULES, function(value, key, list){
+      //apply attrs to each matching node
+      if (nodes.length>0 && attrs){
 
-            //get matching nodes
-            var nodes = Sizzle(key, XML);
+          _.each(nodes, function(item, index){
 
-            //include document itself to nodes list
-            //if (Sizzle.matchesSelector(XML,key)) nodes.unshift(XML);
+              applyProtoAttributes(item,attrs);
 
-            //get proto attrs
-            var attrs = RULES[key];
+          });
 
-            //apply attrs to each matching node
-            if (nodes.length>0 && attrs){
+      }
 
-                _.each(nodes, function(item, index){
 
-                    applyProtoAttributes(item,attrs);
+  });
 
-                });
 
-            }
+  //APPLY RESOLVED PROTOTYPES
 
+  _.each(RESOLVED_PROTO_ATTRS, function(attrs, nodeId, collection){
 
-        });
 
+      if(!_.isString(nodeId) || nodeId==="") return;
 
-        //APPLY RESOLVED PROTOTYPES
+      //var node = INDEX_CACHE[nodeId];
+      //var node = Sizzle.matchesSelector(XML,'#'+nodeId);
+      //var node = Sizzle.matchesSelector(XML.documentElement,'#'+nodeId);
+      //WARNING!!!!!!!! IE8 FAILS!!!!
+      //var node = XML.getElementById(nodeId);
+      //.getElementById is not supported for XML documents
+      //var node = (XML.getAttribute('id')===nodeId)? XML : Sizzle('#'+nodeId, XML)[0];
+      var node = Sizzle('#'+nodeId, XML)[0];
 
-        _.each(RESOLVED_PROTO_ATTRS, function(attrs, nodeId, collection){
+      //node = node[0];
 
+      if(node){
+          _.each(attrs, function(value, key, list){
 
-            if(!_.isString(nodeId) || nodeId==="") return;
+              if (_.isEmpty(node.getAttribute(key))){
 
-            //var node = INDEX_CACHE[nodeId];
-            //var node = Sizzle.matchesSelector(XML,'#'+nodeId);
-            //var node = Sizzle.matchesSelector(XML.documentElement,'#'+nodeId);
-            //WARNING!!!!!!!! IE8 FAILS!!!!
-            //var node = XML.getElementById(nodeId);
-            //.getElementById is not supported for XML documents
-            //var node = (XML.getAttribute('id')===nodeId)? XML : Sizzle('#'+nodeId, XML)[0];
-            var node = Sizzle('#'+nodeId, XML)[0];
+                  node.setAttribute(key, value);
 
-            //node = node[0];
+              }
 
-            if(node){
-                _.each(attrs, function(value, key, list){
+          });
+      }
 
-                    if (_.isEmpty(node.getAttribute(key))){
+  });
 
-                        node.setAttribute(key, value);
 
-                    }
+  return XML;
 
-                });
-            }
 
-        });
+}
 
 
-        return XML;
 
-
-    }
-
-
-
-
-    //expose into global smx namespace
-    smx.proto = PrototypeProcessor;
-
-
-
-})(window, window.Sizzle, window.smx);
+export default {
+  parseXML: parseXML,
+  parseXMLNode: parseXMLNode,
+  applyPrototypes: applyPrototypes
+};

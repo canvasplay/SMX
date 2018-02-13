@@ -1,10 +1,10 @@
 /**
  * SMX Metadata Parser
  * @module MetadataParser
+ * @memberof module:Metadata
  */
-
-((global, Sizzle, smx, LOG)=>{
-
+ 
+import Sizzle from './Sizzle.selectors.filters.meta.js';
 
 //local helper
 var escapeHtml = function(html){
@@ -19,10 +19,10 @@ var escapeHtml = function(html){
 };
 
 /**
- * @memberof MetadataParser
+ * Parses the given XMLDocument
  * @param {XMLDocument} xml
  * @param {Object} options
- * @static
+ * @async
  */
 var parseXML = function(xml, opt){
 
@@ -59,7 +59,7 @@ var parseXML = function(xml, opt){
     var percent =  Math.floor(100 - (nodes.length*100) / options.total);
 
 
-    LOG('METADATA PARSING... ('+ (options.total-nodes.length) +'/'+ options.total +') '+percent+'%');
+    log('METADATA PARSING... ('+ (options.total-nodes.length) +'/'+ options.total +') '+percent+'%');
 
 
     var i = 0;
@@ -107,13 +107,13 @@ var parseXML = function(xml, opt){
     else{
 
         //remove all existing metadata-processed attributes
-        //LOG('METADATA REMOVING FLAGS...' );
+        //log('METADATA REMOVING FLAGS...' );
         var flagged_nodes = Sizzle('[metadata-processed]', XML);
         _.each(flagged_nodes,function(node){
             node.removeAttribute('metadata-processed');
         });
 
-        LOG('METADATA COMPLETE!   ('+ options.total +'/'+ options.total +') 100%' );
+        log('METADATA COMPLETE!   ('+ options.total +'/'+ options.total +') 100%' );
 
         try{
             
@@ -121,7 +121,7 @@ var parseXML = function(xml, opt){
 
         }catch(e){
 
-            LOG('METADATA CALLBACK ERROR! '+ e.toString() );
+            log('METADATA CALLBACK ERROR! '+ e.toString() );
         }
     }
 
@@ -131,9 +131,9 @@ var parseXML = function(xml, opt){
 
 
 /**
- * @memberof MetadataParser
+ * Parses the given XMLNode
  * @param {XMLNode} node
- * @static
+ * @return {Object} data
  */
 
 var parseMetadataNode = function(node){
@@ -234,9 +234,9 @@ var parseMetadataNode = function(node){
 }
 
 /**
- * @memberof MetadataParser
+ * Parses meta attributes from the given XMLNode
  * @param {XMLNode} node
- * @static
+ * @return {Object} data
  */
 
 var parseMetaAttributes = function(node){
@@ -291,11 +291,8 @@ var parseMetaAttributes = function(node){
    
 }
 
-
-smx.meta = {
+export default {
   parseXML: parseXML,
   parseMetadataNode: parseMetadataNode,
   parseMetaAttributes: parseMetaAttributes
-}
-  
-})(window, window.Sizzle, window.smx, window.log);
+};
