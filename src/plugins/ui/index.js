@@ -77,7 +77,7 @@ let NodeInterface = {
 
 var UiPlugin = {
 
-  register: function(){
+  register: function(smx){
     
     Object.assign(smx.Node.prototype, NodeInterface);
     
@@ -85,6 +85,6 @@ var UiPlugin = {
   
 }
 
-UiPlugin.register();
+//UiPlugin.register();
 
 export default UiPlugin;

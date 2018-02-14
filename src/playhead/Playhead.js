@@ -1,4 +1,4 @@
-(function(global, _, Backbone, smx){
+import Eventify from 'eventify';
 
 
 /**
@@ -17,7 +17,7 @@ class Playhead{
 		if(!doc) return;
     
 		//extend with events on, off, trigger
-		_.extend(this, Backbone.Events);
+		Eventify.enable(this);
     
 		/**
 		 * The document to navigate through
@@ -438,8 +438,4 @@ class Playhead{
 
 
 
-//expose to global
-smx.Playhead = Playhead;
-
-
-})(window, window._, window.Backbone, window.smx);
+export default Playhead;

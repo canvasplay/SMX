@@ -29,7 +29,7 @@ var MetadataPlugin = {
   
   selector: ':meta',
   
-  register: function(){
+  register: function(smx){
     
     //add parser
     smx.parsers.push(Parser);
@@ -44,6 +44,6 @@ var MetadataPlugin = {
   
 }
 
-MetadataPlugin.register();
+//MetadataPlugin.register();
 
 export default MetadataPlugin;

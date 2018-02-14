@@ -1,5 +1,5 @@
-(function(global, Sizzle, smx, LOG){
- 
+import SMXLoader from './loader/Loader.js';
+import SMXDocument from './document/Document.js';
 
 var DATA;
 var PARSER_INDEX;
@@ -7,12 +7,13 @@ var PARSER_INDEX;
 /**
  * Loads a new smx document.
  * @memberof smx
+ * @method load
  * @param {String} url
  * @param {smx~onLoadSuccess} onSuccess
  * @param {smx~onLoadError} onError
  * @async
  */
-smx.load = function(data, success, error){
+var LOAD = function(data, success, error){
 
   if(!data) return;
   
@@ -49,7 +50,7 @@ var ERROR_CALLBACK = function(e){};
  
 
 var LOAD_SMX_DOCUMENT = function(url){
-	var loader = new smx.Loader();
+	var loader = new SMXLoader();
 	loader.on('complete', APPLY_PARSERS);
 	loader.on('error', LOAD_SMX_ERROR);
 	loader.loadDocument(url);
@@ -122,7 +123,7 @@ var CLEAN_TEXT_NODES = function(xml){
 
 	clean(xml);
 
-  LOG('CLEANING XML: '+ count+' nodes removed');
+  log('CLEANING XML: '+ count+' nodes removed');
   
 	CREATE_SMX_DOCUMENT(xml);
 
@@ -133,9 +134,9 @@ var CLEAN_TEXT_NODES = function(xml){
 var CREATE_SMX_DOCUMENT = function(xml){
  
 
-	LOG('smx load complete!');
+	log('smx load complete!');
 
-	var d = new smx.Document(xml);
+	var d = new SMXDocument(xml);
 	
   Object.assign(d,DATA);
   
@@ -159,7 +160,7 @@ var LOAD_SMX_COMPLETE = function(smxDocument){
 
 var LOAD_SMX_ERROR = function(e){
 
-	LOG('smx load error: '+e);
+	log('smx load error: '+e);
 	
 	ERROR_CALLBACK(e);
 
@@ -167,5 +168,4 @@ var LOAD_SMX_ERROR = function(e){
 
 };
 
-
-})(window, window.Sizzle, window.smx, window.log);
+export default LOAD;

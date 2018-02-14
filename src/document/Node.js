@@ -1,5 +1,3 @@
-(function (global, smx) {
-
 /**
  * SMX Node Class
  * @memberof smx
@@ -243,14 +241,15 @@ class Node {
 
 }
 
-//inline property getter definition
-//Object.defineProperty(Node.prototype, 'duration', { get: function() { return this.time('duration'); } });
+
+//import Node extensions
+import NodeCore from './Node.Core.js';
+import NodeTreeNode from './Node.TreeNode.js';
+import NodeAttributeGetters from './Node.AttributeGetters.js';
 
 //extends Node prototype
-Object.assign(Node.prototype, smx.fn);
+Object.assign(Node.prototype, NodeCore);
+Object.assign(Node.prototype, NodeTreeNode);
+Object.assign(Node.prototype, NodeAttributeGetters);
 
-//expose
-smx.Node = Node;
-
-
-})(window, window.smx);
+export default Node;

@@ -1,11 +1,11 @@
-(function(global, _, Sizzle, smx){
+import Sizzle from 'sizzle';
 
 /**
  * Extends SMXNode with utility tree node methods
  * @mixin Node-TreeNode
  */
 
-let TreeNodeInterface = {
+let TreeNodeMethods = {
 
   // PARENT RELATED OPERATIONS
 
@@ -280,10 +280,4 @@ let TreeNodeInterface = {
   
 };
 
-
-//extends smx fn methods
-smx.fn = smx.fn || {};
-smx.fn = Object.assign(smx.fn, TreeNodeInterface);
-
-
-})(window, window._, window.Sizzle, window.smx);
+export default TreeNodeMethods;

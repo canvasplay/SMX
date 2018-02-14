@@ -25,7 +25,7 @@ var Parser = function(xmlDocument, _callback){
 
 var TaxonomyPlugin = {
   
-  register: function(){
+  register: function(smx){
     
     //add parser
     smx.parsers.push(Parser);
@@ -37,6 +37,6 @@ var TaxonomyPlugin = {
   
 }
 
-TaxonomyPlugin.register();
+//TaxonomyPlugin.register();
 
 export default TaxonomyPlugin;

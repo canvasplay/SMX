@@ -1,5 +1,3 @@
-(function(global, Sizzle, smx){
-
 /**
  * Extends SMXNode with utility attribute getters
  * @mixin Node-AttributeGetters
@@ -121,8 +119,4 @@ let NodeAttributeGetters = {
 
 };
 
-//extends smx fn methods
-smx.fn = smx.fn || {};
-smx.fn = Object.assign(smx.fn, NodeAttributeGetters);
-
-})(window, window.Sizzle, window.smx);
+export default NodeAttributeGetters;

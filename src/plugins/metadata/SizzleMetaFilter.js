@@ -1,6 +1,4 @@
-import Sizzle from 'sizzle';
-
-Sizzle.selectors.filters.meta = function(elem, i, match){
+var SizzleMetaFilter = function(elem, i, match){
     var preffix = 'meta-';
     var regex = new RegExp('\\s*'+preffix+'\\w*="', 'ig');
     var attrs = elem.attributes;
@@ -15,4 +13,4 @@ Sizzle.selectors.filters.meta = function(elem, i, match){
     return regex.test(str);
 };
 
-export default Sizzle;
+export default SizzleMetaFilter;

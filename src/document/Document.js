@@ -1,4 +1,5 @@
-(function (global, smx, Sizzle) {
+import sizzle from 'sizzle';
+import SMXNode from './Node.js';
 
 
 /**
@@ -90,7 +91,7 @@ class Document {
   find(selector, ctxNode) {
     
     if (!selector) return [];
-    var nodes = Sizzle(selector,(ctxNode||this)[0]);
+    var nodes = sizzle(selector,(ctxNode||this)[0]);
     return this.wrap(nodes);
     
   }
@@ -124,7 +125,7 @@ class Document {
       if (_this._cache[id]) return _this._cache[id];
       
       //create new Node from given XMLNode
-      var node = new smx.Node(xmlNode);
+      var node = new SMXNode(xmlNode);
       
       //reference node owner document
       node._document = _this;
@@ -158,8 +159,6 @@ class Document {
 }
 
 //expose
-smx.Document = Document;
+//smx.Document = Document;
 
-
-
-})(window, window.smx, window.Sizzle);
+export default Document;

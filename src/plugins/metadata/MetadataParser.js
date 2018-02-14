@@ -4,7 +4,10 @@
  * @memberof module:Metadata
  */
  
-import Sizzle from './Sizzle.selectors.filters.meta.js';
+import Sizzle from 'sizzle';
+import SizzleMetaFilter from './SizzleMetaFilter.js';
+
+Sizzle.selectors.filters.meta = SizzleMetaFilter;
 
 //local helper
 var escapeHtml = function(html){

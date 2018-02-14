@@ -1,11 +1,12 @@
-(function(global, _, Sizzle, smx){
+import Sizzle from 'sizzle';
+import Node from './Node.js';
 
 /**
  * Extends SMXNode with core methods
  * @mixin Node-Core
  */
 
-let NodeCoreMethods = {
+let NodeCore = {
 
     /**
      * Gets the index position in parent's children. If node has no parent,
@@ -125,10 +126,4 @@ let NodeCoreMethods = {
 
 };
 
-//extends smx fn methods
-smx.fn = smx.fn || {};
-smx.fn = Object.assign(smx.fn, NodeCoreMethods);
-
-
-
-})(window, window._, window.Sizzle, window.smx);
+export default NodeCore;

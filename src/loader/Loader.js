@@ -1,4 +1,6 @@
-(function(global,Sizzle,_,smx,LOG){
+import Sizzle from 'sizzle';
+import Eventify from 'eventify';
+import IdAttributeParser from './IdAttributeParser.js';
 
 
 /**
@@ -9,9 +11,8 @@
 
  var Loader = function(){
 
-
-	//extended with custom events
-	_.extend(this, Backbone.Events);
+	//extend with events on, off, trigger
+	Eventify.enable(this);
 
 	// XML Document Object
 	this.xmlDocument = null;
@@ -53,8 +54,8 @@
 	this.onLoadFileSuccess = function(xhr){
     
     
-    LOG('> '+ xhr.responseURL+' '+xhr.status +' ('+ xhr.statusText+')');
-    //LOG( xhr.responseText);
+    log('> '+ xhr.responseURL+' '+xhr.status +' ('+ xhr.statusText+')');
+    //log( xhr.responseText);
     //var ext = xhr.responseURL.split('.').pop();
     
 		//detect if already exist xml root node
@@ -148,7 +149,7 @@
 
 	this.onLoadFileError = function(xhr){
     
-    LOG( '> '+ xhr.responseURL+'" '+xhr.status +' ('+ xhr.statusText+')');
+    log( '> '+ xhr.responseURL+'" '+xhr.status +' ('+ xhr.statusText+')');
 		this.trigger('error', xhr.responseText);
 		
 	};
@@ -158,9 +159,8 @@
     //get defined parsers from smx ns
     var parsers = smx.AttributeParsers;
     
-    //do parsing one by one
-    for(var i=0, len=parsers.length; i<len; i++ )
-      parsers[i].parse(this.xmlDocument);
+    //ensure all nodes have unique id
+    IdAttributeParser.parse(this.xmlDocument);
     
     //trigger complete event
 		this.trigger('complete', this.xmlDocument);
@@ -319,8 +319,6 @@ var parseIncludes = function(xmlDocument){
 
 
 //expose
-smx.Loader = Loader;
+//smx.Loader = Loader;
 
-
-
-})(window, window.Sizzle, window._, window.smx, window.log);
+export default Loader;

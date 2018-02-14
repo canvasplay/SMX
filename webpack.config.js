@@ -1,15 +1,18 @@
 module.exports = {
-    entry  : './src/plugins/plugins.js',
-    devtool: 'source-map',
-    output : {
-        path     : __dirname,
-        filename : './dist/plugins.dist.js'
-    },
-    module : {
-        loaders: [ {
-                test   : /.js$/,
-                loader : 'babel-loader'
-            }
-        ]
-    }
+  entry  : './src/index.js',
+  devtool: 'source-map',
+  output : {
+      path     : __dirname,
+      filename : './dist/smx.js'
+  },
+  module: {
+    rules: [
+      {
+        test: /\.js$/,
+        exclude: /node_modules/,
+        loader: "babel-loader"
+      }
+    ]
+  }
+  
 };

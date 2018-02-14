@@ -23,7 +23,7 @@ var Parser = function(xmlDocument, _callback){
 
 var PrototypePlugin = {
   
-  register: function(){
+  register: function(smx){
     
     //add parser
     smx.parsers.push(Parser);
@@ -32,6 +32,6 @@ var PrototypePlugin = {
   
 };
 
-PrototypePlugin.register();
+//PrototypePlugin.register();
 
 export default PrototypePlugin;

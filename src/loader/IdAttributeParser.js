@@ -1,12 +1,11 @@
-(function(global, smx, Sizzle, LOG){
-
+import Sizzle from 'sizzle';
 
 /**
  *	util method
  *	GET_UNIQUE_ID
  *	returns unique base36 ids strings [0-9]+[a-z]
  *
- *	based on _.uniqueId(), incremental starting at 0
+ *	based on incremental integer starting at 0
  *	Native Intger.toString only handles up base 36
  *
  *  base36 [0-9]+[a-z]
@@ -14,8 +13,9 @@
  *
  */
 
-const GET_UNIQUE_ID = () => { return parseInt(_.uniqueId()).toString(36) };
-//const GET_UNIQUE_ID = ()=>{ return bigInt2str(str2bigInt(_.uniqueId()+"",10,0,0),62) };
+var ID_INDEX = 1;
+const GET_UNIQUE_ID = () => { ID_INDEX++; return parseInt(ID_INDEX).toString(36) };
+//const GET_UNIQUE_ID = ()=>{ return bigInt2str(str2bigInt(ID_INDEX+"",10,0,0),62) };
 	
 	
 var IdAttributeParser = {
@@ -68,7 +68,7 @@ var IdAttributeParser = {
       
     }
     
-    LOG('ATTRIBUTE PARSER: ID ('+ nodes.length +' nodes)');
+    log('ATTRIBUTE PARSER: ID ('+ nodes.length +' nodes)');
     
     return xmlDocument;
     
@@ -77,6 +77,4 @@ var IdAttributeParser = {
 };
 
 //expose to smx namespace
-smx.AttributeParsers.push(IdAttributeParser);
-
-})(window, window.smx, window.Sizzle, window.log);
+export default IdAttributeParser;

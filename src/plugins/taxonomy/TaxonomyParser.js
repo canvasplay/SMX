@@ -1,3 +1,5 @@
+import Sizzle from 'sizzle';
+
 /**
  * SMX Taxonomy Parser
  * @module TaxonomyParser
