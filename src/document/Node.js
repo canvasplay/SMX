@@ -24,12 +24,12 @@ class Node {
   }
 
   /**
-   * Direct access to XMLNode.id
+   * Direct access to XMLNode's id attribute.
    * @type {String}
    * @readonly
    */
   get id() {
-      return this[0].id;
+      return this[0].getAttribute('id');
   }
 
   /**

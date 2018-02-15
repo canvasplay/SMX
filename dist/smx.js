@@ -2353,6 +2353,8 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _NodeCore = __webpack_require__(10);
@@ -2397,7 +2399,7 @@ var Node = function () {
   }
 
   /**
-   * Direct access to XMLNode.id
+   * Direct access to XMLNode's id attribute.
    * @type {String}
    * @readonly
    */
@@ -2406,7 +2408,7 @@ var Node = function () {
   _createClass(Node, [{
     key: 'id',
     get: function get() {
-      return this[0].id;
+      return this[0].getAttribute('id');
     }
 
     /**
@@ -2651,9 +2653,9 @@ var Node = function () {
 
 
 //extends Node prototype
-Object.assign(Node.prototype, _NodeCore2.default);
-Object.assign(Node.prototype, _NodeTreeNode2.default);
-Object.assign(Node.prototype, _NodeAttributeGetters2.default);
+_extends(Node.prototype, _NodeCore2.default);
+_extends(Node.prototype, _NodeTreeNode2.default);
+_extends(Node.prototype, _NodeAttributeGetters2.default);
 
 exports.default = Node;
 
@@ -3415,103 +3417,99 @@ var Document = function () {
    */
 
 
+  /**
+   * Gets the node with the given identifier.
+   * @param {String} id
+   * @return {SMXNode}
+   */
+  Document.prototype.getNodeById = function getNodeById(id) {
+
+    //cached id?
+    if (this._cache[id]) return this._cache[id];
+
+    //search in document
+    var xmlNode = this[0].getElementById(id);
+
+    //not found
+    return this.wrap(xmlNode);
+  };
+
+  //gid(id){ return this.getNodeById(id) }
+
+  /**
+   * Finds all nodes matching the given selector.
+   * @param {String} selector - search selector
+   * @param {SMXNode=} context - node context to find inside
+   * @return {Array.<SMXNode>}
+   */
+
+
+  Document.prototype.find = function find(selector, ctxNode) {
+
+    if (!selector) return [];
+    var nodes = (0, _sizzle2.default)(selector, (ctxNode || this)[0]);
+    return this.wrap(nodes);
+  };
+
+  /**
+   * Wraps an existing node or nodes in smx paradigm.
+   * @param {XMLNode|XMLNode[]}
+   * @return {SMXNode|SMXNode[]}
+   */
+
+
+  Document.prototype.wrap = function wrap(s) {
+
+    if (!s) return;
+
+    var _this = this;
+    var _wrapNode = function _wrapNode(xmlNode) {
+
+      var id;
+
+      //tries getting an id attribute
+      try {
+        id = xmlNode.getAttribute('id');
+      } catch (e) {}
+
+      //id attr is required!
+      if (!id) return;
+
+      //ensure using the active document
+      if (xmlNode.ownerDocument !== _this[0]) return;
+
+      //Does already exists a node with this id?
+      //prevent duplicated nodes and return existing one
+      if (_this._cache[id]) return _this._cache[id];
+
+      //create new Node from given XMLNode
+      var node = new _Node2.default(xmlNode);
+
+      //reference node owner document
+      node._document = _this;
+
+      //adds wrapped node in cache
+      _this._cache[id] = node;
+
+      //return wrapped node
+      return node;
+    };
+
+    var isArray = s.constructor.name === 'Array' || s.length >= 0;
+    var isNodeList = s.constructor.name === 'NodeList';
+    if (isArray || isNodeList) {
+      //NodeList does not allow .map
+      //force array so we can do the mapping
+      //s = Array.prototype.slice.call(s);
+      return [].map.call(s, function (n) {
+        return n[0] ? n : _wrapNode(n);
+      });
+    } else {
+      return s[0] ? s : _wrapNode(s);
+    }
+  };
+
   _createClass(Document, [{
-    key: 'getNodeById',
-
-
-    /**
-     * Gets the node with the given identifier.
-     * @param {String} id
-     * @return {SMXNode}
-     */
-    value: function getNodeById(id) {
-
-      //cached id?
-      if (this._cache[id]) return this._cache[id];
-
-      //search in document
-      var xmlNode = this[0].getElementById(id);
-
-      //not found
-      return this.wrap(xmlNode);
-    }
-
-    //gid(id){ return this.getNodeById(id) }
-
-    /**
-     * Finds all nodes matching the given selector.
-     * @param {String} selector - search selector
-     * @param {SMXNode=} context - node context to find inside
-     * @return {Array.<SMXNode>}
-     */
-
-  }, {
-    key: 'find',
-    value: function find(selector, ctxNode) {
-
-      if (!selector) return [];
-      var nodes = (0, _sizzle2.default)(selector, (ctxNode || this)[0]);
-      return this.wrap(nodes);
-    }
-
-    /**
-     * Wraps an existing node or nodes in smx paradigm.
-     * @param {XMLNode|XMLNode[]}
-     * @return {SMXNode|SMXNode[]}
-     */
-
-  }, {
-    key: 'wrap',
-    value: function wrap(s) {
-
-      if (!s) return;
-
-      var _this = this;
-      var _wrapNode = function _wrapNode(xmlNode) {
-
-        var id;
-
-        try {
-          id = xmlNode.getAttribute('id');
-        } catch (e) {}
-
-        //id attr is required!
-        if (!id) return;
-
-        //ensure using the active document
-        if (xmlNode.ownerDocument !== _this[0]) return;
-
-        //Does already exists a node with this id?
-        //prevent duplicated nodes and return existing one
-        if (_this._cache[id]) return _this._cache[id];
-
-        //create new Node from given XMLNode
-        var node = new _Node2.default(xmlNode);
-
-        //reference node owner document
-        node._document = _this;
-
-        //adds wrapped node in cache
-        _this._cache[id] = node;
-
-        //return wrapped node
-        return node;
-      };
-
-      var isArray = s.constructor.name === 'Array';
-      var isNodeList = s.constructor.name === 'NodeList';
-      if (isArray || isNodeList) {
-        //NodeList does not allow .map
-        //force array so we can do the mapping
-        //s = Array.prototype.slice.call(s);
-        return [].map.call(s, function (n) {
-          return n[0] ? n : _wrapNode(n);
-        });
-      } else {
-        return s[0] ? s : _wrapNode(s);
-      }
-    }
-  }, {
     key: 'path',
     get: function get() {
       var path = this[0].URL.split('/');
@@ -3724,6 +3722,8 @@ Object.defineProperty(exports, "__esModule", {
 	value: true
 });
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 var _Loader = __webpack_require__(2);
 
 var _Loader2 = _interopRequireDefault(_Loader);
@@ -3794,7 +3794,7 @@ var APPLY_PARSERS = function APPLY_PARSERS(xmlDocument) {
 	var parser = smx.parsers[PARSER_INDEX];
 	if (parser) {
 		parser(xml, function (data) {
-			if (data) Object.assign(DATA, data);
+			if (data) _extends(DATA, data);
 			PARSER_INDEX = PARSER_INDEX + 1;
 			APPLY_PARSERS(xml);
 		});
@@ -3859,7 +3859,7 @@ var CREATE_SMX_DOCUMENT = function CREATE_SMX_DOCUMENT(xml) {
 
 	var d = new _Document2.default(xml);
 
-	Object.assign(d, DATA);
+	_extends(d, DATA);
 
 	smx.documents.push(d);
 
@@ -4431,7 +4431,7 @@ exports.default = TreeNodeMethods;
 
 
 Object.defineProperty(exports, "__esModule", {
-    value: true
+        value: true
 });
 /**
  * Extends SMXNode with utility attribute getters
@@ -4440,110 +4440,110 @@ Object.defineProperty(exports, "__esModule", {
 
 var NodeAttributeGetters = {
 
-    /**
-     * Gets the value for the given attribute name.
-     *
-     * @memberof Node-AttributeGetters
-     * @param {String} name - attribute name
-     * @return {String} value
-     * @example
-     * <movie tags="sci-fi, horror, adventures" />
-     * @example
-     * $movie.attr('tags')
-     * // => "sci-fi, horror, adventures"
-     */
-    attr: function attr(name) {
+        /**
+         * Gets the value for the given attribute name.
+         *
+         * @memberof Node-AttributeGetters
+         * @param {String} name - attribute name
+         * @return {String} value
+         * @example
+         * <movie tags="sci-fi, horror, adventures" />
+         * @example
+         * $movie.attr('tags')
+         * // => "sci-fi, horror, adventures"
+         */
+        attr: function attr(name) {
 
-        return this[0].getAttribute ? this[0].getAttribute(name) : undefined;
-    },
+                return this[0].getAttribute ? this[0].getAttribute(name) : undefined;
+        },
 
-    /**
-     * This method is like `attr` but will use an attribute parser if there is
-     * one predefined for the given attribute name.
-     *
-     * @memberof Node-AttributeGetters
-     * @param {String} name - attribute name
-     * @param {Object=} opt - options to pass into attribute parser
-     * @return {String} value
-     */
-    get: function get(name, opt) {
+        /**
+         * This method is like `attr` but will use an attribute parser if there is
+         * one predefined for the given attribute name.
+         *
+         * @memberof Node-AttributeGetters
+         * @param {String} name - attribute name
+         * @param {Object=} opt - options to pass into attribute parser
+         * @return {String} value
+         */
+        get: function get(name, opt) {
 
-        if (!this[0].getAttribute) return undefined;
+                if (!this[0].getAttribute) return undefined;
 
-        //get an existing attribute parser for the given name
-        var parser = smx.AttributeParsers[name];
+                //get an existing attribute parser for the given name
+                var parser = smx.AttributeParsers[name];
 
-        //no parser? return the raw attribute
-        if (!parser) return this.attr(name);
+                //no parser? return the raw attribute
+                if (!parser) return this.attr(name);
 
-        //else use the parser with the given options
-        else return parser(name, opt);
-    },
+                //else use the parser with the given options
+                else return parser(name, opt);
+        },
 
-    /**
-     * Checks if node has or not an attribute with the given name
-     * @method has
-     * @memberof Node-AttributeGetters
-     * @param {String} name - attribute name
-     * @return {Boolean}
-     */
-    has: function has(name) {
-        if (!this[0].getAttribute) return false;
-        //return this[0].hasAttribute(name);
-        //IE8 does not support XMLNode.hasAttribute, so...
-        return this[0].getAttribute(name) !== null;
-    },
+        /**
+         * Checks if node has or not an attribute with the given name
+         * @method has
+         * @memberof Node-AttributeGetters
+         * @param {String} name - attribute name
+         * @return {Boolean}
+         */
+        has: function has(name) {
+                if (!this[0].getAttribute) return false;
+                //return this[0].hasAttribute(name);
+                //IE8 does not support XMLNode.hasAttribute, so...
+                return this[0].getAttribute(name) !== null;
+        },
 
-    /**
-     * Gets Delimiter Separated Value
-     * An utility method converts given attribute value into dsv array
-     * @method dsv
-     * @memberof Node-AttributeGetters
-     * @param name {String} the name of the attribute
-     * @param delimiter {String=} delimiter string
-     * @return {Array.<String>}
-     * @example
-     * <movie tags="sci-fi, horror, adventures">
-     * @example
-     * $movie.dsv('tags',',')
-     * // => ["sci-fi", "horror", "adventures"]
-     */
-    dsv: function dsv(name, delimiter) {
+        /**
+         * Gets Delimiter Separated Value
+         * An utility method converts given attribute value into dsv array
+         * @method dsv
+         * @memberof Node-AttributeGetters
+         * @param name {String} the name of the attribute
+         * @param delimiter {String=} delimiter string
+         * @return {Array.<String>}
+         * @example
+         * <movie tags="sci-fi, horror, adventures">
+         * @example
+         * $movie.dsv('tags',',')
+         * // => ["sci-fi", "horror", "adventures"]
+         */
+        dsv: function dsv(name, delimiter) {
 
-        //ignore undefined attributes
-        if (!this.has(name)) return;
+                //ignore undefined attributes
+                if (!this.has(name)) return;
 
-        //get attr's value by name
-        var value = this.attr(name);
+                //get attr's value by name
+                var value = this.attr(name);
 
-        //resolve delimiter, defaults to space
-        var d = delimiter || ' ';
+                //resolve delimiter, defaults to space
+                var d = delimiter || ' ';
 
-        //if attribute exists value must be String
-        if (typeof value != 'string') return [];
+                //if attribute exists value must be String
+                if (typeof value != 'string') return [];
 
-        //split value by delimiter
-        var list = value.split(delimiter);
+                //split value by delimiter
+                var list = value.split(delimiter);
 
-        //trim spaces nicely handling multiple spaced values
-        list = list.map(function (str) {
+                //trim spaces nicely handling multiple spaced values
+                list = list.map(function (str) {
 
-            //convert multiple spaces, tabs, newlines, etc, to single spaces
-            str = str.replace(/^\s+/, '');
+                        //convert multiple spaces, tabs, newlines, etc, to single spaces
+                        str = str.replace(/^\s+/, '');
 
-            //trim leading and trailing whitespaces
-            str = str.replace(/(^\s+|\s+$)/g, '');
+                        //trim leading and trailing whitespaces
+                        str = str.replace(/(^\s+|\s+$)/g, '');
 
-            return str;
-        });
+                        return str;
+                });
 
-        //remove empty like values
-        list = list.filter(function (str) {
-            return value !== '' && value !== ' ';
-        });
+                //remove empty like values
+                list = list.filter(function (str) {
+                        return value !== '' && value !== ' ';
+                });
 
-        return list;
-    }
+                return list;
+        }
 
 };
 
@@ -4611,384 +4611,371 @@ var Playhead = function () {
    */
 
 
+		/**
+   * Navigates to document's root node.
+   */
+		Playhead.prototype.reset = function reset() {
+				return this.navigate(this.document.root);
+		};
+
+		/**
+   * Performs play action
+   * @param {(String|SMXNode)=} ref target reference
+   */
+
+
+		Playhead.prototype.play = function play(ref) {
+
+				//no reference? just do a forward
+				if (!ref) return this.forward();
+
+				//resolve target node
+				var tnode = ref.id ? ref : this.document.getNodeById(ref);
+
+				//not found? ignore...
+				if (tnode) return this.navigate(tnode, {});
+
+				//else ignore
+				return;
+		};
+
+		/**
+   * Navigates inside head's node.
+   */
+
+
+		Playhead.prototype.enter = function enter() {
+
+				//get current node
+				var cnode = this.head;if (!cnode) return;
+
+				//get children nodes
+				var children = cnode.children;
+
+				//no children?
+				if (!children.length) return;
+
+				//get first child
+				var tnode = children[0];
+
+				//go to child node using known swap type and passing recived params
+				return this.navigate(tnode, { 'type': 'inside' });
+		};
+
+		/**
+   * Navigates outside head's node.
+   */
+
+
+		Playhead.prototype.exit = function exit() {
+
+				//get current node
+				var cnode = this.head;if (!cnode) return;
+
+				//has parent node?
+				if (!cnode.parent) return;
+
+				//get parent node
+				var tnode = cnode.parent;
+
+				//go to child node using known swap type and passing recived params
+				return this.navigate(tnode, { 'type': 'outside' });
+		};
+
+		/**
+   * Navigates to head's next node.
+   */
+
+
+		Playhead.prototype.next = function next() {
+
+				//get current node
+				var cnode = this.head;if (!cnode) return;
+
+				//get next node
+				var tnode = cnode.next;if (!tnode) return;
+
+				//go to next node using known swap type
+				return this.navigate(tnode, { 'type': 'next' });
+		};
+
+		/**
+   * Navigates to head's previous node.
+   */
+
+
+		Playhead.prototype.previous = function previous() {
+
+				//get current node
+				var cnode = this.head;if (!cnode) return;
+
+				//get previous node
+				var tnode = cnode.previous;if (!tnode) return;
+
+				//go to previous node using known swap type and passing recived params
+				return this.navigate(tnode, { 'type': 'previous' });
+		};
+
+		/**
+   * Navigates to head's next node in flat tree mode.
+   */
+
+
+		Playhead.prototype.forward = function forward() {
+
+				var tnode = void 0,
+				    cnode = void 0,
+				    children = void 0;
+
+				//get current node
+				cnode = this.head;
+
+				//no current node? ignore
+				if (!cnode) return;
+
+				tnode = cnode.first || cnode.next;
+
+				if (!tnode) {
+
+						var parent = cnode.parent;
+						while (parent && !tnode) {
+								tnode = parent.next;
+								parent = parent.parent;
+						}
+				}
+
+				return tnode ? this.navigate(tnode) : null;
+		};
+
+		/**
+    * Navigates to head's previous node in flat tree mode.
+   */
+
+
+		Playhead.prototype.backward = function backward() {
+
+				if (!this.head) return;
+				var tnode = this.head.previous || this.head.parent;
+				return tnode ? this.navigate(tnode) : null;
+		};
+
+		/**
+   * Executes a playhead action by keyword.
+    * @param {String} keyword
+   */
+
+
+		Playhead.prototype.exec = function exec(keyword) {
+
+				//define valid keywords mapping existing methods
+				var keywords = ['reset', 'play', 'next', 'previous', 'enter', 'exit', 'forward', 'backward'];
+
+				//resolve for a valid keyword
+				var isValidKeyword = keywords.indexOf(keyword) >= 0;
+
+				//not valid keyword? error!
+				if (!isValidKeyword) throw new Error('UNKNOWN KEYWORD "!"' + keyword + '"');
+
+				//try-catched execution
+				try {
+						return this[keyword]();
+				} catch (e) {
+						throw new Error('Playhead Error: Keyword exec "!' + keyword + '"', e);
+				}
+		};
+
+		/**
+   * Navigates to given node using optional configuration.
+    * @param {String} target
+   */
+
+
+		Playhead.prototype.navigate = function navigate(target) {
+
+				//check for a keyword, must be '!' preffixed string
+				var isKeyword = typeof target === 'string' && target.indexOf('!') === 0;
+
+				//keyword? resolve by exec unpreffixed reference
+				if (isKeyword) return this.exec(target.substr(1));
+
+				//resolve target node by reference
+				//assuming having and id property means SMXNode...
+				var tnode = target.id ? target : this.document.getNodeById(target);
+
+				//no target found? error!
+				if (!tnode) throw new Error('Playhead Error: Invalid target ' + target);
+
+				//get current node
+				var cnode = this.head;
+
+				//no need to move...
+				if (tnode === cnode) return cnode;
+
+				//--> ASYNC ATTR CONDITIONAL NAVIGATION WAS HERE...
+				//see leagacy playhead implementations for more info
+
+				//resets private navigation registry
+				var selected = [],
+				    deselected = [];
+
+				if (!cnode) {
+						cnode = this.document.root;
+						selected.push(cnode);
+				}
+
+				/* trying a better approach */
+
+				var isDescendant = cnode.isAncestorOf(tnode);
+				var isAncestor = tnode.isAncestorOf(cnode);
+
+				//aux filter fn for later use
+				var isNodeOrAncestorOf = function isNodeOrAncestorOf(n) {
+						return n == tnode || n.isAncestorOf(tnode);
+				};
+
+				var r = cnode;
+				if (cnode === tnode) {
+						//..
+				} else if (isDescendant) {
+						while (r != tnode) {
+								r = r.children.filter(isNodeOrAncestorOf)[0];
+								selected.push(r);
+						}
+				} else if (isAncestor) {
+						while (r != tnode) {
+								deselected.push(r);
+								r = r.parent;
+						}
+				} else {
+						while (!r.isAncestorOf(cnode) || !r.isAncestorOf(tnode)) {
+								deselected.push(r);
+								r = r.parent;
+						}
+						while (r != tnode) {
+								r = r.children.filter(isNodeOrAncestorOf)[0];
+								selected.push(r);
+						}
+				}
+
+				//update path
+				for (var i = 0; i < deselected.length; i++) {
+						this._selection.pop();
+				}
+				for (var i = 0; i < selected.length; i++) {
+						this._selection.push(selected[i]);
+				}
+
+				this.trigger('change', {
+						selected: selected,
+						deselected: deselected,
+						path: this._selection,
+						origin: cnode,
+						target: tnode
+				});
+
+				/*
+    //FIRE EVENTS
+      
+    //FIRE 'LEAVE' EVENT
+    if(cnode){
+        
+    	//fire generic 'leave' event in resulting current node
+    	this.trigger('leave', cnode);
+    	
+    	//fire specific node 'leave' event
+    	this.trigger('leave:'+cnode.id, cnode);
+    	
+    }
+      
+    //--> NOSTOP ATTRIBUTE CONDITIONAL NAVIGATION WAS HERE...
+      //see leagacy playhead implementations for more info
+      
+    //fire generic 'stay' event in resulting current node
+    this.trigger('stay',tnode);
+    
+    //fire specific node 'stay' event
+    this.trigger('stay:'+tnode.id,tnode);
+      
+    //notify node navigation completed
+    this.trigger('ready',tnode);
+      
+      //return head node
+    return this.head;
+    
+    */
+		};
+
+		/**
+   * Fired when entering to any node
+   * @event enter
+   * @memberof smx.Playhead
+   * @return {PlayheadEvent}
+   */
+
+		/**
+   * Fired just after `enter` but for a specific node
+   * @event enter:id
+   * @memberof smx.Playhead
+   * @return {PlayheadEvent}
+   */
+
+		/**
+   * Fired when exiting from any node
+   * @event exit
+   * @memberof smx.Playhead
+   * @return {PlayheadEvent}
+   */
+
+		/**
+   * Fired just after `exit` but for a specific node
+   * @event exit:id
+   * @memberof smx.Playhead
+   * @return {PlayheadEvent}
+   */
+
+		/**
+   * Fired every time a head change occurs and stays on any node
+   * @event stay
+   * @memberof smx.Playhead
+   * @return {PlayheadEvent}
+   */
+
+		/**
+   * Fired just after `stay` but for a specific node
+   * @event stay:id
+   * @memberof smx.Playhead
+   * @return {PlayheadEvent}
+   */
+
+		/**
+   * Fired every time a node stops being the head
+   * @event leave
+   * @memberof smx.Playhead
+   * @return {PlayheadEvent}
+   */
+
+		/**
+   * Fired just after `leave` but for a specific node
+   * @event leave:id
+   * @memberof smx.Playhead
+   * @return {PlayheadEvent}
+   */
+
+		/**
+   * Fired every time the playhead finishes all operations and goes idle
+   * @event ready
+   * @memberof smx.Playhead
+   * @return {PlayheadEvent}
+   */
+
+		/**
+   * Fired when playhed goes to sync mode
+   * @event sync
+   * @memberof smx.Playhead
+   * @return {PlayheadEvent}
+   */
+
 		_createClass(Playhead, [{
-				key: 'reset',
-
-
-				/**
-     * Navigates to document's root node.
-     */
-				value: function reset() {
-						return this.navigate(this.document.root);
-				}
-
-				/**
-     * Performs play action
-     * @param {(String|SMXNode)=} ref target reference
-     */
-
-		}, {
-				key: 'play',
-				value: function play(ref) {
-
-						//no reference? just do a forward
-						if (!ref) return this.forward();
-
-						//resolve target node
-						var tnode = ref.id ? ref : this.document.getNodeById(ref);
-
-						//not found? ignore...
-						if (tnode) return this.navigate(tnode, {});
-
-						//else ignore
-						return;
-				}
-
-				/**
-     * Navigates inside head's node.
-     */
-
-		}, {
-				key: 'enter',
-				value: function enter() {
-
-						//get current node
-						var cnode = this.head;if (!cnode) return;
-
-						//get children nodes
-						var children = cnode.children;
-
-						//no children?
-						if (!children.length) return;
-
-						//get first child
-						var tnode = children[0];
-
-						//go to child node using known swap type and passing recived params
-						return this.navigate(tnode, { 'type': 'inside' });
-				}
-
-				/**
-     * Navigates outside head's node.
-     */
-
-		}, {
-				key: 'exit',
-				value: function exit() {
-
-						//get current node
-						var cnode = this.head;if (!cnode) return;
-
-						//has parent node?
-						if (!cnode.parent) return;
-
-						//get parent node
-						var tnode = cnode.parent;
-
-						//go to child node using known swap type and passing recived params
-						return this.navigate(tnode, { 'type': 'outside' });
-				}
-
-				/**
-     * Navigates to head's next node.
-     */
-
-		}, {
-				key: 'next',
-				value: function next() {
-
-						//get current node
-						var cnode = this.head;if (!cnode) return;
-
-						//get next node
-						var tnode = cnode.next;if (!tnode) return;
-
-						//go to next node using known swap type
-						return this.navigate(tnode, { 'type': 'next' });
-				}
-
-				/**
-     * Navigates to head's previous node.
-     */
-
-		}, {
-				key: 'previous',
-				value: function previous() {
-
-						//get current node
-						var cnode = this.head;if (!cnode) return;
-
-						//get previous node
-						var tnode = cnode.previous;if (!tnode) return;
-
-						//go to previous node using known swap type and passing recived params
-						return this.navigate(tnode, { 'type': 'previous' });
-				}
-
-				/**
-     * Navigates to head's next node in flat tree mode.
-     */
-
-		}, {
-				key: 'forward',
-				value: function forward() {
-
-						var tnode = void 0,
-						    cnode = void 0,
-						    children = void 0;
-
-						//get current node
-						cnode = this.head;
-
-						//no current node? ignore
-						if (!cnode) return;
-
-						tnode = cnode.first || cnode.next;
-
-						if (!tnode) {
-
-								var parent = cnode.parent;
-								while (parent && !tnode) {
-										tnode = parent.next;
-										parent = parent.parent;
-								}
-						}
-
-						return tnode ? this.navigate(tnode) : null;
-				}
-
-				/**
-      * Navigates to head's previous node in flat tree mode.
-     */
-
-		}, {
-				key: 'backward',
-				value: function backward() {
-
-						if (!this.head) return;
-						var tnode = this.head.previous || this.head.parent;
-						return tnode ? this.navigate(tnode) : null;
-				}
-
-				/**
-     * Executes a playhead action by keyword.
-      * @param {String} keyword
-     */
-
-		}, {
-				key: 'exec',
-				value: function exec(keyword) {
-
-						//define valid keywords mapping existing methods
-						var keywords = ['reset', 'play', 'next', 'previous', 'enter', 'exit', 'forward', 'backward'];
-
-						//resolve for a valid keyword
-						var isValidKeyword = keywords.indexOf(keyword) >= 0;
-
-						//not valid keyword? error!
-						if (!isValidKeyword) throw new Error('UNKNOWN KEYWORD "!"' + keyword + '"');
-
-						//try-catched execution
-						try {
-								return this[keyword]();
-						} catch (e) {
-								throw new Error('Playhead Error: Keyword exec "!' + keyword + '"', e);
-						}
-				}
-
-				/**
-     * Navigates to given node using optional configuration.
-      * @param {String} target
-     */
-
-		}, {
-				key: 'navigate',
-				value: function navigate(target) {
-
-						//check for a keyword, must be '!' preffixed string
-						var isKeyword = typeof target === 'string' && target.indexOf('!') === 0;
-
-						//keyword? resolve by exec unpreffixed reference
-						if (isKeyword) return this.exec(target.substr(1));
-
-						//resolve target node by reference
-						//assuming having and id property means SMXNode...
-						var tnode = target.id ? target : this.document.getNodeById(target);
-
-						//no target found? error!
-						if (!tnode) throw new Error('Playhead Error: Invalid target ' + target);
-
-						//get current node
-						var cnode = this.head;
-
-						//no need to move...
-						if (tnode === cnode) return cnode;
-
-						//--> ASYNC ATTR CONDITIONAL NAVIGATION WAS HERE...
-						//see leagacy playhead implementations for more info
-
-						//resets private navigation registry
-						var selected = [],
-						    deselected = [];
-
-						if (!cnode) {
-								cnode = this.document.root;
-								selected.push(cnode);
-						}
-
-						/* trying a better approach */
-
-						var isDescendant = cnode.isAncestorOf(tnode);
-						var isAncestor = tnode.isAncestorOf(cnode);
-
-						//aux filter fn for later use
-						var isNodeOrAncestorOf = function isNodeOrAncestorOf(n) {
-								return n == tnode || n.isAncestorOf(tnode);
-						};
-
-						var r = cnode;
-						if (cnode === tnode) {
-								//..
-						} else if (isDescendant) {
-								while (r != tnode) {
-										r = r.children.filter(isNodeOrAncestorOf)[0];
-										selected.push(r);
-								}
-						} else if (isAncestor) {
-								while (r != tnode) {
-										deselected.push(r);
-										r = r.parent;
-								}
-						} else {
-								while (!r.isAncestorOf(cnode) || !r.isAncestorOf(tnode)) {
-										deselected.push(r);
-										r = r.parent;
-								}
-								while (r != tnode) {
-										r = r.children.filter(isNodeOrAncestorOf)[0];
-										selected.push(r);
-								}
-						}
-
-						//update path
-						for (var i = 0; i < deselected.length; i++) {
-								this._selection.pop();
-						}
-						for (var i = 0; i < selected.length; i++) {
-								this._selection.push(selected[i]);
-						}
-
-						this.trigger('change', {
-								selected: selected,
-								deselected: deselected,
-								path: this._selection,
-								origin: cnode,
-								target: tnode
-						});
-
-						/*
-      //FIRE EVENTS
-        
-      //FIRE 'LEAVE' EVENT
-      if(cnode){
-          
-      	//fire generic 'leave' event in resulting current node
-      	this.trigger('leave', cnode);
-      	
-      	//fire specific node 'leave' event
-      	this.trigger('leave:'+cnode.id, cnode);
-      	
-      }
-        
-      //--> NOSTOP ATTRIBUTE CONDITIONAL NAVIGATION WAS HERE...
-        //see leagacy playhead implementations for more info
-        
-      //fire generic 'stay' event in resulting current node
-      this.trigger('stay',tnode);
-      
-      //fire specific node 'stay' event
-      this.trigger('stay:'+tnode.id,tnode);
-        
-      //notify node navigation completed
-      this.trigger('ready',tnode);
-        
-        //return head node
-      return this.head;
-      
-      */
-				}
-
-				/**
-     * Fired when entering to any node
-     * @event enter
-     * @memberof smx.Playhead
-     * @return {PlayheadEvent}
-     */
-
-				/**
-     * Fired just after `enter` but for a specific node
-     * @event enter:id
-     * @memberof smx.Playhead
-     * @return {PlayheadEvent}
-     */
-
-				/**
-     * Fired when exiting from any node
-     * @event exit
-     * @memberof smx.Playhead
-     * @return {PlayheadEvent}
-     */
-
-				/**
-     * Fired just after `exit` but for a specific node
-     * @event exit:id
-     * @memberof smx.Playhead
-     * @return {PlayheadEvent}
-     */
-
-				/**
-     * Fired every time a head change occurs and stays on any node
-     * @event stay
-     * @memberof smx.Playhead
-     * @return {PlayheadEvent}
-     */
-
-				/**
-     * Fired just after `stay` but for a specific node
-     * @event stay:id
-     * @memberof smx.Playhead
-     * @return {PlayheadEvent}
-     */
-
-				/**
-     * Fired every time a node stops being the head
-     * @event leave
-     * @memberof smx.Playhead
-     * @return {PlayheadEvent}
-     */
-
-				/**
-     * Fired just after `leave` but for a specific node
-     * @event leave:id
-     * @memberof smx.Playhead
-     * @return {PlayheadEvent}
-     */
-
-				/**
-     * Fired every time the playhead finishes all operations and goes idle
-     * @event ready
-     * @memberof smx.Playhead
-     * @return {PlayheadEvent}
-     */
-
-				/**
-     * Fired when playhed goes to sync mode
-     * @event sync
-     * @memberof smx.Playhead
-     * @return {PlayheadEvent}
-     */
-
-		}, {
 				key: 'document',
 				get: function get() {
 						return this._document;
@@ -5047,6 +5034,12 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; /**
+                                                                                                                                                                                                                                                                   * Metadata Module
+                                                                                                                                                                                                                                                                   * @module Metadata
+                                                                                                                                                                                                                                                                   * @description Lorem ipsum dolor sit amet consectetuer adipiscing elit aliquet amet
+                                                                                                                                                                                                                                                                   */
+
 var _MetadataParser = __webpack_require__(15);
 
 var _MetadataParser2 = _interopRequireDefault(_MetadataParser);
@@ -5074,11 +5067,7 @@ var Parser = function Parser(xmlDocument, _callback) {
       });
     }
   });
-}; /**
-    * Metadata Module
-    * @module Metadata
-    * @description Lorem ipsum dolor sit amet consectetuer adipiscing elit aliquet amet
-    */
+};
 
 var MetadataPlugin = {
 
@@ -5090,10 +5079,10 @@ var MetadataPlugin = {
     smx.parsers.push(Parser);
 
     //extend SMXNode
-    Object.assign(smx.Node.prototype, _NodeInterface2.default);
+    _extends(smx.Node.prototype, _NodeInterface2.default);
 
     //extend SMXDocument
-    Object.assign(smx.Document.prototype, _DocumentInterface2.default);
+    _extends(smx.Document.prototype, _DocumentInterface2.default);
   }
 
   //MetadataPlugin.register();
@@ -7440,6 +7429,12 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; /**
+                                                                                                                                                                                                                                                                   * Taxonomy Module
+                                                                                                                                                                                                                                                                   * @module Taxonomy
+                                                                                                                                                                                                                                                                   * @description Lorem ipsum dolor sit amet consectetuer adipiscing elit aliquet amet
+                                                                                                                                                                                                                                                                   */
+
 var _TaxonomyParser = __webpack_require__(23);
 
 var _TaxonomyParser2 = _interopRequireDefault(_TaxonomyParser);
@@ -7449,12 +7444,6 @@ var _NodeInterface = __webpack_require__(24);
 var _NodeInterface2 = _interopRequireDefault(_NodeInterface);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-/**
- * Taxonomy Module
- * @module Taxonomy
- * @description Lorem ipsum dolor sit amet consectetuer adipiscing elit aliquet amet
- */
 
 var Parser = function Parser(xmlDocument, _callback) {
 
@@ -7478,7 +7467,7 @@ var TaxonomyPlugin = {
     smx.parsers.push(Parser);
 
     //extend SMXNode
-    Object.assign(smx.Node.prototype, _NodeInterface2.default);
+    _extends(smx.Node.prototype, _NodeInterface2.default);
   }
 
   //TaxonomyPlugin.register();
@@ -7750,6 +7739,9 @@ exports.default = NodeInterface;
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 /**
  * User Interface Module
  * @module Ui
@@ -7821,7 +7813,7 @@ var UiPlugin = {
 
     register: function register(smx) {
 
-        Object.assign(smx.Node.prototype, NodeInterface);
+        _extends(smx.Node.prototype, NodeInterface);
     }
 
     //UiPlugin.register();

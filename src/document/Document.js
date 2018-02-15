@@ -110,9 +110,9 @@ class Document {
       
       var id;
       
-      try {
-          id = xmlNode.getAttribute('id');
-      } catch (e) {}
+      //tries getting an id attribute
+      try { id = xmlNode.getAttribute('id') }
+      catch (e) {}
         
       //id attr is required!
       if (!id) return;
@@ -138,7 +138,7 @@ class Document {
       
     };
     
-    var isArray = (s.constructor.name === 'Array');
+    var isArray = ( s.constructor.name === 'Array' || s.length>=0 );
     var isNodeList = (s.constructor.name === 'NodeList');
     if(isArray || isNodeList){
       //NodeList does not allow .map
