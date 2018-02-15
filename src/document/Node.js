@@ -167,7 +167,7 @@ class Node {
   }
 
   /**
-   * Gets ancestors nodes
+   * Gets ancestors nodes, ordered from outer to inner.
    * @type {SMXNode[]}
    * @readonly
    */
@@ -176,7 +176,7 @@ class Node {
     var p = this;
     while(p.parent){
       p = p.parent;
-      a.push(p);
+      a.unshift(p);
     }
     return a;
   }
