@@ -1,61 +1,1121 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta charset="utf-8">
+    
+    
+    <title>source: playhead/Playhead.js - Documentation</title>
 
-  <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <title>JSDoc: Source-playhead/Playhead.js</title>
 
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-  <link rel="stylesheet" href="https://cdn.rawgit.com/isagalaev/highlight.js/cf4b46e5/src/styles/default.css">
-  <link rel="stylesheet" href="css/styles.css">
+    <!--<link rel="stylesheet" href="https://cdn.rawgit.com/isagalaev/highlight.js/cf4b46e5/src/styles/default.css">-->
+    <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>-->
+    <!--<script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>-->
+    <script src="https://cdn.rawgit.com/google/code-prettify/master/loader/prettify.js"></script>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
-  <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script src="scripts/jsdoc.js"></script>
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
 
 </head>
+<body class="kind-source">
 
-<body>
+<div class="nav__overlay" onclick="$('body').removeClass('nav-visible');">
+</div>
+
+<a class="nav__toggle" href="javascript:$('body').toggleClass('nav-visible');">
+  &#x2261;
+</a>
 
 <nav>
-  <h2><a href="index.html">smx</a></h2><h3>Namespaces</h3><ul><li><a href="smx.html">smx</a></li></ul><h3>Classes</h3><ul><li> &rarr; <a href="smx.Document.html">Document</a></li><li> &rarr; <a href="smx.Loader.html">Loader</a></li><li> &rarr; <a href="smx.Node.html">Node</a></li><li> &rarr; <a href="smx.Playhead.html">Playhead</a></li></ul><h3>Modules</h3><ul><li><a href="module-Metadata.html">Metadata</a></li><li> &rarr; <a href="module-Metadata.module_MetadataParser.html">MetadataParser</a></li><li><a href="module-Prototype.html">Prototype</a></li><li> &rarr; <a href="module-Prototype.module_PrototypeParser.html">PrototypeParser</a></li><li><a href="module-Taxonomy.html">Taxonomy</a></li><li> &rarr; <a href="module-Taxonomy.module_TaxonomyParser.html">TaxonomyParser</a></li><li><a href="module-Ui.html">Ui</a></li></ul><h3>Mixins</h3><ul><li><a href="Node-AttributeGetters.html">Node-AttributeGetters</a></li><li><a href="Node-Core.html">Node-Core</a></li><li><a href="Node-TreeNode.html">Node-TreeNode</a></li><li> &rarr; <a href="module-Metadata.Document-Metadata.html">Document-Metadata</a></li><li> &rarr; <a href="module-Metadata.Node-Metadata.html">Node-Metadata</a></li><li> &rarr; <a href="module-Taxonomy.Node-Taxonomy.html">Node-Taxonomy</a></li><li> &rarr; <a href="module-Ui.Node-Ui.html">Node-Ui</a></li></ul>
+  
+  <form class="search-form">
+    <div class="form-group">
+      <input
+        type="search"
+        id="NavSearchInput"
+        class="form-control form-control-sm"
+        autocomplete="off"
+        placeholder="Search..."
+      />
+    </div>
+  </form>
 
+  <ul>
+
+  
+  <li class="index">
+    
+    <h3><a href="index.html">SMX</a></h3>
+    
+  </li>
+  
+  <li class="namespaces">
+    
+    <h3>Namespaces</h3>
+    
+    <ul>
+      
+      <li class="namespace">
+
+  <a href="smx.html">smx</a>
+  
+  
+  <ul>
+    
+      <li class="member">
+
+  <a href="smx.html#.version">version</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.html#.document">document</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.html#.documents">documents</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.html#.modules">modules</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.html#.registerModule">registerModule</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.html#.smx">smx</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.html#.load">load</a>
+  
+  
+
+</li>
+    
+      <li class="typedef">
+
+  <a href="smx.html#~onLoadSuccess">onLoadSuccess</a>
+  
+  
+
+</li>
+    
+      <li class="typedef">
+
+  <a href="smx.html#~onLoadError">onLoadError</a>
+  
+  
+
+</li>
+    
+  </ul>
+  
+
+</li>
+      
+    </ul>
+    
+  </li>
+  
+  <li class="classes">
+    
+    <h3>Classes</h3>
+    
+    <ul>
+      
+      <li class="class">
+
+  <a href="smx.Document.html">Document</a>
+  
+  
+  <ul>
+    
+      <li class="member">
+
+  <a href="smx.Document.html#%255B0%255D">[0]</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Document.html#_cache">_cache</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Document.html#_data">_data</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Document.html#path">path</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Document.html#src">src</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Document.html#root">root</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Document.html#getNodeById">getNodeById</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Document.html#find">find</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Document.html#wrap">wrap</a>
+  
+  
+
+</li>
+    
+  </ul>
+  
+
+</li>
+      
+      <li class="class">
+
+  <a href="smx.Node.html">Node</a>
+  
+  
+  <ul>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#%255B0%255D">[0]</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#id">id</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#name">name</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#type">type</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#className">className</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#document">document</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#hash">hash</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#uri">uri</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#url">url</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#src">src</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#parent">parent</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#ancestors">ancestors</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#root">root</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#children">children</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#first">first</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#last">last</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#previous">previous</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#next">next</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#getIndex">getIndex</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#getText">getText</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#getHTML">getHTML</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#getData">getData</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#toString">toString</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#toJSON">toJSON</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#attr">attr</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#get">get</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#has">has</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#dsv">dsv</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#getAncestors">getAncestors</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#isAncestorOf">isAncestorOf</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#isMatch">isMatch</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#find">find</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#findOne">findOne</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#getChildren">getChildren</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#getFirst">getFirst</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#getLast">getLast</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#getChildAt">getChildAt</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#isDescendantOf">isDescendantOf</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#getNext">getNext</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#getAllNext">getAllNext</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#getPrevious">getPrevious</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#getAllPrevious">getAllPrevious</a>
+  
+  
+
+</li>
+    
+  </ul>
+  
+
+</li>
+      
+      <li class="class">
+
+  <a href="smx.Loader.html">Loader</a>
+  
+  
+  <ul>
+    
+      <li class="member">
+
+  <a href="smx.Loader.html#xhr">xhr</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Loader.html#load">load</a>
+  
+  
+
+</li>
+    
+      <li class="event">
+
+  <a href="smx.Loader.html#.event:complete">complete</a>
+  
+  
+
+</li>
+    
+      <li class="event">
+
+  <a href="smx.Loader.html#.event:error">error</a>
+  
+  
+
+</li>
+    
+  </ul>
+  
+
+</li>
+      
+      <li class="class">
+
+  <a href="smx.Playhead.html">Playhead</a>
+  
+  
+  <ul>
+    
+      <li class="member">
+
+  <a href="smx.Playhead.html#_document">_document</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Playhead.html#_selection">_selection</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Playhead.html#document">document</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Playhead.html#selection">selection</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Playhead.html#head">head</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Playhead.html#root">root</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Playhead.html#reset">reset</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Playhead.html#play">play</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Playhead.html#enter">enter</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Playhead.html#exit">exit</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Playhead.html#next">next</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Playhead.html#previous">previous</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Playhead.html#forward">forward</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Playhead.html#backward">backward</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Playhead.html#exec">exec</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Playhead.html#navigate">navigate</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Playhead.html#on">on</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Playhead.html#once">once</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Playhead.html#off">off</a>
+  
+  
+
+</li>
+    
+      <li class="typedef">
+
+  <a href="smx.Playhead.html#.PlayheadEvent">PlayheadEvent</a>
+  
+  
+
+</li>
+    
+  </ul>
+  
+
+</li>
+      
+    </ul>
+    
+  </li>
+  
+  <li class="modules">
+    
+    <h3>Modules</h3>
+    
+    <ul>
+      
+      <li class="module">
+
+  <a href="smx.module_Metadata.html">Metadata</a>
+  
+  
+  <ul>
+    
+      <li class="module">
+
+  <a href="smx.module_Metadata.module_MetadataProcessor.html">MetadataProcessor</a>
+  
+  
+  <ul>
+    
+      <li class="function">
+
+  <a href="smx.module_Metadata.module_MetadataProcessor.html#~processXMLDocument">processXMLDocument</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.module_Metadata.module_MetadataProcessor.html#~processMetadataNode">processMetadataNode</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.module_Metadata.module_MetadataProcessor.html#~processMetaAttributes">processMetaAttributes</a>
+  
+  
+
+</li>
+    
+  </ul>
+  
+
+</li>
+    
+      <li class="mixin">
+
+  <a href="smx.module_Metadata.Document-Metadata.html">Document-Metadata</a>
+  
+  
+
+</li>
+    
+      <li class="mixin">
+
+  <a href="smx.module_Metadata.Node-Metadata.html">Node-Metadata</a>
+  
+  
+  <ul>
+    
+      <li class="function">
+
+  <a href="smx.module_Metadata.Node-Metadata.html#meta">meta</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.module_Metadata.Node-Metadata.html#interpolate">interpolate</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.module_Metadata.Node-Metadata.html#search">search</a>
+  
+  
+
+</li>
+    
+  </ul>
+  
+
+</li>
+    
+  </ul>
+  
+
+</li>
+      
+      <li class="module">
+
+  <a href="smx.module_Prototype.html">Prototype</a>
+  
+  
+  <ul>
+    
+      <li class="module">
+
+  <a href="smx.module_Prototype.module_PrototypeProcessor.html">PrototypeProcessor</a>
+  
+  
+  <ul>
+    
+      <li class="function">
+
+  <a href="smx.module_Prototype.module_PrototypeProcessor.html#~processXMLDocument">processXMLDocument</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.module_Prototype.module_PrototypeProcessor.html#~processXMLNode">processXMLNode</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.module_Prototype.module_PrototypeProcessor.html#~applyPrototypes">applyPrototypes</a>
+  
+  
+
+</li>
+    
+  </ul>
+  
+
+</li>
+    
+  </ul>
+  
+
+</li>
+      
+      <li class="module">
+
+  <a href="smx.module_Taxonomy.html">Taxonomy</a>
+  
+  
+  <ul>
+    
+      <li class="module">
+
+  <a href="smx.module_Taxonomy.module_TaxonomyProcessor.html">TaxonomyProcessor</a>
+  
+  
+  <ul>
+    
+      <li class="function">
+
+  <a href="smx.module_Taxonomy.module_TaxonomyProcessor.html#~processXMLDocument">processXMLDocument</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.module_Taxonomy.module_TaxonomyProcessor.html#~processXMLNode">processXMLNode</a>
+  
+  
+
+</li>
+    
+  </ul>
+  
+
+</li>
+    
+      <li class="mixin">
+
+  <a href="smx.module_Taxonomy.Node-Taxonomy.html">Node-Taxonomy</a>
+  
+  
+  <ul>
+    
+      <li class="function">
+
+  <a href="smx.module_Taxonomy.Node-Taxonomy.html#.getTags">getTags</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.module_Taxonomy.Node-Taxonomy.html#.getCategories">getCategories</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.module_Taxonomy.Node-Taxonomy.html#.getBranches">getBranches</a>
+  
+  
+
+</li>
+    
+  </ul>
+  
+
+</li>
+    
+  </ul>
+  
+
+</li>
+      
+      <li class="module">
+
+  <a href="smx.module_Ui.html">Ui</a>
+  
+  
+  <ul>
+    
+      <li class="mixin">
+
+  <a href="smx.module_Ui.Node-Ui.html">Node-Ui</a>
+  
+  
+  <ul>
+    
+      <li class="function">
+
+  <a href="smx.module_Ui.Node-Ui.html#.ui">ui</a>
+  
+  
+
+</li>
+    
+  </ul>
+  
+
+</li>
+    
+  </ul>
+  
+
+</li>
+      
+    </ul>
+    
+  </li>
+  
+  
+</ul>
+  
   <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on 2018-02-12T23:28:45.226Z
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Mon Apr 02 2018 15:27:00 GMT+0200 (CEST) using the <a href="https://github.com/canvasplay/smx-jsdoc-template">smx-jsdoc-template</a> theme.
   </footer>
+
 </nav>
 
-<div id="main">
+<article>
 
-    <h1 class="page-title">
-      
-        <small>Source</small>
-      
-      playhead/Playhead.js
-    </h1>
+  
+    
+<header>
 
+  <h1 class="article__title">
+    <small>source</small>
+    Playhead.js
+  </h1>
+
+  <div class="details-mini">
     
 
+<div class="source-links">
+  Full url: ./playhead/Playhead.js
+</div>
 
+  </div>
+  
+</header>
 
-    
-    <section>
-        <article>
-            <pre class="prettyprint source linenums"><code>(function(global, _, Backbone, smx){
+<section class="article__source">
+  <pre class="prettyprint source linenums">
+    <code>import Eventify from 'eventify';
 
 
 /**
-* SMX Playhead class
-* @memberof smx
-*/
+ * @memberof smx
+ * @desc
+ * The Playhead class is a {@link smx.Document Document} navigation controller.
+ *
+ * Provides a plain interface to navigate along a Document tree,
+ * keeps a navigation registry and emits useful events for listening
+ * to any movement.
+ */
 class Playhead{
 
 	/**
-	 * Create a playhead
-	 * @param {SMXDocument} document - The document to navigate through
+	 * @param {smx.Document} document - The document to navigate through
 	 */
 	constructor(doc){
     
@@ -63,18 +1123,18 @@ class Playhead{
 		if(!doc) return;
     
 		//extend with events on, off, trigger
-		_.extend(this, Backbone.Events);
+		Eventify.enable(this);
     
 		/**
 		 * The document to navigate through
-		 * @type {SMXDocument}
+		 * @type {smx.Document}
 		 * @private
 		 */
 		this._document = doc;
 		
 		/**
 		 * Contains all currently selected nodes ordered from outter to inner.
-		 * @type {SMXNode[]}
+		 * @type {smx.Node[]}
 		 * @private
 		 */
 		this._selection = [];
@@ -84,7 +1144,7 @@ class Playhead{
 
 	/**
 	 * Gets the associated document
-	 * @type {SMXDocument}
+	 * @type {smx.Document}
 	 * @readonly
 	 */
 	get document(){
@@ -94,7 +1154,7 @@ class Playhead{
 
 	/**
 	 * Gets all currently selected nodes ordered from outter to inner.
-	 * @type {SMXNode}
+	 * @type {smx.Node[]}
 	 * @readonly
 	 */
 	get selection() {
@@ -102,8 +1162,8 @@ class Playhead{
 	}
 
 	/**
-	 * Gets the head node, which is the last node in the path.
-	 * @type {SMXNode}
+	 * Gets the head node, which is the last node in selection.
+	 * @type {smx.Node}
 	 * @readonly
 	 */
 	get head(){
@@ -111,8 +1171,8 @@ class Playhead{
 	}
 
 	/**
-	 * Gets the root node, which is the first node in the path.
-	 * @type {SMXNode}
+	 * Gets the root node, which is the first node selection.
+	 * @type {smx.Node}
 	 * @readonly
 	 */
 	get root(){
@@ -128,7 +1188,7 @@ class Playhead{
 
 	/**
 	 * Performs play action
-	 * @param {(String|SMXNode)=} ref target reference
+	 * @param {(String|smx.Node)=} ref target reference
 	 */
 	play(ref){
     
@@ -139,7 +1199,7 @@ class Playhead{
 		var tnode = (ref.id)? ref : this.document.getNodeById(ref);
     
 		//not found? ignore...
-		if(tnode) return this.navigate(tnode,{});
+		if(tnode) return this.navigate(tnode);
 		
 		//else ignore
 		return;
@@ -147,7 +1207,7 @@ class Playhead{
   }
   
   /**
-   * Navigates inside head's node.
+   * Navigates to an inner node, moves the head to current head's first child.
    */
   enter(){
     
@@ -163,13 +1223,13 @@ class Playhead{
     //get first child
     var tnode = children[0];
     
-    //go to child node using known swap type and passing recived params
-    return this.navigate(tnode,{ 'type':'inside' });
+    //navigates to target node
+		return this.navigate(tnode);
     
   }
 
   /**
-   * Navigates outside head's node.
+   * Navigates to an outter node, moves the head to current head's parent.
    */
   exit(){
     
@@ -182,13 +1242,13 @@ class Playhead{
     //get parent node
     var tnode = cnode.parent;
     
-    //go to child node using known swap type and passing recived params
-    return this.navigate(tnode,{ 'type':'outside' });
+    //navigates to target node
+		return this.navigate(tnode);
     
   }
 
 	/**
-	 * Navigates to head's next node.
+	 * Navigates to current head's next sibling node.
 	 */
   next(){
 		
@@ -198,13 +1258,12 @@ class Playhead{
 		//get next node
 		var tnode = cnode.next; if (!tnode) return;
 		
-		//go to next node using known swap type
-		return this.navigate(tnode,{'type':'next'});
-		
+    //navigates to target node
+		return this.navigate(tnode);
 	}
 
 	/**
-	 * Navigates to head's previous node.
+	 * Navigates to current head's previous sibling node.
 	 */
 	previous(){
 		
@@ -214,13 +1273,13 @@ class Playhead{
 		//get previous node
 		var tnode = cnode.previous; if (!tnode) return;
     
-		//go to previous node using known swap type and passing recived params
-		return this.navigate(tnode,{'type':'previous'});
+    //navigates to target node
+		return this.navigate(tnode);
 		
 	}
 	
 	/**
-	 * Navigates to head's next node in flat tree mode.
+	 * Navigates to current head's next node in flat tree mode.
 	 */
 	forward(){
 		
@@ -249,19 +1308,26 @@ class Playhead{
 	}
   
 	/**
-   * Navigates to head's previous node in flat tree mode.
+   * Navigates to current head's previous node in flat tree mode.
 	 */
   backward(){
     
 		if(!this.head) return;
-    var tnode = this.head.previous || this.head.parent
+    var tnode = this.head.previous || this.head.parent;
     return (tnode)? this.navigate(tnode) : null;
     
 	}
 
 	/**
-	 * Executes a playhead action by keyword.
    * @param {String} keyword
+   * @desc
+	 * Executes a playhead command based on the given action keyword. keywords
+	 * are basically some playhead's method names.
+	 *
+	 * List of valid commands:
+	 * `reset`, `play`, `next`, `previous`,
+	 * `enter`, `exit`, `forward`, `backward`.
+	 *
 	 */
 	exec(keyword){
     	  
@@ -285,8 +1351,33 @@ class Playhead{
 	}
 
 	/**
-	 * Navigates to given node using optional configuration.
-   * @param {String} target
+   * @param {String|smx.Node} target
+   * @desc
+   *
+	 * Navigates to a given target node or executes a playhead command.
+	 * If `target` is a node will navigate to it, if `target` is a string will
+	 * try to find a node identified as `target` and will navigate to it. If
+	 * `target` is a `!` preffixed string will execute it as a playhead command.
+	 *
+	 * See {@link smx.Playhead#exec .exec()} for a list of valid commands.
+	 *
+	 * @example
+	 * //instance a new Playhead
+	 * var playhead = new smx.Playhead(doc);
+	 *
+	 * //navigate by node identifier
+	 * playhead.navigate('a42');
+	 *
+	 * //to to given node
+	 * playhead.navigate(node);
+	 *
+	 * //using commands
+	 * playhead.navigate('!next')
+	 * //same as
+	 * playhead.exec('next')
+	 * // or
+	 * playhead.next();
+	 *
 	 */
   navigate(target){
 
@@ -298,7 +1389,7 @@ class Playhead{
       return this.exec(target.substr(1));
     
 		//resolve target node by reference
-		//assuming having and id property means SMXNode...
+		//assuming having and id property means smx.Node...
     var tnode = (target.id) ? target : this.document.getNodeById(target);
     
     //no target found? error!
@@ -311,7 +1402,7 @@ class Playhead{
 		//no need to move...
 		if(tnode === cnode) return cnode;
 		
-    //--> ASYNC ATTR CONDITIONAL NAVIGATION WAS HERE...
+    //--> LEGACY ASYNC ATTR CONDITIONAL NAVIGATION WAS HERE...
     //see leagacy playhead implementations for more info
     
     //resets private navigation registry
@@ -337,7 +1428,7 @@ class Playhead{
 		}
 		else if(isDescendant){
 		  while(r!=tnode){
-		    r = r.children.filter(isNodeOrAncestorOf)[0]
+		    r = r.children.filter(isNodeOrAncestorOf)[0];
 		    selected.push(r);
 		  }
 		}
@@ -371,7 +1462,7 @@ class Playhead{
     this.trigger('change',{
       selected: selected,
       deselected: deselected,
-      path: this._selection,
+      selection: this._selection,
       origin: cnode,
       target: tnode
     });
@@ -390,7 +1481,7 @@ class Playhead{
 			
 		}
     
-		//--> NOSTOP ATTRIBUTE CONDITIONAL NAVIGATION WAS HERE...
+		//--> LEGACY CONDITIONAL NOSTOP ATTRIBUTE WAS HERE...
     //see leagacy playhead implementations for more info
     
 		//fire generic 'stay' event in resulting current node
@@ -408,103 +1499,151 @@ class Playhead{
 		*/
 		
 	}
+	
 
-
-	/**
-	 * Fired when entering to any node
-	 * @event enter
-	 * @memberof smx.Playhead
-	 * @return {PlayheadEvent}
-	 */
-
-	/**
-	 * Fired just after `enter` but for a specific node
-	 * @event enter:id
-	 * @memberof smx.Playhead
-	 * @return {PlayheadEvent}
-	 */
-
-	/**
-	 * Fired when exiting from any node
-	 * @event exit
-	 * @memberof smx.Playhead
-	 * @return {PlayheadEvent}
-	 */
-
-	/**
-	 * Fired just after `exit` but for a specific node
-	 * @event exit:id
-	 * @memberof smx.Playhead
-	 * @return {PlayheadEvent}
-	 */
-
-	/**
-	 * Fired every time a head change occurs and stays on any node
-	 * @event stay
-	 * @memberof smx.Playhead
-	 * @return {PlayheadEvent}
-	 */
-
-	/**
-	 * Fired just after `stay` but for a specific node
-	 * @event stay:id
-	 * @memberof smx.Playhead
-	 * @return {PlayheadEvent}
-	 */
-
-	/**
-	 * Fired every time a node stops being the head
-	 * @event leave
-	 * @memberof smx.Playhead
-	 * @return {PlayheadEvent}
-	 */
-
-	/**
-	 * Fired just after `leave` but for a specific node
-	 * @event leave:id
-	 * @memberof smx.Playhead
-	 * @return {PlayheadEvent}
-	 */
-
-	/**
-	 * Fired every time the playhead finishes all operations and goes idle
-	 * @event ready
-	 * @memberof smx.Playhead
-	 * @return {PlayheadEvent}
-	 */
-
-	/**
-	 * Fired when playhed goes to sync mode
-	 * @event sync
-	 * @memberof smx.Playhead
-	 * @return {PlayheadEvent}
-	 */
 
 }
 
+//Doclets for Eventify extended methods
+
+/**
+ * Binds an event to a `callback` function. Passing `"all"` will bind
+ * the callback to all events fired.
+ * @memberof smx.Playhead
+ * @instance
+ * @method
+ * @name on
+ * @param {String} name
+ * @param {Function} callback
+ * @param {Object} context
+ */
+
+/**
+ * Binds an event to only be triggered a single time. After the first time
+ * the callback is invoked, it will be removed.
+ * @memberof smx.Playhead
+ * @instance
+ * @method
+ * @name once
+ * @param {String} name
+ * @param {Function} callback
+ * @param {Object} context
+ */
+
+/**
+ * Remove one or many callbacks. If `context` is null, removes all
+ * callbacks with that function. If `callback` is null, removes all
+ * callbacks for the event. If `name` is null, removes all bound
+ * callbacks for all events.
+ * @memberof smx.Playhead
+ * @instance
+ * @method
+ * @name off
+ * @param {String} name
+ * @param {Function} callback
+ * @param {Object} context
+ */
 
 
-//expose to global
-smx.Playhead = Playhead;
+//Doclet for PlayheadEvent definition
+/**
+ * Playhead Event Object
+ * @typedef {Object} smx.Playhead.PlayheadEvent
+ * @property {smx.Node[]} selected
+ * @property {smx.Node[]} deselected
+ * @property {smx.Node[]} selection
+ * @property {smx.Node} origin
+ * @property {smx.Node} target
+ */
 
 
-})(window, window._, window.Backbone, window.smx);
-</code></pre>
-        </article>
-    </section>
+//Doclets for events
 
+/*
+ * Fired every time the head changes.
+ * @event change
+ * @memberof smx.Playhead
+ * @return {smx.Playhead.PlayheadEvent}
+ */
 
+/*
+ * Fired when entering to any node
+ * @event enter
+ * @memberof smx.Playhead
+ * @return {smx.Playhead.PlayheadEvent}
+ */
 
+/*
+ * Fired just after `enter` but for a specific node
+ * @event enter:id
+ * @memberof smx.Playhead
+ * @return {smx.Playhead.PlayheadEvent}
+ */
 
-</div>
+/*
+ * Fired when exiting from any node
+ * @event exit
+ * @memberof smx.Playhead
+ * @return {smx.Playhead.PlayheadEvent}
+ */
 
-<div class="nav__overlay" onclick="$('body').removeClass('nav-visible');">
-</div>
+/*
+ * Fired just after `exit` but for a specific node
+ * @event exit:id
+ * @memberof smx.Playhead
+ * @return {smx.Playhead.PlayheadEvent}
+ */
 
-<a class="nav__toggle" href="javascript:$('body').toggleClass('nav-visible');">
-  <i class="material-icons">menu</i>
-</a>
+/*
+ * Fired every time a head change occurs and stays on any node
+ * @event stay
+ * @memberof smx.Playhead
+ * @return {smx.Playhead.PlayheadEvent}
+ */
 
-<script>hljs.initHighlightingOnLoad();</script>
+/*
+ * Fired just after `stay` but for a specific node
+ * @event stay:id
+ * @memberof smx.Playhead
+ * @return {smx.Playhead.PlayheadEvent}
+ */
+
+/*
+ * Fired every time a node stops being the head
+ * @event leave
+ * @memberof smx.Playhead
+ * @return {smx.Playhead.PlayheadEvent}
+ */
+
+/*
+ * Fired just after `leave` but for a specific node
+ * @event leave:id
+ * @memberof smx.Playhead
+ * @return {smx.Playhead.PlayheadEvent}
+ */
+
+/*
+ * Fired every time the playhead finishes all operations and goes idle
+ * @event ready
+ * @memberof smx.Playhead
+ * @return {smx.Playhead.PlayheadEvent}
+ */
+
+/*
+ * Fired when playhed goes to sync mode
+ * @event sync
+ * @memberof smx.Playhead
+ * @return {smx.Playhead.PlayheadEvent}
+ */
+
+export default Playhead;</code>
+  </pre>
+</section>
+  
+  
+</article>
+
+<script>prettyPrint();</script>
+<!--<script src="scripts/linenumber.js"></script>-->
 </body>
 </html>

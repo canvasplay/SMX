@@ -1,32 +1,70 @@
 {
-    "plugins": ["plugins/markdown"],
-    "recurseDepth": 10,
-    "source": {
-        "includePattern": ".+\\.js(doc|x)?$",
-        "excludePattern": "(^|\\/|\\\\)_",
-        "exclude": [
-            "node_modules",
-            "**/_*.*"
-        ],
-        "include":[
-            "src",
-            "README.md"
-        ]
+  "plugins": ["plugins/markdown"],
+  "markdown": {
+    "idInHeadings": true
+  },
+  "recurseDepth": 10,
+  "source": {
+    "includePattern": ".+\\.js(doc|x)?$",
+    "excludePattern": "(^|\\/|\\\\)_",
+    "exclude": [
+      "node_modules",
+      "**/_*.*"
+    ],
+    "include":[
+      "src",
+      "README.md"
+    ]
+  },
+  "sourceType": "module",
+  "tags": {
+    "allowUnknownTags": true,
+    "dictionaries": ["jsdoc","closure"]
+  },
+  "opts": {
+    "destination": "./docs/",
+    "sort": false,
+    "mainpagetitle": "smx",
+    "template": "./node_modules/smx-jsdoc-template/"
+  },
+  "templates": {
+    "cleverLinks": true,
+    "monospaceLinks": true,
+    "applicationName": "smx",
+    "sort": false,
+    "title": "Hola",
+    "navRecursion": {
+      "global": ["module", "class", "mixin", "member", "function", "event", "typedef"],
+      "namespace": ["member", "function", "event", "typedef"],
+      "module": ["module", "class", "mixin", "member", "function", "event", "typedef"],
+      "class": ["member", "function", "event", "typedef"],
+      "mixin": ["member", "function", "event", "typedef"]
     },
-    "sourceType": "module",
-    "tags": {
-        "allowUnknownTags": true,
-        "dictionaries": ["jsdoc","closure"]
-    },
-    "templates": {
-        "cleverLinks": true,
-        "monospaceLinks": true,
-        "applicationName": "smx"
-    },
-    "opts": {
-        "destination": "./docs/",
-        "sort": false,
-        "mainpagetitle": "smx",
-        "template": "docs_template"
-    }
+    "navSections":[
+      {
+        "id": "index",
+        "title": "SMX"
+      },
+      {
+        "id": "tutorials",
+        "title": "Tutorials"
+      },
+      {
+        "id": "namespaces",
+        "title": "Namespaces"
+      },
+      {
+        "id": "classes",
+        "title": "Classes"
+      },
+      {
+        "id": "modules",
+        "title": "Modules"
+      },
+      {
+        "id": "globals",
+        "title": "Global"
+      }
+    ]
+  }
 }

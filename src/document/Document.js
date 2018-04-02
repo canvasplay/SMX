@@ -3,8 +3,12 @@ import SMXNode from './Node.js';
 
 
 /**
- * SMX Document Class
  * @memberof smx
+ * @desc
+ * The Document class wraps an XMLDocument and provides an easy to use api
+ * to interact with it and its contents.
+ *
+ * This class can be further extended by mixins from custom modules.
  */
 class Document {
   
@@ -31,6 +35,13 @@ class Document {
      */
     this._cache = {};
     
+    /**
+     * Namespace for storing custom modules data.
+     * @type {Object}
+     * @private
+     */
+    this._data = {};
+    
   }
 
   /**
@@ -55,7 +66,7 @@ class Document {
 
   /**
    * Gets the root node.
-   * @type {SMXNode}
+   * @type {smx.Node}
    * @readonly
    */
   get root() {
@@ -65,7 +76,7 @@ class Document {
   /**
    * Gets the node with the given identifier.
    * @param {String} id
-   * @return {SMXNode}
+   * @return {smx.Node}
    */
   getNodeById(id){
       
@@ -85,8 +96,8 @@ class Document {
   /**
    * Finds all nodes matching the given selector.
    * @param {String} selector - search selector
-   * @param {SMXNode=} context - node context to find inside
-   * @return {Array.<SMXNode>}
+   * @param {smx.Node=} context - node context to find inside
+   * @return {Array.<smx.Node>}
    */
   find(selector, ctxNode) {
     
@@ -99,7 +110,7 @@ class Document {
   /**
    * Wraps an existing node or nodes in smx paradigm.
    * @param {XMLNode|XMLNode[]}
-   * @return {SMXNode|SMXNode[]}
+   * @return {smx.Node|smx.Node[]}
    */
   wrap(s){
     

@@ -1,72 +1,114 @@
 import smxLoad from './smx.load.js';
 
 /**
- * Global namespace to hold all framework classes and modules.
  * @namespace smx
+ * @version 2.1
+ * @desc
+ * Global `smx` namespace, one namespace to hold the whole framework.
+ *
+ * The smx namespace can serves also as namespace function, see {@link smx.smx smx()}.
  */
 var smx = function(){
   return _smx_wrapper.apply(smx, arguments);
 };
 
 /**
- * Gets current framework version
+ * Gets current framework version.
  * @memberof smx
  * @type {String}
+ * @protected
  */
 smx.version = '0.8.14';
 
 
 /**
- * Currently active document.
+ * Current active document.
  * @memberof smx
- * @type {SMXDocument}
+ * @type {smx.Document}
+ * @protected
  */
 smx.document = null;
+
 
 /**
  * Array of loaded documents.
  * @memberof smx
- * @type {SMXDocument[]}
+ * @type {smx.Document[]}
+ * @protected
  */
 smx.documents = [];
 
 
 /**
- * Namespace for SMXNode extended mixin methods.
- * @memberof smx
- * @type {Object}
- */
-smx.fn = {};
-
-
-smx.parsers = [];
-
-/**
- * Namescape for custom attribute parsers.
- * Attribute parsers are used during XML transpilation to process original
- * nodes attributes in different ways.
+ * Namescape for custom modules, may extend smx core Classes and provide
+ * new processing layers to be applied during the XML loading process.
+ * This array is protected and should be controlled only be the registerModule method.
  * @memberof smx
  * @type {Array}
+ * @protected
  */
-smx.AttributeParsers = [];
-
+smx.modules = [];
 
 /**
- * Namespace for custom node parsers.
- * Tag parsers are used during XML transpilation to transform original nodes
- * in different ways.
- * @memberof smx
- * @type {Array}
+ * Registers a new module. Will add it to modules collection and will also
+ * extend smx core classes if the module defines any extension.
  */
-smx.NodeParsers = [];
-
+smx.registerModule = function(m){
+  
+  //dumb check...
+  if(!m) return;
+  
+  //add it to modules collection
+  this.modules.push(m);
+  
+  //register process function
+  if(m.process)
+    smx.processors.push(m.process);
+  
+  //extend SMXNode
+  if(m.Node)
+    Object.assign(smx.Node.prototype, m.Node);
+  
+  //extend SMXDocument
+  if(m.Document)
+    Object.assign(smx.Document.prototype, m.Document);
+  
+  //return the registerd module as success
+  return m;
+  
+}
 
 /**
-* Global node wrapper.
 * @method smx
-* @param {String|SMXNode|SMXNode[]} s - selector, node or node collection
-* @return {SMXNode|SMXNodes[]}
+* @param {String|smx.Node|smx.Node[]} [s]
+* @return {smx.Node|smx.Nodes[]}
 * @memberof smx
+* @static
+* @desc
+* Global node wrapper, an useful shortcut for interacting with the current
+* active document.
+*
+* Notice that this method is a namespace function, is private inner function
+* attached directly onto smx namespace. Dont try to call this function as a
+* namespace member, use the `smx` namespace itself as a function.
+*
+* If the required parameter is a CSS selector string will return a collection
+* of {@link smx.Node Nodes} matching the given selector as a result of calling
+* {@link smx.Document#find Document.find} on the current active document.
+*
+* If the paramater is single or array of XMLNode will return the input nodes
+* wrapped as smx Nodes.
+* Additionally if input are already smx Nodes will return already cached Nodes,
+* so don't be afraid about rewraping nodes using this wrapper.
+*
+* @example
+* //use it as a namespace function.
+* smx('library > book');
+* // => [SMXNode, SMXNode, SMXNode, ...]
+*
+* //not like this
+* smx.smx('library > book');
+* // => Error: smx.smx is not a Function.
 */
 var _smx_wrapper = function(s){
 

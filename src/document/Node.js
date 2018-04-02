@@ -1,12 +1,19 @@
 /**
- * SMX Node Class
  * @memberof smx
- * @mixes smx.fn.Core
- * @mixes smx.fn.TreeNode
+ * @mixes Node-Core
+ * @mixes Node-Attributes
+ * @mixes Node-Traversal
+ *
+ * @description
+ * The Node class wraps an XMLNode and provides an easy to use api
+ * to interact with it.
+ *
+ * This class can be further extended by mixins from custom modules.
  */
 class Node {
 
   /**
+   * @constructor
    * @param {XMLNode} xmlNode
    */
   constructor(xmlNode) {
@@ -243,13 +250,13 @@ class Node {
 
 
 //import Node extensions
-import NodeCore from './Node.Core.js';
-import NodeTreeNode from './Node.TreeNode.js';
-import NodeAttributeGetters from './Node.AttributeGetters.js';
+import NodeCore from './Node-Core.js';
+import NodeTraversal from './Node-Traversal.js';
+import NodeAttributes from './Node-Attributes.js';
 
 //extends Node prototype
 Object.assign(Node.prototype, NodeCore);
-Object.assign(Node.prototype, NodeTreeNode);
-Object.assign(Node.prototype, NodeAttributeGetters);
+Object.assign(Node.prototype, NodeTraversal);
+Object.assign(Node.prototype, NodeAttributes);
 
 export default Node;

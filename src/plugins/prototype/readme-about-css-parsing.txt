@@ -1,9 +1,0 @@
-Thoughts on CSS parsing...
-Already using JSCSSP from
-http://www.glazman.org/JSCSSP/
-
-Also reviewed...
-https://github.com/NV/CSSOM
-http://nv.github.io/CSSOM/docs/parse.html
-
-  looks lighter...

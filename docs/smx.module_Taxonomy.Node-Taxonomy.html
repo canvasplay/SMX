@@ -1,0 +1,1582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    
+    
+    <title>mixin: Node-Taxonomy - Documentation</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+
+    <!--<link rel="stylesheet" href="https://cdn.rawgit.com/isagalaev/highlight.js/cf4b46e5/src/styles/default.css">-->
+    <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>-->
+    <!--<script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>-->
+    <script src="https://cdn.rawgit.com/google/code-prettify/master/loader/prettify.js"></script>
+
+    <script src="scripts/jsdoc.js"></script>
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+
+</head>
+<body class="kind-mixin">
+
+<div class="nav__overlay" onclick="$('body').removeClass('nav-visible');">
+</div>
+
+<a class="nav__toggle" href="javascript:$('body').toggleClass('nav-visible');">
+  &#x2261;
+</a>
+
+<nav>
+  
+  <form class="search-form">
+    <div class="form-group">
+      <input
+        type="search"
+        id="NavSearchInput"
+        class="form-control form-control-sm"
+        autocomplete="off"
+        placeholder="Search..."
+      />
+    </div>
+  </form>
+
+  <ul>
+
+  
+  <li class="index">
+    
+    <h3><a href="index.html">SMX</a></h3>
+    
+  </li>
+  
+  <li class="namespaces">
+    
+    <h3>Namespaces</h3>
+    
+    <ul>
+      
+      <li class="namespace">
+
+  <a href="smx.html">smx</a>
+  
+  
+  <ul>
+    
+      <li class="member">
+
+  <a href="smx.html#.version">version</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.html#.document">document</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.html#.documents">documents</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.html#.modules">modules</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.html#.registerModule">registerModule</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.html#.smx">smx</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.html#.load">load</a>
+  
+  
+
+</li>
+    
+      <li class="typedef">
+
+  <a href="smx.html#~onLoadSuccess">onLoadSuccess</a>
+  
+  
+
+</li>
+    
+      <li class="typedef">
+
+  <a href="smx.html#~onLoadError">onLoadError</a>
+  
+  
+
+</li>
+    
+  </ul>
+  
+
+</li>
+      
+    </ul>
+    
+  </li>
+  
+  <li class="classes">
+    
+    <h3>Classes</h3>
+    
+    <ul>
+      
+      <li class="class">
+
+  <a href="smx.Document.html">Document</a>
+  
+  
+  <ul>
+    
+      <li class="member">
+
+  <a href="smx.Document.html#%255B0%255D">[0]</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Document.html#_cache">_cache</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Document.html#_data">_data</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Document.html#path">path</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Document.html#src">src</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Document.html#root">root</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Document.html#getNodeById">getNodeById</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Document.html#find">find</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Document.html#wrap">wrap</a>
+  
+  
+
+</li>
+    
+  </ul>
+  
+
+</li>
+      
+      <li class="class">
+
+  <a href="smx.Node.html">Node</a>
+  
+  
+  <ul>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#%255B0%255D">[0]</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#id">id</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#name">name</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#type">type</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#className">className</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#document">document</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#hash">hash</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#uri">uri</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#url">url</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#src">src</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#parent">parent</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#ancestors">ancestors</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#root">root</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#children">children</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#first">first</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#last">last</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#previous">previous</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#next">next</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#getIndex">getIndex</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#getText">getText</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#getHTML">getHTML</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#getData">getData</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#toString">toString</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#toJSON">toJSON</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#attr">attr</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#get">get</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#has">has</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#dsv">dsv</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#getAncestors">getAncestors</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#isAncestorOf">isAncestorOf</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#isMatch">isMatch</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#find">find</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#findOne">findOne</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#getChildren">getChildren</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#getFirst">getFirst</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#getLast">getLast</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#getChildAt">getChildAt</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#isDescendantOf">isDescendantOf</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#getNext">getNext</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#getAllNext">getAllNext</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#getPrevious">getPrevious</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#getAllPrevious">getAllPrevious</a>
+  
+  
+
+</li>
+    
+  </ul>
+  
+
+</li>
+      
+      <li class="class">
+
+  <a href="smx.Loader.html">Loader</a>
+  
+  
+  <ul>
+    
+      <li class="member">
+
+  <a href="smx.Loader.html#xhr">xhr</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Loader.html#load">load</a>
+  
+  
+
+</li>
+    
+      <li class="event">
+
+  <a href="smx.Loader.html#.event:complete">complete</a>
+  
+  
+
+</li>
+    
+      <li class="event">
+
+  <a href="smx.Loader.html#.event:error">error</a>
+  
+  
+
+</li>
+    
+  </ul>
+  
+
+</li>
+      
+      <li class="class">
+
+  <a href="smx.Playhead.html">Playhead</a>
+  
+  
+  <ul>
+    
+      <li class="member">
+
+  <a href="smx.Playhead.html#_document">_document</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Playhead.html#_selection">_selection</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Playhead.html#document">document</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Playhead.html#selection">selection</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Playhead.html#head">head</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Playhead.html#root">root</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Playhead.html#reset">reset</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Playhead.html#play">play</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Playhead.html#enter">enter</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Playhead.html#exit">exit</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Playhead.html#next">next</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Playhead.html#previous">previous</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Playhead.html#forward">forward</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Playhead.html#backward">backward</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Playhead.html#exec">exec</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Playhead.html#navigate">navigate</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Playhead.html#on">on</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Playhead.html#once">once</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Playhead.html#off">off</a>
+  
+  
+
+</li>
+    
+      <li class="typedef">
+
+  <a href="smx.Playhead.html#.PlayheadEvent">PlayheadEvent</a>
+  
+  
+
+</li>
+    
+  </ul>
+  
+
+</li>
+      
+    </ul>
+    
+  </li>
+  
+  <li class="modules">
+    
+    <h3>Modules</h3>
+    
+    <ul>
+      
+      <li class="module">
+
+  <a href="smx.module_Metadata.html">Metadata</a>
+  
+  
+  <ul>
+    
+      <li class="module">
+
+  <a href="smx.module_Metadata.module_MetadataProcessor.html">MetadataProcessor</a>
+  
+  
+  <ul>
+    
+      <li class="function">
+
+  <a href="smx.module_Metadata.module_MetadataProcessor.html#~processXMLDocument">processXMLDocument</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.module_Metadata.module_MetadataProcessor.html#~processMetadataNode">processMetadataNode</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.module_Metadata.module_MetadataProcessor.html#~processMetaAttributes">processMetaAttributes</a>
+  
+  
+
+</li>
+    
+  </ul>
+  
+
+</li>
+    
+      <li class="mixin">
+
+  <a href="smx.module_Metadata.Document-Metadata.html">Document-Metadata</a>
+  
+  
+
+</li>
+    
+      <li class="mixin">
+
+  <a href="smx.module_Metadata.Node-Metadata.html">Node-Metadata</a>
+  
+  
+  <ul>
+    
+      <li class="function">
+
+  <a href="smx.module_Metadata.Node-Metadata.html#meta">meta</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.module_Metadata.Node-Metadata.html#interpolate">interpolate</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.module_Metadata.Node-Metadata.html#search">search</a>
+  
+  
+
+</li>
+    
+  </ul>
+  
+
+</li>
+    
+  </ul>
+  
+
+</li>
+      
+      <li class="module">
+
+  <a href="smx.module_Prototype.html">Prototype</a>
+  
+  
+  <ul>
+    
+      <li class="module">
+
+  <a href="smx.module_Prototype.module_PrototypeProcessor.html">PrototypeProcessor</a>
+  
+  
+  <ul>
+    
+      <li class="function">
+
+  <a href="smx.module_Prototype.module_PrototypeProcessor.html#~processXMLDocument">processXMLDocument</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.module_Prototype.module_PrototypeProcessor.html#~processXMLNode">processXMLNode</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.module_Prototype.module_PrototypeProcessor.html#~applyPrototypes">applyPrototypes</a>
+  
+  
+
+</li>
+    
+  </ul>
+  
+
+</li>
+    
+  </ul>
+  
+
+</li>
+      
+      <li class="module">
+
+  <a href="smx.module_Taxonomy.html">Taxonomy</a>
+  
+  
+  <ul>
+    
+      <li class="module">
+
+  <a href="smx.module_Taxonomy.module_TaxonomyProcessor.html">TaxonomyProcessor</a>
+  
+  
+  <ul>
+    
+      <li class="function">
+
+  <a href="smx.module_Taxonomy.module_TaxonomyProcessor.html#~processXMLDocument">processXMLDocument</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.module_Taxonomy.module_TaxonomyProcessor.html#~processXMLNode">processXMLNode</a>
+  
+  
+
+</li>
+    
+  </ul>
+  
+
+</li>
+    
+      <li class="mixin">
+
+  <a href="smx.module_Taxonomy.Node-Taxonomy.html">Node-Taxonomy</a>
+  
+  
+  <ul>
+    
+      <li class="function">
+
+  <a href="smx.module_Taxonomy.Node-Taxonomy.html#.getTags">getTags</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.module_Taxonomy.Node-Taxonomy.html#.getCategories">getCategories</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.module_Taxonomy.Node-Taxonomy.html#.getBranches">getBranches</a>
+  
+  
+
+</li>
+    
+  </ul>
+  
+
+</li>
+    
+  </ul>
+  
+
+</li>
+      
+      <li class="module">
+
+  <a href="smx.module_Ui.html">Ui</a>
+  
+  
+  <ul>
+    
+      <li class="mixin">
+
+  <a href="smx.module_Ui.Node-Ui.html">Node-Ui</a>
+  
+  
+  <ul>
+    
+      <li class="function">
+
+  <a href="smx.module_Ui.Node-Ui.html#.ui">ui</a>
+  
+  
+
+</li>
+    
+  </ul>
+  
+
+</li>
+    
+  </ul>
+  
+
+</li>
+      
+    </ul>
+    
+  </li>
+  
+  
+</ul>
+  
+  <footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Mon Apr 02 2018 15:27:00 GMT+0200 (CEST) using the <a href="https://github.com/canvasplay/smx-jsdoc-template">smx-jsdoc-template</a> theme.
+  </footer>
+
+</nav>
+
+<article>
+
+  
+    
+
+<!--LONGNAME: smx.module:Taxonomy.Node-Taxonomy-->
+<a id="top">Top</a>
+<header>
+  <h1 class="article__title">
+    <small>mixin</small>
+    Node-Taxonomy
+  </h1>
+
+  
+  
+
+  
+  <h2 class="article__path">
+
+    
+      <span class="ancestors"><a href="smx.html">smx</a><a href="smx.module_Taxonomy.html">.Taxonomy</a>.</span>
+    
+
+    Node-Taxonomy
+
+    
+
+  </h2>
+  
+
+  <div class="details-mini">
+    
+
+<div class="source-links">
+  source: <a href="modules_taxonomy_NodeInterface.js.html">modules/taxonomy/NodeInterface.js</a>, <a href="modules_taxonomy_NodeInterface.js.html#line1">line 1</a>
+</div>
+
+  </div>
+  
+  
+    <div class="description"><p>Extends SMXNode with taxonomy methods</p></div>
+  
+
+  
+
+
+
+
+</header>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="big-members">
+  
+  
+  
+  
+</div>
+
+
+
+
+
+
+<section class="methods">
+  
+  <h3 class="section-title" id="methods">
+  Methods
+</h3>
+  
+  
+    
+<!--LONGNAME: smx.module:Taxonomy.Node-Taxonomy.getTags-->
+<div class="method  --is-static">
+
+  
+  
+      <h4 class="signature" id=".getTags">
+        <a class="permalink" href="#.getTags"></a>
+        <span class="signature__name">getTags</span><!--
+        --><span class="signature__params"><span class="par">(</span><span class="par">)</span></span><span class="signature__returns"> &rarr; {Array.&lt;String>}</span>
+        <!--<span class="signature__attribs">(static) </span>-->
+      </h4>
+      
+      
+      
+  
+  
+  <div class="details-mini">
+    
+
+  <div class="attribs-list">
+    <ul>
+        <li class="attrib-static">static</li>
+    </ul>
+  </div>
+
+
+    
+
+<div class="source-links">
+  source: <a href="modules_taxonomy_NodeInterface.js.html">modules/taxonomy/NodeInterface.js</a>, <a href="modules_taxonomy_NodeInterface.js.html#line14">line 14</a>
+</div>
+
+  </div>
+  
+  
+  <div class="description">
+      <p>Gets the collection of associated tags.</p>
+  </div>
+  
+
+  
+
+  
+  
+  
+  
+  
+  
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <!--
+  
+  
+          
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+{Array.&lt;String>}
+    </dd>
+</dl>
+
+      
+  -->
+  
+    <h5>Returns</h5>
+    
+
+
+<div class="params">
+<ul>
+
+
+    <li>
+      
+      <span class="name">
+      <code><!--
+      
+      
+      --><!--
+      
+      
+      --></code>
+      </span>
+      
+      
+      <span class="type">
+      <code><!--
+        -->
+{Array.&lt;String>}<!--
+      --></code>
+      </span>
+      
+      
+      
+      
+      
+      
+    </li>
+
+
+</ul>
+</div>
+
+  
+
+  
+  
+    
+
+
+
+  
+
+  
+  
+
+
+</div>
+  
+    
+<!--LONGNAME: smx.module:Taxonomy.Node-Taxonomy.getCategories-->
+<div class="method  --is-static">
+
+  
+  
+      <h4 class="signature" id=".getCategories">
+        <a class="permalink" href="#.getCategories"></a>
+        <span class="signature__name">getCategories</span><!--
+        --><span class="signature__params"><span class="par">(</span><span class="par">)</span></span><span class="signature__returns"> &rarr; {Array.&lt;String>}</span>
+        <!--<span class="signature__attribs">(static) </span>-->
+      </h4>
+      
+      
+      
+  
+  
+  <div class="details-mini">
+    
+
+  <div class="attribs-list">
+    <ul>
+        <li class="attrib-static">static</li>
+    </ul>
+  </div>
+
+
+    
+
+<div class="source-links">
+  source: <a href="modules_taxonomy_NodeInterface.js.html">modules/taxonomy/NodeInterface.js</a>, <a href="modules_taxonomy_NodeInterface.js.html#line40">line 40</a>
+</div>
+
+  </div>
+  
+  
+  <div class="description">
+      <p>Gets a collection of associated categories.</p>
+  </div>
+  
+
+  
+
+  
+  
+  
+  
+  
+  
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <!--
+  
+  
+          
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+{Array.&lt;String>}
+    </dd>
+</dl>
+
+      
+  -->
+  
+    <h5>Returns</h5>
+    
+
+
+<div class="params">
+<ul>
+
+
+    <li>
+      
+      <span class="name">
+      <code><!--
+      
+      
+      --><!--
+      
+      
+      --></code>
+      </span>
+      
+      
+      <span class="type">
+      <code><!--
+        -->
+{Array.&lt;String>}<!--
+      --></code>
+      </span>
+      
+      
+      
+      
+      
+      
+    </li>
+
+
+</ul>
+</div>
+
+  
+
+  
+  
+    
+
+
+
+  
+
+  
+  
+
+
+</div>
+  
+    
+<!--LONGNAME: smx.module:Taxonomy.Node-Taxonomy.getBranches-->
+<div class="method  --is-static">
+
+  
+  
+      <h4 class="signature" id=".getBranches">
+        <a class="permalink" href="#.getBranches"></a>
+        <span class="signature__name">getBranches</span><!--
+        --><span class="signature__params"><span class="par">(</span><span class="par">)</span></span><span class="signature__returns"> &rarr; {Array.&lt;String>}</span>
+        <!--<span class="signature__attribs">(static) </span>-->
+      </h4>
+      
+      
+      
+  
+  
+  <div class="details-mini">
+    
+
+  <div class="attribs-list">
+    <ul>
+        <li class="attrib-static">static</li>
+    </ul>
+  </div>
+
+
+    
+
+<div class="source-links">
+  source: <a href="modules_taxonomy_NodeInterface.js.html">modules/taxonomy/NodeInterface.js</a>, <a href="modules_taxonomy_NodeInterface.js.html#line67">line 67</a>
+</div>
+
+  </div>
+  
+  
+  <div class="description">
+      <p>Get the collection of associated branches.</p>
+  </div>
+  
+
+  
+
+  
+  
+  
+  
+  
+  
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <!--
+  
+  
+          
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+{Array.&lt;String>}
+    </dd>
+</dl>
+
+      
+  -->
+  
+    <h5>Returns</h5>
+    
+
+
+<div class="params">
+<ul>
+
+
+    <li>
+      
+      <span class="name">
+      <code><!--
+      
+      
+      --><!--
+      
+      
+      --></code>
+      </span>
+      
+      
+      <span class="type">
+      <code><!--
+        -->
+{Array.&lt;String>}<!--
+      --></code>
+      </span>
+      
+      
+      
+      
+      
+      
+    </li>
+
+
+</ul>
+</div>
+
+  
+
+  
+  
+    
+
+
+
+  
+
+  
+  
+
+
+</div>
+  
+  
+</section>
+
+
+
+
+
+  
+  
+</article>
+
+<script>prettyPrint();</script>
+<!--<script src="scripts/linenumber.js"></script>-->
+</body>
+</html>

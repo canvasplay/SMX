@@ -1,35 +1,49 @@
-import Sizzle from 'sizzle';
+import sizzle from 'sizzle';
 import Eventify from 'eventify';
-import IdAttributeParser from './IdAttributeParser.js';
+import IdAttributeProcessor from './IdAttributeProcessor.js';
 
 
 /**
- * SMX Loader Class
- * @class Loader
  * @memberof smx
+ * @desc
+ * The Loader class loads, parses, and transforms XML data
+ * from multiple sources.
+ *
+ * The Loader can load data from valid XMLDocument sources,
+ * p.e. from an url, an XJSON oject or an XMLDocument object.
+ * The Loader can also load asyc and merge recursively new content from
+ * other valid sources, url or objects.
+ *
+ * ### Reserved XML: `<include>`
  */
+class Loader{
+  
+  /** @constructor */
+  constructor(){
+    
+  	//extend with events on, off, trigger
+  	Eventify.enable(this);
+  
+  	// XML Document Object
+  	this.xmlDocument = null;
+  
+    /**
+     * @member {XMLHttpRequest}
+     * @desc xhr controller for file requests
+     * @private
+     */
+  	this.xhr = null;
 
- var Loader = function(){
-
-	//extend with events on, off, trigger
-	Eventify.enable(this);
-
-	// XML Document Object
-	this.xmlDocument = null;
-
-	// xhr controller for file requests
-	this.xhr = null;
-
-	this.loadDocument = function(url){
-
-		this.loadFile(url);
-
-
-		return;
-
-	};
-
-	this.loadFile = function(url){
+  }
+  
+  /**
+   * Loads the resource for the given url.
+   * @param {String} url
+   * @async
+   * @trigger smx.Loader:event:complete
+   * @trigger smx.Loader:event:error
+   */
+	load(url){
     
     var onSuccess = this.onLoadFileSuccess.bind(this);
     var onError = this.onLoadFileError.bind(this);
@@ -49,9 +63,9 @@ import IdAttributeParser from './IdAttributeParser.js';
     
     return;
     
-	};
+	}
 
-	this.onLoadFileSuccess = function(xhr){
+	onLoadFileSuccess(xhr){
     
     
     log('> '+ xhr.responseURL+' '+xhr.status +' ('+ xhr.statusText+')');
@@ -62,6 +76,10 @@ import IdAttributeParser from './IdAttributeParser.js';
 		var is_root = (!this.xmlDocument)? true : false;
     
 		if (is_root){
+		  
+		  //resolve as error if first loaded file is not a valid XMLDocument
+		  if(!xhr.responseXML)
+		    throw new Error('Invalid XML root');
       
 			//set xml root document
 			this.xmlDocument = xhr.responseXML;
@@ -76,7 +94,7 @@ import IdAttributeParser from './IdAttributeParser.js';
 		else{
       
 			//get 1st <include> found in current XMLDocument
-			var include = Sizzle('include[loading="true"]', this.xmlDocument)[0];
+			var include = sizzle('include[loading="true"]', this.xmlDocument)[0];
 
       //resolve if just loaded data is an XML document or not
       var isXml = (xhr.responseXML)? true : false;
@@ -137,7 +155,7 @@ import IdAttributeParser from './IdAttributeParser.js';
   			ref = parent;
   		}
       
-      this.loadFile(url);
+      this.load(url);
       
     }
     else
@@ -145,34 +163,31 @@ import IdAttributeParser from './IdAttributeParser.js';
 
 		return;
 
-	};
+	}
 
-	this.onLoadFileError = function(xhr){
+	onLoadFileError(xhr){
     
     log( '> '+ xhr.responseURL+'" '+xhr.status +' ('+ xhr.statusText+')');
 		this.trigger('error', xhr.responseText);
 		
-	};
+	}
 
-	this.onLoadXMLComplete = function(){
-    
-    //get defined parsers from smx ns
-    var parsers = smx.AttributeParsers;
+	onLoadXMLComplete(){
     
     //ensure all nodes have unique id
-    IdAttributeParser.parse(this.xmlDocument);
+    IdAttributeProcessor.process(this.xmlDocument);
     
     //trigger complete event
 		this.trigger('complete', this.xmlDocument);
     
 		return;
     
-	};
+	}
 	
-	this.XML2str = function (xmlNode) {
+	XML2str(xmlNode) {
     
     try {
-      // Gecko- and Webkit-based browsers (Firefox, Chrome), Opera.
+      // Gecko/Webkit-based browsers (Firefox, Chrome, Opera...
       return (new XMLSerializer()).serializeToString(xmlNode);
     }
     catch (e) {
@@ -187,10 +202,10 @@ import IdAttributeParser from './IdAttributeParser.js';
     }
     
     return '';
-	};
+	}
 	
 
-	this.str2XML = function(str){
+	str2XML(str){
 
 		var xml = null;
 
@@ -208,13 +223,9 @@ import IdAttributeParser from './IdAttributeParser.js';
     }
 
     return xml;
-	};
-	
+	}
 
-	return this;
-
-
-};
+}
 
 
 //
@@ -286,7 +297,7 @@ var parseIncludes = function(xmlDocument){
   var inc;
   
   //find all existing <include> nodes
-  var includes = Sizzle('include', xmlDocument);
+  var includes = sizzle('include', xmlDocument);
   
   //iterate and filter includes
   while(!inc && includes.length>0){
@@ -318,7 +329,18 @@ var parseIncludes = function(xmlDocument){
 };
 
 
-//expose
-//smx.Loader = Loader;
+/**
+ * Fired when loading completes sucessfully.
+ * @event complete
+ * @memberof smx.Loader
+ * @return {XMLDocument}
+ */
+
+/**
+ * Fired when loading fails
+ * @event error
+ * @memberof smx.Loader
+ * @return {Object}
+ */
 
 export default Loader;

@@ -9,14 +9,15 @@ smx.Document = SMXDocument;
 smx.Node = SMXNode;
 smx.Playhead = SMXPlayhead;
 
-import MetadataPlugin from './plugins/metadata/index.js';
-import PrototypePlugin from './plugins/prototype/index.js';
-import TaxonomyPlugin from './plugins/taxonomy/index.js';
-import UiPlugin from './plugins/ui/index.js';
+import MetadataPlugin from './modules/metadata/index.js';
+import PrototypePlugin from './modules/prototype/index.js';
+import TaxonomyPlugin from './modules/taxonomy/index.js';
+import UiPlugin from './modules/ui/index.js';
 
-MetadataPlugin.register(smx);
-PrototypePlugin.register(smx);
-TaxonomyPlugin.register(smx);
-UiPlugin.register(smx);
+smx.registerModule(MetadataPlugin);
+smx.registerModule(PrototypePlugin);
+smx.registerModule(TaxonomyPlugin);
+smx.registerModule(UiPlugin);
 
+//expose global
 window.smx = smx;

@@ -1,0 +1,1395 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    
+    
+    <title>source: document/Node-Traversal.js - Documentation</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+
+    <!--<link rel="stylesheet" href="https://cdn.rawgit.com/isagalaev/highlight.js/cf4b46e5/src/styles/default.css">-->
+    <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>-->
+    <!--<script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>-->
+    <script src="https://cdn.rawgit.com/google/code-prettify/master/loader/prettify.js"></script>
+
+    <script src="scripts/jsdoc.js"></script>
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+
+</head>
+<body class="kind-source">
+
+<div class="nav__overlay" onclick="$('body').removeClass('nav-visible');">
+</div>
+
+<a class="nav__toggle" href="javascript:$('body').toggleClass('nav-visible');">
+  &#x2261;
+</a>
+
+<nav>
+  
+  <form class="search-form">
+    <div class="form-group">
+      <input
+        type="search"
+        id="NavSearchInput"
+        class="form-control form-control-sm"
+        autocomplete="off"
+        placeholder="Search..."
+      />
+    </div>
+  </form>
+
+  <ul>
+
+  
+  <li class="index">
+    
+    <h3><a href="index.html">SMX</a></h3>
+    
+  </li>
+  
+  <li class="namespaces">
+    
+    <h3>Namespaces</h3>
+    
+    <ul>
+      
+      <li class="namespace">
+
+  <a href="smx.html">smx</a>
+  
+  
+  <ul>
+    
+      <li class="member">
+
+  <a href="smx.html#.version">version</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.html#.document">document</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.html#.documents">documents</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.html#.modules">modules</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.html#.registerModule">registerModule</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.html#.smx">smx</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.html#.load">load</a>
+  
+  
+
+</li>
+    
+      <li class="typedef">
+
+  <a href="smx.html#~onLoadSuccess">onLoadSuccess</a>
+  
+  
+
+</li>
+    
+      <li class="typedef">
+
+  <a href="smx.html#~onLoadError">onLoadError</a>
+  
+  
+
+</li>
+    
+  </ul>
+  
+
+</li>
+      
+    </ul>
+    
+  </li>
+  
+  <li class="classes">
+    
+    <h3>Classes</h3>
+    
+    <ul>
+      
+      <li class="class">
+
+  <a href="smx.Document.html">Document</a>
+  
+  
+  <ul>
+    
+      <li class="member">
+
+  <a href="smx.Document.html#%255B0%255D">[0]</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Document.html#_cache">_cache</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Document.html#_data">_data</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Document.html#path">path</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Document.html#src">src</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Document.html#root">root</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Document.html#getNodeById">getNodeById</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Document.html#find">find</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Document.html#wrap">wrap</a>
+  
+  
+
+</li>
+    
+  </ul>
+  
+
+</li>
+      
+      <li class="class">
+
+  <a href="smx.Node.html">Node</a>
+  
+  
+  <ul>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#%255B0%255D">[0]</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#id">id</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#name">name</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#type">type</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#className">className</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#document">document</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#hash">hash</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#uri">uri</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#url">url</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#src">src</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#parent">parent</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#ancestors">ancestors</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#root">root</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#children">children</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#first">first</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#last">last</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#previous">previous</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#next">next</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#getIndex">getIndex</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#getText">getText</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#getHTML">getHTML</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#getData">getData</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#toString">toString</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#toJSON">toJSON</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#attr">attr</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#get">get</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#has">has</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#dsv">dsv</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#getAncestors">getAncestors</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#isAncestorOf">isAncestorOf</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#isMatch">isMatch</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#find">find</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#findOne">findOne</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#getChildren">getChildren</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#getFirst">getFirst</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#getLast">getLast</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#getChildAt">getChildAt</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#isDescendantOf">isDescendantOf</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#getNext">getNext</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#getAllNext">getAllNext</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#getPrevious">getPrevious</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#getAllPrevious">getAllPrevious</a>
+  
+  
+
+</li>
+    
+  </ul>
+  
+
+</li>
+      
+      <li class="class">
+
+  <a href="smx.Loader.html">Loader</a>
+  
+  
+  <ul>
+    
+      <li class="member">
+
+  <a href="smx.Loader.html#xhr">xhr</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Loader.html#load">load</a>
+  
+  
+
+</li>
+    
+      <li class="event">
+
+  <a href="smx.Loader.html#.event:complete">complete</a>
+  
+  
+
+</li>
+    
+      <li class="event">
+
+  <a href="smx.Loader.html#.event:error">error</a>
+  
+  
+
+</li>
+    
+  </ul>
+  
+
+</li>
+      
+      <li class="class">
+
+  <a href="smx.Playhead.html">Playhead</a>
+  
+  
+  <ul>
+    
+      <li class="member">
+
+  <a href="smx.Playhead.html#_document">_document</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Playhead.html#_selection">_selection</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Playhead.html#document">document</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Playhead.html#selection">selection</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Playhead.html#head">head</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Playhead.html#root">root</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Playhead.html#reset">reset</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Playhead.html#play">play</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Playhead.html#enter">enter</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Playhead.html#exit">exit</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Playhead.html#next">next</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Playhead.html#previous">previous</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Playhead.html#forward">forward</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Playhead.html#backward">backward</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Playhead.html#exec">exec</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Playhead.html#navigate">navigate</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Playhead.html#on">on</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Playhead.html#once">once</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Playhead.html#off">off</a>
+  
+  
+
+</li>
+    
+      <li class="typedef">
+
+  <a href="smx.Playhead.html#.PlayheadEvent">PlayheadEvent</a>
+  
+  
+
+</li>
+    
+  </ul>
+  
+
+</li>
+      
+    </ul>
+    
+  </li>
+  
+  <li class="modules">
+    
+    <h3>Modules</h3>
+    
+    <ul>
+      
+      <li class="module">
+
+  <a href="smx.module_Metadata.html">Metadata</a>
+  
+  
+  <ul>
+    
+      <li class="module">
+
+  <a href="smx.module_Metadata.module_MetadataProcessor.html">MetadataProcessor</a>
+  
+  
+  <ul>
+    
+      <li class="function">
+
+  <a href="smx.module_Metadata.module_MetadataProcessor.html#~processXMLDocument">processXMLDocument</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.module_Metadata.module_MetadataProcessor.html#~processMetadataNode">processMetadataNode</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.module_Metadata.module_MetadataProcessor.html#~processMetaAttributes">processMetaAttributes</a>
+  
+  
+
+</li>
+    
+  </ul>
+  
+
+</li>
+    
+      <li class="mixin">
+
+  <a href="smx.module_Metadata.Document-Metadata.html">Document-Metadata</a>
+  
+  
+
+</li>
+    
+      <li class="mixin">
+
+  <a href="smx.module_Metadata.Node-Metadata.html">Node-Metadata</a>
+  
+  
+  <ul>
+    
+      <li class="function">
+
+  <a href="smx.module_Metadata.Node-Metadata.html#meta">meta</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.module_Metadata.Node-Metadata.html#interpolate">interpolate</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.module_Metadata.Node-Metadata.html#search">search</a>
+  
+  
+
+</li>
+    
+  </ul>
+  
+
+</li>
+    
+  </ul>
+  
+
+</li>
+      
+      <li class="module">
+
+  <a href="smx.module_Prototype.html">Prototype</a>
+  
+  
+  <ul>
+    
+      <li class="module">
+
+  <a href="smx.module_Prototype.module_PrototypeProcessor.html">PrototypeProcessor</a>
+  
+  
+  <ul>
+    
+      <li class="function">
+
+  <a href="smx.module_Prototype.module_PrototypeProcessor.html#~processXMLDocument">processXMLDocument</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.module_Prototype.module_PrototypeProcessor.html#~processXMLNode">processXMLNode</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.module_Prototype.module_PrototypeProcessor.html#~applyPrototypes">applyPrototypes</a>
+  
+  
+
+</li>
+    
+  </ul>
+  
+
+</li>
+    
+  </ul>
+  
+
+</li>
+      
+      <li class="module">
+
+  <a href="smx.module_Taxonomy.html">Taxonomy</a>
+  
+  
+  <ul>
+    
+      <li class="module">
+
+  <a href="smx.module_Taxonomy.module_TaxonomyProcessor.html">TaxonomyProcessor</a>
+  
+  
+  <ul>
+    
+      <li class="function">
+
+  <a href="smx.module_Taxonomy.module_TaxonomyProcessor.html#~processXMLDocument">processXMLDocument</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.module_Taxonomy.module_TaxonomyProcessor.html#~processXMLNode">processXMLNode</a>
+  
+  
+
+</li>
+    
+  </ul>
+  
+
+</li>
+    
+      <li class="mixin">
+
+  <a href="smx.module_Taxonomy.Node-Taxonomy.html">Node-Taxonomy</a>
+  
+  
+  <ul>
+    
+      <li class="function">
+
+  <a href="smx.module_Taxonomy.Node-Taxonomy.html#.getTags">getTags</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.module_Taxonomy.Node-Taxonomy.html#.getCategories">getCategories</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.module_Taxonomy.Node-Taxonomy.html#.getBranches">getBranches</a>
+  
+  
+
+</li>
+    
+  </ul>
+  
+
+</li>
+    
+  </ul>
+  
+
+</li>
+      
+      <li class="module">
+
+  <a href="smx.module_Ui.html">Ui</a>
+  
+  
+  <ul>
+    
+      <li class="mixin">
+
+  <a href="smx.module_Ui.Node-Ui.html">Node-Ui</a>
+  
+  
+  <ul>
+    
+      <li class="function">
+
+  <a href="smx.module_Ui.Node-Ui.html#.ui">ui</a>
+  
+  
+
+</li>
+    
+  </ul>
+  
+
+</li>
+    
+  </ul>
+  
+
+</li>
+      
+    </ul>
+    
+  </li>
+  
+  
+</ul>
+  
+  <footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Mon Apr 02 2018 15:27:00 GMT+0200 (CEST) using the <a href="https://github.com/canvasplay/smx-jsdoc-template">smx-jsdoc-template</a> theme.
+  </footer>
+
+</nav>
+
+<article>
+
+  
+    
+<header>
+
+  <h1 class="article__title">
+    <small>source</small>
+    Node-Traversal.js
+  </h1>
+
+  <div class="details-mini">
+    
+
+<div class="source-links">
+  Full url: ./document/Node-Traversal.js
+</div>
+
+  </div>
+  
+</header>
+
+<section class="article__source">
+  <pre class="prettyprint source linenums">
+    <code>import Sizzle from 'sizzle';
+
+/**
+ * Extends {@link smx.Node Node} with tree traversal utility methods.
+ * @mixin Node-Traversal
+ * @see smx.Node
+ */
+
+let Traversal = {
+
+  /**
+   * Gets a list of all ancestor nodes matching the given selector, ordered from outer to inner.
+   * @param {String} selector
+   * @return {smx.Node[]}
+   * @memberof Node-Traversal
+   */
+  getAncestors: function(selector){
+    
+    if(!selector) return this.ancestors;
+    return this.ancestors.filter((n)=>n.isMatch(selector));
+    
+  },
+  
+  // EXTRA - PARENT RELATED OPERATIONS
+
+  /**
+   * Checks if node is an ancestor of another.
+   * @param {smx.Node} node - reference node
+   * @return {Boolean}
+   * @memberof Node-Traversal
+   */
+  isAncestorOf: function(node){
+    
+    if (!node.parent) return false;
+    var ancestorsId = node.ancestors.map((n)=>{ return n.id });
+    if (ancestorsId.indexOf(this.id)>-1) return true;
+    else return false;
+    
+  },
+
+
+  /**
+   * Checks if node matches the given selector.
+   * @param {String} selector - css selector to match
+   * @return {Boolean}
+   * @memberof Node-Traversal
+   */
+  isMatch: function(selector) {
+    
+    return Sizzle.matchesSelector(this[0],selector);
+    
+  },
+  
+  // CHILD RELATED OPERATIONS
+
+  /**
+   * Finds all descendant nodes matching the given selector.
+   * @param {String} selector - search selector
+   * @return {Array.&lt;Node>}
+   * @memberof Node-Traversal
+   */
+  find: function(selector) {
+    
+    if (!selector) return [];
+    if (!this.children.length) return [];
+    
+    return this.document.find(selector, this);
+    
+  },
+
+
+  /**
+   * This method is like `find` but returns only the first result.
+   * @param {String} selector - search selector
+   * @return {smx.Node}
+   * @memberof Node-Traversal
+   */
+  findOne: function(selector) {
+    
+    return this.find(selector)[0];
+    
+  },
+
+
+
+  /**
+   * Gets the children nodes matching the given selector.
+   * @param {String=} selector
+   * @return {Array.&lt;Node>}
+   * @memberof Node-Traversal
+   */
+  getChildren: function(selector) {
+    
+    if(!selector) return this.children;
+    
+    return this.children.filter((n) => n.isMatch(selector));
+    
+  },
+  
+
+  /**
+   * Gets the first child node matching the given selector.
+   * @param {String=} selector
+   * @return {smx.Node}
+   * @memberof Node-Traversal
+   */
+  getFirst: function(selector) {
+    
+    if(!selector) return this.first;
+    
+    var children = this.children;
+    var i=0, len=children.length, result;
+    while(i&lt;len &amp;&amp; !result){
+      if (children[i].isMatch(selector))
+        result = children[i];
+      i++;
+    }
+    
+    return result;
+    
+  },
+
+
+  /**
+   * Gets the last child node matching the given selector.
+   * @param {String=} selector
+   * @return {smx.Node}
+   * @memberof Node-Traversal
+   */
+  getLast: function(selector) {
+    
+    if(!selector) return this.last;
+    
+    var children = this.children.reverse();
+    var i=0, len=children.length, result;
+    while(i&lt;len &amp;&amp; !result){
+      if (children[i].isMatch(selector))
+        result = children[i];
+      i++;
+    }
+    
+    return result;
+    
+  },
+
+
+
+  // EXTRA - CHILD RELATED OPERATIONS
+
+  /**
+   * Gets child node at given index
+   * @param {Integer} index - index position
+   * @return {smx.Node}
+   * @memberof Node-Traversal
+   */
+  getChildAt: function(index) {
+    
+    return this.children[index];
+    
+  },
+
+
+  /**
+   * Checks if a node is child of another
+   * @param {smx.Node} node - reference node
+   * @return {Boolean}
+   * @memberof Node-Traversal
+   */
+  isDescendantOf: function(node) {
+    
+    if (!node.parent) return false;
+    var ancestorsId = this.ancestors.map((n) => { return n.id });
+    if (ancestorsId.indexOf(node.id)>-1) return true;
+    else return false;
+    
+  },
+
+
+  // SIBLING RELATED OPERATIONS
+
+
+  /**
+   * Gets the next sibling node matching the given selector.
+   * @param {String=} selector - filter selector
+   * @return {smx.Node}
+   * @memberof Node-Traversal
+   */
+  getNext: function(selector) {
+    
+    if(!selector)
+      return this.next;
+    else {
+      var n = this.next;
+      var isMatch = false;
+      while (!isMatch &amp;&amp; n) {
+        if(n.isMatch(selector))
+          isMatch = true;
+        else
+          n = n.next;
+      }
+      return (isMatch)? n : undefined;
+    }
+    
+  },
+
+  /**
+   * Gets all next sibling nodes matching the given selector.
+   * @param {String=} selector - filter selector
+   * @return {smx.Node[]}
+   * @memberof Node-Traversal
+   */
+  getAllNext: function (selector) {
+
+    if (!this.next) return [];
+    else {
+      //fill up nodes array walking all next nodes
+      var n = this.next;
+      var nodes = [n];
+      while (n &amp;&amp; n.next) {
+        n = n.next;
+        nodes.push(n);
+      }
+      if(!selector)
+        return nodes;
+      else //return filtered by selector
+        return nodes.filter((n) => { return n.isMatch(selector) });
+    }
+
+  },
+
+  /**
+   * Gets the previous sibling node matching the given selector.
+   * @param {String=} selector - filter selector
+   * @return {smx.Node}
+   * @memberof Node-Traversal
+   */
+  getPrevious: function(selector) {
+    
+    if (!selector)
+      return this.previous;
+    else {
+      var n = this.previous;
+      var isMatch = false;
+      while (!isMatch &amp;&amp; n) {
+        if (n.isMatch(selector))
+          isMatch = true;
+        else
+          n = n.previous;
+      }
+      return (isMatch) ? n : undefined;
+    }
+    
+  },
+
+  /**
+   * Gets all previous sibling nodes matching the given selector.
+   * @param {String=} selector - filter selector
+   * @return {smx.Node[]}
+   * @memberof Node-Traversal
+   */
+  getAllPrevious: function (selector) {
+    
+    if (!this.previous) return [];
+    
+    else {
+      //fill up nodes array walking all previous nodes
+      var n = this.previous;
+      var nodes = [n];
+      while (n &amp;&amp; n.previous) {
+        n = n.previous;
+        nodes.unshift(n);
+      }
+      if (!selector)
+        return nodes;
+      else //return filtered by selector
+        return nodes.filter((n) => { return n.isMatch(selector) });
+    }
+    
+  }
+  
+};
+
+export default Traversal;</code>
+  </pre>
+</section>
+  
+  
+</article>
+
+<script>prettyPrint();</script>
+<!--<script src="scripts/linenumber.js"></script>-->
+</body>
+</html>

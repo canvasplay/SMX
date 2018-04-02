@@ -2361,27 +2361,34 @@ var _NodeCore = __webpack_require__(10);
 
 var _NodeCore2 = _interopRequireDefault(_NodeCore);
 
-var _NodeTreeNode = __webpack_require__(11);
+var _NodeTraversal = __webpack_require__(11);
 
-var _NodeTreeNode2 = _interopRequireDefault(_NodeTreeNode);
+var _NodeTraversal2 = _interopRequireDefault(_NodeTraversal);
 
-var _NodeAttributeGetters = __webpack_require__(12);
+var _NodeAttributes = __webpack_require__(12);
 
-var _NodeAttributeGetters2 = _interopRequireDefault(_NodeAttributeGetters);
+var _NodeAttributes2 = _interopRequireDefault(_NodeAttributes);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 /**
- * SMX Node Class
  * @memberof smx
- * @mixes smx.fn.Core
- * @mixes smx.fn.TreeNode
+ * @mixes Node-Core
+ * @mixes Node-Attributes
+ * @mixes Node-Traversal
+ *
+ * @description
+ * The Node class wraps an XMLNode and provides an easy to use api
+ * to interact with it.
+ *
+ * This class can be further extended by mixins from custom modules.
  */
 var Node = function () {
 
   /**
+   * @constructor
    * @param {XMLNode} xmlNode
    */
   function Node(xmlNode) {
@@ -2654,8 +2661,8 @@ var Node = function () {
 
 //extends Node prototype
 _extends(Node.prototype, _NodeCore2.default);
-_extends(Node.prototype, _NodeTreeNode2.default);
-_extends(Node.prototype, _NodeAttributeGetters2.default);
+_extends(Node.prototype, _NodeTraversal2.default);
+_extends(Node.prototype, _NodeAttributes2.default);
 
 exports.default = Node;
 
@@ -2680,37 +2687,57 @@ var _eventify = __webpack_require__(3);
 
 var _eventify2 = _interopRequireDefault(_eventify);
 
-var _IdAttributeParser = __webpack_require__(9);
+var _IdAttributeProcessor = __webpack_require__(9);
 
-var _IdAttributeParser2 = _interopRequireDefault(_IdAttributeParser);
+var _IdAttributeProcessor2 = _interopRequireDefault(_IdAttributeProcessor);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
 /**
- * SMX Loader Class
- * @class Loader
  * @memberof smx
+ * @desc
+ * The Loader class loads, parses, and transforms XML data
+ * from multiple sources.
+ *
+ * The Loader can load data from valid XMLDocument sources,
+ * p.e. from an url, an XJSON oject or an XMLDocument object.
+ * The Loader can also load asyc and merge recursively new content from
+ * other valid sources, url or objects.
+ *
+ * ### Reserved XML: `<include>`
  */
+var Loader = function () {
 
-var Loader = function Loader() {
+  /** @constructor */
+  function Loader() {
+    _classCallCheck(this, Loader);
 
-  //extend with events on, off, trigger
-  _eventify2.default.enable(this);
+    //extend with events on, off, trigger
+    _eventify2.default.enable(this);
 
-  // XML Document Object
-  this.xmlDocument = null;
+    // XML Document Object
+    this.xmlDocument = null;
 
-  // xhr controller for file requests
-  this.xhr = null;
+    /**
+     * @member {XMLHttpRequest}
+     * @desc xhr controller for file requests
+     * @private
+     */
+    this.xhr = null;
+  }
 
-  this.loadDocument = function (url) {
+  /**
+   * Loads the resource for the given url.
+   * @param {String} url
+   * @async
+   * @trigger smx.Loader:event:complete
+   * @trigger smx.Loader:event:error
+   */
 
-    this.loadFile(url);
 
-    return;
-  };
-
-  this.loadFile = function (url) {
+  Loader.prototype.load = function load(url) {
 
     var onSuccess = this.onLoadFileSuccess.bind(this);
     var onError = this.onLoadFileError.bind(this);
@@ -2727,7 +2754,7 @@ var Loader = function Loader() {
     return;
   };
 
-  this.onLoadFileSuccess = function (xhr) {
+  Loader.prototype.onLoadFileSuccess = function onLoadFileSuccess(xhr) {
 
     log('> ' + xhr.responseURL + ' ' + xhr.status + ' (' + xhr.statusText + ')');
     //log( xhr.responseText);
@@ -2737,6 +2764,9 @@ var Loader = function Loader() {
     var is_root = !this.xmlDocument ? true : false;
 
     if (is_root) {
+
+      //resolve as error if first loaded file is not a valid XMLDocument
+      if (!xhr.responseXML) throw new Error('Invalid XML root');
 
       //set xml root document
       this.xmlDocument = xhr.responseXML;
@@ -2807,25 +2837,22 @@ var Loader = function Loader() {
         ref = parent;
       }
 
-      this.loadFile(url);
+      this.load(url);
     } else this.onLoadXMLComplete();
 
     return;
   };
 
-  this.onLoadFileError = function (xhr) {
+  Loader.prototype.onLoadFileError = function onLoadFileError(xhr) {
 
     log('> ' + xhr.responseURL + '" ' + xhr.status + ' (' + xhr.statusText + ')');
     this.trigger('error', xhr.responseText);
   };
 
-  this.onLoadXMLComplete = function () {
-
-    //get defined parsers from smx ns
-    var parsers = smx.AttributeParsers;
+  Loader.prototype.onLoadXMLComplete = function onLoadXMLComplete() {
 
     //ensure all nodes have unique id
-    _IdAttributeParser2.default.parse(this.xmlDocument);
+    _IdAttributeProcessor2.default.process(this.xmlDocument);
 
     //trigger complete event
     this.trigger('complete', this.xmlDocument);
@@ -2833,10 +2860,10 @@ var Loader = function Loader() {
     return;
   };
 
-  this.XML2str = function (xmlNode) {
+  Loader.prototype.XML2str = function XML2str(xmlNode) {
 
     try {
-      // Gecko- and Webkit-based browsers (Firefox, Chrome), Opera.
+      // Gecko/Webkit-based browsers (Firefox, Chrome, Opera...
       return new XMLSerializer().serializeToString(xmlNode);
     } catch (e) {
       try {
@@ -2851,7 +2878,7 @@ var Loader = function Loader() {
     return '';
   };
 
-  this.str2XML = function (str) {
+  Loader.prototype.str2XML = function str2XML(str) {
 
     var xml = null;
 
@@ -2869,8 +2896,8 @@ var Loader = function Loader() {
     return xml;
   };
 
-  return this;
-};
+  return Loader;
+}();
 
 //
 //  PRIVATE HELPER METHODS
@@ -2965,8 +2992,19 @@ var parseIncludes = function parseIncludes(xmlDocument) {
   return inc;
 };
 
-//expose
-//smx.Loader = Loader;
+/**
+ * Fired when loading completes sucessfully.
+ * @event complete
+ * @memberof smx.Loader
+ * @return {XMLDocument}
+ */
+
+/**
+ * Fired when loading fails
+ * @event error
+ * @memberof smx.Loader
+ * @return {Object}
+ */
 
 exports.default = Loader;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(8)))
@@ -3380,8 +3418,12 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 /**
- * SMX Document Class
  * @memberof smx
+ * @desc
+ * The Document class wraps an XMLDocument and provides an easy to use api
+ * to interact with it and its contents.
+ *
+ * This class can be further extended by mixins from custom modules.
  */
 var Document = function () {
 
@@ -3407,6 +3449,13 @@ var Document = function () {
      * @private
      */
     this._cache = {};
+
+    /**
+     * Namespace for storing custom modules data.
+     * @type {Object}
+     * @private
+     */
+    this._data = {};
   }
 
   /**
@@ -3420,7 +3469,7 @@ var Document = function () {
   /**
    * Gets the node with the given identifier.
    * @param {String} id
-   * @return {SMXNode}
+   * @return {smx.Node}
    */
   Document.prototype.getNodeById = function getNodeById(id) {
 
@@ -3439,8 +3488,8 @@ var Document = function () {
   /**
    * Finds all nodes matching the given selector.
    * @param {String} selector - search selector
-   * @param {SMXNode=} context - node context to find inside
-   * @return {Array.<SMXNode>}
+   * @param {smx.Node=} context - node context to find inside
+   * @return {Array.<smx.Node>}
    */
 
 
@@ -3454,7 +3503,7 @@ var Document = function () {
   /**
    * Wraps an existing node or nodes in smx paradigm.
    * @param {XMLNode|XMLNode[]}
-   * @return {SMXNode|SMXNode[]}
+   * @return {smx.Node|smx.Node[]}
    */
 
 
@@ -3530,7 +3579,7 @@ var Document = function () {
 
     /**
      * Gets the root node.
-     * @type {SMXNode}
+     * @type {smx.Node}
      * @readonly
      */
 
@@ -3599,11 +3648,12 @@ _smx2.default.Document = _Document2.default;
 _smx2.default.Node = _Node2.default;
 _smx2.default.Playhead = _Playhead2.default;
 
-_index2.default.register(_smx2.default);
-_index4.default.register(_smx2.default);
-_index6.default.register(_smx2.default);
-_index8.default.register(_smx2.default);
+_smx2.default.registerModule(_index2.default);
+_smx2.default.registerModule(_index4.default);
+_smx2.default.registerModule(_index6.default);
+_smx2.default.registerModule(_index8.default);
 
+//expose global
 window.smx = _smx2.default;
 
 /***/ }),
@@ -3617,6 +3667,8 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 var _smxLoad = __webpack_require__(7);
 
 var _smxLoad2 = _interopRequireDefault(_smxLoad);
@@ -3624,67 +3676,107 @@ var _smxLoad2 = _interopRequireDefault(_smxLoad);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /**
- * Global namespace to hold all framework classes and modules.
  * @namespace smx
+ * @version 2.1
+ * @desc
+ * Global `smx` namespace, one namespace to hold the whole framework.
+ *
+ * The smx namespace can serves also as namespace function, see {@link smx.smx smx()}.
  */
 var smx = function smx() {
   return _smx_wrapper.apply(smx, arguments);
 };
 
 /**
- * Gets current framework version
+ * Gets current framework version.
  * @memberof smx
  * @type {String}
+ * @protected
  */
 smx.version = '0.8.14';
 
 /**
- * Currently active document.
+ * Current active document.
  * @memberof smx
- * @type {SMXDocument}
+ * @type {smx.Document}
+ * @protected
  */
 smx.document = null;
 
 /**
  * Array of loaded documents.
  * @memberof smx
- * @type {SMXDocument[]}
+ * @type {smx.Document[]}
+ * @protected
  */
 smx.documents = [];
 
 /**
- * Namespace for SMXNode extended mixin methods.
- * @memberof smx
- * @type {Object}
- */
-smx.fn = {};
-
-smx.parsers = [];
-
-/**
- * Namescape for custom attribute parsers.
- * Attribute parsers are used during XML transpilation to process original
- * nodes attributes in different ways.
+ * Namescape for custom modules, may extend smx core Classes and provide
+ * new processing layers to be applied during the XML loading process.
+ * This array is protected and should be controlled only be the registerModule method.
  * @memberof smx
  * @type {Array}
+ * @protected
  */
-smx.AttributeParsers = [];
+smx.modules = [];
 
 /**
- * Namespace for custom node parsers.
- * Tag parsers are used during XML transpilation to transform original nodes
- * in different ways.
- * @memberof smx
- * @type {Array}
+ * Registers a new module. Will add it to modules collection and will also
+ * extend smx core classes if the module defines any extension.
  */
-smx.NodeParsers = [];
+smx.registerModule = function (m) {
+
+  //dumb check...
+  if (!m) return;
+
+  //add it to modules collection
+  this.modules.push(m);
+
+  //register process function
+  if (m.process) smx.processors.push(m.process);
+
+  //extend SMXNode
+  if (m.Node) _extends(smx.Node.prototype, m.Node);
+
+  //extend SMXDocument
+  if (m.Document) _extends(smx.Document.prototype, m.Document);
+
+  //return the registerd module as success
+  return m;
+};
 
 /**
-* Global node wrapper.
 * @method smx
-* @param {String|SMXNode|SMXNode[]} s - selector, node or node collection
-* @return {SMXNode|SMXNodes[]}
+* @param {String|smx.Node|smx.Node[]} [s]
+* @return {smx.Node|smx.Nodes[]}
 * @memberof smx
+* @static
+* @desc
+* Global node wrapper, an useful shortcut for interacting with the current
+* active document.
+*
+* Notice that this method is a namespace function, is private inner function
+* attached directly onto smx namespace. Dont try to call this function as a
+* namespace member, use the `smx` namespace itself as a function.
+*
+* If the required parameter is a CSS selector string will return a collection
+* of {@link smx.Node Nodes} matching the given selector as a result of calling
+* {@link smx.Document#find Document.find} on the current active document.
+*
+* If the paramater is single or array of XMLNode will return the input nodes
+* wrapped as smx Nodes.
+* Additionally if input are already smx Nodes will return already cached Nodes,
+* so don't be afraid about rewraping nodes using this wrapper.
+*
+* @example
+* //use it as a namespace function.
+* smx('library > book');
+* // => [SMXNode, SMXNode, SMXNode, ...]
+*
+* //not like this
+* smx.smx('library > book');
+* // => Error: smx.smx is not a Function.
 */
 var _smx_wrapper = function _smx_wrapper(s) {
 
@@ -3735,7 +3827,7 @@ var _Document2 = _interopRequireDefault(_Document);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var DATA;
-var PARSER_INDEX;
+var PROCESSOR_INDEX;
 
 /**
  * Loads a new smx document.
@@ -3757,7 +3849,7 @@ var LOAD = function LOAD(data, success, error) {
 	ERROR_CALLBACK = error || function () {};
 
 	DATA = {};
-	PARSER_INDEX = 0;
+	PROCESSOR_INDEX = 0;
 
 	if (typeof data === 'string') LOAD_SMX_DOCUMENT(data);else LOAD_SMX_DOCUMENT_FROM_JSON(data);
 };
@@ -3778,25 +3870,25 @@ var ERROR_CALLBACK = function ERROR_CALLBACK(e) {};
 
 var LOAD_SMX_DOCUMENT = function LOAD_SMX_DOCUMENT(url) {
 	var loader = new _Loader2.default();
-	loader.on('complete', APPLY_PARSERS);
+	loader.on('complete', APPLY_PROCESSORS);
 	loader.on('error', LOAD_SMX_ERROR);
-	loader.loadDocument(url);
+	loader.load(url);
 };
 
 var LOAD_SMX_DOCUMENT_FROM_JSON = function LOAD_SMX_DOCUMENT_FROM_JSON(data) {
 	var x2js = new X2JS();
 	var xmlDocument = x2js.json2xml(data);
-	APPLY_PARSERS(xmlDocument);
+	APPLY_PROCESSORS(xmlDocument);
 };
 
-var APPLY_PARSERS = function APPLY_PARSERS(xmlDocument) {
+var APPLY_PROCESSORS = function APPLY_PROCESSORS(xmlDocument) {
 	var xml = xmlDocument;
-	var parser = smx.parsers[PARSER_INDEX];
-	if (parser) {
-		parser(xml, function (data) {
+	var processor = smx.modules[PROCESSOR_INDEX].Processor;
+	if (processor) {
+		processor(xml, function (data) {
 			if (data) _extends(DATA, data);
-			PARSER_INDEX = PARSER_INDEX + 1;
-			APPLY_PARSERS(xml);
+			PROCESSOR_INDEX++;
+			APPLY_PROCESSORS(xml);
 		});
 	} else {
 		CLEAN_TEXT_NODES(xml);
@@ -3859,7 +3951,7 @@ var CREATE_SMX_DOCUMENT = function CREATE_SMX_DOCUMENT(xml) {
 
 	var d = new _Document2.default(xml);
 
-	_extends(d, DATA);
+	_extends(d._data, DATA);
 
 	smx.documents.push(d);
 
@@ -3931,7 +4023,7 @@ var _sizzle2 = _interopRequireDefault(_sizzle);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-/**
+/*
  *	util method
  *	GET_UNIQUE_ID
  *	returns unique base36 ids strings [0-9]+[a-z]
@@ -3944,14 +4036,14 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  *
  */
 
-var ID_INDEX = 1;
+var ID_INDEX = 0;
 var GET_UNIQUE_ID = function GET_UNIQUE_ID() {
   ID_INDEX++;return parseInt(ID_INDEX).toString(36);
 };
 //const GET_UNIQUE_ID = ()=>{ return bigInt2str(str2bigInt(ID_INDEX+"",10,0,0),62) };
 
 
-var IdAttributeParser = {
+var IdAttributeProcessor = {
 
   /**
    * Parser name
@@ -3968,12 +4060,12 @@ var IdAttributeParser = {
   selector: ':not([id])',
 
   /**
-   * Parser function
+   * Processor function
    * @static
    * @param {XMLDocument} xmlDocument
    * @return {XMLDocument}
    */
-  parse: function parse(xmlDocument) {
+  process: function process(xmlDocument) {
 
     //get ids already in use inside xmlDocument
     var nodes_with_id_attr = (0, _sizzle2.default)('[id]', xmlDocument);
@@ -4001,7 +4093,7 @@ var IdAttributeParser = {
       node.setAttribute('id', id);
     }
 
-    log('ATTRIBUTE PARSER: ID (' + nodes.length + ' nodes)');
+    log('ATTRIBUTE PROCESSOR: ID (' + nodes.length + ' nodes)');
 
     return xmlDocument;
   }
@@ -4009,7 +4101,7 @@ var IdAttributeParser = {
 };
 
 //expose to smx namespace
-exports.default = IdAttributeParser;
+exports.default = IdAttributeProcessor;
 
 /***/ }),
 /* 10 */
@@ -4033,8 +4125,9 @@ var _Node2 = _interopRequireDefault(_Node);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /**
- * Extends SMXNode with core methods
+ * Extends {@link smx.Node Node} with core methods.
  * @mixin Node-Core
+ * @see smx.Node
  */
 
 var NodeCore = {
@@ -4140,13 +4233,14 @@ var NodeCore = {
     },
 
     /**
-     * Gets the JSON representation. NOT IMPLEMENTED
+     * Gets the Node as JSON Object representation.
      * @method toJSON
      * @memberof Node-Core
      * @return {Object}
+     * @todo Not Implemented!
      */
     toJSON: function toJSON() {
-        return {}; //not implemented...
+        return {};
     }
 
 };
@@ -4171,18 +4265,18 @@ var _sizzle2 = _interopRequireDefault(_sizzle);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /**
- * Extends SMXNode with utility tree node methods
- * @mixin Node-TreeNode
+ * Extends {@link smx.Node Node} with tree traversal utility methods.
+ * @mixin Node-Traversal
+ * @see smx.Node
  */
 
-var TreeNodeMethods = {
-
-  // PARENT RELATED OPERATIONS
+var Traversal = {
 
   /**
-   * Gets a list of parent nodes up to root, ordered from outer to inner.
-   * @memberof Node-TreeNode
-   * @return {SMXNode[]}
+   * Gets a list of all ancestor nodes matching the given selector, ordered from outer to inner.
+   * @param {String} selector
+   * @return {smx.Node[]}
+   * @memberof Node-Traversal
    */
   getAncestors: function getAncestors(selector) {
 
@@ -4196,9 +4290,9 @@ var TreeNodeMethods = {
 
   /**
    * Checks if node is an ancestor of another.
-   * @memberof Node-TreeNode
-   * @param {SMXNode} node - reference node
+   * @param {smx.Node} node - reference node
    * @return {Boolean}
+   * @memberof Node-Traversal
    */
   isAncestorOf: function isAncestorOf(node) {
 
@@ -4211,9 +4305,9 @@ var TreeNodeMethods = {
 
   /**
    * Checks if node matches the given selector.
-   * @memberof Node-TreeNode
    * @param {String} selector - css selector to match
    * @return {Boolean}
+   * @memberof Node-Traversal
    */
   isMatch: function isMatch(selector) {
 
@@ -4224,9 +4318,9 @@ var TreeNodeMethods = {
 
   /**
    * Finds all descendant nodes matching the given selector.
-   * @memberof Node-TreeNode
    * @param {String} selector - search selector
    * @return {Array.<Node>}
+   * @memberof Node-Traversal
    */
   find: function find(selector) {
 
@@ -4238,20 +4332,20 @@ var TreeNodeMethods = {
 
   /**
    * This method is like `find` but returns only the first result.
-   * @memberof Node-TreeNode
    * @param {String} selector - search selector
-   * @return {SMXNode}
+   * @return {smx.Node}
+   * @memberof Node-Traversal
    */
-  one: function one(selector) {
+  findOne: function findOne(selector) {
 
     return this.find(selector)[0];
   },
 
   /**
    * Gets the children nodes matching the given selector.
-   * @memberof Node-TreeNode
    * @param {String=} selector
    * @return {Array.<Node>}
+   * @memberof Node-Traversal
    */
   getChildren: function getChildren(selector) {
 
@@ -4264,9 +4358,9 @@ var TreeNodeMethods = {
 
   /**
    * Gets the first child node matching the given selector.
-   * @memberof Node-TreeNode
    * @param {String=} selector
-   * @return {SMXNode}
+   * @return {smx.Node}
+   * @memberof Node-Traversal
    */
   getFirst: function getFirst(selector) {
 
@@ -4286,9 +4380,9 @@ var TreeNodeMethods = {
 
   /**
    * Gets the last child node matching the given selector.
-   * @memberof Node-TreeNode
    * @param {String=} selector
-   * @return {SMXNode}
+   * @return {smx.Node}
+   * @memberof Node-Traversal
    */
   getLast: function getLast(selector) {
 
@@ -4310,9 +4404,9 @@ var TreeNodeMethods = {
 
   /**
    * Gets child node at given index
-   * @memberof Node-TreeNode
    * @param {Integer} index - index position
-   * @return {SMXNode}
+   * @return {smx.Node}
+   * @memberof Node-Traversal
    */
   getChildAt: function getChildAt(index) {
 
@@ -4321,9 +4415,9 @@ var TreeNodeMethods = {
 
   /**
    * Checks if a node is child of another
-   * @memberof Node-TreeNode
-   * @param {SMXNode} node - reference node
+   * @param {smx.Node} node - reference node
    * @return {Boolean}
+   * @memberof Node-Traversal
    */
   isDescendantOf: function isDescendantOf(node) {
 
@@ -4339,9 +4433,9 @@ var TreeNodeMethods = {
 
   /**
    * Gets the next sibling node matching the given selector.
-   * @memberof Node-TreeNode
    * @param {String=} selector - filter selector
-   * @return {SMXNode}
+   * @return {smx.Node}
+   * @memberof Node-Traversal
    */
   getNext: function getNext(selector) {
 
@@ -4357,9 +4451,9 @@ var TreeNodeMethods = {
 
   /**
    * Gets all next sibling nodes matching the given selector.
-   * @memberof Node-TreeNode
    * @param {String=} selector - filter selector
-   * @return {SMXNode[]}
+   * @return {smx.Node[]}
+   * @memberof Node-Traversal
    */
   getAllNext: function getAllNext(selector) {
 
@@ -4380,9 +4474,9 @@ var TreeNodeMethods = {
 
   /**
    * Gets the previous sibling node matching the given selector.
-   * @memberof Node-TreeNode
    * @param {String=} selector - filter selector
-   * @return {SMXNode}
+   * @return {smx.Node}
+   * @memberof Node-Traversal
    */
   getPrevious: function getPrevious(selector) {
 
@@ -4398,9 +4492,9 @@ var TreeNodeMethods = {
 
   /**
    * Gets all previous sibling nodes matching the given selector.
-   * @memberof Node-TreeNode
    * @param {String=} selector - filter selector
-   * @return {SMXNode[]}
+   * @return {smx.Node[]}
+   * @memberof Node-Traversal
    */
   getAllPrevious: function getAllPrevious(selector) {
 
@@ -4421,7 +4515,7 @@ var TreeNodeMethods = {
 
 };
 
-exports.default = TreeNodeMethods;
+exports.default = Traversal;
 
 /***/ }),
 /* 12 */
@@ -4434,21 +4528,21 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 /**
- * Extends SMXNode with utility attribute getters
- * @mixin Node-AttributeGetters
+ * Extends {@link smx.Node Node} with utility attribute getters.
+ * @mixin Node-Attributes
+ * @see smx.Node
  */
 
-var NodeAttributeGetters = {
+var NodeAttributes = {
 
     /**
      * Gets the value for the given attribute name.
      *
-     * @memberof Node-AttributeGetters
+     * @memberof Node-Attributes
      * @param {String} name - attribute name
      * @return {String} value
      * @example
-     * <movie tags="sci-fi, horror, adventures" />
-     * @example
+     * //<movie tags="sci-fi, horror, adventures" />
      * $movie.attr('tags')
      * // => "sci-fi, horror, adventures"
      */
@@ -4461,7 +4555,7 @@ var NodeAttributeGetters = {
      * This method is like `attr` but will use an attribute parser if there is
      * one predefined for the given attribute name.
      *
-     * @memberof Node-AttributeGetters
+     * @memberof Node-Attributes
      * @param {String} name - attribute name
      * @param {Object=} opt - options to pass into attribute parser
      * @return {String} value
@@ -4483,7 +4577,7 @@ var NodeAttributeGetters = {
     /**
      * Checks if node has or not an attribute with the given name
      * @method has
-     * @memberof Node-AttributeGetters
+     * @memberof Node-Attributes
      * @param {String} name - attribute name
      * @return {Boolean}
      */
@@ -4498,13 +4592,12 @@ var NodeAttributeGetters = {
      * Gets Delimiter Separated Value
      * An utility method converts given attribute value into dsv array
      * @method dsv
-     * @memberof Node-AttributeGetters
+     * @memberof Node-Attributes
      * @param name {String} the name of the attribute
      * @param delimiter {String=} delimiter string
      * @return {Array.<String>}
      * @example
-     * <movie tags="sci-fi, horror, adventures">
-     * @example
+     * //<movie tags="sci-fi, horror, adventures">
      * $movie.dsv('tags',',')
      * // => ["sci-fi", "horror", "adventures"]
      */
@@ -4547,7 +4640,7 @@ var NodeAttributeGetters = {
 
 };
 
-exports.default = NodeAttributeGetters;
+exports.default = NodeAttributes;
 
 /***/ }),
 /* 13 */
@@ -4571,14 +4664,18 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 /**
-* SMX Playhead class
-* @memberof smx
-*/
+ * @memberof smx
+ * @desc
+ * The Playhead class is a {@link smx.Document Document} navigation controller.
+ *
+ * Provides a plain interface to navigate along a Document tree,
+ * keeps a navigation registry and emits useful events for listening
+ * to any movement.
+ */
 var Playhead = function () {
 
 		/**
-   * Create a playhead
-   * @param {SMXDocument} document - The document to navigate through
+   * @param {smx.Document} document - The document to navigate through
    */
 		function Playhead(doc) {
 				_classCallCheck(this, Playhead);
@@ -4591,14 +4688,14 @@ var Playhead = function () {
 
 				/**
      * The document to navigate through
-     * @type {SMXDocument}
+     * @type {smx.Document}
      * @private
      */
 				this._document = doc;
 
 				/**
      * Contains all currently selected nodes ordered from outter to inner.
-     * @type {SMXNode[]}
+     * @type {smx.Node[]}
      * @private
      */
 				this._selection = [];
@@ -4606,7 +4703,7 @@ var Playhead = function () {
 
 		/**
    * Gets the associated document
-   * @type {SMXDocument}
+   * @type {smx.Document}
    * @readonly
    */
 
@@ -4620,7 +4717,7 @@ var Playhead = function () {
 
 		/**
    * Performs play action
-   * @param {(String|SMXNode)=} ref target reference
+   * @param {(String|smx.Node)=} ref target reference
    */
 
 
@@ -4633,14 +4730,14 @@ var Playhead = function () {
 				var tnode = ref.id ? ref : this.document.getNodeById(ref);
 
 				//not found? ignore...
-				if (tnode) return this.navigate(tnode, {});
+				if (tnode) return this.navigate(tnode);
 
 				//else ignore
 				return;
 		};
 
 		/**
-   * Navigates inside head's node.
+   * Navigates to an inner node, moves the head to current head's first child.
    */
 
 
@@ -4658,12 +4755,12 @@ var Playhead = function () {
 				//get first child
 				var tnode = children[0];
 
-				//go to child node using known swap type and passing recived params
-				return this.navigate(tnode, { 'type': 'inside' });
+				//navigates to target node
+				return this.navigate(tnode);
 		};
 
 		/**
-   * Navigates outside head's node.
+   * Navigates to an outter node, moves the head to current head's parent.
    */
 
 
@@ -4678,12 +4775,12 @@ var Playhead = function () {
 				//get parent node
 				var tnode = cnode.parent;
 
-				//go to child node using known swap type and passing recived params
-				return this.navigate(tnode, { 'type': 'outside' });
+				//navigates to target node
+				return this.navigate(tnode);
 		};
 
 		/**
-   * Navigates to head's next node.
+   * Navigates to current head's next sibling node.
    */
 
 
@@ -4695,12 +4792,12 @@ var Playhead = function () {
 				//get next node
 				var tnode = cnode.next;if (!tnode) return;
 
-				//go to next node using known swap type
-				return this.navigate(tnode, { 'type': 'next' });
+				//navigates to target node
+				return this.navigate(tnode);
 		};
 
 		/**
-   * Navigates to head's previous node.
+   * Navigates to current head's previous sibling node.
    */
 
 
@@ -4712,12 +4809,12 @@ var Playhead = function () {
 				//get previous node
 				var tnode = cnode.previous;if (!tnode) return;
 
-				//go to previous node using known swap type and passing recived params
-				return this.navigate(tnode, { 'type': 'previous' });
+				//navigates to target node
+				return this.navigate(tnode);
 		};
 
 		/**
-   * Navigates to head's next node in flat tree mode.
+   * Navigates to current head's next node in flat tree mode.
    */
 
 
@@ -4748,7 +4845,7 @@ var Playhead = function () {
 		};
 
 		/**
-    * Navigates to head's previous node in flat tree mode.
+    * Navigates to current head's previous node in flat tree mode.
    */
 
 
@@ -4760,8 +4857,15 @@ var Playhead = function () {
 		};
 
 		/**
-   * Executes a playhead action by keyword.
     * @param {String} keyword
+    * @desc
+   * Executes a playhead command based on the given action keyword. keywords
+   * are basically some playhead's method names.
+   *
+   * List of valid commands:
+   * `reset`, `play`, `next`, `previous`,
+   * `enter`, `exit`, `forward`, `backward`.
+   *
    */
 
 
@@ -4785,8 +4889,33 @@ var Playhead = function () {
 		};
 
 		/**
-   * Navigates to given node using optional configuration.
-    * @param {String} target
+    * @param {String|smx.Node} target
+    * @desc
+    *
+   * Navigates to a given target node or executes a playhead command.
+   * If `target` is a node will navigate to it, if `target` is a string will
+   * try to find a node identified as `target` and will navigate to it. If
+   * `target` is a `!` preffixed string will execute it as a playhead command.
+   *
+   * See {@link smx.Playhead#exec .exec()} for a list of valid commands.
+   *
+   * @example
+   * //instance a new Playhead
+   * var playhead = new smx.Playhead(doc);
+   *
+   * //navigate by node identifier
+   * playhead.navigate('a42');
+   *
+   * //to to given node
+   * playhead.navigate(node);
+   *
+   * //using commands
+   * playhead.navigate('!next')
+   * //same as
+   * playhead.exec('next')
+   * // or
+   * playhead.next();
+   *
    */
 
 
@@ -4799,7 +4928,7 @@ var Playhead = function () {
 				if (isKeyword) return this.exec(target.substr(1));
 
 				//resolve target node by reference
-				//assuming having and id property means SMXNode...
+				//assuming having and id property means smx.Node...
 				var tnode = target.id ? target : this.document.getNodeById(target);
 
 				//no target found? error!
@@ -4811,7 +4940,7 @@ var Playhead = function () {
 				//no need to move...
 				if (tnode === cnode) return cnode;
 
-				//--> ASYNC ATTR CONDITIONAL NAVIGATION WAS HERE...
+				//--> LEGACY ASYNC ATTR CONDITIONAL NAVIGATION WAS HERE...
 				//see leagacy playhead implementations for more info
 
 				//resets private navigation registry
@@ -4868,7 +4997,7 @@ var Playhead = function () {
 				this.trigger('change', {
 						selected: selected,
 						deselected: deselected,
-						path: this._selection,
+						selection: this._selection,
 						origin: cnode,
 						target: tnode
 				});
@@ -4887,7 +5016,7 @@ var Playhead = function () {
     	
     }
       
-    //--> NOSTOP ATTRIBUTE CONDITIONAL NAVIGATION WAS HERE...
+    //--> LEGACY CONDITIONAL NOSTOP ATTRIBUTE WAS HERE...
       //see leagacy playhead implementations for more info
       
     //fire generic 'stay' event in resulting current node
@@ -4905,76 +5034,6 @@ var Playhead = function () {
     */
 		};
 
-		/**
-   * Fired when entering to any node
-   * @event enter
-   * @memberof smx.Playhead
-   * @return {PlayheadEvent}
-   */
-
-		/**
-   * Fired just after `enter` but for a specific node
-   * @event enter:id
-   * @memberof smx.Playhead
-   * @return {PlayheadEvent}
-   */
-
-		/**
-   * Fired when exiting from any node
-   * @event exit
-   * @memberof smx.Playhead
-   * @return {PlayheadEvent}
-   */
-
-		/**
-   * Fired just after `exit` but for a specific node
-   * @event exit:id
-   * @memberof smx.Playhead
-   * @return {PlayheadEvent}
-   */
-
-		/**
-   * Fired every time a head change occurs and stays on any node
-   * @event stay
-   * @memberof smx.Playhead
-   * @return {PlayheadEvent}
-   */
-
-		/**
-   * Fired just after `stay` but for a specific node
-   * @event stay:id
-   * @memberof smx.Playhead
-   * @return {PlayheadEvent}
-   */
-
-		/**
-   * Fired every time a node stops being the head
-   * @event leave
-   * @memberof smx.Playhead
-   * @return {PlayheadEvent}
-   */
-
-		/**
-   * Fired just after `leave` but for a specific node
-   * @event leave:id
-   * @memberof smx.Playhead
-   * @return {PlayheadEvent}
-   */
-
-		/**
-   * Fired every time the playhead finishes all operations and goes idle
-   * @event ready
-   * @memberof smx.Playhead
-   * @return {PlayheadEvent}
-   */
-
-		/**
-   * Fired when playhed goes to sync mode
-   * @event sync
-   * @memberof smx.Playhead
-   * @return {PlayheadEvent}
-   */
-
 		_createClass(Playhead, [{
 				key: 'document',
 				get: function get() {
@@ -4983,7 +5042,7 @@ var Playhead = function () {
 
 				/**
      * Gets all currently selected nodes ordered from outter to inner.
-     * @type {SMXNode}
+     * @type {smx.Node[]}
      * @readonly
      */
 
@@ -4994,8 +5053,8 @@ var Playhead = function () {
 				}
 
 				/**
-     * Gets the head node, which is the last node in the path.
-     * @type {SMXNode}
+     * Gets the head node, which is the last node in selection.
+     * @type {smx.Node}
      * @readonly
      */
 
@@ -5006,8 +5065,8 @@ var Playhead = function () {
 				}
 
 				/**
-     * Gets the root node, which is the first node in the path.
-     * @type {SMXNode}
+     * Gets the root node, which is the first node selection.
+     * @type {smx.Node}
      * @readonly
      */
 
@@ -5020,6 +5079,136 @@ var Playhead = function () {
 
 		return Playhead;
 }();
+
+//Doclets for Eventify extended methods
+
+/**
+ * Binds an event to a `callback` function. Passing `"all"` will bind
+ * the callback to all events fired.
+ * @memberof smx.Playhead
+ * @instance
+ * @method
+ * @name on
+ * @param {String} name
+ * @param {Function} callback
+ * @param {Object} context
+ */
+
+/**
+ * Binds an event to only be triggered a single time. After the first time
+ * the callback is invoked, it will be removed.
+ * @memberof smx.Playhead
+ * @instance
+ * @method
+ * @name once
+ * @param {String} name
+ * @param {Function} callback
+ * @param {Object} context
+ */
+
+/**
+ * Remove one or many callbacks. If `context` is null, removes all
+ * callbacks with that function. If `callback` is null, removes all
+ * callbacks for the event. If `name` is null, removes all bound
+ * callbacks for all events.
+ * @memberof smx.Playhead
+ * @instance
+ * @method
+ * @name off
+ * @param {String} name
+ * @param {Function} callback
+ * @param {Object} context
+ */
+
+//Doclet for PlayheadEvent definition
+/**
+ * Playhead Event Object
+ * @typedef {Object} smx.Playhead.PlayheadEvent
+ * @property {smx.Node[]} selected
+ * @property {smx.Node[]} deselected
+ * @property {smx.Node[]} selection
+ * @property {smx.Node} origin
+ * @property {smx.Node} target
+ */
+
+//Doclets for events
+
+/*
+ * Fired every time the head changes.
+ * @event change
+ * @memberof smx.Playhead
+ * @return {smx.Playhead.PlayheadEvent}
+ */
+
+/*
+ * Fired when entering to any node
+ * @event enter
+ * @memberof smx.Playhead
+ * @return {smx.Playhead.PlayheadEvent}
+ */
+
+/*
+ * Fired just after `enter` but for a specific node
+ * @event enter:id
+ * @memberof smx.Playhead
+ * @return {smx.Playhead.PlayheadEvent}
+ */
+
+/*
+ * Fired when exiting from any node
+ * @event exit
+ * @memberof smx.Playhead
+ * @return {smx.Playhead.PlayheadEvent}
+ */
+
+/*
+ * Fired just after `exit` but for a specific node
+ * @event exit:id
+ * @memberof smx.Playhead
+ * @return {smx.Playhead.PlayheadEvent}
+ */
+
+/*
+ * Fired every time a head change occurs and stays on any node
+ * @event stay
+ * @memberof smx.Playhead
+ * @return {smx.Playhead.PlayheadEvent}
+ */
+
+/*
+ * Fired just after `stay` but for a specific node
+ * @event stay:id
+ * @memberof smx.Playhead
+ * @return {smx.Playhead.PlayheadEvent}
+ */
+
+/*
+ * Fired every time a node stops being the head
+ * @event leave
+ * @memberof smx.Playhead
+ * @return {smx.Playhead.PlayheadEvent}
+ */
+
+/*
+ * Fired just after `leave` but for a specific node
+ * @event leave:id
+ * @memberof smx.Playhead
+ * @return {smx.Playhead.PlayheadEvent}
+ */
+
+/*
+ * Fired every time the playhead finishes all operations and goes idle
+ * @event ready
+ * @memberof smx.Playhead
+ * @return {smx.Playhead.PlayheadEvent}
+ */
+
+/*
+ * Fired when playhed goes to sync mode
+ * @event sync
+ * @memberof smx.Playhead
+ * @return {smx.Playhead.PlayheadEvent}
+ */
 
 exports.default = Playhead;
 
@@ -5034,15 +5223,9 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; /**
-                                                                                                                                                                                                                                                                   * Metadata Module
-                                                                                                                                                                                                                                                                   * @module Metadata
-                                                                                                                                                                                                                                                                   * @description Lorem ipsum dolor sit amet consectetuer adipiscing elit aliquet amet
-                                                                                                                                                                                                                                                                   */
+var _MetadataProcessor = __webpack_require__(15);
 
-var _MetadataParser = __webpack_require__(15);
-
-var _MetadataParser2 = _interopRequireDefault(_MetadataParser);
+var _MetadataProcessor2 = _interopRequireDefault(_MetadataProcessor);
 
 var _DocumentInterface = __webpack_require__(17);
 
@@ -5054,40 +5237,69 @@ var _NodeInterface2 = _interopRequireDefault(_NodeInterface);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var Parser = function Parser(xmlDocument, _callback) {
+var Processor = function Processor(xmlDocument, _callback) {
 
   var doc = xmlDocument;
   var __callback = _callback || function () {};
 
   //smx.meta.parseXML(xmlDocument, {
-  _MetadataParser2.default.parseXML(xmlDocument, {
+  _MetadataProcessor2.default.processXMLDocument(xmlDocument, {
     callback: function callback(xmlDocument, data) {
       __callback({
         metadata: data
       });
     }
   });
+}; /**
+    * Metadata Module
+    * @module Metadata
+    * @memberof smx
+    * @description
+    * Provides a flexible data layer for document's nodes.
+    *
+    * Using nested `<metadata>` nodes you can attach data to the direct parent node.
+    * Data can be also attached to nodes using `meta-` preffixed attributes.
+    *
+    * ### Reserved XML: `metadata`, `[meta-*]`.
+    *
+    * @example
+    * <book meta-ISBN="978-3-16-148410-0">
+    *    <metadata>
+    *      <title>Moby Dick</title>
+    *      <description>
+    *        Lorem ipsum dolor sit amet consectetuer...
+    *      </description>
+    *    </metadata>
+    *    <chapter>...</chapter>
+    *    <chapter>...</chapter>
+    *    <chapter>...</chapter>
+    * </book>
+    *
+    * <!-- Processed XML -->
+    * <book>
+    *   <!-- metadata = {
+    *     'ref': '978-3-16-148410-0',
+    *     'title': 'Moby Dick',
+    *     'description': 'Lorem ipsum dolor sit amet consectetuer...'
+    *   } -->
+    *   <chapter>...</chapter>
+    *   <chapter>...</chapter>
+    *   <chapter>...</chapter>
+    * </book>
+    *
+    * book.meta('ref');
+    * // => "978-3-16-148410-0"
+    * book.meta('title');
+    * // => "Moby Dick"
+    * book.children.length;
+    * // => 3
+    */
+
+exports.default = {
+  Processor: Processor,
+  Document: _DocumentInterface2.default,
+  Node: _NodeInterface2.default
 };
-
-var MetadataPlugin = {
-
-  selector: ':meta',
-
-  register: function register(smx) {
-
-    //add parser
-    smx.parsers.push(Parser);
-
-    //extend SMXNode
-    _extends(smx.Node.prototype, _NodeInterface2.default);
-
-    //extend SMXDocument
-    _extends(smx.Document.prototype, _DocumentInterface2.default);
-  }
-
-  //MetadataPlugin.register();
-
-};exports.default = MetadataPlugin;
 
 /***/ }),
 /* 15 */
@@ -5111,9 +5323,9 @@ var _SizzleMetaFilter2 = _interopRequireDefault(_SizzleMetaFilter);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /**
- * SMX Metadata Parser
- * @module MetadataParser
- * @memberof module:Metadata
+ * SMX Metadata Processor
+ * @module MetadataProcessor
+ * @memberof smx.module:Metadata
  */
 
 _sizzle2.default.selectors.filters.meta = _SizzleMetaFilter2.default;
@@ -5133,12 +5345,12 @@ var escapeHtml = function escapeHtml(html) {
 };
 
 /**
- * Parses the given XMLDocument
+ * Processes the given XMLDocument
  * @param {XMLDocument} xml
  * @param {Object} options
  * @async
  */
-var parseXML = function parseXML(xml, opt) {
+var processXMLDocument = function processXMLDocument(xml, opt) {
 
     var XML = xml;
 
@@ -5156,9 +5368,9 @@ var parseXML = function parseXML(xml, opt) {
         max_iterations: 25
     }, opt);
 
-    // get all unparsed nodes based on flag attr
-    // `metadata-processed` attribute is added while parsing process
-    // nodes missing the flag attr are the nodes we need to parse
+    // get all unprocessed nodes based on flag attr
+    // `metadata-processed` attribute is added after processed
+    // nodes missing the flag attr are the nodes we need to process
     var nodes;
     if (!options.nodes) {
         //using Sizzle.selectors.filters.meta.js
@@ -5170,9 +5382,9 @@ var parseXML = function parseXML(xml, opt) {
 
     //calculate percent progress
     if (nodes.length > options.total) options.total = nodes.length;
-    var percent = Math.floor(100 - nodes.length * 100 / options.total);
+    var percent = Math.floor(100 - nodes.length * 100 / options.total) || 0;
 
-    log('METADATA PARSING... (' + (options.total - nodes.length) + '/' + options.total + ') ' + percent + '%');
+    log('METADATA PROCESSING... (' + (options.total - nodes.length) + '/' + options.total + ') ' + percent + '%');
 
     var i = 0;
 
@@ -5184,7 +5396,7 @@ var parseXML = function parseXML(xml, opt) {
 
         if (node.nodeType == 1) {
 
-            result = node.nodeName == 'metadata' ? parseMetadataNode(node) : parseMetaAttributes(node);
+            result = node.nodeName == 'metadata' ? processMetadataNode(node) : processMetaAttributes(node);
 
             if (result) {
 
@@ -5199,11 +5411,11 @@ var parseXML = function parseXML(xml, opt) {
         i++;
     }
 
-    //more nodes to parse?
+    //more nodes to process?
     if (nodes.length) {
 
         _.delay(_.bind(function () {
-            parseXML(XML, {
+            processXMLDocument(XML, {
                 data: options.data,
                 callback: options.callback,
                 total: options.total,
@@ -5211,7 +5423,7 @@ var parseXML = function parseXML(xml, opt) {
             });
         }, this), 0);
     }
-    //complete! no more nodes to parse
+    //complete! no more nodes to process
     else {
 
             //remove all existing metadata-processed attributes
@@ -5236,12 +5448,12 @@ var parseXML = function parseXML(xml, opt) {
 };
 
 /**
- * Parses the given XMLNode
+ * Processes the given XMLNode
  * @param {XMLNode} node
  * @return {Object} data
  */
 
-var parseMetadataNode = function parseMetadataNode(node) {
+var processMetadataNode = function processMetadataNode(node) {
 
     //metadata node is required...
     if (!node || node.nodeName !== 'metadata') return;
@@ -5252,7 +5464,7 @@ var parseMetadataNode = function parseMetadataNode(node) {
     //no parent node? wtf!!
     if (!parent) return;
 
-    //node id which to attach data parsed
+    //node id which to attach processed data
     var id = parent.getAttribute('id');
 
     //instance returning data object
@@ -5327,19 +5539,19 @@ var parseMetadataNode = function parseMetadataNode(node) {
 };
 
 /**
- * Parses meta attributes from the given XMLNode
+ * Processes meta attributes from the given XMLNode
  * @param {XMLNode} node
  * @return {Object} data
  */
 
-var parseMetaAttributes = function parseMetaAttributes(node) {
+var processMetaAttributes = function processMetaAttributes(node) {
 
     if (!node) return;
 
     //instance the resultant data object
     var data = {};
 
-    //node id which to attach data parsed
+    //node id which to attach processed data
     var id = node.getAttribute('id');
 
     //get data from node attributes
@@ -5379,9 +5591,9 @@ var parseMetaAttributes = function parseMetaAttributes(node) {
 };
 
 exports.default = {
-    parseXML: parseXML,
-    parseMetadataNode: parseMetadataNode,
-    parseMetaAttributes: parseMetaAttributes
+    processXMLDocument: processXMLDocument,
+    processMetadataNode: processMetadataNode,
+    processMetaAttributes: processMetaAttributes
 };
 
 /***/ }),
@@ -5422,21 +5634,23 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 /**
- * Extends SMXDocument with metadata module methods.
+ * Extends {@link smx.Document Document} with metadata module methods.
  * @mixin Document-Metadata
- * @memberof module:Metadata
+ * @memberof smx.module:Metadata
+ * @see {@link smx.Document Document}
  */
 var DocumentInterface = {
 
   /**
   * Performs a search
    * @method search
+   * @instance
   * @param {String} query
   * @param {module:Metadata.searchOptions=} options
-  * @return {Object[]}
+  * @return {module:Metadata.searchResult[]}
    * @memberof module:Metadata.Document-Metadata
    * @see module:Metadata.searchOptions
-   * @see module:Metadata.searchResults
+   * @see module:Metadata.searchResult
   */
   search: function search(str, opts) {
 
@@ -5446,7 +5660,7 @@ var DocumentInterface = {
     if (!_.isString(str) || str === '') return results;
 
     /**
-    * Search options object
+    * The options object used as parameter in {@link module:Metadata.Node-Metadata#search .search()} method.
      * @typedef {Object} module:Metadata.searchOptions
     * @property {Boolean} sensitive
     * @property {Boolean} insensitive
@@ -5454,15 +5668,18 @@ var DocumentInterface = {
     * @property {String} selector
     * @property {String[]} include
     * @property {String[]} exclude
+    * @see {@link module:Metadata.Document-Metadata#search Document-Metadata.search()}
+    * @see {@link module:Metadata.Node-Metadata#search Node-Metadata.search()}
     */
 
     /**
-    * Search results object
-     * @typedef {Object[]} module:Metadata.searchResults
-    * @property {Object} result
-    * @property {SMXNode} result.node
-    * @property {String} result.meta-key
-    * @property {String} result.meta-value
+    * The returning object by the {@link module:Metadata.Node-Metadata#search .search()} method, returns an array of them.
+     * @typedef {Object[]} module:Metadata.searchResult
+    * @property {SMXNode} node
+    * @property {String} meta-key
+    * @property {String} meta-value
+    * @see {@link module:Metadata.Document-Metadata#search Document-Metadata.search()}
+    * @see {@link module:Metadata.Node-Metadata#search Node-Metadata.search()}
     */
 
     var options = _.defaults(opts || {}, {
@@ -5500,7 +5717,7 @@ var DocumentInterface = {
 
       var datas = [];
 
-      _.each(this.metadata, function (value, key, list) {
+      _.each(this._data.metadata, function (value, key, list) {
 
         if (_.includes(ids, key)) datas.push(value);
       });
@@ -5510,8 +5727,8 @@ var DocumentInterface = {
       });
     } else {
 
-      var _ids = _.keys(this.metadata);
-      var values = _.values(this.metadata);
+      var _ids = _.keys(this._data.metadata);
+      var values = _.values(this._data.metadata);
 
       json = _.map(values, function (value, index) {
         value.id = _ids[index];return value;
@@ -5564,32 +5781,36 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 /**
- * Extends SMXNode with metadata module methods.
+ * Extends {@link smx.Node Node} with metadata module methods.
  * @mixin Node-Metadata
- * @memberof module:Metadata
+ * @memberof smx.module:Metadata
+ * @see {@link smx.Node Node}
  */
 var NodeInterface = {
 
   /**
-   * Gets the metadata value for the given key
+   * Gets the metadata value for the given key.
    * @method meta
+   * @instance
    * @param {String} key
    * @return {String}
-   * @memberof module:Metadata.Node-Metadata
+   * @memberof smx.module:Metadata.Node-Metadata
    */
   meta: function meta(key) {
 
     try {
-      return this.document.metadata[this.id][key];
+      return this.document._data.metadata[this.id][key];
     } catch (e) {}
   },
 
   /**
-   * Gets the interpolated metadata value for the given key
+   * Gets the interpolated metadata value for the given key.
+   * The interpolation uses {{}} delimiters and the node as data context.
    * @method interpolate
+   * @instance
    * @param {String} key
    * @return {String}
-   * @memberof module:Metadata.Node-Metadata
+   * @memberof smx.module:Metadata.Node-Metadata
    */
   interpolate: function interpolate(key) {
 
@@ -5600,14 +5821,15 @@ var NodeInterface = {
   },
 
   /**
-  * Performs a search
+  * Performs a search in owner document using this node as context.
    * @method search
-  * @param {String} query
-  * @param {module:Metadata.searchOptions=} options
-  * @return {Object[]}
-   * @memberof module:Metadata.Node-Metadata
-   * @see module:Metadata.searchOptions
-   * @see module:Metadata.searchResults
+   * @instance
+   * @param {String} query
+   * @param {module:Metadata.searchOptions=} options
+   * @return {module:Metadata.searchResult[]}
+   * @memberof smx.module:Metadata.Node-Metadata
+   * @see {@link module:Metadata.searchOptions searchOptions}
+   * @see {@link module:Metadata.searchResult searchResult}
    */
   search: function search(str, opt) {
     var options = opt || {};
@@ -5630,18 +5852,18 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _PrototypeParser = __webpack_require__(20);
+var _PrototypeProcessor = __webpack_require__(20);
 
-var _PrototypeParser2 = _interopRequireDefault(_PrototypeParser);
+var _PrototypeProcessor2 = _interopRequireDefault(_PrototypeProcessor);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var Parser = function Parser(xmlDocument, _callback) {
+var Processor = function Processor(xmlDocument, _callback) {
 
   var doc = xmlDocument;
   var __callback = _callback || function () {};
 
-  _PrototypeParser2.default.parseXML(xmlDocument, {
+  _PrototypeProcessor2.default.processXMLDocument(xmlDocument, {
     callback: function callback(xmlDocument, data) {
       __callback({
         proto: data
@@ -5651,22 +5873,66 @@ var Parser = function Parser(xmlDocument, _callback) {
 }; /**
     * Prototype Module
     * @module Prototype
-    * @description Lorem ipsum dolor sit amet consectetuer adipiscing elit aliquet amet
+    * @memberof smx
+    * @description
+    *
+    * The Prototype module provides a customizable XML transformation
+    * layer.
+    *
+    * Using the key tag `<prototype>` you can define a collection of
+    * transformation rules based on CSS selectors. The rules cannot modify the
+    * tree, transformations are limited to attributes only. You can add,
+    * remove and override attributes.
+    *
+    * The transformations are applied after the XML tree completes the
+    * loading, while smx parsing process. `<prototype>` tags are removed once
+    * they get parsed. No footprints on resultant working XML tree.
+    *
+    * You can think of it as CSS for XML attributes, kind of XSLT but using CSS
+    * selectors instead of XSLT patterns.
+    *
+    * ### Reserved XML: `<prototype>`.
+    *
+    * @example
+    * <!-- source library.xml -->
+    * <library>
+    *
+    *    <prototype>
+    *    <![CDATA[
+    *
+    *      //all nodes named 'book' will have a
+    *      //'type' attribute with 'html' as value
+    *      book{
+    *        type: txt;
+    *      }
+    *
+    *      //all nodes named 'book' having the class 'markdown' will have
+    *      //an attribute 'type' with the value 'html' and
+    *      //an attribute 'formatted' with the value 'true'
+    *      book.markdown{
+    *        type: md;
+    *        formatted: true;
+    *      }
+    *    ]]>
+    *    </prototype>
+    *
+    *   <book>..</book>
+    *   <book>..</book>
+    *   <book class="markdown">..</book>
+    *
+    * <library>
+    *
+    * <!-- processed library.xml -->
+    * <library>
+    *   <book type="html">..</book>
+    *   <book type="html">..</book>
+    *   <book class="markdown" type="md" formatted="true">..</book>
+    * <library>
     */
 
-var PrototypePlugin = {
-
-  register: function register(smx) {
-
-    //add parser
-    smx.parsers.push(Parser);
-  }
-
+exports.default = {
+  Processor: Processor
 };
-
-//PrototypePlugin.register();
-
-exports.default = PrototypePlugin;
 
 /***/ }),
 /* 20 */
@@ -5690,19 +5956,26 @@ var _CSSParser2 = _interopRequireDefault(_CSSParser);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /**
- * Parses the given XMLDocument
+ * Processes the given XMLDocument
  * @param {XMLDocument} xml
  * @param {Object} options
+ * @param {Integer} [options.max_iterations=1] Maximum number of prototype blocks to process at once.
+ * @param {Boolean}  [options.propagate=true] If true the processed data will be propagated to matching XML nodes.
+ * @param {Function} options.callback Callback function executed on processing complete.
  * @async
  */
 /**
- * SMX Prototype Parser
- * @module PrototypeParser
- * @description This parser will parse and process all <prototype> nodes.
- * @memberof module:Prototype
+ * SMX Prototype Processor
+ * @module PrototypeProcessor
+ * @memberof smx.module:Prototype
+ * @description This processor will parse and process all <prototype> nodes.
+ * Uses {@link http://www.glazman.org/JSCSSP/ JSCSSP} internally.
+ * @todo Try other good looking CSS parsers, like {@link https://github.com/cwdoh/cssparser.js CSSParser}
+ * or {@link https://github.com/NV/CSSOM CSSOM}.
+ * @todo Implement an alternative selector engine for {@link https://msdn.microsoft.com/en-us/library/ms256113(v=vs.85).aspx XSLT Patterns}.
  */
 
-var parseXML = function parseXML(XML, opt) {
+var processXMLDocument = function processXMLDocument(XML, opt) {
 
   //validate XML
   if (!XML) return;
@@ -5718,10 +5991,10 @@ var parseXML = function parseXML(XML, opt) {
   }, opt);
 
   // get all <prototype> nodes in given XML
-  // <prototype> nodes will get removed after parse process
+  // <prototype> nodes will get removed after processing
   var nodes = (0, _sizzle2.default)('prototype', XML);
 
-  log('PARSING PROTOTYPES... (' + nodes.length + ')');
+  log('PROCESSING PROTOTYPES... (' + nodes.length + ')');
 
   var iterations = 0;
 
@@ -5731,28 +6004,28 @@ var parseXML = function parseXML(XML, opt) {
 
     var node = nodes[i];
 
-    var proto = parseXMLNode(node);
+    var proto = processXMLNode(node);
 
     options.data.push(proto);
 
     i++;
   }
 
-  //all nodes parsed?
+  //all nodes processed?
   if (nodes.length) {
 
     _.delay(_.bind(function () {
-      parseXML(XML, {
+      processXMLDocument(XML, {
         data: options.data,
         propagate: options.propagate,
         callback: options.callback
       });
     }, this), 0);
   }
-  //ok all nodes parsed!
+  //ok all nodes processed!
   else {
 
-      log('PARSING PROTOTYPES... DONE!');
+      log('PROCESSING PROTOTYPES... DONE!');
 
       //reverse extracted prototypes...
       //so we apply from outter to the inner
@@ -5777,13 +6050,13 @@ var parseXML = function parseXML(XML, opt) {
 };
 
 /**
- * Parses the given XMLNode
+ * Processes the given XMLNode
  * @param {XMLNode} xmlNode
  * @return {Object} data
  * @return {String} data.id
  * @return {Object[]} data.rules
  */
-var parseXMLNode = function parseXMLNode(node) {
+var processXMLNode = function processXMLNode(node) {
 
   //prototype node required...
   if (!node || node.nodeName !== 'prototype') return;
@@ -5806,6 +6079,7 @@ var parseXMLNode = function parseXMLNode(node) {
 
   //Remove css comments, comments outside any rule could break CSSParser...
   //!!!WARNING, THIS IS NOT BULLETPROOF!!! empty comments like this -> /**/ wont be removed
+  //needs improvement...
   source = source.replace(/\s*(?!<\")\/\*[^\*]+\*\/(?!\")\s*/g, '');
 
   var parser = new _CSSParser2.default();
@@ -5833,7 +6107,7 @@ var parseXMLNode = function parseXMLNode(node) {
 };
 
 /**
- * Parses the given XMLNode
+ * Apply the processed data into given XMLNode
  * @param {XMLDocument} xmlDocument
  * @param {Object} data
  * @return {XMLDocument} result
@@ -5935,8 +6209,8 @@ var applyPrototypes = function applyPrototypes(xml, proto) {
 };
 
 exports.default = {
-  parseXML: parseXML,
-  parseXMLNode: parseXMLNode,
+  processXMLDocument: processXMLDocument,
+  processXMLNode: processXMLNode,
   applyPrototypes: applyPrototypes
 };
 
@@ -7429,15 +7703,9 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; /**
-                                                                                                                                                                                                                                                                   * Taxonomy Module
-                                                                                                                                                                                                                                                                   * @module Taxonomy
-                                                                                                                                                                                                                                                                   * @description Lorem ipsum dolor sit amet consectetuer adipiscing elit aliquet amet
-                                                                                                                                                                                                                                                                   */
+var _TaxonomyProcessor = __webpack_require__(23);
 
-var _TaxonomyParser = __webpack_require__(23);
-
-var _TaxonomyParser2 = _interopRequireDefault(_TaxonomyParser);
+var _TaxonomyProcessor2 = _interopRequireDefault(_TaxonomyProcessor);
 
 var _NodeInterface = __webpack_require__(24);
 
@@ -7445,12 +7713,19 @@ var _NodeInterface2 = _interopRequireDefault(_NodeInterface);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var Parser = function Parser(xmlDocument, _callback) {
+/**
+ * Taxonomy Module
+ * @module Taxonomy
+ * @memberof smx
+ * @description Lorem ipsum dolor sit amet consectetuer adipiscing elit aliquet amet
+ */
+
+var Processor = function Processor(xmlDocument, _callback) {
 
   var doc = xmlDocument;
   var __callback = _callback || function () {};
 
-  _TaxonomyParser2.default.parseXML(xmlDocument, {
+  _TaxonomyProcessor2.default.processXMLDocument(xmlDocument, {
     callback: function callback(xmlDocument, data) {
       __callback({
         taxonomy: data
@@ -7459,20 +7734,10 @@ var Parser = function Parser(xmlDocument, _callback) {
   });
 };
 
-var TaxonomyPlugin = {
-
-  register: function register(smx) {
-
-    //add parser
-    smx.parsers.push(Parser);
-
-    //extend SMXNode
-    _extends(smx.Node.prototype, _NodeInterface2.default);
-  }
-
-  //TaxonomyPlugin.register();
-
-};exports.default = TaxonomyPlugin;
+exports.default = {
+  Processor: Processor,
+  Node: _NodeInterface2.default
+};
 
 /***/ }),
 /* 23 */
@@ -7492,9 +7757,9 @@ var _sizzle2 = _interopRequireDefault(_sizzle);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /**
- * SMX Taxonomy Parser
- * @module TaxonomyParser
- * @memberof module:Taxonomy
+ * SMX Taxonomy Processor
+ * @module TaxonomyProcessor
+ * @memberof smx.module:Taxonomy
  */
 
 /*
@@ -7515,12 +7780,12 @@ Tags are not hierarchical.
 */
 
 /**
- * Parses the given XMLDocument
+ * Processes the given XMLDocument
  * @param {XMLNode} xmlDocument
  * @param {Object} options
  * @async
  */
-var parseXML = function parseXML(xmlDocument, opt) {
+var processXMLDocument = function processXMLDocument(xmlDocument, opt) {
 
     //xmlDocument required!
     if (!xmlDocument) return;
@@ -7535,17 +7800,17 @@ var parseXML = function parseXML(xmlDocument, opt) {
         nodes: null
     }, opt);
 
-    // get all unparsed nodes based on flag attr
-    // `taxonomy-processed` attribute is added while parsing process
-    // nodes missing the flag attr are the nodes we need to parse
+    // get all unparocessed nodes based on flag attr
+    // `taxonomy-processed` attribute is added while processing
+    // nodes missing the flag attr are the nodes we need to be processed
     var nodes;
     if (!options.nodes) nodes = (0, _sizzle2.default)('[categories]:not([taxonomy-processed])', xmlDocument);else nodes = options.nodes;
 
     //calculate percent progress
     if (nodes.length > options.total) options.total = nodes.length;
-    var percent = 100 - parseInt(nodes.length * 100 / options.total);
+    var percent = 100 - parseInt(nodes.length * 100 / options.total) || 0;
 
-    log('PARSING... (' + (options.total - nodes.length) + '/' + options.total + ') ' + percent + '%');
+    log('PROCESSING TAXONOMY... (' + (options.total - nodes.length) + '/' + options.total + ') ' + percent + '%');
 
     var max_iterations = 100;
     var i = 0;
@@ -7554,7 +7819,7 @@ var parseXML = function parseXML(xmlDocument, opt) {
 
         var node = nodes.shift();
 
-        var result = this.parseXMLNode(node);
+        var result = this.processXMLNode(node);
 
         if (result) {
 
@@ -7568,11 +7833,11 @@ var parseXML = function parseXML(xmlDocument, opt) {
         i++;
     }
 
-    //more nodes to parse?
+    //more nodes to process?
     if (nodes.length) {
 
         _.delay(_.bind(function () {
-            this.parseXML(xmlDocument, {
+            this.processXMLDocument(xmlDocument, {
                 data: options.data,
                 callback: options.callback,
                 total: options.total,
@@ -7580,7 +7845,7 @@ var parseXML = function parseXML(xmlDocument, opt) {
             });
         }, this), 0);
     }
-    //complete! no more nodes to parse
+    //complete! all nodes processed
     else {
 
             log('COMPLETE! (' + options.total + '/' + options.total + ') 100%');
@@ -7597,20 +7862,20 @@ var parseXML = function parseXML(xmlDocument, opt) {
 };
 
 /**
- * Parses the given XMLNode
+ * Process the given XMLNode
  * @param {XMLNode} xmlNode
  * @return {Object} data
  * @return {String} data.id
  * @return {Object} data.data
  */
-var parseXMLNode = function parseXMLNode(node) {
+var processXMLNode = function processXMLNode(node) {
 
     if (!node) return;
 
     //instance returning data object
     var data = {};
 
-    //node id which to attach data parsed
+    //node id which to attach processed data
     var id = node.getAttribute('id');
 
     //get taxonomy related data
@@ -7630,8 +7895,8 @@ var parseXMLNode = function parseXMLNode(node) {
 };
 
 exports.default = {
-    parseXML: parseXML,
-    parseXMLNode: parseXMLNode
+    processXMLDocument: processXMLDocument,
+    processXMLNode: processXMLNode
 };
 
 /***/ }),
@@ -7647,17 +7912,17 @@ Object.defineProperty(exports, "__esModule", {
 /**
  * Extends SMXNode with taxonomy methods
  * @mixin Node-Taxonomy
- * @memberof module:Taxonomy
+ * @memberof smx.module:Taxonomy
  */
 
 var NodeInterface = {
 
   /**
-  * get collection of node's tags
+  * Gets the collection of associated tags.
   * @return {Array.<String>}
-  * @memberof module:Taxonomy.Node-Taxonomy
+  * @memberof smx.module:Taxonomy.Node-Taxonomy
   */
-  tags: function tags(namespace) {
+  getTags: function getTags(namespace) {
 
     //default result is an empty array
     var results = [];
@@ -7677,11 +7942,11 @@ var NodeInterface = {
   },
 
   /**
-  * get collection of categories
+  * Gets a collection of associated categories.
   * @return {Array.<String>}
-  * @memberof module:Taxonomy.Node-Taxonomy
+  * @memberof smx.module:Taxonomy.Node-Taxonomy
   */
-  categories: function categories(namespace) {
+  getCategories: function getCategories(namespace) {
 
     //default result is an empty array
     var results = [];
@@ -7701,11 +7966,11 @@ var NodeInterface = {
   },
 
   /**
-  * get collection of node's branches
+  * Get the collection of associated branches.
   * @return {Array.<String>}
-  * @memberof module:Taxonomy.Node-Taxonomy
+  * @memberof smx.module:Taxonomy.Node-Taxonomy
   */
-  branches: function branches() {
+  getBranches: function getBranches() {
 
     //default result is an empty array
     var results = [];
@@ -7739,12 +8004,14 @@ exports.default = NodeInterface;
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
 /**
- * User Interface Module
  * @module Ui
+ * @memberof smx
+ * @description
+ * User Interface Module, lorem ipsum dolor sit amet consectetuer adipiscing elit aliquet amet.
+ *
+ * ### Reserved XML: `[ui-*]`,` :ui`.
+ *
  */
 
 var UiAttrController = {
@@ -7790,17 +8057,33 @@ var UiAttrController = {
 };
 
 /**
- * Extends SMXNode with UserInterface methods
+ * Extends {@link smx.Node Node} with UserInterface methods
  * @mixin Node-Ui
- * @memberof module:Ui
+ * @memberof smx.module:Ui
  */
 var NodeInterface = {
 
     /**
      * Gets an user interface asset by key and type
-     * @memberof module:Ui.Node-Ui
+     * @memberof smx.module:Ui.Node-Ui
      * @param {String} key
-     * @param {String=} type
+     * @param {String} [type="screen"]
+     * @example
+     * <!-- language: lang-xml -->
+     * <page ui-template="tmpl/page.html">
+     *
+     * <!-- language: lang-js -->
+     * page.ui('template');
+     * //-> "tmpl/page.html"
+     *
+     * //<page ui-screen-template="tmpl/page-screen.html" ui-print-template="tmpl/page-print.html">
+     * page.ui('template','print');
+     * //-> "tmpl/page-print.html"
+     * page.ui('template','screen');
+     * //-> "tmpl/page-screen.html"
+     * page.ui('template');
+     * //-> "tmpl/page-screen.html"
+     *
      */
     ui: function ui(key, type) {
 
@@ -7809,16 +8092,9 @@ var NodeInterface = {
 
 };
 
-var UiPlugin = {
-
-    register: function register(smx) {
-
-        _extends(smx.Node.prototype, NodeInterface);
-    }
-
-    //UiPlugin.register();
-
-};exports.default = UiPlugin;
+exports.default = {
+    Node: NodeInterface
+};
 
 /***/ })
 /******/ ]);

@@ -1,269 +1,1306 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta charset="utf-8">
+    
+    
+    <title>class: Playhead - Documentation</title>
 
-  <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <title>JSDoc: Class-Playhead</title>
 
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-  <link rel="stylesheet" href="https://cdn.rawgit.com/isagalaev/highlight.js/cf4b46e5/src/styles/default.css">
-  <link rel="stylesheet" href="css/styles.css">
+    <!--<link rel="stylesheet" href="https://cdn.rawgit.com/isagalaev/highlight.js/cf4b46e5/src/styles/default.css">-->
+    <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>-->
+    <!--<script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>-->
+    <script src="https://cdn.rawgit.com/google/code-prettify/master/loader/prettify.js"></script>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
-  <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script src="scripts/jsdoc.js"></script>
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
 
 </head>
+<body class="kind-class">
 
-<body>
+<div class="nav__overlay" onclick="$('body').removeClass('nav-visible');">
+</div>
+
+<a class="nav__toggle" href="javascript:$('body').toggleClass('nav-visible');">
+  &#x2261;
+</a>
 
 <nav>
-  <h2><a href="index.html">smx</a></h2><h3>Namespaces</h3><ul><li><a href="smx.html">smx</a></li></ul><h3>Classes</h3><ul><li> &rarr; <a href="smx.Document.html">Document</a></li><li> &rarr; <a href="smx.Loader.html">Loader</a></li><li> &rarr; <a href="smx.Node.html">Node</a></li><li> &rarr; <a href="smx.Playhead.html">Playhead</a></li></ul><h3>Modules</h3><ul><li><a href="module-Metadata.html">Metadata</a></li><li> &rarr; <a href="module-Metadata.module_MetadataParser.html">MetadataParser</a></li><li><a href="module-Prototype.html">Prototype</a></li><li> &rarr; <a href="module-Prototype.module_PrototypeParser.html">PrototypeParser</a></li><li><a href="module-Taxonomy.html">Taxonomy</a></li><li> &rarr; <a href="module-Taxonomy.module_TaxonomyParser.html">TaxonomyParser</a></li><li><a href="module-Ui.html">Ui</a></li></ul><h3>Mixins</h3><ul><li><a href="Node-AttributeGetters.html">Node-AttributeGetters</a></li><li><a href="Node-Core.html">Node-Core</a></li><li><a href="Node-TreeNode.html">Node-TreeNode</a></li><li> &rarr; <a href="module-Metadata.Document-Metadata.html">Document-Metadata</a></li><li> &rarr; <a href="module-Metadata.Node-Metadata.html">Node-Metadata</a></li><li> &rarr; <a href="module-Taxonomy.Node-Taxonomy.html">Node-Taxonomy</a></li><li> &rarr; <a href="module-Ui.Node-Ui.html">Node-Ui</a></li></ul>
+  
+  <form class="search-form">
+    <div class="form-group">
+      <input
+        type="search"
+        id="NavSearchInput"
+        class="form-control form-control-sm"
+        autocomplete="off"
+        placeholder="Search..."
+      />
+    </div>
+  </form>
 
+  <ul>
+
+  
+  <li class="index">
+    
+    <h3><a href="index.html">SMX</a></h3>
+    
+  </li>
+  
+  <li class="namespaces">
+    
+    <h3>Namespaces</h3>
+    
+    <ul>
+      
+      <li class="namespace">
+
+  <a href="smx.html">smx</a>
+  
+  
+  <ul>
+    
+      <li class="member">
+
+  <a href="smx.html#.version">version</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.html#.document">document</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.html#.documents">documents</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.html#.modules">modules</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.html#.registerModule">registerModule</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.html#.smx">smx</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.html#.load">load</a>
+  
+  
+
+</li>
+    
+      <li class="typedef">
+
+  <a href="smx.html#~onLoadSuccess">onLoadSuccess</a>
+  
+  
+
+</li>
+    
+      <li class="typedef">
+
+  <a href="smx.html#~onLoadError">onLoadError</a>
+  
+  
+
+</li>
+    
+  </ul>
+  
+
+</li>
+      
+    </ul>
+    
+  </li>
+  
+  <li class="classes">
+    
+    <h3>Classes</h3>
+    
+    <ul>
+      
+      <li class="class">
+
+  <a href="smx.Document.html">Document</a>
+  
+  
+  <ul>
+    
+      <li class="member">
+
+  <a href="smx.Document.html#%255B0%255D">[0]</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Document.html#_cache">_cache</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Document.html#_data">_data</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Document.html#path">path</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Document.html#src">src</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Document.html#root">root</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Document.html#getNodeById">getNodeById</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Document.html#find">find</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Document.html#wrap">wrap</a>
+  
+  
+
+</li>
+    
+  </ul>
+  
+
+</li>
+      
+      <li class="class">
+
+  <a href="smx.Node.html">Node</a>
+  
+  
+  <ul>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#%255B0%255D">[0]</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#id">id</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#name">name</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#type">type</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#className">className</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#document">document</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#hash">hash</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#uri">uri</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#url">url</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#src">src</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#parent">parent</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#ancestors">ancestors</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#root">root</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#children">children</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#first">first</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#last">last</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#previous">previous</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#next">next</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#getIndex">getIndex</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#getText">getText</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#getHTML">getHTML</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#getData">getData</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#toString">toString</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#toJSON">toJSON</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#attr">attr</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#get">get</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#has">has</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#dsv">dsv</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#getAncestors">getAncestors</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#isAncestorOf">isAncestorOf</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#isMatch">isMatch</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#find">find</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#findOne">findOne</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#getChildren">getChildren</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#getFirst">getFirst</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#getLast">getLast</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#getChildAt">getChildAt</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#isDescendantOf">isDescendantOf</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#getNext">getNext</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#getAllNext">getAllNext</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#getPrevious">getPrevious</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#getAllPrevious">getAllPrevious</a>
+  
+  
+
+</li>
+    
+  </ul>
+  
+
+</li>
+      
+      <li class="class">
+
+  <a href="smx.Loader.html">Loader</a>
+  
+  
+  <ul>
+    
+      <li class="member">
+
+  <a href="smx.Loader.html#xhr">xhr</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Loader.html#load">load</a>
+  
+  
+
+</li>
+    
+      <li class="event">
+
+  <a href="smx.Loader.html#.event:complete">complete</a>
+  
+  
+
+</li>
+    
+      <li class="event">
+
+  <a href="smx.Loader.html#.event:error">error</a>
+  
+  
+
+</li>
+    
+  </ul>
+  
+
+</li>
+      
+      <li class="class">
+
+  <a href="smx.Playhead.html">Playhead</a>
+  
+  
+  <ul>
+    
+      <li class="member">
+
+  <a href="smx.Playhead.html#_document">_document</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Playhead.html#_selection">_selection</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Playhead.html#document">document</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Playhead.html#selection">selection</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Playhead.html#head">head</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Playhead.html#root">root</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Playhead.html#reset">reset</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Playhead.html#play">play</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Playhead.html#enter">enter</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Playhead.html#exit">exit</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Playhead.html#next">next</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Playhead.html#previous">previous</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Playhead.html#forward">forward</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Playhead.html#backward">backward</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Playhead.html#exec">exec</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Playhead.html#navigate">navigate</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Playhead.html#on">on</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Playhead.html#once">once</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Playhead.html#off">off</a>
+  
+  
+
+</li>
+    
+      <li class="typedef">
+
+  <a href="smx.Playhead.html#.PlayheadEvent">PlayheadEvent</a>
+  
+  
+
+</li>
+    
+  </ul>
+  
+
+</li>
+      
+    </ul>
+    
+  </li>
+  
+  <li class="modules">
+    
+    <h3>Modules</h3>
+    
+    <ul>
+      
+      <li class="module">
+
+  <a href="smx.module_Metadata.html">Metadata</a>
+  
+  
+  <ul>
+    
+      <li class="module">
+
+  <a href="smx.module_Metadata.module_MetadataProcessor.html">MetadataProcessor</a>
+  
+  
+  <ul>
+    
+      <li class="function">
+
+  <a href="smx.module_Metadata.module_MetadataProcessor.html#~processXMLDocument">processXMLDocument</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.module_Metadata.module_MetadataProcessor.html#~processMetadataNode">processMetadataNode</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.module_Metadata.module_MetadataProcessor.html#~processMetaAttributes">processMetaAttributes</a>
+  
+  
+
+</li>
+    
+  </ul>
+  
+
+</li>
+    
+      <li class="mixin">
+
+  <a href="smx.module_Metadata.Document-Metadata.html">Document-Metadata</a>
+  
+  
+
+</li>
+    
+      <li class="mixin">
+
+  <a href="smx.module_Metadata.Node-Metadata.html">Node-Metadata</a>
+  
+  
+  <ul>
+    
+      <li class="function">
+
+  <a href="smx.module_Metadata.Node-Metadata.html#meta">meta</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.module_Metadata.Node-Metadata.html#interpolate">interpolate</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.module_Metadata.Node-Metadata.html#search">search</a>
+  
+  
+
+</li>
+    
+  </ul>
+  
+
+</li>
+    
+  </ul>
+  
+
+</li>
+      
+      <li class="module">
+
+  <a href="smx.module_Prototype.html">Prototype</a>
+  
+  
+  <ul>
+    
+      <li class="module">
+
+  <a href="smx.module_Prototype.module_PrototypeProcessor.html">PrototypeProcessor</a>
+  
+  
+  <ul>
+    
+      <li class="function">
+
+  <a href="smx.module_Prototype.module_PrototypeProcessor.html#~processXMLDocument">processXMLDocument</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.module_Prototype.module_PrototypeProcessor.html#~processXMLNode">processXMLNode</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.module_Prototype.module_PrototypeProcessor.html#~applyPrototypes">applyPrototypes</a>
+  
+  
+
+</li>
+    
+  </ul>
+  
+
+</li>
+    
+  </ul>
+  
+
+</li>
+      
+      <li class="module">
+
+  <a href="smx.module_Taxonomy.html">Taxonomy</a>
+  
+  
+  <ul>
+    
+      <li class="module">
+
+  <a href="smx.module_Taxonomy.module_TaxonomyProcessor.html">TaxonomyProcessor</a>
+  
+  
+  <ul>
+    
+      <li class="function">
+
+  <a href="smx.module_Taxonomy.module_TaxonomyProcessor.html#~processXMLDocument">processXMLDocument</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.module_Taxonomy.module_TaxonomyProcessor.html#~processXMLNode">processXMLNode</a>
+  
+  
+
+</li>
+    
+  </ul>
+  
+
+</li>
+    
+      <li class="mixin">
+
+  <a href="smx.module_Taxonomy.Node-Taxonomy.html">Node-Taxonomy</a>
+  
+  
+  <ul>
+    
+      <li class="function">
+
+  <a href="smx.module_Taxonomy.Node-Taxonomy.html#.getTags">getTags</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.module_Taxonomy.Node-Taxonomy.html#.getCategories">getCategories</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.module_Taxonomy.Node-Taxonomy.html#.getBranches">getBranches</a>
+  
+  
+
+</li>
+    
+  </ul>
+  
+
+</li>
+    
+  </ul>
+  
+
+</li>
+      
+      <li class="module">
+
+  <a href="smx.module_Ui.html">Ui</a>
+  
+  
+  <ul>
+    
+      <li class="mixin">
+
+  <a href="smx.module_Ui.Node-Ui.html">Node-Ui</a>
+  
+  
+  <ul>
+    
+      <li class="function">
+
+  <a href="smx.module_Ui.Node-Ui.html#.ui">ui</a>
+  
+  
+
+</li>
+    
+  </ul>
+  
+
+</li>
+    
+  </ul>
+  
+
+</li>
+      
+    </ul>
+    
+  </li>
+  
+  
+</ul>
+  
   <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on 2018-02-12T23:28:45.489Z
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Mon Apr 02 2018 15:27:00 GMT+0200 (CEST) using the <a href="https://github.com/canvasplay/smx-jsdoc-template">smx-jsdoc-template</a> theme.
   </footer>
+
 </nav>
-
-<div id="main">
-
-    <h1 class="page-title">
-      
-        <small>Class</small>
-      
-      Playhead
-    </h1>
-
-    
-
-
-
-
-<section>
-
-<header>
-    
-        <h2><span class="attribs"><span class="type-signature"></span></span>
-            <span class="ancestors"><a href="smx.html">smx</a>.</span>Playhead<span class="signature">(document)</span><span class="type-signature"></span></h2>
-        
-            <div class="class-description"><p>SMX Playhead class</p></div>
-        
-    
-</header>
 
 <article>
 
-    <div class="form">
+  
+    
 
-  <label>
-    <input onchange="$('.--is-private').toggleClass('hidden')" type="checkbox" name="showPrivate" checked="">
-    <span>private</span>
-  </label>
+<!--LONGNAME: smx.Playhead-->
+<a id="top">Top</a>
+<header>
+  <h1 class="article__title">
+    <small>class</small>
+    Playhead
+  </h1>
 
-  <label>
-    <input onchange="$('.--is-inherited').toggleClass('hidden')" type="checkbox" name="showInherited" checked="">
-    <span>inherited</span>
-  </label>
+  
+  
 
-  <label>
-    <input onchange="$('.--is-mixed').toggleClass('hidden')" type="checkbox" name="showMixed" checked="">
-    <span>mixed</span>
-  </label>
+  
+  <h2 class="article__path">
 
+    
+      <span class="ancestors"><a href="smx.html">smx</a>.</span>
+    
+
+    Playhead
+
+    
+
+  </h2>
+  
+
+  <div class="details-mini">
+    
+
+<div class="source-links">
+  source: <a href="playhead_Playhead.js.html">playhead/Playhead.js</a>, <a href="playhead_Playhead.js.html#line13">line 13</a>
 </div>
 
-    <div class="container-overview">
-    
-        
+  </div>
+  
+  
+    <div class="description"><p>The Playhead class is a <a href="smx.Document.html"><code>Document</code></a> navigation controller.</p>
+<p>Provides a plain interface to navigate along a Document tree,
+keeps a navigation registry and emits useful events for listening
+to any movement.</p></div>
+  
+
+  
+
+
+
+
+</header>
+
+
+
+<section class="constructor">
+  <h3 class="section-title" id="constructor">
+  Constructor
+</h3>
+  
+<!--LONGNAME: smx.Playhead-->
 <div class="method ">
 
+  
+  
+      <h4 class="signature" id="Playhead">
+        <a class="permalink" href="#Playhead"></a>
+        <span class="signature__name">new Playhead</span><!--
+        --><span class="signature__params"><span class="par">(</span>document<span class="par">)</span></span><span class="signature__returns"></span>
+        <!--<span class="signature__attribs"></span>-->
+      </h4>
+      
+      
+      
+  
+  
+  <div class="details-mini">
     
-        
-            <h3 id="Constructor" class="subsection-title">
-    <a class="permalink" href="#Constructor">#</a>
-    <span class="text">Constructor</span>
-</h3>
-        
-
-        
-        <h4 class="name" id="Playhead">
-            <a class="permalink" href="#Playhead">#</a>
-            <span class="type-signature"></span>new Playhead<span class="signature">(document)</span><span class="type-signature"></span>
-        </h4>
-        
-
-        
-        <p class="description"><p>Create a playhead</p></p>
-        
-        
-        
-
-    
-
-    <!-- @canvasplay: smx custom for displaying aliases -->
-    
-
-    
-
-    
-
-    
-
-    
-        <h5>Parameters:</h5>
-        
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>document</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">SMXDocument</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">
-                <p>The document to navigate through</p>
-                
-            </td>
-        </tr>
-
-    
-    </tbody>
-</table>
-    
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="playhead_Playhead.js.html">playhead/Playhead.js</a>, <a href="playhead_Playhead.js.html#line8">line 8</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
 
 
     
 
-    
-
-    
-
-    
-
-    
-
-    
-
-    <!-- @canvasplay: smx custom
-    
-    -->
-
-    
-
-    
-    
+<div class="source-links">
+  source: <a href="playhead_Playhead.js.html">playhead/Playhead.js</a>, <a href="playhead_Playhead.js.html#line13">line 13</a>
 </div>
-    
-    </div>
 
-    
+  </div>
+  
+  
 
-    
+  
 
-    
-
-    
-
-    
-
-    
-
-    
+  
+  
+  
+  
+  
+      <h5>Parameters</h5>
+      
 
 
-    
-        <h3 id="Members" class="subsection-title">
-    <a class="permalink" href="#Members">#</a>
-    <span class="text">Members</span>
+<div class="params">
+<ul>
+
+
+    <li>
+      
+      <span class="name">
+      <code><!--
+      
+      
+      -->document<!--
+      
+      
+      --></code>
+      </span>
+      
+      
+      <span class="type">
+      <code><!--
+        -->
+{<a href="smx.Document.html">smx.Document</a>}<!--
+      --></code>
+      </span>
+      
+      
+      
+      <span class="description">: <p>The document to navigate through</p></span>
+      
+      
+      
+      
+    </li>
+
+
+</ul>
+</div>
+
+  
+  
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <!--
+  
+  -->
+  
+
+  
+  
+
+  
+  
+
+
+</div>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="big-members">
+  
+  
+  
+  
+</div>
+
+
+
+
+<section class="members">
+  
+  <h3 class="section-title" id="members">
+  Members
 </h3>
-
-        
-            
+  
+  
+    
+<!--LONGNAME: smx.Playhead#_document-->
 <div class="member  --is-private">
 
-  <h4 class="name" id="_document">
-      <a class="permalink" href="#_document">#</a>
-      <span class="type-signature">(private) </span>_document<span class="type-signature"> :SMXDocument</span>
+  <h4 class="signature" id="_document">
+    <a class="permalink" href="#_document"></a>
+    <span class="signature__name">_document</span><!--
+    --><span class="signature__types">:<a href="smx.Document.html">smx.Document</a></span>
+    <!--<span class="signature__attribs">(private) </span>-->
   </h4>
+
   
-  
+
+  <div class="details-mini">
+    
+
+  <div class="attribs-list">
+    <ul>
+        <li class="attrib-private">private</li>
+    </ul>
+  </div>
+
+
+    
+
+<div class="source-links">
+  source: <a href="playhead_Playhead.js.html">playhead/Playhead.js</a>, <a href="playhead_Playhead.js.html#line31">line 31</a>
+</div>
+
+  </div>
   
   
   <div class="description">
@@ -271,79 +1308,62 @@
   </div>
   
   
-  <!-- @canvasplay: smx custom
+  <!--
   
       <h5>Type:</h5>
       <ul>
           <li>
               
-<span class="param-type">SMXDocument</span>
-
-
+{<a href="smx.Document.html">smx.Document</a>}
           </li>
       </ul>
   
   -->
+
   
-  
 
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="playhead_Playhead.js.html">playhead/Playhead.js</a>, <a href="playhead_Playhead.js.html#line27">line 27</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
 
   
   
   
+
   
+
+
+
 
 </div>
-        
-            
+  
+    
+<!--LONGNAME: smx.Playhead#_selection-->
 <div class="member  --is-private">
 
-  <h4 class="name" id="_selection">
-      <a class="permalink" href="#_selection">#</a>
-      <span class="type-signature">(private) </span>_selection<span class="type-signature"> :Array.&lt;SMXNode></span>
+  <h4 class="signature" id="_selection">
+    <a class="permalink" href="#_selection"></a>
+    <span class="signature__name">_selection</span><!--
+    --><span class="signature__types">:Array.&lt;<a href="smx.Node.html">smx.Node</a>></span>
+    <!--<span class="signature__attribs">(private) </span>-->
   </h4>
+
   
-  
+
+  <div class="details-mini">
+    
+
+  <div class="attribs-list">
+    <ul>
+        <li class="attrib-private">private</li>
+    </ul>
+  </div>
+
+
+    
+
+<div class="source-links">
+  source: <a href="playhead_Playhead.js.html">playhead/Playhead.js</a>, <a href="playhead_Playhead.js.html#line38">line 38</a>
+</div>
+
+  </div>
   
   
   <div class="description">
@@ -351,79 +1371,62 @@
   </div>
   
   
-  <!-- @canvasplay: smx custom
+  <!--
   
       <h5>Type:</h5>
       <ul>
           <li>
               
-<span class="param-type">Array.&lt;SMXNode></span>
-
-
+{Array.&lt;<a href="smx.Node.html">smx.Node</a>>}
           </li>
       </ul>
   
   -->
+
   
-  
 
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="playhead_Playhead.js.html">playhead/Playhead.js</a>, <a href="playhead_Playhead.js.html#line34">line 34</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
 
   
   
   
+
   
+
+
+
 
 </div>
-        
-            
+  
+    
+<!--LONGNAME: smx.Playhead#document-->
 <div class="member  --is-readonly">
 
-  <h4 class="name" id="document">
-      <a class="permalink" href="#document">#</a>
-      <span class="type-signature">(readonly) </span>document<span class="type-signature"> :SMXDocument</span>
+  <h4 class="signature" id="document">
+    <a class="permalink" href="#document"></a>
+    <span class="signature__name">document</span><!--
+    --><span class="signature__types">:<a href="smx.Document.html">smx.Document</a></span>
+    <!--<span class="signature__attribs">(readonly) </span>-->
   </h4>
+
   
-  
+
+  <div class="details-mini">
+    
+
+  <div class="attribs-list">
+    <ul>
+        <li class="attrib-readonly">readonly</li>
+    </ul>
+  </div>
+
+
+    
+
+<div class="source-links">
+  source: <a href="playhead_Playhead.js.html">playhead/Playhead.js</a>, <a href="playhead_Playhead.js.html#line48">line 48</a>
+</div>
+
+  </div>
   
   
   <div class="description">
@@ -431,79 +1434,62 @@
   </div>
   
   
-  <!-- @canvasplay: smx custom
+  <!--
   
       <h5>Type:</h5>
       <ul>
           <li>
               
-<span class="param-type">SMXDocument</span>
-
-
+{<a href="smx.Document.html">smx.Document</a>}
           </li>
       </ul>
   
   -->
+
   
-  
 
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="playhead_Playhead.js.html">playhead/Playhead.js</a>, <a href="playhead_Playhead.js.html#line44">line 44</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
 
   
   
   
+
   
+
+
+
 
 </div>
-        
-            
+  
+    
+<!--LONGNAME: smx.Playhead#selection-->
 <div class="member  --is-readonly">
 
-  <h4 class="name" id="selection">
-      <a class="permalink" href="#selection">#</a>
-      <span class="type-signature">(readonly) </span>selection<span class="type-signature"> :SMXNode</span>
+  <h4 class="signature" id="selection">
+    <a class="permalink" href="#selection"></a>
+    <span class="signature__name">selection</span><!--
+    --><span class="signature__types">:Array.&lt;<a href="smx.Node.html">smx.Node</a>></span>
+    <!--<span class="signature__attribs">(readonly) </span>-->
   </h4>
+
   
-  
+
+  <div class="details-mini">
+    
+
+  <div class="attribs-list">
+    <ul>
+        <li class="attrib-readonly">readonly</li>
+    </ul>
+  </div>
+
+
+    
+
+<div class="source-links">
+  source: <a href="playhead_Playhead.js.html">playhead/Playhead.js</a>, <a href="playhead_Playhead.js.html#line58">line 58</a>
+</div>
+
+  </div>
   
   
   <div class="description">
@@ -511,1410 +1497,1885 @@
   </div>
   
   
-  <!-- @canvasplay: smx custom
+  <!--
   
       <h5>Type:</h5>
       <ul>
           <li>
               
-<span class="param-type">SMXNode</span>
-
-
+{Array.&lt;<a href="smx.Node.html">smx.Node</a>>}
           </li>
       </ul>
   
   -->
+
   
-  
 
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="playhead_Playhead.js.html">playhead/Playhead.js</a>, <a href="playhead_Playhead.js.html#line54">line 54</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
 
   
   
   
+
   
+
+
+
 
 </div>
-        
-            
+  
+    
+<!--LONGNAME: smx.Playhead#head-->
 <div class="member  --is-readonly">
 
-  <h4 class="name" id="head">
-      <a class="permalink" href="#head">#</a>
-      <span class="type-signature">(readonly) </span>head<span class="type-signature"> :SMXNode</span>
+  <h4 class="signature" id="head">
+    <a class="permalink" href="#head"></a>
+    <span class="signature__name">head</span><!--
+    --><span class="signature__types">:<a href="smx.Node.html">smx.Node</a></span>
+    <!--<span class="signature__attribs">(readonly) </span>-->
   </h4>
+
   
-  
-  
-  
-  <div class="description">
-      <p>Gets the head node, which is the last node in the path.</p>
+
+  <div class="details-mini">
+    
+
+  <div class="attribs-list">
+    <ul>
+        <li class="attrib-readonly">readonly</li>
+    </ul>
+  </div>
+
+
+    
+
+<div class="source-links">
+  source: <a href="playhead_Playhead.js.html">playhead/Playhead.js</a>, <a href="playhead_Playhead.js.html#line67">line 67</a>
+</div>
+
   </div>
   
   
-  <!-- @canvasplay: smx custom
-  
-      <h5>Type:</h5>
-      <ul>
-          <li>
-              
-<span class="param-type">SMXNode</span>
-
-
-          </li>
-      </ul>
-  
-  -->
-  
-  
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="playhead_Playhead.js.html">playhead/Playhead.js</a>, <a href="playhead_Playhead.js.html#line63">line 63</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-  
-  
-  
-  
-
-</div>
-        
-            
-<div class="member  --is-readonly">
-
-  <h4 class="name" id="root">
-      <a class="permalink" href="#root">#</a>
-      <span class="type-signature">(readonly) </span>root<span class="type-signature"> :SMXNode</span>
-  </h4>
-  
-  
-  
-  
   <div class="description">
-      <p>Gets the root node, which is the first node in the path.</p>
+      <p>Gets the head node, which is the last node in selection.</p>
   </div>
   
   
-  <!-- @canvasplay: smx custom
+  <!--
   
       <h5>Type:</h5>
       <ul>
           <li>
               
-<span class="param-type">SMXNode</span>
-
-
+{<a href="smx.Node.html">smx.Node</a>}
           </li>
       </ul>
   
   -->
+
   
-  
 
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="playhead_Playhead.js.html">playhead/Playhead.js</a>, <a href="playhead_Playhead.js.html#line72">line 72</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
 
   
   
   
+
   
+
+
+
 
 </div>
-        
+  
     
+<!--LONGNAME: smx.Playhead#root-->
+<div class="member  --is-readonly">
+
+  <h4 class="signature" id="root">
+    <a class="permalink" href="#root"></a>
+    <span class="signature__name">root</span><!--
+    --><span class="signature__types">:<a href="smx.Node.html">smx.Node</a></span>
+    <!--<span class="signature__attribs">(readonly) </span>-->
+  </h4>
+
+  
+
+  <div class="details-mini">
+    
+
+  <div class="attribs-list">
+    <ul>
+        <li class="attrib-readonly">readonly</li>
+    </ul>
+  </div>
+
 
     
 
-        <h3 id="Methods" class="subsection-title">
-    <a class="permalink" href="#Methods">#</a>
-    <span class="text">Methods</span>
+<div class="source-links">
+  source: <a href="playhead_Playhead.js.html">playhead/Playhead.js</a>, <a href="playhead_Playhead.js.html#line76">line 76</a>
+</div>
+
+  </div>
+  
+  
+  <div class="description">
+      <p>Gets the root node, which is the first node selection.</p>
+  </div>
+  
+  
+  <!--
+  
+      <h5>Type:</h5>
+      <ul>
+          <li>
+              
+{<a href="smx.Node.html">smx.Node</a>}
+          </li>
+      </ul>
+  
+  -->
+
+  
+
+
+  
+  
+  
+
+  
+
+
+
+
+</div>
+  
+  
+</section>
+
+
+
+<section class="methods">
+  
+  <h3 class="section-title" id="methods">
+  Methods
 </h3>
-
-        
-            
+  
+  
+    
+<!--LONGNAME: smx.Playhead#reset-->
 <div class="method ">
 
+  
+  
+      <h4 class="signature" id="reset">
+        <a class="permalink" href="#reset"></a>
+        <span class="signature__name">reset</span><!--
+        --><span class="signature__params"><span class="par">(</span><span class="par">)</span></span><span class="signature__returns"></span>
+        <!--<span class="signature__attribs"></span>-->
+      </h4>
+      
+      
+      
+  
+  
+  <div class="details-mini">
     
-        
-
-        
-        <h4 class="name" id="reset">
-            <a class="permalink" href="#reset">#</a>
-            <span class="type-signature"></span>reset<span class="signature">()</span><span class="type-signature"></span>
-        </h4>
-        
-
-        
-        <p class="description"><p>Navigates to document's root node.</p></p>
-        
-        
-        
-
-    
-
-    <!-- @canvasplay: smx custom for displaying aliases -->
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="playhead_Playhead.js.html">playhead/Playhead.js</a>, <a href="playhead_Playhead.js.html#line79">line 79</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
 
 
     
 
-    
-
-    
-
-    
-
-    
-
-    
-
-    <!-- @canvasplay: smx custom
-    
-    -->
-
-    
-
-    
-    
+<div class="source-links">
+  source: <a href="playhead_Playhead.js.html">playhead/Playhead.js</a>, <a href="playhead_Playhead.js.html#line83">line 83</a>
 </div>
-        
-            
+
+  </div>
+  
+  
+  <div class="description">
+      <p>Navigates to document's root node.</p>
+  </div>
+  
+
+  
+
+  
+  
+  
+  
+  
+  
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <!--
+  
+  -->
+  
+
+  
+  
+    
+
+
+
+  
+
+  
+  
+
+
+</div>
+  
+    
+<!--LONGNAME: smx.Playhead#play-->
 <div class="method ">
 
+  
+  
+      <h4 class="signature" id="play">
+        <a class="permalink" href="#play"></a>
+        <span class="signature__name">play</span><!--
+        --><span class="signature__params"><span class="par">(</span>[ref]<span class="par">)</span></span><span class="signature__returns"></span>
+        <!--<span class="signature__attribs"></span>-->
+      </h4>
+      
+      
+      
+  
+  
+  <div class="details-mini">
     
-        
-
-        
-        <h4 class="name" id="play">
-            <a class="permalink" href="#play">#</a>
-            <span class="type-signature"></span>play<span class="signature">([ref])</span><span class="type-signature"></span>
-        </h4>
-        
-
-        
-        <p class="description"><p>Performs play action</p></p>
-        
-        
-        
-
-    
-
-    <!-- @canvasplay: smx custom for displaying aliases -->
-    
-
-    
-
-    
-
-    
-
-    
-        <h5>Parameters:</h5>
-        
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-        <th>Attributes</th>
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>ref</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">String</span>
-|
-
-<span class="param-type">SMXNode</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last">
-                <p>target reference</p>
-                
-            </td>
-        </tr>
-
-    
-    </tbody>
-</table>
-    
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="playhead_Playhead.js.html">playhead/Playhead.js</a>, <a href="playhead_Playhead.js.html#line87">line 87</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
 
 
     
 
-    
-
-    
-
-    
-
-    
-
-    
-
-    <!-- @canvasplay: smx custom
-    
-    -->
-
-    
-
-    
-    
+<div class="source-links">
+  source: <a href="playhead_Playhead.js.html">playhead/Playhead.js</a>, <a href="playhead_Playhead.js.html#line91">line 91</a>
 </div>
-        
-            
+
+  </div>
+  
+  
+  <div class="description">
+      <p>Performs play action</p>
+  </div>
+  
+
+  
+
+  
+  
+  
+  
+  
+      <h5>Parameters</h5>
+      
+
+
+<div class="params">
+<ul>
+
+
+    <li>
+      
+      <span class="name">
+      <code><!--
+      
+      -->[<!--
+      -->ref<!--
+      
+      -->]<!--
+      --></code>
+      </span>
+      
+      
+      <span class="type">
+      <code><!--
+        -->
+{String|<a href="smx.Node.html">smx.Node</a>}<!--
+      --></code>
+      </span>
+      
+      
+      
+      <span class="description">: <p>target reference</p></span>
+      
+      
+      
+      
+    </li>
+
+
+</ul>
+</div>
+
+  
+  
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <!--
+  
+  -->
+  
+
+  
+  
+    
+
+
+
+  
+
+  
+  
+
+
+</div>
+  
+    
+<!--LONGNAME: smx.Playhead#enter-->
 <div class="method ">
 
+  
+  
+      <h4 class="signature" id="enter">
+        <a class="permalink" href="#enter"></a>
+        <span class="signature__name">enter</span><!--
+        --><span class="signature__params"><span class="par">(</span><span class="par">)</span></span><span class="signature__returns"></span>
+        <!--<span class="signature__attribs"></span>-->
+      </h4>
+      
+      
+      
+  
+  
+  <div class="details-mini">
     
-        
-
-        
-        <h4 class="name" id="enter">
-            <a class="permalink" href="#enter">#</a>
-            <span class="type-signature"></span>enter<span class="signature">()</span><span class="type-signature"></span>
-        </h4>
-        
-
-        
-        <p class="description"><p>Navigates inside head's node.</p></p>
-        
-        
-        
-
-    
-
-    <!-- @canvasplay: smx custom for displaying aliases -->
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="playhead_Playhead.js.html">playhead/Playhead.js</a>, <a href="playhead_Playhead.js.html#line106">line 106</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
 
 
     
 
-    
-
-    
-
-    
-
-    
-
-    
-
-    <!-- @canvasplay: smx custom
-    
-    -->
-
-    
-
-    
-    
+<div class="source-links">
+  source: <a href="playhead_Playhead.js.html">playhead/Playhead.js</a>, <a href="playhead_Playhead.js.html#line110">line 110</a>
 </div>
-        
-            
+
+  </div>
+  
+  
+  <div class="description">
+      <p>Navigates to an inner node, moves the head to current head's first child.</p>
+  </div>
+  
+
+  
+
+  
+  
+  
+  
+  
+  
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <!--
+  
+  -->
+  
+
+  
+  
+    
+
+
+
+  
+
+  
+  
+
+
+</div>
+  
+    
+<!--LONGNAME: smx.Playhead#exit-->
 <div class="method ">
 
+  
+  
+      <h4 class="signature" id="exit">
+        <a class="permalink" href="#exit"></a>
+        <span class="signature__name">exit</span><!--
+        --><span class="signature__params"><span class="par">(</span><span class="par">)</span></span><span class="signature__returns"></span>
+        <!--<span class="signature__attribs"></span>-->
+      </h4>
+      
+      
+      
+  
+  
+  <div class="details-mini">
     
-        
-
-        
-        <h4 class="name" id="exit">
-            <a class="permalink" href="#exit">#</a>
-            <span class="type-signature"></span>exit<span class="signature">()</span><span class="type-signature"></span>
-        </h4>
-        
-
-        
-        <p class="description"><p>Navigates outside head's node.</p></p>
-        
-        
-        
-
-    
-
-    <!-- @canvasplay: smx custom for displaying aliases -->
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="playhead_Playhead.js.html">playhead/Playhead.js</a>, <a href="playhead_Playhead.js.html#line128">line 128</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
 
 
     
 
-    
-
-    
-
-    
-
-    
-
-    
-
-    <!-- @canvasplay: smx custom
-    
-    -->
-
-    
-
-    
-    
+<div class="source-links">
+  source: <a href="playhead_Playhead.js.html">playhead/Playhead.js</a>, <a href="playhead_Playhead.js.html#line132">line 132</a>
 </div>
-        
-            
+
+  </div>
+  
+  
+  <div class="description">
+      <p>Navigates to an outter node, moves the head to current head's parent.</p>
+  </div>
+  
+
+  
+
+  
+  
+  
+  
+  
+  
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <!--
+  
+  -->
+  
+
+  
+  
+    
+
+
+
+  
+
+  
+  
+
+
+</div>
+  
+    
+<!--LONGNAME: smx.Playhead#next-->
 <div class="method ">
 
+  
+  
+      <h4 class="signature" id="next">
+        <a class="permalink" href="#next"></a>
+        <span class="signature__name">next</span><!--
+        --><span class="signature__params"><span class="par">(</span><span class="par">)</span></span><span class="signature__returns"></span>
+        <!--<span class="signature__attribs"></span>-->
+      </h4>
+      
+      
+      
+  
+  
+  <div class="details-mini">
     
-        
-
-        
-        <h4 class="name" id="next">
-            <a class="permalink" href="#next">#</a>
-            <span class="type-signature"></span>next<span class="signature">()</span><span class="type-signature"></span>
-        </h4>
-        
-
-        
-        <p class="description"><p>Navigates to head's next node.</p></p>
-        
-        
-        
-
-    
-
-    <!-- @canvasplay: smx custom for displaying aliases -->
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="playhead_Playhead.js.html">playhead/Playhead.js</a>, <a href="playhead_Playhead.js.html#line147">line 147</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
 
 
     
 
-    
-
-    
-
-    
-
-    
-
-    
-
-    <!-- @canvasplay: smx custom
-    
-    -->
-
-    
-
-    
-    
+<div class="source-links">
+  source: <a href="playhead_Playhead.js.html">playhead/Playhead.js</a>, <a href="playhead_Playhead.js.html#line151">line 151</a>
 </div>
-        
-            
+
+  </div>
+  
+  
+  <div class="description">
+      <p>Navigates to current head's next sibling node.</p>
+  </div>
+  
+
+  
+
+  
+  
+  
+  
+  
+  
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <!--
+  
+  -->
+  
+
+  
+  
+    
+
+
+
+  
+
+  
+  
+
+
+</div>
+  
+    
+<!--LONGNAME: smx.Playhead#previous-->
 <div class="method ">
 
+  
+  
+      <h4 class="signature" id="previous">
+        <a class="permalink" href="#previous"></a>
+        <span class="signature__name">previous</span><!--
+        --><span class="signature__params"><span class="par">(</span><span class="par">)</span></span><span class="signature__returns"></span>
+        <!--<span class="signature__attribs"></span>-->
+      </h4>
+      
+      
+      
+  
+  
+  <div class="details-mini">
     
-        
-
-        
-        <h4 class="name" id="previous">
-            <a class="permalink" href="#previous">#</a>
-            <span class="type-signature"></span>previous<span class="signature">()</span><span class="type-signature"></span>
-        </h4>
-        
-
-        
-        <p class="description"><p>Navigates to head's previous node.</p></p>
-        
-        
-        
-
-    
-
-    <!-- @canvasplay: smx custom for displaying aliases -->
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="playhead_Playhead.js.html">playhead/Playhead.js</a>, <a href="playhead_Playhead.js.html#line163">line 163</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
 
 
     
 
-    
-
-    
-
-    
-
-    
-
-    
-
-    <!-- @canvasplay: smx custom
-    
-    -->
-
-    
-
-    
-    
+<div class="source-links">
+  source: <a href="playhead_Playhead.js.html">playhead/Playhead.js</a>, <a href="playhead_Playhead.js.html#line166">line 166</a>
 </div>
-        
-            
+
+  </div>
+  
+  
+  <div class="description">
+      <p>Navigates to current head's previous sibling node.</p>
+  </div>
+  
+
+  
+
+  
+  
+  
+  
+  
+  
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <!--
+  
+  -->
+  
+
+  
+  
+    
+
+
+
+  
+
+  
+  
+
+
+</div>
+  
+    
+<!--LONGNAME: smx.Playhead#forward-->
 <div class="method ">
 
+  
+  
+      <h4 class="signature" id="forward">
+        <a class="permalink" href="#forward"></a>
+        <span class="signature__name">forward</span><!--
+        --><span class="signature__params"><span class="par">(</span><span class="par">)</span></span><span class="signature__returns"></span>
+        <!--<span class="signature__attribs"></span>-->
+      </h4>
+      
+      
+      
+  
+  
+  <div class="details-mini">
     
-        
-
-        
-        <h4 class="name" id="forward">
-            <a class="permalink" href="#forward">#</a>
-            <span class="type-signature"></span>forward<span class="signature">()</span><span class="type-signature"></span>
-        </h4>
-        
-
-        
-        <p class="description"><p>Navigates to head's next node in flat tree mode.</p></p>
-        
-        
-        
-
-    
-
-    <!-- @canvasplay: smx custom for displaying aliases -->
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="playhead_Playhead.js.html">playhead/Playhead.js</a>, <a href="playhead_Playhead.js.html#line179">line 179</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
 
 
     
 
-    
-
-    
-
-    
-
-    
-
-    
-
-    <!-- @canvasplay: smx custom
-    
-    -->
-
-    
-
-    
-    
+<div class="source-links">
+  source: <a href="playhead_Playhead.js.html">playhead/Playhead.js</a>, <a href="playhead_Playhead.js.html#line182">line 182</a>
 </div>
-        
-            
+
+  </div>
+  
+  
+  <div class="description">
+      <p>Navigates to current head's next node in flat tree mode.</p>
+  </div>
+  
+
+  
+
+  
+  
+  
+  
+  
+  
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <!--
+  
+  -->
+  
+
+  
+  
+    
+
+
+
+  
+
+  
+  
+
+
+</div>
+  
+    
+<!--LONGNAME: smx.Playhead#backward-->
 <div class="method ">
 
+  
+  
+      <h4 class="signature" id="backward">
+        <a class="permalink" href="#backward"></a>
+        <span class="signature__name">backward</span><!--
+        --><span class="signature__params"><span class="par">(</span><span class="par">)</span></span><span class="signature__returns"></span>
+        <!--<span class="signature__attribs"></span>-->
+      </h4>
+      
+      
+      
+  
+  
+  <div class="details-mini">
     
-        
-
-        
-        <h4 class="name" id="backward">
-            <a class="permalink" href="#backward">#</a>
-            <span class="type-signature"></span>backward<span class="signature">()</span><span class="type-signature"></span>
-        </h4>
-        
-
-        
-        <p class="description"><p>Navigates to head's previous node in flat tree mode.</p></p>
-        
-        
-        
-
-    
-
-    <!-- @canvasplay: smx custom for displaying aliases -->
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="playhead_Playhead.js.html">playhead/Playhead.js</a>, <a href="playhead_Playhead.js.html#line208">line 208</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
 
 
     
 
-    
-
-    
-
-    
-
-    
-
-    
-
-    <!-- @canvasplay: smx custom
-    
-    -->
-
-    
-
-    
-    
+<div class="source-links">
+  source: <a href="playhead_Playhead.js.html">playhead/Playhead.js</a>, <a href="playhead_Playhead.js.html#line211">line 211</a>
 </div>
-        
-            
+
+  </div>
+  
+  
+  <div class="description">
+      <p>Navigates to current head's previous node in flat tree mode.</p>
+  </div>
+  
+
+  
+
+  
+  
+  
+  
+  
+  
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <!--
+  
+  -->
+  
+
+  
+  
+    
+
+
+
+  
+
+  
+  
+
+
+</div>
+  
+    
+<!--LONGNAME: smx.Playhead#exec-->
 <div class="method ">
 
+  
+  
+      <h4 class="signature" id="exec">
+        <a class="permalink" href="#exec"></a>
+        <span class="signature__name">exec</span><!--
+        --><span class="signature__params"><span class="par">(</span>keyword<span class="par">)</span></span><span class="signature__returns"></span>
+        <!--<span class="signature__attribs"></span>-->
+      </h4>
+      
+      
+      
+  
+  
+  <div class="details-mini">
     
-        
-
-        
-        <h4 class="name" id="exec">
-            <a class="permalink" href="#exec">#</a>
-            <span class="type-signature"></span>exec<span class="signature">(keyword)</span><span class="type-signature"></span>
-        </h4>
-        
-
-        
-        <p class="description"><p>Executes a playhead action by keyword.</p></p>
-        
-        
-        
-
-    
-
-    <!-- @canvasplay: smx custom for displaying aliases -->
-    
-
-    
-
-    
-
-    
-
-    
-        <h5>Parameters:</h5>
-        
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>keyword</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">String</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">
-                
-                
-            </td>
-        </tr>
-
-    
-    </tbody>
-</table>
-    
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="playhead_Playhead.js.html">playhead/Playhead.js</a>, <a href="playhead_Playhead.js.html#line220">line 220</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
 
 
     
 
-    
-
-    
-
-    
-
-    
-
-    
-
-    <!-- @canvasplay: smx custom
-    
-    -->
-
-    
-
-    
-    
+<div class="source-links">
+  source: <a href="playhead_Playhead.js.html">playhead/Playhead.js</a>, <a href="playhead_Playhead.js.html#line230">line 230</a>
 </div>
-        
-            
+
+  </div>
+  
+  
+  <div class="description">
+      <p>Executes a playhead command based on the given action keyword. keywords
+are basically some playhead's method names.</p>
+<p>List of valid commands:
+<code>reset</code>, <code>play</code>, <code>next</code>, <code>previous</code>,
+<code>enter</code>, <code>exit</code>, <code>forward</code>, <code>backward</code>.</p>
+  </div>
+  
+
+  
+
+  
+  
+  
+  
+  
+      <h5>Parameters</h5>
+      
+
+
+<div class="params">
+<ul>
+
+
+    <li>
+      
+      <span class="name">
+      <code><!--
+      
+      
+      -->keyword<!--
+      
+      
+      --></code>
+      </span>
+      
+      
+      <span class="type">
+      <code><!--
+        -->
+{String}<!--
+      --></code>
+      </span>
+      
+      
+      
+      
+      
+      
+    </li>
+
+
+</ul>
+</div>
+
+  
+  
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <!--
+  
+  -->
+  
+
+  
+  
+    
+
+
+
+  
+
+  
+  
+
+
+</div>
+  
+    
+<!--LONGNAME: smx.Playhead#navigate-->
 <div class="method ">
 
+  
+  
+      <h4 class="signature" id="navigate">
+        <a class="permalink" href="#navigate"></a>
+        <span class="signature__name">navigate</span><!--
+        --><span class="signature__params"><span class="par">(</span>target<span class="par">)</span></span><span class="signature__returns"></span>
+        <!--<span class="signature__attribs"></span>-->
+      </h4>
+      
+      
+      
+  
+  
+  <div class="details-mini">
     
-        
-
-        
-        <h4 class="name" id="navigate">
-            <a class="permalink" href="#navigate">#</a>
-            <span class="type-signature"></span>navigate<span class="signature">(target)</span><span class="type-signature"></span>
-        </h4>
-        
-
-        
-        <p class="description"><p>Navigates to given node using optional configuration.</p></p>
-        
-        
-        
-
-    
-
-    <!-- @canvasplay: smx custom for displaying aliases -->
-    
-
-    
-
-    
-
-    
-
-    
-        <h5>Parameters:</h5>
-        
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>target</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">String</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">
-                
-                
-            </td>
-        </tr>
-
-    
-    </tbody>
-</table>
-    
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="playhead_Playhead.js.html">playhead/Playhead.js</a>, <a href="playhead_Playhead.js.html#line245">line 245</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
 
 
     
 
-    
-
-    
-
-    
-
-    
-
-    
-
-    <!-- @canvasplay: smx custom
-    
-    -->
-
-    
-
-    
-    
+<div class="source-links">
+  source: <a href="playhead_Playhead.js.html">playhead/Playhead.js</a>, <a href="playhead_Playhead.js.html#line280">line 280</a>
 </div>
-        
+
+  </div>
+  
+  
+  <div class="description">
+      <p>Navigates to a given target node or executes a playhead command.
+If <code>target</code> is a node will navigate to it, if <code>target</code> is a string will
+try to find a node identified as <code>target</code> and will navigate to it. If
+<code>target</code> is a <code>!</code> preffixed string will execute it as a playhead command.</p>
+<p>See <a href="smx.Playhead.html#exec"><code>.exec()</code></a> for a list of valid commands.</p>
+  </div>
+  
+
+  
+
+  
+  
+  
+  
+  
+      <h5>Parameters</h5>
+      
+
+
+<div class="params">
+<ul>
+
+
+    <li>
+      
+      <span class="name">
+      <code><!--
+      
+      
+      -->target<!--
+      
+      
+      --></code>
+      </span>
+      
+      
+      <span class="type">
+      <code><!--
+        -->
+{String|<a href="smx.Node.html">smx.Node</a>}<!--
+      --></code>
+      </span>
+      
+      
+      
+      
+      
+      
+    </li>
+
+
+</ul>
+</div>
+
+  
+  
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <!--
+  
+  -->
+  
+
+  
+  
     
 
+
+
+  
+
+  
+      <h5>Example</h5>
+      
+
+
+  
+  <pre class="prettyprint"><code>//instance a new Playhead
+var playhead = new smx.Playhead(doc);
+
+//navigate by node identifier
+playhead.navigate('a42');
+
+//to to given node
+playhead.navigate(node);
+
+//using commands
+playhead.navigate('!next')
+//same as
+playhead.exec('next')
+// or
+playhead.next();</code></pre>
+
+
+
+  
+  
+
+
+</div>
+  
+    
+<!--LONGNAME: smx.Playhead#on-->
+<div class="method ">
+
+  
+  
+      <h4 class="signature" id="on">
+        <a class="permalink" href="#on"></a>
+        <span class="signature__name">on</span><!--
+        --><span class="signature__params"><span class="par">(</span>name, callback, context<span class="par">)</span></span><span class="signature__returns"></span>
+        <!--<span class="signature__attribs"></span>-->
+      </h4>
+      
+      
+      
+  
+  
+  <div class="details-mini">
     
 
+
     
 
-</article>
+<div class="source-links">
+  source: <a href="playhead_Playhead.js.html">playhead/Playhead.js</a>, <a href="playhead_Playhead.js.html#line407">line 407</a>
+</div>
 
+  </div>
+  
+  
+  <div class="description">
+      <p>Binds an event to a <code>callback</code> function. Passing <code>&quot;all&quot;</code> will bind
+the callback to all events fired.</p>
+  </div>
+  
+
+  
+
+  
+  
+  
+  
+  
+      <h5>Parameters</h5>
+      
+
+
+<div class="params">
+<ul>
+
+
+    <li>
+      
+      <span class="name">
+      <code><!--
+      
+      
+      -->name<!--
+      
+      
+      --></code>
+      </span>
+      
+      
+      <span class="type">
+      <code><!--
+        -->
+{String}<!--
+      --></code>
+      </span>
+      
+      
+      
+      
+      
+      
+    </li>
+
+
+
+    <li>
+      
+      <span class="name">
+      <code><!--
+      
+      
+      -->callback<!--
+      
+      
+      --></code>
+      </span>
+      
+      
+      <span class="type">
+      <code><!--
+        -->
+{function}<!--
+      --></code>
+      </span>
+      
+      
+      
+      
+      
+      
+    </li>
+
+
+
+    <li>
+      
+      <span class="name">
+      <code><!--
+      
+      
+      -->context<!--
+      
+      
+      --></code>
+      </span>
+      
+      
+      <span class="type">
+      <code><!--
+        -->
+{Object}<!--
+      --></code>
+      </span>
+      
+      
+      
+      
+      
+      
+    </li>
+
+
+</ul>
+</div>
+
+  
+  
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <!--
+  
+  -->
+  
+
+  
+  
+    
+
+
+
+  
+
+  
+  
+
+
+</div>
+  
+    
+<!--LONGNAME: smx.Playhead#once-->
+<div class="method ">
+
+  
+  
+      <h4 class="signature" id="once">
+        <a class="permalink" href="#once"></a>
+        <span class="signature__name">once</span><!--
+        --><span class="signature__params"><span class="par">(</span>name, callback, context<span class="par">)</span></span><span class="signature__returns"></span>
+        <!--<span class="signature__attribs"></span>-->
+      </h4>
+      
+      
+      
+  
+  
+  <div class="details-mini">
+    
+
+
+    
+
+<div class="source-links">
+  source: <a href="playhead_Playhead.js.html">playhead/Playhead.js</a>, <a href="playhead_Playhead.js.html#line419">line 419</a>
+</div>
+
+  </div>
+  
+  
+  <div class="description">
+      <p>Binds an event to only be triggered a single time. After the first time
+the callback is invoked, it will be removed.</p>
+  </div>
+  
+
+  
+
+  
+  
+  
+  
+  
+      <h5>Parameters</h5>
+      
+
+
+<div class="params">
+<ul>
+
+
+    <li>
+      
+      <span class="name">
+      <code><!--
+      
+      
+      -->name<!--
+      
+      
+      --></code>
+      </span>
+      
+      
+      <span class="type">
+      <code><!--
+        -->
+{String}<!--
+      --></code>
+      </span>
+      
+      
+      
+      
+      
+      
+    </li>
+
+
+
+    <li>
+      
+      <span class="name">
+      <code><!--
+      
+      
+      -->callback<!--
+      
+      
+      --></code>
+      </span>
+      
+      
+      <span class="type">
+      <code><!--
+        -->
+{function}<!--
+      --></code>
+      </span>
+      
+      
+      
+      
+      
+      
+    </li>
+
+
+
+    <li>
+      
+      <span class="name">
+      <code><!--
+      
+      
+      -->context<!--
+      
+      
+      --></code>
+      </span>
+      
+      
+      <span class="type">
+      <code><!--
+        -->
+{Object}<!--
+      --></code>
+      </span>
+      
+      
+      
+      
+      
+      
+    </li>
+
+
+</ul>
+</div>
+
+  
+  
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <!--
+  
+  -->
+  
+
+  
+  
+    
+
+
+
+  
+
+  
+  
+
+
+</div>
+  
+    
+<!--LONGNAME: smx.Playhead#off-->
+<div class="method ">
+
+  
+  
+      <h4 class="signature" id="off">
+        <a class="permalink" href="#off"></a>
+        <span class="signature__name">off</span><!--
+        --><span class="signature__params"><span class="par">(</span>name, callback, context<span class="par">)</span></span><span class="signature__returns"></span>
+        <!--<span class="signature__attribs"></span>-->
+      </h4>
+      
+      
+      
+  
+  
+  <div class="details-mini">
+    
+
+
+    
+
+<div class="source-links">
+  source: <a href="playhead_Playhead.js.html">playhead/Playhead.js</a>, <a href="playhead_Playhead.js.html#line431">line 431</a>
+</div>
+
+  </div>
+  
+  
+  <div class="description">
+      <p>Remove one or many callbacks. If <code>context</code> is null, removes all
+callbacks with that function. If <code>callback</code> is null, removes all
+callbacks for the event. If <code>name</code> is null, removes all bound
+callbacks for all events.</p>
+  </div>
+  
+
+  
+
+  
+  
+  
+  
+  
+      <h5>Parameters</h5>
+      
+
+
+<div class="params">
+<ul>
+
+
+    <li>
+      
+      <span class="name">
+      <code><!--
+      
+      
+      -->name<!--
+      
+      
+      --></code>
+      </span>
+      
+      
+      <span class="type">
+      <code><!--
+        -->
+{String}<!--
+      --></code>
+      </span>
+      
+      
+      
+      
+      
+      
+    </li>
+
+
+
+    <li>
+      
+      <span class="name">
+      <code><!--
+      
+      
+      -->callback<!--
+      
+      
+      --></code>
+      </span>
+      
+      
+      <span class="type">
+      <code><!--
+        -->
+{function}<!--
+      --></code>
+      </span>
+      
+      
+      
+      
+      
+      
+    </li>
+
+
+
+    <li>
+      
+      <span class="name">
+      <code><!--
+      
+      
+      -->context<!--
+      
+      
+      --></code>
+      </span>
+      
+      
+      <span class="type">
+      <code><!--
+        -->
+{Object}<!--
+      --></code>
+      </span>
+      
+      
+      
+      
+      
+      
+    </li>
+
+
+</ul>
+</div>
+
+  
+  
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <!--
+  
+  -->
+  
+
+  
+  
+    
+
+
+
+  
+
+  
+  
+
+
+</div>
+  
+  
 </section>
 
 
 
 
+<section class="typedefs">
+
+  <h3 class="section-title" id="typedefs">
+  Type Definitions
+</h3>
+  
+  
+    
+      
+<!--LONGNAME: smx.Playhead.PlayheadEvent-->
+<div class="member ">
+
+  <h4 class="signature" id=".PlayheadEvent">
+    <a class="permalink" href="#.PlayheadEvent"></a>
+    <span class="signature__name">PlayheadEvent</span><!--
+    -->
+    <!---->
+  </h4>
+
+  
+
+  <div class="details-mini">
+    
+
+
+    
+
+<div class="source-links">
+  source: <a href="playhead_Playhead.js.html">playhead/Playhead.js</a>, <a href="playhead_Playhead.js.html#line447">line 447</a>
 </div>
 
-<div class="nav__overlay" onclick="$('body').removeClass('nav-visible');">
+  </div>
+  
+  
+  <div class="description">
+      <p>Playhead Event Object</p>
+  </div>
+  
+  
+  <!--
+  
+      <h5>Type:</h5>
+      <ul>
+          <li>
+              
+{Object}
+          </li>
+      </ul>
+  
+  -->
+
+  
+  
+    <h5 class="subsection-title">Properties:</h5>
+  
+    
+
+<table class="props">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        <!--
+        
+        -->
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name">
+
+                  <code>
+                  
+                  <!--
+                  -->selected<!--
+                  
+                  -->
+                  </code>
+
+                </td>
+            
+
+            <td class="type">
+            
+              <code>
+                
+{Array.&lt;<a href="smx.Node.html">smx.Node</a>>}
+              </code>
+            
+            </td>
+
+            
+
+            <!--
+            
+            -->
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name">
+
+                  <code>
+                  
+                  <!--
+                  -->deselected<!--
+                  
+                  -->
+                  </code>
+
+                </td>
+            
+
+            <td class="type">
+            
+              <code>
+                
+{Array.&lt;<a href="smx.Node.html">smx.Node</a>>}
+              </code>
+            
+            </td>
+
+            
+
+            <!--
+            
+            -->
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name">
+
+                  <code>
+                  
+                  <!--
+                  -->selection<!--
+                  
+                  -->
+                  </code>
+
+                </td>
+            
+
+            <td class="type">
+            
+              <code>
+                
+{Array.&lt;<a href="smx.Node.html">smx.Node</a>>}
+              </code>
+            
+            </td>
+
+            
+
+            <!--
+            
+            -->
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name">
+
+                  <code>
+                  
+                  <!--
+                  -->origin<!--
+                  
+                  -->
+                  </code>
+
+                </td>
+            
+
+            <td class="type">
+            
+              <code>
+                
+{<a href="smx.Node.html">smx.Node</a>}
+              </code>
+            
+            </td>
+
+            
+
+            <!--
+            
+            -->
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name">
+
+                  <code>
+                  
+                  <!--
+                  -->target<!--
+                  
+                  -->
+                  </code>
+
+                </td>
+            
+
+            <td class="type">
+            
+              <code>
+                
+{<a href="smx.Node.html">smx.Node</a>}
+              </code>
+            
+            </td>
+
+            
+
+            <!--
+            
+            -->
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+  
+  
+
+
+  
+  
+  
+
+  
+
+
+
+
 </div>
+    
+  
+  
+</section>
 
-<a class="nav__toggle" href="javascript:$('body').toggleClass('nav-visible');">
-  <i class="material-icons">menu</i>
-</a>
 
-<script>hljs.initHighlightingOnLoad();</script>
+  
+  
+</article>
+
+<script>prettyPrint();</script>
+<!--<script src="scripts/linenumber.js"></script>-->
 </body>
 </html>

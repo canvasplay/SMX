@@ -2,7 +2,7 @@ import SMXLoader from './loader/Loader.js';
 import SMXDocument from './document/Document.js';
 
 var DATA;
-var PARSER_INDEX;
+var PROCESSOR_INDEX;
 
 /**
  * Loads a new smx document.
@@ -24,7 +24,7 @@ var LOAD = function(data, success, error){
   ERROR_CALLBACK = error || function(){};
   
   DATA = {};
-  PARSER_INDEX = 0;
+  PROCESSOR_INDEX = 0;
   
   if(typeof data === 'string')
     LOAD_SMX_DOCUMENT(data);
@@ -51,27 +51,27 @@ var ERROR_CALLBACK = function(e){};
 
 var LOAD_SMX_DOCUMENT = function(url){
 	var loader = new SMXLoader();
-	loader.on('complete', APPLY_PARSERS);
+	loader.on('complete', APPLY_PROCESSORS);
 	loader.on('error', LOAD_SMX_ERROR);
-	loader.loadDocument(url);
+	loader.load(url);
 };
 
 var LOAD_SMX_DOCUMENT_FROM_JSON = function(data){
 	var x2js = new X2JS();
 	var xmlDocument = x2js.json2xml(data);
-	APPLY_PARSERS(xmlDocument);
+	APPLY_PROCESSORS(xmlDocument);
 };
 
 
-var APPLY_PARSERS = function(xmlDocument){
+var APPLY_PROCESSORS = function(xmlDocument){
   var xml = xmlDocument;
-  var parser = smx.parsers[PARSER_INDEX];
-  if(parser){
-    parser(xml, function(data){
+  var processor = smx.modules[PROCESSOR_INDEX].Processor;
+  if(processor){
+    processor(xml, function(data){
       if(data)
         Object.assign(DATA,data);
-      PARSER_INDEX = PARSER_INDEX+1;
-      APPLY_PARSERS(xml);
+      PROCESSOR_INDEX++;
+      APPLY_PROCESSORS(xml);
     })
   }
   else{
@@ -138,7 +138,7 @@ var CREATE_SMX_DOCUMENT = function(xml){
 
 	var d = new SMXDocument(xml);
 	
-  Object.assign(d,DATA);
+  Object.assign(d._data,DATA);
   
 	smx.documents.push(d);
 	

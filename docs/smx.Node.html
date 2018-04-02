@@ -1,172 +1,1140 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta charset="utf-8">
+    
+    
+    <title>class: Node - Documentation</title>
 
-  <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <title>JSDoc: Class-Node</title>
 
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-  <link rel="stylesheet" href="https://cdn.rawgit.com/isagalaev/highlight.js/cf4b46e5/src/styles/default.css">
-  <link rel="stylesheet" href="css/styles.css">
+    <!--<link rel="stylesheet" href="https://cdn.rawgit.com/isagalaev/highlight.js/cf4b46e5/src/styles/default.css">-->
+    <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>-->
+    <!--<script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>-->
+    <script src="https://cdn.rawgit.com/google/code-prettify/master/loader/prettify.js"></script>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
-  <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script src="scripts/jsdoc.js"></script>
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
 
 </head>
+<body class="kind-class">
 
-<body>
+<div class="nav__overlay" onclick="$('body').removeClass('nav-visible');">
+</div>
+
+<a class="nav__toggle" href="javascript:$('body').toggleClass('nav-visible');">
+  &#x2261;
+</a>
 
 <nav>
-  <h2><a href="index.html">smx</a></h2><h3>Namespaces</h3><ul><li><a href="smx.html">smx</a></li></ul><h3>Classes</h3><ul><li> &rarr; <a href="smx.Document.html">Document</a></li><li> &rarr; <a href="smx.Loader.html">Loader</a></li><li> &rarr; <a href="smx.Node.html">Node</a></li><li> &rarr; <a href="smx.Playhead.html">Playhead</a></li></ul><h3>Modules</h3><ul><li><a href="module-Metadata.html">Metadata</a></li><li> &rarr; <a href="module-Metadata.module_MetadataParser.html">MetadataParser</a></li><li><a href="module-Prototype.html">Prototype</a></li><li> &rarr; <a href="module-Prototype.module_PrototypeParser.html">PrototypeParser</a></li><li><a href="module-Taxonomy.html">Taxonomy</a></li><li> &rarr; <a href="module-Taxonomy.module_TaxonomyParser.html">TaxonomyParser</a></li><li><a href="module-Ui.html">Ui</a></li></ul><h3>Mixins</h3><ul><li><a href="Node-AttributeGetters.html">Node-AttributeGetters</a></li><li><a href="Node-Core.html">Node-Core</a></li><li><a href="Node-TreeNode.html">Node-TreeNode</a></li><li> &rarr; <a href="module-Metadata.Document-Metadata.html">Document-Metadata</a></li><li> &rarr; <a href="module-Metadata.Node-Metadata.html">Node-Metadata</a></li><li> &rarr; <a href="module-Taxonomy.Node-Taxonomy.html">Node-Taxonomy</a></li><li> &rarr; <a href="module-Ui.Node-Ui.html">Node-Ui</a></li></ul>
+  
+  <form class="search-form">
+    <div class="form-group">
+      <input
+        type="search"
+        id="NavSearchInput"
+        class="form-control form-control-sm"
+        autocomplete="off"
+        placeholder="Search..."
+      />
+    </div>
+  </form>
 
+  <ul>
+
+  
+  <li class="index">
+    
+    <h3><a href="index.html">SMX</a></h3>
+    
+  </li>
+  
+  <li class="namespaces">
+    
+    <h3>Namespaces</h3>
+    
+    <ul>
+      
+      <li class="namespace">
+
+  <a href="smx.html">smx</a>
+  
+  
+  <ul>
+    
+      <li class="member">
+
+  <a href="smx.html#.version">version</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.html#.document">document</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.html#.documents">documents</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.html#.modules">modules</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.html#.registerModule">registerModule</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.html#.smx">smx</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.html#.load">load</a>
+  
+  
+
+</li>
+    
+      <li class="typedef">
+
+  <a href="smx.html#~onLoadSuccess">onLoadSuccess</a>
+  
+  
+
+</li>
+    
+      <li class="typedef">
+
+  <a href="smx.html#~onLoadError">onLoadError</a>
+  
+  
+
+</li>
+    
+  </ul>
+  
+
+</li>
+      
+    </ul>
+    
+  </li>
+  
+  <li class="classes">
+    
+    <h3>Classes</h3>
+    
+    <ul>
+      
+      <li class="class">
+
+  <a href="smx.Document.html">Document</a>
+  
+  
+  <ul>
+    
+      <li class="member">
+
+  <a href="smx.Document.html#%255B0%255D">[0]</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Document.html#_cache">_cache</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Document.html#_data">_data</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Document.html#path">path</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Document.html#src">src</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Document.html#root">root</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Document.html#getNodeById">getNodeById</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Document.html#find">find</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Document.html#wrap">wrap</a>
+  
+  
+
+</li>
+    
+  </ul>
+  
+
+</li>
+      
+      <li class="class">
+
+  <a href="smx.Node.html">Node</a>
+  
+  
+  <ul>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#%255B0%255D">[0]</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#id">id</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#name">name</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#type">type</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#className">className</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#document">document</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#hash">hash</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#uri">uri</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#url">url</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#src">src</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#parent">parent</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#ancestors">ancestors</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#root">root</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#children">children</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#first">first</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#last">last</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#previous">previous</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Node.html#next">next</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#getIndex">getIndex</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#getText">getText</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#getHTML">getHTML</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#getData">getData</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#toString">toString</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#toJSON">toJSON</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#attr">attr</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#get">get</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#has">has</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#dsv">dsv</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#getAncestors">getAncestors</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#isAncestorOf">isAncestorOf</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#isMatch">isMatch</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#find">find</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#findOne">findOne</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#getChildren">getChildren</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#getFirst">getFirst</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#getLast">getLast</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#getChildAt">getChildAt</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#isDescendantOf">isDescendantOf</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#getNext">getNext</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#getAllNext">getAllNext</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#getPrevious">getPrevious</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Node.html#getAllPrevious">getAllPrevious</a>
+  
+  
+
+</li>
+    
+  </ul>
+  
+
+</li>
+      
+      <li class="class">
+
+  <a href="smx.Loader.html">Loader</a>
+  
+  
+  <ul>
+    
+      <li class="member">
+
+  <a href="smx.Loader.html#xhr">xhr</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Loader.html#load">load</a>
+  
+  
+
+</li>
+    
+      <li class="event">
+
+  <a href="smx.Loader.html#.event:complete">complete</a>
+  
+  
+
+</li>
+    
+      <li class="event">
+
+  <a href="smx.Loader.html#.event:error">error</a>
+  
+  
+
+</li>
+    
+  </ul>
+  
+
+</li>
+      
+      <li class="class">
+
+  <a href="smx.Playhead.html">Playhead</a>
+  
+  
+  <ul>
+    
+      <li class="member">
+
+  <a href="smx.Playhead.html#_document">_document</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Playhead.html#_selection">_selection</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Playhead.html#document">document</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Playhead.html#selection">selection</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Playhead.html#head">head</a>
+  
+  
+
+</li>
+    
+      <li class="member">
+
+  <a href="smx.Playhead.html#root">root</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Playhead.html#reset">reset</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Playhead.html#play">play</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Playhead.html#enter">enter</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Playhead.html#exit">exit</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Playhead.html#next">next</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Playhead.html#previous">previous</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Playhead.html#forward">forward</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Playhead.html#backward">backward</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Playhead.html#exec">exec</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Playhead.html#navigate">navigate</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Playhead.html#on">on</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Playhead.html#once">once</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.Playhead.html#off">off</a>
+  
+  
+
+</li>
+    
+      <li class="typedef">
+
+  <a href="smx.Playhead.html#.PlayheadEvent">PlayheadEvent</a>
+  
+  
+
+</li>
+    
+  </ul>
+  
+
+</li>
+      
+    </ul>
+    
+  </li>
+  
+  <li class="modules">
+    
+    <h3>Modules</h3>
+    
+    <ul>
+      
+      <li class="module">
+
+  <a href="smx.module_Metadata.html">Metadata</a>
+  
+  
+  <ul>
+    
+      <li class="module">
+
+  <a href="smx.module_Metadata.module_MetadataProcessor.html">MetadataProcessor</a>
+  
+  
+  <ul>
+    
+      <li class="function">
+
+  <a href="smx.module_Metadata.module_MetadataProcessor.html#~processXMLDocument">processXMLDocument</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.module_Metadata.module_MetadataProcessor.html#~processMetadataNode">processMetadataNode</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.module_Metadata.module_MetadataProcessor.html#~processMetaAttributes">processMetaAttributes</a>
+  
+  
+
+</li>
+    
+  </ul>
+  
+
+</li>
+    
+      <li class="mixin">
+
+  <a href="smx.module_Metadata.Document-Metadata.html">Document-Metadata</a>
+  
+  
+
+</li>
+    
+      <li class="mixin">
+
+  <a href="smx.module_Metadata.Node-Metadata.html">Node-Metadata</a>
+  
+  
+  <ul>
+    
+      <li class="function">
+
+  <a href="smx.module_Metadata.Node-Metadata.html#meta">meta</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.module_Metadata.Node-Metadata.html#interpolate">interpolate</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.module_Metadata.Node-Metadata.html#search">search</a>
+  
+  
+
+</li>
+    
+  </ul>
+  
+
+</li>
+    
+  </ul>
+  
+
+</li>
+      
+      <li class="module">
+
+  <a href="smx.module_Prototype.html">Prototype</a>
+  
+  
+  <ul>
+    
+      <li class="module">
+
+  <a href="smx.module_Prototype.module_PrototypeProcessor.html">PrototypeProcessor</a>
+  
+  
+  <ul>
+    
+      <li class="function">
+
+  <a href="smx.module_Prototype.module_PrototypeProcessor.html#~processXMLDocument">processXMLDocument</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.module_Prototype.module_PrototypeProcessor.html#~processXMLNode">processXMLNode</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.module_Prototype.module_PrototypeProcessor.html#~applyPrototypes">applyPrototypes</a>
+  
+  
+
+</li>
+    
+  </ul>
+  
+
+</li>
+    
+  </ul>
+  
+
+</li>
+      
+      <li class="module">
+
+  <a href="smx.module_Taxonomy.html">Taxonomy</a>
+  
+  
+  <ul>
+    
+      <li class="module">
+
+  <a href="smx.module_Taxonomy.module_TaxonomyProcessor.html">TaxonomyProcessor</a>
+  
+  
+  <ul>
+    
+      <li class="function">
+
+  <a href="smx.module_Taxonomy.module_TaxonomyProcessor.html#~processXMLDocument">processXMLDocument</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.module_Taxonomy.module_TaxonomyProcessor.html#~processXMLNode">processXMLNode</a>
+  
+  
+
+</li>
+    
+  </ul>
+  
+
+</li>
+    
+      <li class="mixin">
+
+  <a href="smx.module_Taxonomy.Node-Taxonomy.html">Node-Taxonomy</a>
+  
+  
+  <ul>
+    
+      <li class="function">
+
+  <a href="smx.module_Taxonomy.Node-Taxonomy.html#.getTags">getTags</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.module_Taxonomy.Node-Taxonomy.html#.getCategories">getCategories</a>
+  
+  
+
+</li>
+    
+      <li class="function">
+
+  <a href="smx.module_Taxonomy.Node-Taxonomy.html#.getBranches">getBranches</a>
+  
+  
+
+</li>
+    
+  </ul>
+  
+
+</li>
+    
+  </ul>
+  
+
+</li>
+      
+      <li class="module">
+
+  <a href="smx.module_Ui.html">Ui</a>
+  
+  
+  <ul>
+    
+      <li class="mixin">
+
+  <a href="smx.module_Ui.Node-Ui.html">Node-Ui</a>
+  
+  
+  <ul>
+    
+      <li class="function">
+
+  <a href="smx.module_Ui.Node-Ui.html#.ui">ui</a>
+  
+  
+
+</li>
+    
+  </ul>
+  
+
+</li>
+    
+  </ul>
+  
+
+</li>
+      
+    </ul>
+    
+  </li>
+  
+  
+</ul>
+  
   <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on 2018-02-12T23:28:45.442Z
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Mon Apr 02 2018 15:27:00 GMT+0200 (CEST) using the <a href="https://github.com/canvasplay/smx-jsdoc-template">smx-jsdoc-template</a> theme.
   </footer>
+
 </nav>
-
-<div id="main">
-
-    <h1 class="page-title">
-      
-        <small>Class</small>
-      
-      Node
-    </h1>
-
-    
-
-
-
-
-<section>
-
-<header>
-    
-        <h2><span class="attribs"><span class="type-signature"></span></span>
-            <span class="ancestors"><a href="smx.html">smx</a>.</span>Node<span class="signature">(xmlNode)</span><span class="type-signature"></span></h2>
-        
-            <div class="class-description"><p>SMX Node Class</p></div>
-        
-    
-</header>
 
 <article>
 
-    <div class="form">
+  
+    
 
-  <label>
-    <input onchange="$('.--is-private').toggleClass('hidden')" type="checkbox" name="showPrivate" checked="">
-    <span>private</span>
-  </label>
+<!--LONGNAME: smx.Node-->
+<a id="top">Top</a>
+<header>
+  <h1 class="article__title">
+    <small>class</small>
+    Node
+  </h1>
 
-  <label>
-    <input onchange="$('.--is-inherited').toggleClass('hidden')" type="checkbox" name="showInherited" checked="">
-    <span>inherited</span>
-  </label>
+  
+  
 
-  <label>
-    <input onchange="$('.--is-mixed').toggleClass('hidden')" type="checkbox" name="showMixed" checked="">
-    <span>mixed</span>
-  </label>
+  
+  <h2 class="article__path">
 
+    
+      <span class="ancestors"><a href="smx.html">smx</a>.</span>
+    
+
+    Node
+
+    
+
+  </h2>
+  
+
+  <div class="details-mini">
+    
+
+<div class="source-links">
+  source: <a href="document_Node.js.html">document/Node.js</a>, <a href="document_Node.js.html#line13">line 13</a>
 </div>
 
-    <div class="container-overview">
-    
-        
-<div class="method ">
+  </div>
+  
+  
+    <div class="description"><p>The Node class wraps an XMLNode and provides an easy to use api
+to interact with it.</p>
+<p>This class can be further extended by mixins from custom modules.</p></div>
+  
 
-    
-        
-            <h3 id="Constructor" class="subsection-title">
-    <a class="permalink" href="#Constructor">#</a>
-    <span class="text">Constructor</span>
-</h3>
-        
-
-        
-        <h4 class="name" id="Node">
-            <a class="permalink" href="#Node">#</a>
-            <span class="type-signature"></span>new Node<span class="signature">(xmlNode)</span><span class="type-signature"></span>
-        </h4>
-        
-
-        
-        
-        
-
-    
-
-    <!-- @canvasplay: smx custom for displaying aliases -->
-    
-
-    
-
-    
-
-    
-
-    
-        <h5>Parameters:</h5>
-        
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>xmlNode</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">XMLNode</span>
+  
 
 
-            
-            </td>
 
-            
-
-            
-
-            <td class="description last">
-                
-                
-            </td>
-        </tr>
-
-    
-    </tbody>
-</table>
-    
-
-    
-
-
+<h5>Details:</h5>
 <dl class="details">
+
+    <!--
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="document_Node.js.html">document/Node.js</a>, <a href="document_Node.js.html#line13">line 13</a>
+    </li></ul></dd>
+    
+    -->
 
     
 
@@ -185,9 +1153,11 @@
 
         <dd class="mixes"><ul>
         
-            <li>smx.fn.Core</li>
+            <li><a href="Node-Core.html">Node-Core</a></li>
         
-            <li>smx.fn.TreeNode</li>
+            <li><a href="Node-Attributes.html">Node-Attributes</a></li>
+        
+            <li><a href="Node-Traversal.html">Node-Traversal</a></li>
         
         </ul></dd>
     
@@ -203,13 +1173,6 @@
     
 
     
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="document_Node.js.html">document/Node.js</a>, <a href="document_Node.js.html#line9">line 9</a>
-    </li></ul></dd>
-    
-
-    
 
     
 
@@ -217,61 +1180,179 @@
 </dl>
 
 
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    <!-- @canvasplay: smx custom
-    
-    -->
-
-    
-
-    
-    
-</div>
-    
-    </div>
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
+</header>
 
 
-    
-        <h3 id="Members" class="subsection-title">
-    <a class="permalink" href="#Members">#</a>
-    <span class="text">Members</span>
+
+<section class="constructor">
+  <h3 class="section-title" id="constructor">
+  Constructor
 </h3>
+  
+<!--LONGNAME: smx.Node-->
+<div class="method ">
 
-        
-            
+  
+  
+      <h4 class="signature" id="Node">
+        <a class="permalink" href="#Node"></a>
+        <span class="signature__name">new Node</span><!--
+        --><span class="signature__params"><span class="par">(</span>xmlNode<span class="par">)</span></span><span class="signature__returns"></span>
+        <!--<span class="signature__attribs"></span>-->
+      </h4>
+      
+      
+      
+  
+  
+  <div class="details-mini">
+    
+
+
+    
+
+<div class="source-links">
+  source: <a href="document_Node.js.html">document/Node.js</a>, <a href="document_Node.js.html#line13">line 13</a>
+</div>
+
+  </div>
+  
+  
+
+  
+
+  
+  
+  
+  
+  
+      <h5>Parameters</h5>
+      
+
+
+<div class="params">
+<ul>
+
+
+    <li>
+      
+      <span class="name">
+      <code><!--
+      
+      
+      -->xmlNode<!--
+      
+      
+      --></code>
+      </span>
+      
+      
+      <span class="type">
+      <code><!--
+        -->
+{XMLNode}<!--
+      --></code>
+      </span>
+      
+      
+      
+      
+      
+      
+    </li>
+
+
+</ul>
+</div>
+
+  
+  
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <!--
+  
+  -->
+  
+
+  
+  
+
+  
+  
+
+
+</div>
+</section>
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="big-members">
+  
+  
+  
+  
+</div>
+
+
+
+
+<section class="members">
+  
+  <h3 class="section-title" id="members">
+  Members
+</h3>
+  
+  
+    
+<!--LONGNAME: smx.Node#[0]-->
 <div class="member  --is-protected">
 
-  <h4 class="name" id="%5B0%5D">
-      <a class="permalink" href="#%5B0%5D">#</a>
-      <span class="type-signature">(protected) </span>[0]<span class="type-signature"> :XMLNode</span>
+  <h4 class="signature" id="%5B0%5D">
+    <a class="permalink" href="#%5B0%5D"></a>
+    <span class="signature__name">[0]</span><!--
+    --><span class="signature__types">:XMLNode</span>
+    <!--<span class="signature__attribs">(protected) </span>-->
   </h4>
+
   
-  
+
+  <div class="details-mini">
+    
+
+  <div class="attribs-list">
+    <ul>
+        <li class="attrib-protected">protected</li>
+    </ul>
+  </div>
+
+
+    
+
+<div class="source-links">
+  source: <a href="document_Node.js.html">document/Node.js</a>, <a href="document_Node.js.html#line30">line 30</a>
+</div>
+
+  </div>
   
   
   <div class="description">
@@ -279,159 +1360,125 @@
   </div>
   
   
-  <!-- @canvasplay: smx custom
+  <!--
   
       <h5>Type:</h5>
       <ul>
           <li>
               
-<span class="param-type">XMLNode</span>
-
-
+{XMLNode}
           </li>
       </ul>
   
   -->
+
   
-  
 
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="document_Node.js.html">document/Node.js</a>, <a href="document_Node.js.html#line25">line 25</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
 
   
   
   
+
   
+
+
+
 
 </div>
-        
-            
+  
+    
+<!--LONGNAME: smx.Node#id-->
 <div class="member  --is-readonly">
 
-  <h4 class="name" id="id">
-      <a class="permalink" href="#id">#</a>
-      <span class="type-signature">(readonly) </span>id<span class="type-signature"> :String</span>
+  <h4 class="signature" id="id">
+    <a class="permalink" href="#id"></a>
+    <span class="signature__name">id</span><!--
+    --><span class="signature__types">:String</span>
+    <!--<span class="signature__attribs">(readonly) </span>-->
   </h4>
+
   
-  
-  
-  
-  <div class="description">
-      <p>Direct access to XMLNode.id</p>
+
+  <div class="details-mini">
+    
+
+  <div class="attribs-list">
+    <ul>
+        <li class="attrib-readonly">readonly</li>
+    </ul>
+  </div>
+
+
+    
+
+<div class="source-links">
+  source: <a href="document_Node.js.html">document/Node.js</a>, <a href="document_Node.js.html#line38">line 38</a>
+</div>
+
   </div>
   
   
-  <!-- @canvasplay: smx custom
+  <div class="description">
+      <p>Direct access to XMLNode's id attribute.</p>
+  </div>
+  
+  
+  <!--
   
       <h5>Type:</h5>
       <ul>
           <li>
               
-<span class="param-type">String</span>
-
-
+{String}
           </li>
       </ul>
   
   -->
+
   
-  
 
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="document_Node.js.html">document/Node.js</a>, <a href="document_Node.js.html#line33">line 33</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
 
   
   
   
+
   
+
+
+
 
 </div>
-        
-            
+  
+    
+<!--LONGNAME: smx.Node#name-->
 <div class="member  --is-readonly">
 
-  <h4 class="name" id="name">
-      <a class="permalink" href="#name">#</a>
-      <span class="type-signature">(readonly) </span>name<span class="type-signature"> :String</span>
+  <h4 class="signature" id="name">
+    <a class="permalink" href="#name"></a>
+    <span class="signature__name">name</span><!--
+    --><span class="signature__types">:String</span>
+    <!--<span class="signature__attribs">(readonly) </span>-->
   </h4>
+
   
-  
+
+  <div class="details-mini">
+    
+
+  <div class="attribs-list">
+    <ul>
+        <li class="attrib-readonly">readonly</li>
+    </ul>
+  </div>
+
+
+    
+
+<div class="source-links">
+  source: <a href="document_Node.js.html">document/Node.js</a>, <a href="document_Node.js.html#line47">line 47</a>
+</div>
+
+  </div>
   
   
   <div class="description">
@@ -439,79 +1486,62 @@
   </div>
   
   
-  <!-- @canvasplay: smx custom
+  <!--
   
       <h5>Type:</h5>
       <ul>
           <li>
               
-<span class="param-type">String</span>
-
-
+{String}
           </li>
       </ul>
   
   -->
+
   
-  
 
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="document_Node.js.html">document/Node.js</a>, <a href="document_Node.js.html#line42">line 42</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
 
   
   
   
+
   
+
+
+
 
 </div>
-        
-            
+  
+    
+<!--LONGNAME: smx.Node#type-->
 <div class="member  --is-readonly">
 
-  <h4 class="name" id="type">
-      <a class="permalink" href="#type">#</a>
-      <span class="type-signature">(readonly) </span>type<span class="type-signature"> :String</span>
+  <h4 class="signature" id="type">
+    <a class="permalink" href="#type"></a>
+    <span class="signature__name">type</span><!--
+    --><span class="signature__types">:String</span>
+    <!--<span class="signature__attribs">(readonly) </span>-->
   </h4>
+
   
-  
+
+  <div class="details-mini">
+    
+
+  <div class="attribs-list">
+    <ul>
+        <li class="attrib-readonly">readonly</li>
+    </ul>
+  </div>
+
+
+    
+
+<div class="source-links">
+  source: <a href="document_Node.js.html">document/Node.js</a>, <a href="document_Node.js.html#line57">line 57</a>
+</div>
+
+  </div>
   
   
   <div class="description">
@@ -520,79 +1550,62 @@ default is <code>smx</code>, posible values are <code>txt</code>, <code>md</code
   </div>
   
   
-  <!-- @canvasplay: smx custom
+  <!--
   
       <h5>Type:</h5>
       <ul>
           <li>
               
-<span class="param-type">String</span>
-
-
+{String}
           </li>
       </ul>
   
   -->
+
   
-  
 
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="document_Node.js.html">document/Node.js</a>, <a href="document_Node.js.html#line52">line 52</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
 
   
   
   
+
   
+
+
+
 
 </div>
-        
-            
+  
+    
+<!--LONGNAME: smx.Node#className-->
 <div class="member  --is-readonly">
 
-  <h4 class="name" id="className">
-      <a class="permalink" href="#className">#</a>
-      <span class="type-signature">(readonly) </span>className<span class="type-signature"> :String</span>
+  <h4 class="signature" id="className">
+    <a class="permalink" href="#className"></a>
+    <span class="signature__name">className</span><!--
+    --><span class="signature__types">:String</span>
+    <!--<span class="signature__attribs">(readonly) </span>-->
   </h4>
+
   
-  
+
+  <div class="details-mini">
+    
+
+  <div class="attribs-list">
+    <ul>
+        <li class="attrib-readonly">readonly</li>
+    </ul>
+  </div>
+
+
+    
+
+<div class="source-links">
+  source: <a href="document_Node.js.html">document/Node.js</a>, <a href="document_Node.js.html#line69">line 69</a>
+</div>
+
+  </div>
   
   
   <div class="description">
@@ -600,79 +1613,62 @@ default is <code>smx</code>, posible values are <code>txt</code>, <code>md</code
   </div>
   
   
-  <!-- @canvasplay: smx custom
+  <!--
   
       <h5>Type:</h5>
       <ul>
           <li>
               
-<span class="param-type">String</span>
-
-
+{String}
           </li>
       </ul>
   
   -->
+
   
-  
 
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="document_Node.js.html">document/Node.js</a>, <a href="document_Node.js.html#line64">line 64</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
 
   
   
   
+
   
+
+
+
 
 </div>
-        
-            
+  
+    
+<!--LONGNAME: smx.Node#document-->
 <div class="member  --is-readonly">
 
-  <h4 class="name" id="document">
-      <a class="permalink" href="#document">#</a>
-      <span class="type-signature">(readonly) </span>document<span class="type-signature"> :SMXDocument</span>
+  <h4 class="signature" id="document">
+    <a class="permalink" href="#document"></a>
+    <span class="signature__name">document</span><!--
+    --><span class="signature__types">:SMXDocument</span>
+    <!--<span class="signature__attribs">(readonly) </span>-->
   </h4>
+
   
-  
+
+  <div class="details-mini">
+    
+
+  <div class="attribs-list">
+    <ul>
+        <li class="attrib-readonly">readonly</li>
+    </ul>
+  </div>
+
+
+    
+
+<div class="source-links">
+  source: <a href="document_Node.js.html">document/Node.js</a>, <a href="document_Node.js.html#line81">line 81</a>
+</div>
+
+  </div>
   
   
   <div class="description">
@@ -680,79 +1676,62 @@ default is <code>smx</code>, posible values are <code>txt</code>, <code>md</code
   </div>
   
   
-  <!-- @canvasplay: smx custom
+  <!--
   
       <h5>Type:</h5>
       <ul>
           <li>
               
-<span class="param-type">SMXDocument</span>
-
-
+{SMXDocument}
           </li>
       </ul>
   
   -->
+
   
-  
 
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="document_Node.js.html">document/Node.js</a>, <a href="document_Node.js.html#line76">line 76</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
 
   
   
   
+
   
+
+
+
 
 </div>
-        
-            
+  
+    
+<!--LONGNAME: smx.Node#hash-->
 <div class="member  --is-readonly">
 
-  <h4 class="name" id="hash">
-      <a class="permalink" href="#hash">#</a>
-      <span class="type-signature">(readonly) </span>hash<span class="type-signature"> :String</span>
+  <h4 class="signature" id="hash">
+    <a class="permalink" href="#hash"></a>
+    <span class="signature__name">hash</span><!--
+    --><span class="signature__types">:String</span>
+    <!--<span class="signature__attribs">(readonly) </span>-->
   </h4>
+
   
-  
+
+  <div class="details-mini">
+    
+
+  <div class="attribs-list">
+    <ul>
+        <li class="attrib-readonly">readonly</li>
+    </ul>
+  </div>
+
+
+    
+
+<div class="source-links">
+  source: <a href="document_Node.js.html">document/Node.js</a>, <a href="document_Node.js.html#line90">line 90</a>
+</div>
+
+  </div>
   
   
   <div class="description">
@@ -760,79 +1739,62 @@ default is <code>smx</code>, posible values are <code>txt</code>, <code>md</code
   </div>
   
   
-  <!-- @canvasplay: smx custom
+  <!--
   
       <h5>Type:</h5>
       <ul>
           <li>
               
-<span class="param-type">String</span>
-
-
+{String}
           </li>
       </ul>
   
   -->
+
   
-  
 
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="document_Node.js.html">document/Node.js</a>, <a href="document_Node.js.html#line85">line 85</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
 
   
   
   
+
   
+
+
+
 
 </div>
-        
-            
+  
+    
+<!--LONGNAME: smx.Node#uri-->
 <div class="member  --is-readonly">
 
-  <h4 class="name" id="uri">
-      <a class="permalink" href="#uri">#</a>
-      <span class="type-signature">(readonly) </span>uri<span class="type-signature"> :String</span>
+  <h4 class="signature" id="uri">
+    <a class="permalink" href="#uri"></a>
+    <span class="signature__name">uri</span><!--
+    --><span class="signature__types">:String</span>
+    <!--<span class="signature__attribs">(readonly) </span>-->
   </h4>
+
   
-  
+
+  <div class="details-mini">
+    
+
+  <div class="attribs-list">
+    <ul>
+        <li class="attrib-readonly">readonly</li>
+    </ul>
+  </div>
+
+
+    
+
+<div class="source-links">
+  source: <a href="document_Node.js.html">document/Node.js</a>, <a href="document_Node.js.html#line101">line 101</a>
+</div>
+
+  </div>
   
   
   <div class="description">
@@ -841,79 +1803,62 @@ Concatenation of id values from parent nodes up to document root</p>
   </div>
   
   
-  <!-- @canvasplay: smx custom
+  <!--
   
       <h5>Type:</h5>
       <ul>
           <li>
               
-<span class="param-type">String</span>
-
-
+{String}
           </li>
       </ul>
   
   -->
+
   
-  
 
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="document_Node.js.html">document/Node.js</a>, <a href="document_Node.js.html#line96">line 96</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
 
   
   
   
+
   
+
+
+
 
 </div>
-        
-            
+  
+    
+<!--LONGNAME: smx.Node#url-->
 <div class="member  --is-readonly">
 
-  <h4 class="name" id="url">
-      <a class="permalink" href="#url">#</a>
-      <span class="type-signature">(readonly) </span>url<span class="type-signature"> :String</span>
+  <h4 class="signature" id="url">
+    <a class="permalink" href="#url"></a>
+    <span class="signature__name">url</span><!--
+    --><span class="signature__types">:String</span>
+    <!--<span class="signature__attribs">(readonly) </span>-->
   </h4>
+
   
-  
+
+  <div class="details-mini">
+    
+
+  <div class="attribs-list">
+    <ul>
+        <li class="attrib-readonly">readonly</li>
+    </ul>
+  </div>
+
+
+    
+
+<div class="source-links">
+  source: <a href="document_Node.js.html">document/Node.js</a>, <a href="document_Node.js.html#line114">line 114</a>
+</div>
+
+  </div>
   
   
   <div class="description">
@@ -922,79 +1867,62 @@ Concatenation of path values from parent nodes up to document root</p>
   </div>
   
   
-  <!-- @canvasplay: smx custom
+  <!--
   
       <h5>Type:</h5>
       <ul>
           <li>
               
-<span class="param-type">String</span>
-
-
+{String}
           </li>
       </ul>
   
   -->
+
   
-  
 
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="document_Node.js.html">document/Node.js</a>, <a href="document_Node.js.html#line109">line 109</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
 
   
   
   
+
   
+
+
+
 
 </div>
-        
-            
+  
+    
+<!--LONGNAME: smx.Node#src-->
 <div class="member  --is-readonly">
 
-  <h4 class="name" id="src">
-      <a class="permalink" href="#src">#</a>
-      <span class="type-signature">(readonly) </span>src<span class="type-signature"> :String</span>
+  <h4 class="signature" id="src">
+    <a class="permalink" href="#src"></a>
+    <span class="signature__name">src</span><!--
+    --><span class="signature__types">:String</span>
+    <!--<span class="signature__attribs">(readonly) </span>-->
   </h4>
+
   
-  
+
+  <div class="details-mini">
+    
+
+  <div class="attribs-list">
+    <ul>
+        <li class="attrib-readonly">readonly</li>
+    </ul>
+  </div>
+
+
+    
+
+<div class="source-links">
+  source: <a href="document_Node.js.html">document/Node.js</a>, <a href="document_Node.js.html#line149">line 149</a>
+</div>
+
+  </div>
   
   
   <div class="description">
@@ -1002,79 +1930,62 @@ Concatenation of path values from parent nodes up to document root</p>
   </div>
   
   
-  <!-- @canvasplay: smx custom
+  <!--
   
       <h5>Type:</h5>
       <ul>
           <li>
               
-<span class="param-type">String</span>
-
-
+{String}
           </li>
       </ul>
   
   -->
+
   
-  
 
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="document_Node.js.html">document/Node.js</a>, <a href="document_Node.js.html#line144">line 144</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
 
   
   
   
+
   
+
+
+
 
 </div>
-        
-            
+  
+    
+<!--LONGNAME: smx.Node#parent-->
 <div class="member  --is-readonly">
 
-  <h4 class="name" id="parent">
-      <a class="permalink" href="#parent">#</a>
-      <span class="type-signature">(readonly) </span>parent<span class="type-signature"> :SMXNode</span>
+  <h4 class="signature" id="parent">
+    <a class="permalink" href="#parent"></a>
+    <span class="signature__name">parent</span><!--
+    --><span class="signature__types">:SMXNode</span>
+    <!--<span class="signature__attribs">(readonly) </span>-->
   </h4>
+
   
-  
+
+  <div class="details-mini">
+    
+
+  <div class="attribs-list">
+    <ul>
+        <li class="attrib-readonly">readonly</li>
+    </ul>
+  </div>
+
+
+    
+
+<div class="source-links">
+  source: <a href="document_Node.js.html">document/Node.js</a>, <a href="document_Node.js.html#line172">line 172</a>
+</div>
+
+  </div>
   
   
   <div class="description">
@@ -1082,159 +1993,125 @@ Concatenation of path values from parent nodes up to document root</p>
   </div>
   
   
-  <!-- @canvasplay: smx custom
+  <!--
   
       <h5>Type:</h5>
       <ul>
           <li>
               
-<span class="param-type">SMXNode</span>
-
-
+{SMXNode}
           </li>
       </ul>
   
   -->
+
   
-  
 
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="document_Node.js.html">document/Node.js</a>, <a href="document_Node.js.html#line167">line 167</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
 
   
   
   
+
   
+
+
+
 
 </div>
-        
-            
+  
+    
+<!--LONGNAME: smx.Node#ancestors-->
 <div class="member  --is-readonly">
 
-  <h4 class="name" id="ancestors">
-      <a class="permalink" href="#ancestors">#</a>
-      <span class="type-signature">(readonly) </span>ancestors<span class="type-signature"> :Array.&lt;SMXNode></span>
+  <h4 class="signature" id="ancestors">
+    <a class="permalink" href="#ancestors"></a>
+    <span class="signature__name">ancestors</span><!--
+    --><span class="signature__types">:Array.&lt;SMXNode></span>
+    <!--<span class="signature__attribs">(readonly) </span>-->
   </h4>
+
   
-  
-  
-  
-  <div class="description">
-      <p>Gets ancestors nodes</p>
+
+  <div class="details-mini">
+    
+
+  <div class="attribs-list">
+    <ul>
+        <li class="attrib-readonly">readonly</li>
+    </ul>
+  </div>
+
+
+    
+
+<div class="source-links">
+  source: <a href="document_Node.js.html">document/Node.js</a>, <a href="document_Node.js.html#line181">line 181</a>
+</div>
+
   </div>
   
   
-  <!-- @canvasplay: smx custom
+  <div class="description">
+      <p>Gets ancestors nodes, ordered from outer to inner.</p>
+  </div>
+  
+  
+  <!--
   
       <h5>Type:</h5>
       <ul>
           <li>
               
-<span class="param-type">Array.&lt;SMXNode></span>
-
-
+{Array.&lt;SMXNode>}
           </li>
       </ul>
   
   -->
+
   
-  
 
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="document_Node.js.html">document/Node.js</a>, <a href="document_Node.js.html#line176">line 176</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
 
   
   
   
+
   
+
+
+
 
 </div>
-        
-            
+  
+    
+<!--LONGNAME: smx.Node#root-->
 <div class="member  --is-readonly">
 
-  <h4 class="name" id="root">
-      <a class="permalink" href="#root">#</a>
-      <span class="type-signature">(readonly) </span>root<span class="type-signature"> :SMXNode</span>
+  <h4 class="signature" id="root">
+    <a class="permalink" href="#root"></a>
+    <span class="signature__name">root</span><!--
+    --><span class="signature__types">:SMXNode</span>
+    <!--<span class="signature__attribs">(readonly) </span>-->
   </h4>
+
   
-  
+
+  <div class="details-mini">
+    
+
+  <div class="attribs-list">
+    <ul>
+        <li class="attrib-readonly">readonly</li>
+    </ul>
+  </div>
+
+
+    
+
+<div class="source-links">
+  source: <a href="document_Node.js.html">document/Node.js</a>, <a href="document_Node.js.html#line197">line 197</a>
+</div>
+
+  </div>
   
   
   <div class="description">
@@ -1242,79 +2119,62 @@ Concatenation of path values from parent nodes up to document root</p>
   </div>
   
   
-  <!-- @canvasplay: smx custom
+  <!--
   
       <h5>Type:</h5>
       <ul>
           <li>
               
-<span class="param-type">SMXNode</span>
-
-
+{SMXNode}
           </li>
       </ul>
   
   -->
+
   
-  
 
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="document_Node.js.html">document/Node.js</a>, <a href="document_Node.js.html#line192">line 192</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
 
   
   
   
+
   
+
+
+
 
 </div>
-        
-            
+  
+    
+<!--LONGNAME: smx.Node#children-->
 <div class="member  --is-readonly">
 
-  <h4 class="name" id="children">
-      <a class="permalink" href="#children">#</a>
-      <span class="type-signature">(readonly) </span>children<span class="type-signature"> :Array.&lt;SMXNode></span>
+  <h4 class="signature" id="children">
+    <a class="permalink" href="#children"></a>
+    <span class="signature__name">children</span><!--
+    --><span class="signature__types">:Array.&lt;SMXNode></span>
+    <!--<span class="signature__attribs">(readonly) </span>-->
   </h4>
+
   
-  
+
+  <div class="details-mini">
+    
+
+  <div class="attribs-list">
+    <ul>
+        <li class="attrib-readonly">readonly</li>
+    </ul>
+  </div>
+
+
+    
+
+<div class="source-links">
+  source: <a href="document_Node.js.html">document/Node.js</a>, <a href="document_Node.js.html#line206">line 206</a>
+</div>
+
+  </div>
   
   
   <div class="description">
@@ -1322,79 +2182,62 @@ Concatenation of path values from parent nodes up to document root</p>
   </div>
   
   
-  <!-- @canvasplay: smx custom
+  <!--
   
       <h5>Type:</h5>
       <ul>
           <li>
               
-<span class="param-type">Array.&lt;SMXNode></span>
-
-
+{Array.&lt;SMXNode>}
           </li>
       </ul>
   
   -->
+
   
-  
 
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="document_Node.js.html">document/Node.js</a>, <a href="document_Node.js.html#line201">line 201</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
 
   
   
   
+
   
+
+
+
 
 </div>
-        
-            
+  
+    
+<!--LONGNAME: smx.Node#first-->
 <div class="member  --is-readonly">
 
-  <h4 class="name" id="first">
-      <a class="permalink" href="#first">#</a>
-      <span class="type-signature">(readonly) </span>first<span class="type-signature"> :SMXNode</span>
+  <h4 class="signature" id="first">
+    <a class="permalink" href="#first"></a>
+    <span class="signature__name">first</span><!--
+    --><span class="signature__types">:SMXNode</span>
+    <!--<span class="signature__attribs">(readonly) </span>-->
   </h4>
+
   
-  
+
+  <div class="details-mini">
+    
+
+  <div class="attribs-list">
+    <ul>
+        <li class="attrib-readonly">readonly</li>
+    </ul>
+  </div>
+
+
+    
+
+<div class="source-links">
+  source: <a href="document_Node.js.html">document/Node.js</a>, <a href="document_Node.js.html#line217">line 217</a>
+</div>
+
+  </div>
   
   
   <div class="description">
@@ -1402,79 +2245,62 @@ Concatenation of path values from parent nodes up to document root</p>
   </div>
   
   
-  <!-- @canvasplay: smx custom
+  <!--
   
       <h5>Type:</h5>
       <ul>
           <li>
               
-<span class="param-type">SMXNode</span>
-
-
+{SMXNode}
           </li>
       </ul>
   
   -->
+
   
-  
 
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="document_Node.js.html">document/Node.js</a>, <a href="document_Node.js.html#line212">line 212</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
 
   
   
   
+
   
+
+
+
 
 </div>
-        
-            
+  
+    
+<!--LONGNAME: smx.Node#last-->
 <div class="member  --is-readonly">
 
-  <h4 class="name" id="last">
-      <a class="permalink" href="#last">#</a>
-      <span class="type-signature">(readonly) </span>last<span class="type-signature"> :SMXNode</span>
+  <h4 class="signature" id="last">
+    <a class="permalink" href="#last"></a>
+    <span class="signature__name">last</span><!--
+    --><span class="signature__types">:SMXNode</span>
+    <!--<span class="signature__attribs">(readonly) </span>-->
   </h4>
+
   
-  
+
+  <div class="details-mini">
+    
+
+  <div class="attribs-list">
+    <ul>
+        <li class="attrib-readonly">readonly</li>
+    </ul>
+  </div>
+
+
+    
+
+<div class="source-links">
+  source: <a href="document_Node.js.html">document/Node.js</a>, <a href="document_Node.js.html#line226">line 226</a>
+</div>
+
+  </div>
   
   
   <div class="description">
@@ -1482,79 +2308,62 @@ Concatenation of path values from parent nodes up to document root</p>
   </div>
   
   
-  <!-- @canvasplay: smx custom
+  <!--
   
       <h5>Type:</h5>
       <ul>
           <li>
               
-<span class="param-type">SMXNode</span>
-
-
+{SMXNode}
           </li>
       </ul>
   
   -->
+
   
-  
 
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="document_Node.js.html">document/Node.js</a>, <a href="document_Node.js.html#line221">line 221</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
 
   
   
   
+
   
+
+
+
 
 </div>
-        
-            
+  
+    
+<!--LONGNAME: smx.Node#previous-->
 <div class="member  --is-readonly">
 
-  <h4 class="name" id="previous">
-      <a class="permalink" href="#previous">#</a>
-      <span class="type-signature">(readonly) </span>previous<span class="type-signature"> :SMXNode</span>
+  <h4 class="signature" id="previous">
+    <a class="permalink" href="#previous"></a>
+    <span class="signature__name">previous</span><!--
+    --><span class="signature__types">:SMXNode</span>
+    <!--<span class="signature__attribs">(readonly) </span>-->
   </h4>
+
   
-  
+
+  <div class="details-mini">
+    
+
+  <div class="attribs-list">
+    <ul>
+        <li class="attrib-readonly">readonly</li>
+    </ul>
+  </div>
+
+
+    
+
+<div class="source-links">
+  source: <a href="document_Node.js.html">document/Node.js</a>, <a href="document_Node.js.html#line236">line 236</a>
+</div>
+
+  </div>
   
   
   <div class="description">
@@ -1562,79 +2371,62 @@ Concatenation of path values from parent nodes up to document root</p>
   </div>
   
   
-  <!-- @canvasplay: smx custom
+  <!--
   
       <h5>Type:</h5>
       <ul>
           <li>
               
-<span class="param-type">SMXNode</span>
-
-
+{SMXNode}
           </li>
       </ul>
   
   -->
+
   
-  
 
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="document_Node.js.html">document/Node.js</a>, <a href="document_Node.js.html#line231">line 231</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
 
   
   
   
+
   
+
+
+
 
 </div>
-        
-            
+  
+    
+<!--LONGNAME: smx.Node#next-->
 <div class="member  --is-readonly">
 
-  <h4 class="name" id="next">
-      <a class="permalink" href="#next">#</a>
-      <span class="type-signature">(readonly) </span>next<span class="type-signature"> :SMXNode</span>
+  <h4 class="signature" id="next">
+    <a class="permalink" href="#next"></a>
+    <span class="signature__name">next</span><!--
+    --><span class="signature__types">:SMXNode</span>
+    <!--<span class="signature__attribs">(readonly) </span>-->
   </h4>
+
   
-  
+
+  <div class="details-mini">
+    
+
+  <div class="attribs-list">
+    <ul>
+        <li class="attrib-readonly">readonly</li>
+    </ul>
+  </div>
+
+
+    
+
+<div class="source-links">
+  source: <a href="document_Node.js.html">document/Node.js</a>, <a href="document_Node.js.html#line245">line 245</a>
+</div>
+
+  </div>
   
   
   <div class="description">
@@ -1642,54 +2434,254 @@ Concatenation of path values from parent nodes up to document root</p>
   </div>
   
   
-  <!-- @canvasplay: smx custom
+  <!--
   
       <h5>Type:</h5>
       <ul>
           <li>
               
-<span class="param-type">SMXNode</span>
-
-
+{SMXNode}
           </li>
       </ul>
   
   -->
+
+  
+
+
+  
+  
+  
+
+  
+
+
+
+
+</div>
+  
+  
+</section>
+
+
+
+<section class="methods">
+  
+  <h3 class="section-title" id="methods">
+  Methods
+</h3>
+  
+  
+    
+<!--LONGNAME: smx.Node#getIndex-->
+<div class="method  --is-mixed">
+
+  
+  
+      <h4 class="signature" id="getIndex">
+        <a class="permalink" href="#getIndex"></a>
+        <span class="signature__name">getIndex</span><!--
+        --><span class="signature__params"><span class="par">(</span>[selector]<span class="par">)</span></span><span class="signature__returns"> &rarr; {Integer}</span>
+        <!--<span class="signature__attribs"></span>-->
+      </h4>
+      
+      
+      
+  
+  
+  <div class="details-mini">
+    
+
+
+    
+
+<div class="source-links">
+  source: <a href="document_Node-Core.js.html">document/Node-Core.js</a>, <a href="document_Node-Core.js.html#line23">line 23</a>
+</div>
+
+  </div>
+  
+  
+  <div class="description">
+      <p>Gets the index position in parent's children. If node has no parent,
+will return 0. When using the optional parameter <code>selector</code>, the
+resultant index is calculated based only in the sibling nodes matching
+the given selector, if node does not match the selector itself will
+return -1.</p>
+  </div>
+  
+
+  
+
+  
+  
+  
+  
+  
+      <h5>Parameters</h5>
+      
+
+
+<div class="params">
+<ul>
+
+
+    <li>
+      
+      <span class="name">
+      <code><!--
+      
+      -->[<!--
+      -->selector<!--
+      
+      -->]<!--
+      --></code>
+      </span>
+      
+      
+      <span class="type">
+      <code><!--
+        -->
+{String}<!--
+      --></code>
+      </span>
+      
+      
+      
+      <span class="description">: <p>filter selector</p></span>
+      
+      
+      
+      
+    </li>
+
+
+</ul>
+</div>
+
+  
   
   
 
 
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <!--
+  
+  
+          
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+{Integer}
+    </dd>
+</dl>
+
+      
+  -->
+  
+    <h5>Returns</h5>
+    
+
+
+<div class="params">
+<ul>
+
+
+    <li>
+      
+      <span class="name">
+      <code><!--
+      
+      
+      --><!--
+      
+      
+      --></code>
+      </span>
+      
+      
+      <span class="type">
+      <code><!--
+        -->
+{Integer}<!--
+      --></code>
+      </span>
+      
+      
+      
+      
+      
+      
+    </li>
+
+
+</ul>
+</div>
+
+  
+
+  
+  
+    
+
+
+
+<h5>Details:</h5>
 <dl class="details">
 
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
+    <!--
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="document_Node.js.html">document/Node.js</a>, <a href="document_Node.js.html#line240">line 240</a>
+        <a href="document_Node-Core.js.html">document/Node-Core.js</a>, <a href="document_Node-Core.js.html#line23">line 23</a>
     </li></ul></dd>
+    
+    -->
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <dt class="mixes">Mixes In:</dt>
+
+        <dd class="mixes"><ul>
+        
+            <li><a href="Node-Core.html#.getIndex">Node-Core.getIndex</a></li>
+        
+        </ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
     
 
     
@@ -1700,12 +2692,147 @@ Concatenation of path values from parent nodes up to document root</p>
 </dl>
 
   
+
   
   
-  
+
 
 </div>
+  
+    
+<!--LONGNAME: smx.Node#getText-->
+<div class="method  --is-mixed">
+
+  
+  
+      <h4 class="signature" id="getText">
+        <a class="permalink" href="#getText"></a>
+        <span class="signature__name">getText</span><!--
+        --><span class="signature__params"><span class="par">(</span><span class="par">)</span></span><span class="signature__returns"> &rarr; {String}</span>
+        <!--<span class="signature__attribs"></span>-->
+      </h4>
+      
+      
+      
+  
+  
+  <div class="details-mini">
+    
+
+
+    
+
+<div class="source-links">
+  source: <a href="document_Node-Core.js.html">document/Node-Core.js</a>, <a href="document_Node-Core.js.html#line52">line 52</a>
+</div>
+
+  </div>
+  
+  
+  <div class="description">
+      <p>Gets the text content.</p>
+  </div>
+  
+
+  
+
+  
+  
+  
+  
+  
+  
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <!--
+  
+  
+          
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
         
+{String}
+    </dd>
+</dl>
+
+      
+  -->
+  
+    <h5>Returns</h5>
+    
+
+
+<div class="params">
+<ul>
+
+
+    <li>
+      
+      <span class="name">
+      <code><!--
+      
+      
+      --><!--
+      
+      
+      --></code>
+      </span>
+      
+      
+      <span class="type">
+      <code><!--
+        -->
+{String}<!--
+      --></code>
+      </span>
+      
+      
+      
+      
+      
+      
+    </li>
+
+
+</ul>
+</div>
+
+  
+
+  
+  
+    
+
+
+
+<h5>Details:</h5>
+<dl class="details">
+
+    <!--
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="document_Node-Core.js.html">document/Node-Core.js</a>, <a href="document_Node-Core.js.html#line52">line 52</a>
+    </li></ul></dd>
+    
+    -->
+
     
 
     
@@ -1714,22 +2841,4894 @@ Concatenation of path values from parent nodes up to document root</p>
 
     
 
-</article>
+    
 
+    
+
+    
+        <dt class="mixes">Mixes In:</dt>
+
+        <dd class="mixes"><ul>
+        
+            <li><a href="Node-Core.html#.getText">Node-Core.getText</a></li>
+        
+        </ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+  
+
+  
+  
+
+
+</div>
+  
+    
+<!--LONGNAME: smx.Node#getHTML-->
+<div class="method  --is-mixed">
+
+  
+  
+      <h4 class="signature" id="getHTML">
+        <a class="permalink" href="#getHTML"></a>
+        <span class="signature__name">getHTML</span><!--
+        --><span class="signature__params"><span class="par">(</span><span class="par">)</span></span><span class="signature__returns"> &rarr; {String}</span>
+        <!--<span class="signature__attribs"></span>-->
+      </h4>
+      
+      
+      
+  
+  
+  <div class="details-mini">
+    
+
+
+    
+
+<div class="source-links">
+  source: <a href="document_Node-Core.js.html">document/Node-Core.js</a>, <a href="document_Node-Core.js.html#line64">line 64</a>
+</div>
+
+  </div>
+  
+  
+  <div class="description">
+      <p>Gets the html content.</p>
+  </div>
+  
+
+  
+
+  
+  
+  
+  
+  
+  
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <!--
+  
+  
+          
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+{String}
+    </dd>
+</dl>
+
+      
+  -->
+  
+    <h5>Returns</h5>
+    
+
+
+<div class="params">
+<ul>
+
+
+    <li>
+      
+      <span class="name">
+      <code><!--
+      
+      
+      --><!--
+      
+      
+      --></code>
+      </span>
+      
+      
+      <span class="type">
+      <code><!--
+        -->
+{String}<!--
+      --></code>
+      </span>
+      
+      
+      
+      
+      
+      
+    </li>
+
+
+</ul>
+</div>
+
+  
+
+  
+  
+    
+
+
+
+<h5>Details:</h5>
+<dl class="details">
+
+    <!--
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="document_Node-Core.js.html">document/Node-Core.js</a>, <a href="document_Node-Core.js.html#line64">line 64</a>
+    </li></ul></dd>
+    
+    -->
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <dt class="mixes">Mixes In:</dt>
+
+        <dd class="mixes"><ul>
+        
+            <li><a href="Node-Core.html#.getHTML">Node-Core.getHTML</a></li>
+        
+        </ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+  
+
+  
+  
+
+
+</div>
+  
+    
+<!--LONGNAME: smx.Node#getData-->
+<div class="method  --is-mixed">
+
+  
+  
+      <h4 class="signature" id="getData">
+        <a class="permalink" href="#getData"></a>
+        <span class="signature__name">getData</span><!--
+        --><span class="signature__params"><span class="par">(</span><span class="par">)</span></span><span class="signature__returns"> &rarr; {String}</span>
+        <!--<span class="signature__attribs"></span>-->
+      </h4>
+      
+      
+      
+  
+  
+  <div class="details-mini">
+    
+
+
+    
+
+<div class="source-links">
+  source: <a href="document_Node-Core.js.html">document/Node-Core.js</a>, <a href="document_Node-Core.js.html#line85">line 85</a>
+</div>
+
+  </div>
+  
+  
+  <div class="description">
+      <p>Gets the inner data content formatted according to node type.</p>
+  </div>
+  
+
+  
+
+  
+  
+  
+  
+  
+  
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <!--
+  
+  
+          
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+{String}
+    </dd>
+</dl>
+
+      
+  -->
+  
+    <h5>Returns</h5>
+    
+
+
+<div class="params">
+<ul>
+
+
+    <li>
+      
+      <span class="name">
+      <code><!--
+      
+      
+      --><!--
+      
+      
+      --></code>
+      </span>
+      
+      
+      <span class="type">
+      <code><!--
+        -->
+{String}<!--
+      --></code>
+      </span>
+      
+      
+      
+      
+      
+      
+    </li>
+
+
+</ul>
+</div>
+
+  
+
+  
+  
+    
+
+
+
+<h5>Details:</h5>
+<dl class="details">
+
+    <!--
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="document_Node-Core.js.html">document/Node-Core.js</a>, <a href="document_Node-Core.js.html#line85">line 85</a>
+    </li></ul></dd>
+    
+    -->
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <dt class="mixes">Mixes In:</dt>
+
+        <dd class="mixes"><ul>
+        
+            <li><a href="Node-Core.html#.getData">Node-Core.getData</a></li>
+        
+        </ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+  
+
+  
+  
+
+
+</div>
+  
+    
+<!--LONGNAME: smx.Node#toString-->
+<div class="method  --is-mixed">
+
+  
+  
+      <h4 class="signature" id="toString">
+        <a class="permalink" href="#toString"></a>
+        <span class="signature__name">toString</span><!--
+        --><span class="signature__params"><span class="par">(</span><span class="par">)</span></span><span class="signature__returns"> &rarr; {String}</span>
+        <!--<span class="signature__attribs"></span>-->
+      </h4>
+      
+      
+      
+  
+  
+  <div class="details-mini">
+    
+
+
+    
+
+<div class="source-links">
+  source: <a href="document_Node-Core.js.html">document/Node-Core.js</a>, <a href="document_Node-Core.js.html#line112">line 112</a>
+</div>
+
+  </div>
+  
+  
+  <div class="description">
+      <p>Gets the string representation.</p>
+  </div>
+  
+
+  
+
+  
+  
+  
+  
+  
+  
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <!--
+  
+  
+          
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+{String}
+    </dd>
+</dl>
+
+      
+  -->
+  
+    <h5>Returns</h5>
+    
+
+
+<div class="params">
+<ul>
+
+
+    <li>
+      
+      <span class="name">
+      <code><!--
+      
+      
+      --><!--
+      
+      
+      --></code>
+      </span>
+      
+      
+      <span class="type">
+      <code><!--
+        -->
+{String}<!--
+      --></code>
+      </span>
+      
+      
+      
+      
+      
+      
+    </li>
+
+
+</ul>
+</div>
+
+  
+
+  
+  
+    
+
+
+
+<h5>Details:</h5>
+<dl class="details">
+
+    <!--
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="document_Node-Core.js.html">document/Node-Core.js</a>, <a href="document_Node-Core.js.html#line112">line 112</a>
+    </li></ul></dd>
+    
+    -->
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <dt class="mixes">Mixes In:</dt>
+
+        <dd class="mixes"><ul>
+        
+            <li><a href="Node-Core.html#.toString">Node-Core.toString</a></li>
+        
+        </ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+  
+
+  
+  
+
+
+</div>
+  
+    
+<!--LONGNAME: smx.Node#toJSON-->
+<div class="method  --is-mixed">
+
+  
+  
+      <h4 class="signature" id="toJSON">
+        <a class="permalink" href="#toJSON"></a>
+        <span class="signature__name">toJSON</span><!--
+        --><span class="signature__params"><span class="par">(</span><span class="par">)</span></span><span class="signature__returns"> &rarr; {Object}</span>
+        <!--<span class="signature__attribs"></span>-->
+      </h4>
+      
+      
+      
+  
+  
+  <div class="details-mini">
+    
+
+
+    
+
+<div class="source-links">
+  source: <a href="document_Node-Core.js.html">document/Node-Core.js</a>, <a href="document_Node-Core.js.html#line118">line 118</a>
+</div>
+
+  </div>
+  
+  
+  <div class="description">
+      <p>Gets the Node as JSON Object representation.</p>
+  </div>
+  
+
+  
+
+  
+  
+  
+  
+  
+  
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <!--
+  
+  
+          
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+{Object}
+    </dd>
+</dl>
+
+      
+  -->
+  
+    <h5>Returns</h5>
+    
+
+
+<div class="params">
+<ul>
+
+
+    <li>
+      
+      <span class="name">
+      <code><!--
+      
+      
+      --><!--
+      
+      
+      --></code>
+      </span>
+      
+      
+      <span class="type">
+      <code><!--
+        -->
+{Object}<!--
+      --></code>
+      </span>
+      
+      
+      
+      
+      
+      
+    </li>
+
+
+</ul>
+</div>
+
+  
+
+  
+  
+    
+
+
+
+<h5>Details:</h5>
+<dl class="details">
+
+    <!--
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="document_Node-Core.js.html">document/Node-Core.js</a>, <a href="document_Node-Core.js.html#line118">line 118</a>
+    </li></ul></dd>
+    
+    -->
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <dt class="mixes">Mixes In:</dt>
+
+        <dd class="mixes"><ul>
+        
+            <li><a href="Node-Core.html#.toJSON">Node-Core.toJSON</a></li>
+        
+        </ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-todo">To Do:</dt>
+    <dd class="tag-todo">
+        <ul>
+            <li>Not Implemented!</li>
+        </ul>
+    </dd>
+    
+</dl>
+
+  
+
+  
+  
+
+
+</div>
+  
+    
+<!--LONGNAME: smx.Node#attr-->
+<div class="method  --is-mixed">
+
+  
+  
+      <h4 class="signature" id="attr">
+        <a class="permalink" href="#attr"></a>
+        <span class="signature__name">attr</span><!--
+        --><span class="signature__params"><span class="par">(</span>name<span class="par">)</span></span><span class="signature__returns"> &rarr; {String}</span>
+        <!--<span class="signature__attribs"></span>-->
+      </h4>
+      
+      
+      
+  
+  
+  <div class="details-mini">
+    
+
+
+    
+
+<div class="source-links">
+  source: <a href="document_Node-Attributes.js.html">document/Node-Attributes.js</a>, <a href="document_Node-Attributes.js.html#line20">line 20</a>
+</div>
+
+  </div>
+  
+  
+  <div class="description">
+      <p>Gets the value for the given attribute name.</p>
+  </div>
+  
+
+  
+
+  
+  
+  
+  
+  
+      <h5>Parameters</h5>
+      
+
+
+<div class="params">
+<ul>
+
+
+    <li>
+      
+      <span class="name">
+      <code><!--
+      
+      
+      -->name<!--
+      
+      
+      --></code>
+      </span>
+      
+      
+      <span class="type">
+      <code><!--
+        -->
+{String}<!--
+      --></code>
+      </span>
+      
+      
+      
+      <span class="description">: <p>attribute name</p></span>
+      
+      
+      
+      
+    </li>
+
+
+</ul>
+</div>
+
+  
+  
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <!--
+  
+  
+          
+<div class="param-desc">
+    <p>value</p>
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+{String}
+    </dd>
+</dl>
+
+      
+  -->
+  
+    <h5>Returns</h5>
+    
+
+
+<div class="params">
+<ul>
+
+
+    <li>
+      
+      <span class="name">
+      <code><!--
+      
+      
+      --><!--
+      
+      
+      --></code>
+      </span>
+      
+      
+      <span class="type">
+      <code><!--
+        -->
+{String}<!--
+      --></code>
+      </span>
+      
+      
+      
+      <span class="description">: <p>value</p></span>
+      
+      
+      
+      
+    </li>
+
+
+</ul>
+</div>
+
+  
+
+  
+  
+    
+
+
+
+<h5>Details:</h5>
+<dl class="details">
+
+    <!--
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="document_Node-Attributes.js.html">document/Node-Attributes.js</a>, <a href="document_Node-Attributes.js.html#line20">line 20</a>
+    </li></ul></dd>
+    
+    -->
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <dt class="mixes">Mixes In:</dt>
+
+        <dd class="mixes"><ul>
+        
+            <li><a href="Node-Attributes.html#.attr">Node-Attributes.attr</a></li>
+        
+        </ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+  
+
+  
+      <h5>Example</h5>
+      
+
+
+  
+  <pre class="prettyprint"><code>//&lt;movie tags="sci-fi, horror, adventures" />
+$movie.attr('tags')
+// => "sci-fi, horror, adventures"</code></pre>
+
+
+
+  
+  
+
+
+</div>
+  
+    
+<!--LONGNAME: smx.Node#get-->
+<div class="method  --is-mixed">
+
+  
+  
+      <h4 class="signature" id="get">
+        <a class="permalink" href="#get"></a>
+        <span class="signature__name">get</span><!--
+        --><span class="signature__params"><span class="par">(</span>name, [opt]<span class="par">)</span></span><span class="signature__returns"> &rarr; {String}</span>
+        <!--<span class="signature__attribs"></span>-->
+      </h4>
+      
+      
+      
+  
+  
+  <div class="details-mini">
+    
+
+
+    
+
+<div class="source-links">
+  source: <a href="document_Node-Attributes.js.html">document/Node-Attributes.js</a>, <a href="document_Node-Attributes.js.html#line35">line 35</a>
+</div>
+
+  </div>
+  
+  
+  <div class="description">
+      <p>This method is like <code>attr</code> but will use an attribute parser if there is
+one predefined for the given attribute name.</p>
+  </div>
+  
+
+  
+
+  
+  
+  
+  
+  
+      <h5>Parameters</h5>
+      
+
+
+<div class="params">
+<ul>
+
+
+    <li>
+      
+      <span class="name">
+      <code><!--
+      
+      
+      -->name<!--
+      
+      
+      --></code>
+      </span>
+      
+      
+      <span class="type">
+      <code><!--
+        -->
+{String}<!--
+      --></code>
+      </span>
+      
+      
+      
+      <span class="description">: <p>attribute name</p></span>
+      
+      
+      
+      
+    </li>
+
+
+
+    <li>
+      
+      <span class="name">
+      <code><!--
+      
+      -->[<!--
+      -->opt<!--
+      
+      -->]<!--
+      --></code>
+      </span>
+      
+      
+      <span class="type">
+      <code><!--
+        -->
+{Object}<!--
+      --></code>
+      </span>
+      
+      
+      
+      <span class="description">: <p>options to pass into attribute parser</p></span>
+      
+      
+      
+      
+    </li>
+
+
+</ul>
+</div>
+
+  
+  
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <!--
+  
+  
+          
+<div class="param-desc">
+    <p>value</p>
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+{String}
+    </dd>
+</dl>
+
+      
+  -->
+  
+    <h5>Returns</h5>
+    
+
+
+<div class="params">
+<ul>
+
+
+    <li>
+      
+      <span class="name">
+      <code><!--
+      
+      
+      --><!--
+      
+      
+      --></code>
+      </span>
+      
+      
+      <span class="type">
+      <code><!--
+        -->
+{String}<!--
+      --></code>
+      </span>
+      
+      
+      
+      <span class="description">: <p>value</p></span>
+      
+      
+      
+      
+    </li>
+
+
+</ul>
+</div>
+
+  
+
+  
+  
+    
+
+
+
+<h5>Details:</h5>
+<dl class="details">
+
+    <!--
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="document_Node-Attributes.js.html">document/Node-Attributes.js</a>, <a href="document_Node-Attributes.js.html#line35">line 35</a>
+    </li></ul></dd>
+    
+    -->
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <dt class="mixes">Mixes In:</dt>
+
+        <dd class="mixes"><ul>
+        
+            <li><a href="Node-Attributes.html#.get">Node-Attributes.get</a></li>
+        
+        </ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+  
+
+  
+  
+
+
+</div>
+  
+    
+<!--LONGNAME: smx.Node#has-->
+<div class="method  --is-mixed">
+
+  
+  
+      <h4 class="signature" id="has">
+        <a class="permalink" href="#has"></a>
+        <span class="signature__name">has</span><!--
+        --><span class="signature__params"><span class="par">(</span>name<span class="par">)</span></span><span class="signature__returns"> &rarr; {Boolean}</span>
+        <!--<span class="signature__attribs"></span>-->
+      </h4>
+      
+      
+      
+  
+  
+  <div class="details-mini">
+    
+
+
+    
+
+<div class="source-links">
+  source: <a href="document_Node-Attributes.js.html">document/Node-Attributes.js</a>, <a href="document_Node-Attributes.js.html#line51">line 51</a>
+</div>
+
+  </div>
+  
+  
+  <div class="description">
+      <p>Checks if node has or not an attribute with the given name</p>
+  </div>
+  
+
+  
+
+  
+  
+  
+  
+  
+      <h5>Parameters</h5>
+      
+
+
+<div class="params">
+<ul>
+
+
+    <li>
+      
+      <span class="name">
+      <code><!--
+      
+      
+      -->name<!--
+      
+      
+      --></code>
+      </span>
+      
+      
+      <span class="type">
+      <code><!--
+        -->
+{String}<!--
+      --></code>
+      </span>
+      
+      
+      
+      <span class="description">: <p>attribute name</p></span>
+      
+      
+      
+      
+    </li>
+
+
+</ul>
+</div>
+
+  
+  
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <!--
+  
+  
+          
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+{Boolean}
+    </dd>
+</dl>
+
+      
+  -->
+  
+    <h5>Returns</h5>
+    
+
+
+<div class="params">
+<ul>
+
+
+    <li>
+      
+      <span class="name">
+      <code><!--
+      
+      
+      --><!--
+      
+      
+      --></code>
+      </span>
+      
+      
+      <span class="type">
+      <code><!--
+        -->
+{Boolean}<!--
+      --></code>
+      </span>
+      
+      
+      
+      
+      
+      
+    </li>
+
+
+</ul>
+</div>
+
+  
+
+  
+  
+    
+
+
+
+<h5>Details:</h5>
+<dl class="details">
+
+    <!--
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="document_Node-Attributes.js.html">document/Node-Attributes.js</a>, <a href="document_Node-Attributes.js.html#line51">line 51</a>
+    </li></ul></dd>
+    
+    -->
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <dt class="mixes">Mixes In:</dt>
+
+        <dd class="mixes"><ul>
+        
+            <li><a href="Node-Attributes.html#.has">Node-Attributes.has</a></li>
+        
+        </ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+  
+
+  
+  
+
+
+</div>
+  
+    
+<!--LONGNAME: smx.Node#dsv-->
+<div class="method  --is-mixed">
+
+  
+  
+      <h4 class="signature" id="dsv">
+        <a class="permalink" href="#dsv"></a>
+        <span class="signature__name">dsv</span><!--
+        --><span class="signature__params"><span class="par">(</span>name, [delimiter]<span class="par">)</span></span><span class="signature__returns"> &rarr; {Array.&lt;String>}</span>
+        <!--<span class="signature__attribs"></span>-->
+      </h4>
+      
+      
+      
+  
+  
+  <div class="details-mini">
+    
+
+
+    
+
+<div class="source-links">
+  source: <a href="document_Node-Attributes.js.html">document/Node-Attributes.js</a>, <a href="document_Node-Attributes.js.html#line66">line 66</a>
+</div>
+
+  </div>
+  
+  
+  <div class="description">
+      <p>Gets Delimiter Separated Value
+An utility method converts given attribute value into dsv array</p>
+  </div>
+  
+
+  
+
+  
+  
+  
+  
+  
+      <h5>Parameters</h5>
+      
+
+
+<div class="params">
+<ul>
+
+
+    <li>
+      
+      <span class="name">
+      <code><!--
+      
+      
+      -->name<!--
+      
+      
+      --></code>
+      </span>
+      
+      
+      <span class="type">
+      <code><!--
+        -->
+{String}<!--
+      --></code>
+      </span>
+      
+      
+      
+      <span class="description">: <p>the name of the attribute</p></span>
+      
+      
+      
+      
+    </li>
+
+
+
+    <li>
+      
+      <span class="name">
+      <code><!--
+      
+      -->[<!--
+      -->delimiter<!--
+      
+      -->]<!--
+      --></code>
+      </span>
+      
+      
+      <span class="type">
+      <code><!--
+        -->
+{String}<!--
+      --></code>
+      </span>
+      
+      
+      
+      <span class="description">: <p>delimiter string</p></span>
+      
+      
+      
+      
+    </li>
+
+
+</ul>
+</div>
+
+  
+  
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <!--
+  
+  
+          
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+{Array.&lt;String>}
+    </dd>
+</dl>
+
+      
+  -->
+  
+    <h5>Returns</h5>
+    
+
+
+<div class="params">
+<ul>
+
+
+    <li>
+      
+      <span class="name">
+      <code><!--
+      
+      
+      --><!--
+      
+      
+      --></code>
+      </span>
+      
+      
+      <span class="type">
+      <code><!--
+        -->
+{Array.&lt;String>}<!--
+      --></code>
+      </span>
+      
+      
+      
+      
+      
+      
+    </li>
+
+
+</ul>
+</div>
+
+  
+
+  
+  
+    
+
+
+
+<h5>Details:</h5>
+<dl class="details">
+
+    <!--
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="document_Node-Attributes.js.html">document/Node-Attributes.js</a>, <a href="document_Node-Attributes.js.html#line66">line 66</a>
+    </li></ul></dd>
+    
+    -->
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <dt class="mixes">Mixes In:</dt>
+
+        <dd class="mixes"><ul>
+        
+            <li><a href="Node-Attributes.html#.dsv">Node-Attributes.dsv</a></li>
+        
+        </ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+  
+
+  
+      <h5>Example</h5>
+      
+
+
+  
+  <pre class="prettyprint"><code>//&lt;movie tags="sci-fi, horror, adventures">
+$movie.dsv('tags',',')
+// => ["sci-fi", "horror", "adventures"]</code></pre>
+
+
+
+  
+  
+
+
+</div>
+  
+    
+<!--LONGNAME: smx.Node#getAncestors-->
+<div class="method  --is-mixed">
+
+  
+  
+      <h4 class="signature" id="getAncestors">
+        <a class="permalink" href="#getAncestors"></a>
+        <span class="signature__name">getAncestors</span><!--
+        --><span class="signature__params"><span class="par">(</span>selector<span class="par">)</span></span><span class="signature__returns"> &rarr; {Array.&lt;<a href="smx.Node.html">smx.Node</a>>}</span>
+        <!--<span class="signature__attribs"></span>-->
+      </h4>
+      
+      
+      
+  
+  
+  <div class="details-mini">
+    
+
+
+    
+
+<div class="source-links">
+  source: <a href="document_Node-Traversal.js.html">document/Node-Traversal.js</a>, <a href="document_Node-Traversal.js.html#line17">line 17</a>
+</div>
+
+  </div>
+  
+  
+  <div class="description">
+      <p>Gets a list of all ancestor nodes matching the given selector, ordered from outer to inner.</p>
+  </div>
+  
+
+  
+
+  
+  
+  
+  
+  
+      <h5>Parameters</h5>
+      
+
+
+<div class="params">
+<ul>
+
+
+    <li>
+      
+      <span class="name">
+      <code><!--
+      
+      
+      -->selector<!--
+      
+      
+      --></code>
+      </span>
+      
+      
+      <span class="type">
+      <code><!--
+        -->
+{String}<!--
+      --></code>
+      </span>
+      
+      
+      
+      
+      
+      
+    </li>
+
+
+</ul>
+</div>
+
+  
+  
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <!--
+  
+  
+          
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+{Array.&lt;<a href="smx.Node.html">smx.Node</a>>}
+    </dd>
+</dl>
+
+      
+  -->
+  
+    <h5>Returns</h5>
+    
+
+
+<div class="params">
+<ul>
+
+
+    <li>
+      
+      <span class="name">
+      <code><!--
+      
+      
+      --><!--
+      
+      
+      --></code>
+      </span>
+      
+      
+      <span class="type">
+      <code><!--
+        -->
+{Array.&lt;<a href="smx.Node.html">smx.Node</a>>}<!--
+      --></code>
+      </span>
+      
+      
+      
+      
+      
+      
+    </li>
+
+
+</ul>
+</div>
+
+  
+
+  
+  
+    
+
+
+
+<h5>Details:</h5>
+<dl class="details">
+
+    <!--
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="document_Node-Traversal.js.html">document/Node-Traversal.js</a>, <a href="document_Node-Traversal.js.html#line17">line 17</a>
+    </li></ul></dd>
+    
+    -->
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <dt class="mixes">Mixes In:</dt>
+
+        <dd class="mixes"><ul>
+        
+            <li><a href="Node-Traversal.html#.getAncestors">Node-Traversal.getAncestors</a></li>
+        
+        </ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+  
+
+  
+  
+
+
+</div>
+  
+    
+<!--LONGNAME: smx.Node#isAncestorOf-->
+<div class="method  --is-mixed">
+
+  
+  
+      <h4 class="signature" id="isAncestorOf">
+        <a class="permalink" href="#isAncestorOf"></a>
+        <span class="signature__name">isAncestorOf</span><!--
+        --><span class="signature__params"><span class="par">(</span>node<span class="par">)</span></span><span class="signature__returns"> &rarr; {Boolean}</span>
+        <!--<span class="signature__attribs"></span>-->
+      </h4>
+      
+      
+      
+  
+  
+  <div class="details-mini">
+    
+
+
+    
+
+<div class="source-links">
+  source: <a href="document_Node-Traversal.js.html">document/Node-Traversal.js</a>, <a href="document_Node-Traversal.js.html#line32">line 32</a>
+</div>
+
+  </div>
+  
+  
+  <div class="description">
+      <p>Checks if node is an ancestor of another.</p>
+  </div>
+  
+
+  
+
+  
+  
+  
+  
+  
+      <h5>Parameters</h5>
+      
+
+
+<div class="params">
+<ul>
+
+
+    <li>
+      
+      <span class="name">
+      <code><!--
+      
+      
+      -->node<!--
+      
+      
+      --></code>
+      </span>
+      
+      
+      <span class="type">
+      <code><!--
+        -->
+{<a href="smx.Node.html">smx.Node</a>}<!--
+      --></code>
+      </span>
+      
+      
+      
+      <span class="description">: <p>reference node</p></span>
+      
+      
+      
+      
+    </li>
+
+
+</ul>
+</div>
+
+  
+  
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <!--
+  
+  
+          
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+{Boolean}
+    </dd>
+</dl>
+
+      
+  -->
+  
+    <h5>Returns</h5>
+    
+
+
+<div class="params">
+<ul>
+
+
+    <li>
+      
+      <span class="name">
+      <code><!--
+      
+      
+      --><!--
+      
+      
+      --></code>
+      </span>
+      
+      
+      <span class="type">
+      <code><!--
+        -->
+{Boolean}<!--
+      --></code>
+      </span>
+      
+      
+      
+      
+      
+      
+    </li>
+
+
+</ul>
+</div>
+
+  
+
+  
+  
+    
+
+
+
+<h5>Details:</h5>
+<dl class="details">
+
+    <!--
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="document_Node-Traversal.js.html">document/Node-Traversal.js</a>, <a href="document_Node-Traversal.js.html#line32">line 32</a>
+    </li></ul></dd>
+    
+    -->
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <dt class="mixes">Mixes In:</dt>
+
+        <dd class="mixes"><ul>
+        
+            <li><a href="Node-Traversal.html#.isAncestorOf">Node-Traversal.isAncestorOf</a></li>
+        
+        </ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+  
+
+  
+  
+
+
+</div>
+  
+    
+<!--LONGNAME: smx.Node#isMatch-->
+<div class="method  --is-mixed">
+
+  
+  
+      <h4 class="signature" id="isMatch">
+        <a class="permalink" href="#isMatch"></a>
+        <span class="signature__name">isMatch</span><!--
+        --><span class="signature__params"><span class="par">(</span>selector<span class="par">)</span></span><span class="signature__returns"> &rarr; {Boolean}</span>
+        <!--<span class="signature__attribs"></span>-->
+      </h4>
+      
+      
+      
+  
+  
+  <div class="details-mini">
+    
+
+
+    
+
+<div class="source-links">
+  source: <a href="document_Node-Traversal.js.html">document/Node-Traversal.js</a>, <a href="document_Node-Traversal.js.html#line48">line 48</a>
+</div>
+
+  </div>
+  
+  
+  <div class="description">
+      <p>Checks if node matches the given selector.</p>
+  </div>
+  
+
+  
+
+  
+  
+  
+  
+  
+      <h5>Parameters</h5>
+      
+
+
+<div class="params">
+<ul>
+
+
+    <li>
+      
+      <span class="name">
+      <code><!--
+      
+      
+      -->selector<!--
+      
+      
+      --></code>
+      </span>
+      
+      
+      <span class="type">
+      <code><!--
+        -->
+{String}<!--
+      --></code>
+      </span>
+      
+      
+      
+      <span class="description">: <p>css selector to match</p></span>
+      
+      
+      
+      
+    </li>
+
+
+</ul>
+</div>
+
+  
+  
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <!--
+  
+  
+          
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+{Boolean}
+    </dd>
+</dl>
+
+      
+  -->
+  
+    <h5>Returns</h5>
+    
+
+
+<div class="params">
+<ul>
+
+
+    <li>
+      
+      <span class="name">
+      <code><!--
+      
+      
+      --><!--
+      
+      
+      --></code>
+      </span>
+      
+      
+      <span class="type">
+      <code><!--
+        -->
+{Boolean}<!--
+      --></code>
+      </span>
+      
+      
+      
+      
+      
+      
+    </li>
+
+
+</ul>
+</div>
+
+  
+
+  
+  
+    
+
+
+
+<h5>Details:</h5>
+<dl class="details">
+
+    <!--
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="document_Node-Traversal.js.html">document/Node-Traversal.js</a>, <a href="document_Node-Traversal.js.html#line48">line 48</a>
+    </li></ul></dd>
+    
+    -->
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <dt class="mixes">Mixes In:</dt>
+
+        <dd class="mixes"><ul>
+        
+            <li><a href="Node-Traversal.html#.isMatch">Node-Traversal.isMatch</a></li>
+        
+        </ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+  
+
+  
+  
+
+
+</div>
+  
+    
+<!--LONGNAME: smx.Node#find-->
+<div class="method  --is-mixed">
+
+  
+  
+      <h4 class="signature" id="find">
+        <a class="permalink" href="#find"></a>
+        <span class="signature__name">find</span><!--
+        --><span class="signature__params"><span class="par">(</span>selector<span class="par">)</span></span><span class="signature__returns"> &rarr; {Array.&lt;Node>}</span>
+        <!--<span class="signature__attribs"></span>-->
+      </h4>
+      
+      
+      
+  
+  
+  <div class="details-mini">
+    
+
+
+    
+
+<div class="source-links">
+  source: <a href="document_Node-Traversal.js.html">document/Node-Traversal.js</a>, <a href="document_Node-Traversal.js.html#line62">line 62</a>
+</div>
+
+  </div>
+  
+  
+  <div class="description">
+      <p>Finds all descendant nodes matching the given selector.</p>
+  </div>
+  
+
+  
+
+  
+  
+  
+  
+  
+      <h5>Parameters</h5>
+      
+
+
+<div class="params">
+<ul>
+
+
+    <li>
+      
+      <span class="name">
+      <code><!--
+      
+      
+      -->selector<!--
+      
+      
+      --></code>
+      </span>
+      
+      
+      <span class="type">
+      <code><!--
+        -->
+{String}<!--
+      --></code>
+      </span>
+      
+      
+      
+      <span class="description">: <p>search selector</p></span>
+      
+      
+      
+      
+    </li>
+
+
+</ul>
+</div>
+
+  
+  
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <!--
+  
+  
+          
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+{Array.&lt;Node>}
+    </dd>
+</dl>
+
+      
+  -->
+  
+    <h5>Returns</h5>
+    
+
+
+<div class="params">
+<ul>
+
+
+    <li>
+      
+      <span class="name">
+      <code><!--
+      
+      
+      --><!--
+      
+      
+      --></code>
+      </span>
+      
+      
+      <span class="type">
+      <code><!--
+        -->
+{Array.&lt;Node>}<!--
+      --></code>
+      </span>
+      
+      
+      
+      
+      
+      
+    </li>
+
+
+</ul>
+</div>
+
+  
+
+  
+  
+    
+
+
+
+<h5>Details:</h5>
+<dl class="details">
+
+    <!--
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="document_Node-Traversal.js.html">document/Node-Traversal.js</a>, <a href="document_Node-Traversal.js.html#line62">line 62</a>
+    </li></ul></dd>
+    
+    -->
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <dt class="mixes">Mixes In:</dt>
+
+        <dd class="mixes"><ul>
+        
+            <li><a href="Node-Traversal.html#.find">Node-Traversal.find</a></li>
+        
+        </ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+  
+
+  
+  
+
+
+</div>
+  
+    
+<!--LONGNAME: smx.Node#findOne-->
+<div class="method  --is-mixed">
+
+  
+  
+      <h4 class="signature" id="findOne">
+        <a class="permalink" href="#findOne"></a>
+        <span class="signature__name">findOne</span><!--
+        --><span class="signature__params"><span class="par">(</span>selector<span class="par">)</span></span><span class="signature__returns"> &rarr; {<a href="smx.Node.html">smx.Node</a>}</span>
+        <!--<span class="signature__attribs"></span>-->
+      </h4>
+      
+      
+      
+  
+  
+  <div class="details-mini">
+    
+
+
+    
+
+<div class="source-links">
+  source: <a href="document_Node-Traversal.js.html">document/Node-Traversal.js</a>, <a href="document_Node-Traversal.js.html#line78">line 78</a>
+</div>
+
+  </div>
+  
+  
+  <div class="description">
+      <p>This method is like <code>find</code> but returns only the first result.</p>
+  </div>
+  
+
+  
+
+  
+  
+  
+  
+  
+      <h5>Parameters</h5>
+      
+
+
+<div class="params">
+<ul>
+
+
+    <li>
+      
+      <span class="name">
+      <code><!--
+      
+      
+      -->selector<!--
+      
+      
+      --></code>
+      </span>
+      
+      
+      <span class="type">
+      <code><!--
+        -->
+{String}<!--
+      --></code>
+      </span>
+      
+      
+      
+      <span class="description">: <p>search selector</p></span>
+      
+      
+      
+      
+    </li>
+
+
+</ul>
+</div>
+
+  
+  
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <!--
+  
+  
+          
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+{<a href="smx.Node.html">smx.Node</a>}
+    </dd>
+</dl>
+
+      
+  -->
+  
+    <h5>Returns</h5>
+    
+
+
+<div class="params">
+<ul>
+
+
+    <li>
+      
+      <span class="name">
+      <code><!--
+      
+      
+      --><!--
+      
+      
+      --></code>
+      </span>
+      
+      
+      <span class="type">
+      <code><!--
+        -->
+{<a href="smx.Node.html">smx.Node</a>}<!--
+      --></code>
+      </span>
+      
+      
+      
+      
+      
+      
+    </li>
+
+
+</ul>
+</div>
+
+  
+
+  
+  
+    
+
+
+
+<h5>Details:</h5>
+<dl class="details">
+
+    <!--
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="document_Node-Traversal.js.html">document/Node-Traversal.js</a>, <a href="document_Node-Traversal.js.html#line78">line 78</a>
+    </li></ul></dd>
+    
+    -->
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <dt class="mixes">Mixes In:</dt>
+
+        <dd class="mixes"><ul>
+        
+            <li><a href="Node-Traversal.html#.findOne">Node-Traversal.findOne</a></li>
+        
+        </ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+  
+
+  
+  
+
+
+</div>
+  
+    
+<!--LONGNAME: smx.Node#getChildren-->
+<div class="method  --is-mixed">
+
+  
+  
+      <h4 class="signature" id="getChildren">
+        <a class="permalink" href="#getChildren"></a>
+        <span class="signature__name">getChildren</span><!--
+        --><span class="signature__params"><span class="par">(</span>[selector]<span class="par">)</span></span><span class="signature__returns"> &rarr; {Array.&lt;Node>}</span>
+        <!--<span class="signature__attribs"></span>-->
+      </h4>
+      
+      
+      
+  
+  
+  <div class="details-mini">
+    
+
+
+    
+
+<div class="source-links">
+  source: <a href="document_Node-Traversal.js.html">document/Node-Traversal.js</a>, <a href="document_Node-Traversal.js.html#line92">line 92</a>
+</div>
+
+  </div>
+  
+  
+  <div class="description">
+      <p>Gets the children nodes matching the given selector.</p>
+  </div>
+  
+
+  
+
+  
+  
+  
+  
+  
+      <h5>Parameters</h5>
+      
+
+
+<div class="params">
+<ul>
+
+
+    <li>
+      
+      <span class="name">
+      <code><!--
+      
+      -->[<!--
+      -->selector<!--
+      
+      -->]<!--
+      --></code>
+      </span>
+      
+      
+      <span class="type">
+      <code><!--
+        -->
+{String}<!--
+      --></code>
+      </span>
+      
+      
+      
+      
+      
+      
+    </li>
+
+
+</ul>
+</div>
+
+  
+  
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <!--
+  
+  
+          
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+{Array.&lt;Node>}
+    </dd>
+</dl>
+
+      
+  -->
+  
+    <h5>Returns</h5>
+    
+
+
+<div class="params">
+<ul>
+
+
+    <li>
+      
+      <span class="name">
+      <code><!--
+      
+      
+      --><!--
+      
+      
+      --></code>
+      </span>
+      
+      
+      <span class="type">
+      <code><!--
+        -->
+{Array.&lt;Node>}<!--
+      --></code>
+      </span>
+      
+      
+      
+      
+      
+      
+    </li>
+
+
+</ul>
+</div>
+
+  
+
+  
+  
+    
+
+
+
+<h5>Details:</h5>
+<dl class="details">
+
+    <!--
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="document_Node-Traversal.js.html">document/Node-Traversal.js</a>, <a href="document_Node-Traversal.js.html#line92">line 92</a>
+    </li></ul></dd>
+    
+    -->
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <dt class="mixes">Mixes In:</dt>
+
+        <dd class="mixes"><ul>
+        
+            <li><a href="Node-Traversal.html#.getChildren">Node-Traversal.getChildren</a></li>
+        
+        </ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+  
+
+  
+  
+
+
+</div>
+  
+    
+<!--LONGNAME: smx.Node#getFirst-->
+<div class="method  --is-mixed">
+
+  
+  
+      <h4 class="signature" id="getFirst">
+        <a class="permalink" href="#getFirst"></a>
+        <span class="signature__name">getFirst</span><!--
+        --><span class="signature__params"><span class="par">(</span>[selector]<span class="par">)</span></span><span class="signature__returns"> &rarr; {<a href="smx.Node.html">smx.Node</a>}</span>
+        <!--<span class="signature__attribs"></span>-->
+      </h4>
+      
+      
+      
+  
+  
+  <div class="details-mini">
+    
+
+
+    
+
+<div class="source-links">
+  source: <a href="document_Node-Traversal.js.html">document/Node-Traversal.js</a>, <a href="document_Node-Traversal.js.html#line107">line 107</a>
+</div>
+
+  </div>
+  
+  
+  <div class="description">
+      <p>Gets the first child node matching the given selector.</p>
+  </div>
+  
+
+  
+
+  
+  
+  
+  
+  
+      <h5>Parameters</h5>
+      
+
+
+<div class="params">
+<ul>
+
+
+    <li>
+      
+      <span class="name">
+      <code><!--
+      
+      -->[<!--
+      -->selector<!--
+      
+      -->]<!--
+      --></code>
+      </span>
+      
+      
+      <span class="type">
+      <code><!--
+        -->
+{String}<!--
+      --></code>
+      </span>
+      
+      
+      
+      
+      
+      
+    </li>
+
+
+</ul>
+</div>
+
+  
+  
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <!--
+  
+  
+          
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+{<a href="smx.Node.html">smx.Node</a>}
+    </dd>
+</dl>
+
+      
+  -->
+  
+    <h5>Returns</h5>
+    
+
+
+<div class="params">
+<ul>
+
+
+    <li>
+      
+      <span class="name">
+      <code><!--
+      
+      
+      --><!--
+      
+      
+      --></code>
+      </span>
+      
+      
+      <span class="type">
+      <code><!--
+        -->
+{<a href="smx.Node.html">smx.Node</a>}<!--
+      --></code>
+      </span>
+      
+      
+      
+      
+      
+      
+    </li>
+
+
+</ul>
+</div>
+
+  
+
+  
+  
+    
+
+
+
+<h5>Details:</h5>
+<dl class="details">
+
+    <!--
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="document_Node-Traversal.js.html">document/Node-Traversal.js</a>, <a href="document_Node-Traversal.js.html#line107">line 107</a>
+    </li></ul></dd>
+    
+    -->
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <dt class="mixes">Mixes In:</dt>
+
+        <dd class="mixes"><ul>
+        
+            <li><a href="Node-Traversal.html#.getFirst">Node-Traversal.getFirst</a></li>
+        
+        </ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+  
+
+  
+  
+
+
+</div>
+  
+    
+<!--LONGNAME: smx.Node#getLast-->
+<div class="method  --is-mixed">
+
+  
+  
+      <h4 class="signature" id="getLast">
+        <a class="permalink" href="#getLast"></a>
+        <span class="signature__name">getLast</span><!--
+        --><span class="signature__params"><span class="par">(</span>[selector]<span class="par">)</span></span><span class="signature__returns"> &rarr; {<a href="smx.Node.html">smx.Node</a>}</span>
+        <!--<span class="signature__attribs"></span>-->
+      </h4>
+      
+      
+      
+  
+  
+  <div class="details-mini">
+    
+
+
+    
+
+<div class="source-links">
+  source: <a href="document_Node-Traversal.js.html">document/Node-Traversal.js</a>, <a href="document_Node-Traversal.js.html#line130">line 130</a>
+</div>
+
+  </div>
+  
+  
+  <div class="description">
+      <p>Gets the last child node matching the given selector.</p>
+  </div>
+  
+
+  
+
+  
+  
+  
+  
+  
+      <h5>Parameters</h5>
+      
+
+
+<div class="params">
+<ul>
+
+
+    <li>
+      
+      <span class="name">
+      <code><!--
+      
+      -->[<!--
+      -->selector<!--
+      
+      -->]<!--
+      --></code>
+      </span>
+      
+      
+      <span class="type">
+      <code><!--
+        -->
+{String}<!--
+      --></code>
+      </span>
+      
+      
+      
+      
+      
+      
+    </li>
+
+
+</ul>
+</div>
+
+  
+  
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <!--
+  
+  
+          
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+{<a href="smx.Node.html">smx.Node</a>}
+    </dd>
+</dl>
+
+      
+  -->
+  
+    <h5>Returns</h5>
+    
+
+
+<div class="params">
+<ul>
+
+
+    <li>
+      
+      <span class="name">
+      <code><!--
+      
+      
+      --><!--
+      
+      
+      --></code>
+      </span>
+      
+      
+      <span class="type">
+      <code><!--
+        -->
+{<a href="smx.Node.html">smx.Node</a>}<!--
+      --></code>
+      </span>
+      
+      
+      
+      
+      
+      
+    </li>
+
+
+</ul>
+</div>
+
+  
+
+  
+  
+    
+
+
+
+<h5>Details:</h5>
+<dl class="details">
+
+    <!--
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="document_Node-Traversal.js.html">document/Node-Traversal.js</a>, <a href="document_Node-Traversal.js.html#line130">line 130</a>
+    </li></ul></dd>
+    
+    -->
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <dt class="mixes">Mixes In:</dt>
+
+        <dd class="mixes"><ul>
+        
+            <li><a href="Node-Traversal.html#.getLast">Node-Traversal.getLast</a></li>
+        
+        </ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+  
+
+  
+  
+
+
+</div>
+  
+    
+<!--LONGNAME: smx.Node#getChildAt-->
+<div class="method  --is-mixed">
+
+  
+  
+      <h4 class="signature" id="getChildAt">
+        <a class="permalink" href="#getChildAt"></a>
+        <span class="signature__name">getChildAt</span><!--
+        --><span class="signature__params"><span class="par">(</span>index<span class="par">)</span></span><span class="signature__returns"> &rarr; {<a href="smx.Node.html">smx.Node</a>}</span>
+        <!--<span class="signature__attribs"></span>-->
+      </h4>
+      
+      
+      
+  
+  
+  <div class="details-mini">
+    
+
+
+    
+
+<div class="source-links">
+  source: <a href="document_Node-Traversal.js.html">document/Node-Traversal.js</a>, <a href="document_Node-Traversal.js.html#line156">line 156</a>
+</div>
+
+  </div>
+  
+  
+  <div class="description">
+      <p>Gets child node at given index</p>
+  </div>
+  
+
+  
+
+  
+  
+  
+  
+  
+      <h5>Parameters</h5>
+      
+
+
+<div class="params">
+<ul>
+
+
+    <li>
+      
+      <span class="name">
+      <code><!--
+      
+      
+      -->index<!--
+      
+      
+      --></code>
+      </span>
+      
+      
+      <span class="type">
+      <code><!--
+        -->
+{Integer}<!--
+      --></code>
+      </span>
+      
+      
+      
+      <span class="description">: <p>index position</p></span>
+      
+      
+      
+      
+    </li>
+
+
+</ul>
+</div>
+
+  
+  
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <!--
+  
+  
+          
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+{<a href="smx.Node.html">smx.Node</a>}
+    </dd>
+</dl>
+
+      
+  -->
+  
+    <h5>Returns</h5>
+    
+
+
+<div class="params">
+<ul>
+
+
+    <li>
+      
+      <span class="name">
+      <code><!--
+      
+      
+      --><!--
+      
+      
+      --></code>
+      </span>
+      
+      
+      <span class="type">
+      <code><!--
+        -->
+{<a href="smx.Node.html">smx.Node</a>}<!--
+      --></code>
+      </span>
+      
+      
+      
+      
+      
+      
+    </li>
+
+
+</ul>
+</div>
+
+  
+
+  
+  
+    
+
+
+
+<h5>Details:</h5>
+<dl class="details">
+
+    <!--
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="document_Node-Traversal.js.html">document/Node-Traversal.js</a>, <a href="document_Node-Traversal.js.html#line156">line 156</a>
+    </li></ul></dd>
+    
+    -->
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <dt class="mixes">Mixes In:</dt>
+
+        <dd class="mixes"><ul>
+        
+            <li><a href="Node-Traversal.html#.getChildAt">Node-Traversal.getChildAt</a></li>
+        
+        </ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+  
+
+  
+  
+
+
+</div>
+  
+    
+<!--LONGNAME: smx.Node#isDescendantOf-->
+<div class="method  --is-mixed">
+
+  
+  
+      <h4 class="signature" id="isDescendantOf">
+        <a class="permalink" href="#isDescendantOf"></a>
+        <span class="signature__name">isDescendantOf</span><!--
+        --><span class="signature__params"><span class="par">(</span>node<span class="par">)</span></span><span class="signature__returns"> &rarr; {Boolean}</span>
+        <!--<span class="signature__attribs"></span>-->
+      </h4>
+      
+      
+      
+  
+  
+  <div class="details-mini">
+    
+
+
+    
+
+<div class="source-links">
+  source: <a href="document_Node-Traversal.js.html">document/Node-Traversal.js</a>, <a href="document_Node-Traversal.js.html#line169">line 169</a>
+</div>
+
+  </div>
+  
+  
+  <div class="description">
+      <p>Checks if a node is child of another</p>
+  </div>
+  
+
+  
+
+  
+  
+  
+  
+  
+      <h5>Parameters</h5>
+      
+
+
+<div class="params">
+<ul>
+
+
+    <li>
+      
+      <span class="name">
+      <code><!--
+      
+      
+      -->node<!--
+      
+      
+      --></code>
+      </span>
+      
+      
+      <span class="type">
+      <code><!--
+        -->
+{<a href="smx.Node.html">smx.Node</a>}<!--
+      --></code>
+      </span>
+      
+      
+      
+      <span class="description">: <p>reference node</p></span>
+      
+      
+      
+      
+    </li>
+
+
+</ul>
+</div>
+
+  
+  
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <!--
+  
+  
+          
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+{Boolean}
+    </dd>
+</dl>
+
+      
+  -->
+  
+    <h5>Returns</h5>
+    
+
+
+<div class="params">
+<ul>
+
+
+    <li>
+      
+      <span class="name">
+      <code><!--
+      
+      
+      --><!--
+      
+      
+      --></code>
+      </span>
+      
+      
+      <span class="type">
+      <code><!--
+        -->
+{Boolean}<!--
+      --></code>
+      </span>
+      
+      
+      
+      
+      
+      
+    </li>
+
+
+</ul>
+</div>
+
+  
+
+  
+  
+    
+
+
+
+<h5>Details:</h5>
+<dl class="details">
+
+    <!--
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="document_Node-Traversal.js.html">document/Node-Traversal.js</a>, <a href="document_Node-Traversal.js.html#line169">line 169</a>
+    </li></ul></dd>
+    
+    -->
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <dt class="mixes">Mixes In:</dt>
+
+        <dd class="mixes"><ul>
+        
+            <li><a href="Node-Traversal.html#.isDescendantOf">Node-Traversal.isDescendantOf</a></li>
+        
+        </ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+  
+
+  
+  
+
+
+</div>
+  
+    
+<!--LONGNAME: smx.Node#getNext-->
+<div class="method  --is-mixed">
+
+  
+  
+      <h4 class="signature" id="getNext">
+        <a class="permalink" href="#getNext"></a>
+        <span class="signature__name">getNext</span><!--
+        --><span class="signature__params"><span class="par">(</span>[selector]<span class="par">)</span></span><span class="signature__returns"> &rarr; {<a href="smx.Node.html">smx.Node</a>}</span>
+        <!--<span class="signature__attribs"></span>-->
+      </h4>
+      
+      
+      
+  
+  
+  <div class="details-mini">
+    
+
+
+    
+
+<div class="source-links">
+  source: <a href="document_Node-Traversal.js.html">document/Node-Traversal.js</a>, <a href="document_Node-Traversal.js.html#line188">line 188</a>
+</div>
+
+  </div>
+  
+  
+  <div class="description">
+      <p>Gets the next sibling node matching the given selector.</p>
+  </div>
+  
+
+  
+
+  
+  
+  
+  
+  
+      <h5>Parameters</h5>
+      
+
+
+<div class="params">
+<ul>
+
+
+    <li>
+      
+      <span class="name">
+      <code><!--
+      
+      -->[<!--
+      -->selector<!--
+      
+      -->]<!--
+      --></code>
+      </span>
+      
+      
+      <span class="type">
+      <code><!--
+        -->
+{String}<!--
+      --></code>
+      </span>
+      
+      
+      
+      <span class="description">: <p>filter selector</p></span>
+      
+      
+      
+      
+    </li>
+
+
+</ul>
+</div>
+
+  
+  
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <!--
+  
+  
+          
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+{<a href="smx.Node.html">smx.Node</a>}
+    </dd>
+</dl>
+
+      
+  -->
+  
+    <h5>Returns</h5>
+    
+
+
+<div class="params">
+<ul>
+
+
+    <li>
+      
+      <span class="name">
+      <code><!--
+      
+      
+      --><!--
+      
+      
+      --></code>
+      </span>
+      
+      
+      <span class="type">
+      <code><!--
+        -->
+{<a href="smx.Node.html">smx.Node</a>}<!--
+      --></code>
+      </span>
+      
+      
+      
+      
+      
+      
+    </li>
+
+
+</ul>
+</div>
+
+  
+
+  
+  
+    
+
+
+
+<h5>Details:</h5>
+<dl class="details">
+
+    <!--
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="document_Node-Traversal.js.html">document/Node-Traversal.js</a>, <a href="document_Node-Traversal.js.html#line188">line 188</a>
+    </li></ul></dd>
+    
+    -->
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <dt class="mixes">Mixes In:</dt>
+
+        <dd class="mixes"><ul>
+        
+            <li><a href="Node-Traversal.html#.getNext">Node-Traversal.getNext</a></li>
+        
+        </ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+  
+
+  
+  
+
+
+</div>
+  
+    
+<!--LONGNAME: smx.Node#getAllNext-->
+<div class="method  --is-mixed">
+
+  
+  
+      <h4 class="signature" id="getAllNext">
+        <a class="permalink" href="#getAllNext"></a>
+        <span class="signature__name">getAllNext</span><!--
+        --><span class="signature__params"><span class="par">(</span>[selector]<span class="par">)</span></span><span class="signature__returns"> &rarr; {Array.&lt;<a href="smx.Node.html">smx.Node</a>>}</span>
+        <!--<span class="signature__attribs"></span>-->
+      </h4>
+      
+      
+      
+  
+  
+  <div class="details-mini">
+    
+
+
+    
+
+<div class="source-links">
+  source: <a href="document_Node-Traversal.js.html">document/Node-Traversal.js</a>, <a href="document_Node-Traversal.js.html#line212">line 212</a>
+</div>
+
+  </div>
+  
+  
+  <div class="description">
+      <p>Gets all next sibling nodes matching the given selector.</p>
+  </div>
+  
+
+  
+
+  
+  
+  
+  
+  
+      <h5>Parameters</h5>
+      
+
+
+<div class="params">
+<ul>
+
+
+    <li>
+      
+      <span class="name">
+      <code><!--
+      
+      -->[<!--
+      -->selector<!--
+      
+      -->]<!--
+      --></code>
+      </span>
+      
+      
+      <span class="type">
+      <code><!--
+        -->
+{String}<!--
+      --></code>
+      </span>
+      
+      
+      
+      <span class="description">: <p>filter selector</p></span>
+      
+      
+      
+      
+    </li>
+
+
+</ul>
+</div>
+
+  
+  
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <!--
+  
+  
+          
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+{Array.&lt;<a href="smx.Node.html">smx.Node</a>>}
+    </dd>
+</dl>
+
+      
+  -->
+  
+    <h5>Returns</h5>
+    
+
+
+<div class="params">
+<ul>
+
+
+    <li>
+      
+      <span class="name">
+      <code><!--
+      
+      
+      --><!--
+      
+      
+      --></code>
+      </span>
+      
+      
+      <span class="type">
+      <code><!--
+        -->
+{Array.&lt;<a href="smx.Node.html">smx.Node</a>>}<!--
+      --></code>
+      </span>
+      
+      
+      
+      
+      
+      
+    </li>
+
+
+</ul>
+</div>
+
+  
+
+  
+  
+    
+
+
+
+<h5>Details:</h5>
+<dl class="details">
+
+    <!--
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="document_Node-Traversal.js.html">document/Node-Traversal.js</a>, <a href="document_Node-Traversal.js.html#line212">line 212</a>
+    </li></ul></dd>
+    
+    -->
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <dt class="mixes">Mixes In:</dt>
+
+        <dd class="mixes"><ul>
+        
+            <li><a href="Node-Traversal.html#.getAllNext">Node-Traversal.getAllNext</a></li>
+        
+        </ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+  
+
+  
+  
+
+
+</div>
+  
+    
+<!--LONGNAME: smx.Node#getPrevious-->
+<div class="method  --is-mixed">
+
+  
+  
+      <h4 class="signature" id="getPrevious">
+        <a class="permalink" href="#getPrevious"></a>
+        <span class="signature__name">getPrevious</span><!--
+        --><span class="signature__params"><span class="par">(</span>[selector]<span class="par">)</span></span><span class="signature__returns"> &rarr; {<a href="smx.Node.html">smx.Node</a>}</span>
+        <!--<span class="signature__attribs"></span>-->
+      </h4>
+      
+      
+      
+  
+  
+  <div class="details-mini">
+    
+
+
+    
+
+<div class="source-links">
+  source: <a href="document_Node-Traversal.js.html">document/Node-Traversal.js</a>, <a href="document_Node-Traversal.js.html#line237">line 237</a>
+</div>
+
+  </div>
+  
+  
+  <div class="description">
+      <p>Gets the previous sibling node matching the given selector.</p>
+  </div>
+  
+
+  
+
+  
+  
+  
+  
+  
+      <h5>Parameters</h5>
+      
+
+
+<div class="params">
+<ul>
+
+
+    <li>
+      
+      <span class="name">
+      <code><!--
+      
+      -->[<!--
+      -->selector<!--
+      
+      -->]<!--
+      --></code>
+      </span>
+      
+      
+      <span class="type">
+      <code><!--
+        -->
+{String}<!--
+      --></code>
+      </span>
+      
+      
+      
+      <span class="description">: <p>filter selector</p></span>
+      
+      
+      
+      
+    </li>
+
+
+</ul>
+</div>
+
+  
+  
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <!--
+  
+  
+          
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+{<a href="smx.Node.html">smx.Node</a>}
+    </dd>
+</dl>
+
+      
+  -->
+  
+    <h5>Returns</h5>
+    
+
+
+<div class="params">
+<ul>
+
+
+    <li>
+      
+      <span class="name">
+      <code><!--
+      
+      
+      --><!--
+      
+      
+      --></code>
+      </span>
+      
+      
+      <span class="type">
+      <code><!--
+        -->
+{<a href="smx.Node.html">smx.Node</a>}<!--
+      --></code>
+      </span>
+      
+      
+      
+      
+      
+      
+    </li>
+
+
+</ul>
+</div>
+
+  
+
+  
+  
+    
+
+
+
+<h5>Details:</h5>
+<dl class="details">
+
+    <!--
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="document_Node-Traversal.js.html">document/Node-Traversal.js</a>, <a href="document_Node-Traversal.js.html#line237">line 237</a>
+    </li></ul></dd>
+    
+    -->
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <dt class="mixes">Mixes In:</dt>
+
+        <dd class="mixes"><ul>
+        
+            <li><a href="Node-Traversal.html#.getPrevious">Node-Traversal.getPrevious</a></li>
+        
+        </ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+  
+
+  
+  
+
+
+</div>
+  
+    
+<!--LONGNAME: smx.Node#getAllPrevious-->
+<div class="method  --is-mixed">
+
+  
+  
+      <h4 class="signature" id="getAllPrevious">
+        <a class="permalink" href="#getAllPrevious"></a>
+        <span class="signature__name">getAllPrevious</span><!--
+        --><span class="signature__params"><span class="par">(</span>[selector]<span class="par">)</span></span><span class="signature__returns"> &rarr; {Array.&lt;<a href="smx.Node.html">smx.Node</a>>}</span>
+        <!--<span class="signature__attribs"></span>-->
+      </h4>
+      
+      
+      
+  
+  
+  <div class="details-mini">
+    
+
+
+    
+
+<div class="source-links">
+  source: <a href="document_Node-Traversal.js.html">document/Node-Traversal.js</a>, <a href="document_Node-Traversal.js.html#line261">line 261</a>
+</div>
+
+  </div>
+  
+  
+  <div class="description">
+      <p>Gets all previous sibling nodes matching the given selector.</p>
+  </div>
+  
+
+  
+
+  
+  
+  
+  
+  
+      <h5>Parameters</h5>
+      
+
+
+<div class="params">
+<ul>
+
+
+    <li>
+      
+      <span class="name">
+      <code><!--
+      
+      -->[<!--
+      -->selector<!--
+      
+      -->]<!--
+      --></code>
+      </span>
+      
+      
+      <span class="type">
+      <code><!--
+        -->
+{String}<!--
+      --></code>
+      </span>
+      
+      
+      
+      <span class="description">: <p>filter selector</p></span>
+      
+      
+      
+      
+    </li>
+
+
+</ul>
+</div>
+
+  
+  
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <!--
+  
+  
+          
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+{Array.&lt;<a href="smx.Node.html">smx.Node</a>>}
+    </dd>
+</dl>
+
+      
+  -->
+  
+    <h5>Returns</h5>
+    
+
+
+<div class="params">
+<ul>
+
+
+    <li>
+      
+      <span class="name">
+      <code><!--
+      
+      
+      --><!--
+      
+      
+      --></code>
+      </span>
+      
+      
+      <span class="type">
+      <code><!--
+        -->
+{Array.&lt;<a href="smx.Node.html">smx.Node</a>>}<!--
+      --></code>
+      </span>
+      
+      
+      
+      
+      
+      
+    </li>
+
+
+</ul>
+</div>
+
+  
+
+  
+  
+    
+
+
+
+<h5>Details:</h5>
+<dl class="details">
+
+    <!--
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="document_Node-Traversal.js.html">document/Node-Traversal.js</a>, <a href="document_Node-Traversal.js.html#line261">line 261</a>
+    </li></ul></dd>
+    
+    -->
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <dt class="mixes">Mixes In:</dt>
+
+        <dd class="mixes"><ul>
+        
+            <li><a href="Node-Traversal.html#.getAllPrevious">Node-Traversal.getAllPrevious</a></li>
+        
+        </ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+  
+
+  
+  
+
+
+</div>
+  
+  
 </section>
 
 
 
 
-</div>
 
-<div class="nav__overlay" onclick="$('body').removeClass('nav-visible');">
-</div>
+  
+  
+</article>
 
-<a class="nav__toggle" href="javascript:$('body').toggleClass('nav-visible');">
-  <i class="material-icons">menu</i>
-</a>
-
-<script>hljs.initHighlightingOnLoad();</script>
+<script>prettyPrint();</script>
+<!--<script src="scripts/linenumber.js"></script>-->
 </body>
 </html>

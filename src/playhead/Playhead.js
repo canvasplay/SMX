@@ -2,14 +2,18 @@ import Eventify from 'eventify';
 
 
 /**
-* SMX Playhead class
-* @memberof smx
-*/
+ * @memberof smx
+ * @desc
+ * The Playhead class is a {@link smx.Document Document} navigation controller.
+ *
+ * Provides a plain interface to navigate along a Document tree,
+ * keeps a navigation registry and emits useful events for listening
+ * to any movement.
+ */
 class Playhead{
 
 	/**
-	 * Create a playhead
-	 * @param {SMXDocument} document - The document to navigate through
+	 * @param {smx.Document} document - The document to navigate through
 	 */
 	constructor(doc){
     
@@ -21,14 +25,14 @@ class Playhead{
     
 		/**
 		 * The document to navigate through
-		 * @type {SMXDocument}
+		 * @type {smx.Document}
 		 * @private
 		 */
 		this._document = doc;
 		
 		/**
 		 * Contains all currently selected nodes ordered from outter to inner.
-		 * @type {SMXNode[]}
+		 * @type {smx.Node[]}
 		 * @private
 		 */
 		this._selection = [];
@@ -38,7 +42,7 @@ class Playhead{
 
 	/**
 	 * Gets the associated document
-	 * @type {SMXDocument}
+	 * @type {smx.Document}
 	 * @readonly
 	 */
 	get document(){
@@ -48,7 +52,7 @@ class Playhead{
 
 	/**
 	 * Gets all currently selected nodes ordered from outter to inner.
-	 * @type {SMXNode}
+	 * @type {smx.Node[]}
 	 * @readonly
 	 */
 	get selection() {
@@ -56,8 +60,8 @@ class Playhead{
 	}
 
 	/**
-	 * Gets the head node, which is the last node in the path.
-	 * @type {SMXNode}
+	 * Gets the head node, which is the last node in selection.
+	 * @type {smx.Node}
 	 * @readonly
 	 */
 	get head(){
@@ -65,8 +69,8 @@ class Playhead{
 	}
 
 	/**
-	 * Gets the root node, which is the first node in the path.
-	 * @type {SMXNode}
+	 * Gets the root node, which is the first node selection.
+	 * @type {smx.Node}
 	 * @readonly
 	 */
 	get root(){
@@ -82,7 +86,7 @@ class Playhead{
 
 	/**
 	 * Performs play action
-	 * @param {(String|SMXNode)=} ref target reference
+	 * @param {(String|smx.Node)=} ref target reference
 	 */
 	play(ref){
     
@@ -93,7 +97,7 @@ class Playhead{
 		var tnode = (ref.id)? ref : this.document.getNodeById(ref);
     
 		//not found? ignore...
-		if(tnode) return this.navigate(tnode,{});
+		if(tnode) return this.navigate(tnode);
 		
 		//else ignore
 		return;
@@ -101,7 +105,7 @@ class Playhead{
   }
   
   /**
-   * Navigates inside head's node.
+   * Navigates to an inner node, moves the head to current head's first child.
    */
   enter(){
     
@@ -117,13 +121,13 @@ class Playhead{
     //get first child
     var tnode = children[0];
     
-    //go to child node using known swap type and passing recived params
-    return this.navigate(tnode,{ 'type':'inside' });
+    //navigates to target node
+		return this.navigate(tnode);
     
   }
 
   /**
-   * Navigates outside head's node.
+   * Navigates to an outter node, moves the head to current head's parent.
    */
   exit(){
     
@@ -136,13 +140,13 @@ class Playhead{
     //get parent node
     var tnode = cnode.parent;
     
-    //go to child node using known swap type and passing recived params
-    return this.navigate(tnode,{ 'type':'outside' });
+    //navigates to target node
+		return this.navigate(tnode);
     
   }
 
 	/**
-	 * Navigates to head's next node.
+	 * Navigates to current head's next sibling node.
 	 */
   next(){
 		
@@ -152,13 +156,12 @@ class Playhead{
 		//get next node
 		var tnode = cnode.next; if (!tnode) return;
 		
-		//go to next node using known swap type
-		return this.navigate(tnode,{'type':'next'});
-		
+    //navigates to target node
+		return this.navigate(tnode);
 	}
 
 	/**
-	 * Navigates to head's previous node.
+	 * Navigates to current head's previous sibling node.
 	 */
 	previous(){
 		
@@ -168,13 +171,13 @@ class Playhead{
 		//get previous node
 		var tnode = cnode.previous; if (!tnode) return;
     
-		//go to previous node using known swap type and passing recived params
-		return this.navigate(tnode,{'type':'previous'});
+    //navigates to target node
+		return this.navigate(tnode);
 		
 	}
 	
 	/**
-	 * Navigates to head's next node in flat tree mode.
+	 * Navigates to current head's next node in flat tree mode.
 	 */
 	forward(){
 		
@@ -203,19 +206,26 @@ class Playhead{
 	}
   
 	/**
-   * Navigates to head's previous node in flat tree mode.
+   * Navigates to current head's previous node in flat tree mode.
 	 */
   backward(){
     
 		if(!this.head) return;
-    var tnode = this.head.previous || this.head.parent
+    var tnode = this.head.previous || this.head.parent;
     return (tnode)? this.navigate(tnode) : null;
     
 	}
 
 	/**
-	 * Executes a playhead action by keyword.
    * @param {String} keyword
+   * @desc
+	 * Executes a playhead command based on the given action keyword. keywords
+	 * are basically some playhead's method names.
+	 *
+	 * List of valid commands:
+	 * `reset`, `play`, `next`, `previous`,
+	 * `enter`, `exit`, `forward`, `backward`.
+	 *
 	 */
 	exec(keyword){
     	  
@@ -239,8 +249,33 @@ class Playhead{
 	}
 
 	/**
-	 * Navigates to given node using optional configuration.
-   * @param {String} target
+   * @param {String|smx.Node} target
+   * @desc
+   *
+	 * Navigates to a given target node or executes a playhead command.
+	 * If `target` is a node will navigate to it, if `target` is a string will
+	 * try to find a node identified as `target` and will navigate to it. If
+	 * `target` is a `!` preffixed string will execute it as a playhead command.
+	 *
+	 * See {@link smx.Playhead#exec .exec()} for a list of valid commands.
+	 *
+	 * @example
+	 * //instance a new Playhead
+	 * var playhead = new smx.Playhead(doc);
+	 *
+	 * //navigate by node identifier
+	 * playhead.navigate('a42');
+	 *
+	 * //to to given node
+	 * playhead.navigate(node);
+	 *
+	 * //using commands
+	 * playhead.navigate('!next')
+	 * //same as
+	 * playhead.exec('next')
+	 * // or
+	 * playhead.next();
+	 *
 	 */
   navigate(target){
 
@@ -252,7 +287,7 @@ class Playhead{
       return this.exec(target.substr(1));
     
 		//resolve target node by reference
-		//assuming having and id property means SMXNode...
+		//assuming having and id property means smx.Node...
     var tnode = (target.id) ? target : this.document.getNodeById(target);
     
     //no target found? error!
@@ -265,7 +300,7 @@ class Playhead{
 		//no need to move...
 		if(tnode === cnode) return cnode;
 		
-    //--> ASYNC ATTR CONDITIONAL NAVIGATION WAS HERE...
+    //--> LEGACY ASYNC ATTR CONDITIONAL NAVIGATION WAS HERE...
     //see leagacy playhead implementations for more info
     
     //resets private navigation registry
@@ -291,7 +326,7 @@ class Playhead{
 		}
 		else if(isDescendant){
 		  while(r!=tnode){
-		    r = r.children.filter(isNodeOrAncestorOf)[0]
+		    r = r.children.filter(isNodeOrAncestorOf)[0];
 		    selected.push(r);
 		  }
 		}
@@ -325,7 +360,7 @@ class Playhead{
     this.trigger('change',{
       selected: selected,
       deselected: deselected,
-      path: this._selection,
+      selection: this._selection,
       origin: cnode,
       target: tnode
     });
@@ -344,7 +379,7 @@ class Playhead{
 			
 		}
     
-		//--> NOSTOP ATTRIBUTE CONDITIONAL NAVIGATION WAS HERE...
+		//--> LEGACY CONDITIONAL NOSTOP ATTRIBUTE WAS HERE...
     //see leagacy playhead implementations for more info
     
 		//fire generic 'stay' event in resulting current node
@@ -362,80 +397,141 @@ class Playhead{
 		*/
 		
 	}
+	
 
-
-	/**
-	 * Fired when entering to any node
-	 * @event enter
-	 * @memberof smx.Playhead
-	 * @return {PlayheadEvent}
-	 */
-
-	/**
-	 * Fired just after `enter` but for a specific node
-	 * @event enter:id
-	 * @memberof smx.Playhead
-	 * @return {PlayheadEvent}
-	 */
-
-	/**
-	 * Fired when exiting from any node
-	 * @event exit
-	 * @memberof smx.Playhead
-	 * @return {PlayheadEvent}
-	 */
-
-	/**
-	 * Fired just after `exit` but for a specific node
-	 * @event exit:id
-	 * @memberof smx.Playhead
-	 * @return {PlayheadEvent}
-	 */
-
-	/**
-	 * Fired every time a head change occurs and stays on any node
-	 * @event stay
-	 * @memberof smx.Playhead
-	 * @return {PlayheadEvent}
-	 */
-
-	/**
-	 * Fired just after `stay` but for a specific node
-	 * @event stay:id
-	 * @memberof smx.Playhead
-	 * @return {PlayheadEvent}
-	 */
-
-	/**
-	 * Fired every time a node stops being the head
-	 * @event leave
-	 * @memberof smx.Playhead
-	 * @return {PlayheadEvent}
-	 */
-
-	/**
-	 * Fired just after `leave` but for a specific node
-	 * @event leave:id
-	 * @memberof smx.Playhead
-	 * @return {PlayheadEvent}
-	 */
-
-	/**
-	 * Fired every time the playhead finishes all operations and goes idle
-	 * @event ready
-	 * @memberof smx.Playhead
-	 * @return {PlayheadEvent}
-	 */
-
-	/**
-	 * Fired when playhed goes to sync mode
-	 * @event sync
-	 * @memberof smx.Playhead
-	 * @return {PlayheadEvent}
-	 */
 
 }
 
+//Doclets for Eventify extended methods
 
+/**
+ * Binds an event to a `callback` function. Passing `"all"` will bind
+ * the callback to all events fired.
+ * @memberof smx.Playhead
+ * @instance
+ * @method
+ * @name on
+ * @param {String} name
+ * @param {Function} callback
+ * @param {Object} context
+ */
+
+/**
+ * Binds an event to only be triggered a single time. After the first time
+ * the callback is invoked, it will be removed.
+ * @memberof smx.Playhead
+ * @instance
+ * @method
+ * @name once
+ * @param {String} name
+ * @param {Function} callback
+ * @param {Object} context
+ */
+
+/**
+ * Remove one or many callbacks. If `context` is null, removes all
+ * callbacks with that function. If `callback` is null, removes all
+ * callbacks for the event. If `name` is null, removes all bound
+ * callbacks for all events.
+ * @memberof smx.Playhead
+ * @instance
+ * @method
+ * @name off
+ * @param {String} name
+ * @param {Function} callback
+ * @param {Object} context
+ */
+
+
+//Doclet for PlayheadEvent definition
+/**
+ * Playhead Event Object
+ * @typedef {Object} smx.Playhead.PlayheadEvent
+ * @property {smx.Node[]} selected
+ * @property {smx.Node[]} deselected
+ * @property {smx.Node[]} selection
+ * @property {smx.Node} origin
+ * @property {smx.Node} target
+ */
+
+
+//Doclets for events
+
+/*
+ * Fired every time the head changes.
+ * @event change
+ * @memberof smx.Playhead
+ * @return {smx.Playhead.PlayheadEvent}
+ */
+
+/*
+ * Fired when entering to any node
+ * @event enter
+ * @memberof smx.Playhead
+ * @return {smx.Playhead.PlayheadEvent}
+ */
+
+/*
+ * Fired just after `enter` but for a specific node
+ * @event enter:id
+ * @memberof smx.Playhead
+ * @return {smx.Playhead.PlayheadEvent}
+ */
+
+/*
+ * Fired when exiting from any node
+ * @event exit
+ * @memberof smx.Playhead
+ * @return {smx.Playhead.PlayheadEvent}
+ */
+
+/*
+ * Fired just after `exit` but for a specific node
+ * @event exit:id
+ * @memberof smx.Playhead
+ * @return {smx.Playhead.PlayheadEvent}
+ */
+
+/*
+ * Fired every time a head change occurs and stays on any node
+ * @event stay
+ * @memberof smx.Playhead
+ * @return {smx.Playhead.PlayheadEvent}
+ */
+
+/*
+ * Fired just after `stay` but for a specific node
+ * @event stay:id
+ * @memberof smx.Playhead
+ * @return {smx.Playhead.PlayheadEvent}
+ */
+
+/*
+ * Fired every time a node stops being the head
+ * @event leave
+ * @memberof smx.Playhead
+ * @return {smx.Playhead.PlayheadEvent}
+ */
+
+/*
+ * Fired just after `leave` but for a specific node
+ * @event leave:id
+ * @memberof smx.Playhead
+ * @return {smx.Playhead.PlayheadEvent}
+ */
+
+/*
+ * Fired every time the playhead finishes all operations and goes idle
+ * @event ready
+ * @memberof smx.Playhead
+ * @return {smx.Playhead.PlayheadEvent}
+ */
+
+/*
+ * Fired when playhed goes to sync mode
+ * @event sync
+ * @memberof smx.Playhead
+ * @return {smx.Playhead.PlayheadEvent}
+ */
 
 export default Playhead;
